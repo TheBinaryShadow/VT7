@@ -193,7 +193,7 @@
     <value>Разделить область</value>
   </data>
   <data name="SplitPaneToolTipText" xml:space="preserve">
-    <value>Щелкните правой кнопкой мыши для направлений разделения — вправо, вниз, вверх, влево</value>
+    <value>Щелкните правой кнопкой мыши для направлений разделения - вправо, вниз, вверх, влево</value>
   </data>
   <data name="SplitPaneDownText" xml:space="preserve">
     <value>Разделить панель вниз</value>

@@ -1,62 +1,130 @@
-name: "Bug report 🐛"
-description: Report errors or unexpected behavior
-labels: [Issue-Bug, Needs-Triage]
-type: Bug
+name: Bug report
+description: Report reproducible incorrect behavior in VT7
+title: "[Bug] "
+labels: []
+assignees: []
 body:
-- type: markdown
-  attributes:
-    value: |
-      Please make sure to [search for existing issues](https://github.com/microsoft/terminal/issues) and [check the FAQ](https://github.com/microsoft/terminal/wiki/Frequently-Asked-Questions-(FAQ)) before filing a new one!
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping VT7 become dependable on Windows 7.
 
-      If this is an application crash, please provide a [Feedback Hub](https://aka.ms/terminal-feedback-hub) submission link so we can find your diagnostic data on the backend. Use the category "Apps > Windows Terminal" and choose "Share My Feedback" after submission to get the link.
+        VT7 is pre-alpha. Please search existing issues before reporting a problem. Do not include passwords, private keys, hostnames, usernames, or other sensitive data.
 
-- type: input
-  attributes:
-    label: Windows Terminal version
-    placeholder: "1.21.2701.0"
-    description: |
-      You can copy the version number from the About dialog. Open the About dialog by opening the menu with the "V" button (to the right of the "+" button that opens a new tab) and choosing About from the end of the list.
-  validations:
-    required: false
-    
-- type: input
-  attributes:
-    label: Windows build number
-    placeholder: "10.0.22621.0"
-    description: |
-      Please run `ver` or `[Environment]::OSVersion`.
-  validations:
-    required: false
+  - type: input
+    id: vt7_version
+    attributes:
+      label: VT7 version or commit
+      description: Enter the release version, full commit hash, or branch name.
+      placeholder: c7572cde0c69733e4511787dc963eb336f17adbf
+    validations:
+      required: true
 
-- type: textarea
-  attributes:
-    label: Other Software
-    description: If you're reporting a bug about our interaction with other software, what software? What versions?
-    placeholder: |
-      vim 9.1 (inside WSL)
-      OpenSSH_for_Windows_9.5p1
-      My Cool Application v0.4 (include a code snippet if it would help!)
-  validations:
-    required: false
+  - type: dropdown
+    id: machine_type
+    attributes:
+      label: Test environment
+      options:
+        - Physical Windows 7 machine
+        - VMware virtual machine
+        - VirtualBox virtual machine
+        - Hyper-V virtual machine
+        - QEMU or another virtual machine
+        - Newer Windows used for development
+        - Other
+    validations:
+      required: true
 
-- type: textarea
-  attributes:
-    label: Steps to reproduce
-    placeholder: Tell us the steps required to trigger your bug.
-  validations:
-    required: true
+  - type: textarea
+    id: windows
+    attributes:
+      label: Windows configuration
+      description: Include edition, Service Pack, x64 or x86, language, and update tier. Output from `ver` and relevant lines from `systeminfo` are useful.
+      placeholder: |
+        Windows 7 Professional SP1 x64, English
+        Tier A prerequisites installed
+        Platform Update KB2670838 installed
+    validations:
+      required: true
 
-- type: textarea
-  attributes:
-    label: Expected Behavior
-    description: If you want to include screenshots, paste them into the markdown editor below.
-    placeholder: What were you expecting?
-  validations:
-    required: false
+  - type: textarea
+    id: updates
+    attributes:
+      label: Relevant Windows updates
+      description: List the VT7 prerequisites and any later NT 6.1 update set. You can use `wmic qfe get HotFixID,InstalledOn`, but trim the output to relevant information.
+    validations:
+      required: false
 
-- type: textarea
-  attributes:
-    label: Actual Behavior
-    placeholder: What happened instead?
-  validations:
-    required: true
+  - type: textarea
+    id: graphics
+    attributes:
+      label: Graphics configuration
+      description: Include GPU, driver version, Direct3D hardware or WARP path, monitor layout, DPI scaling, and Remote Desktop use where relevant.
+      placeholder: NVIDIA GeForce GTX 750 Ti, driver 474.11, hardware D3D11, one monitor at 100 percent DPI
+    validations:
+      required: false
+
+  - type: input
+    id: shell
+    attributes:
+      label: Shell or remote application
+      description: Include the exact version where possible.
+      placeholder: PowerShell 7.2.24 x64 with PSReadLine 2.1.0
+    validations:
+      required: false
+
+  - type: input
+    id: backend
+    attributes:
+      label: Session backend
+      description: State whether this used WinPTY, SSH, a test connection, or another backend.
+      placeholder: WinPTY local session
+    validations:
+      required: false
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Give the smallest reliable sequence that triggers the problem.
+      placeholder: |
+        1. Start VT7 with the PowerShell 7.2.24 profile.
+        2. Run the following command...
+        3. Resize the window from 120x30 to 80x24.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include screenshots, logs, or a short recording if they make the failure clearer. Review diagnostic files for personal information first.
+    validations:
+      required: true
+
+  - type: textarea
+    id: regression
+    attributes:
+      label: Last known working version
+      description: If this is a regression, identify the last working VT7 commit or build.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Final checks
+      options:
+        - label: I searched existing VT7 issues for this problem.
+          required: true
+        - label: I removed passwords, keys, hostnames, usernames, and other sensitive data.
+          required: true
+        - label: I understand that success on newer Windows does not establish Windows 7 compatibility.
+          required: true

@@ -346,7 +346,7 @@
     <comment>This text is shown next to a list of choices.</comment>
   </data>
   <data name="Globals_TextMeasurement.Description" xml:space="preserve">
-    <value>Это меняет способ группирования входящего текста в ячейки. Параметр "Кластеры Grapheme" — это самый современный и правильный для Unicode способ сделать это, в то время как "wcswidth" является распространенным подходом в UNIX, а "Консоль Windows" повторяет способ работы в Windows. Изменение этого параметра требует перезапуска терминала Windows и применяется только к приложениям, запущенным из него.</value>
+    <value>Это меняет способ группирования входящего текста в ячейки. Параметр "Кластеры Grapheme" - это самый современный и правильный для Unicode способ сделать это, в то время как "wcswidth" является распространенным подходом в UNIX, а "Консоль Windows" повторяет способ работы в Windows. Изменение этого параметра требует перезапуска терминала Windows и применяется только к приложениям, запущенным из него.</value>
   </data>
   <data name="Globals_TextMeasurement_Graphemes.Text" xml:space="preserve">
     <value>Кластеры Grapheme</value>
@@ -2194,7 +2194,7 @@
     <comment>Header for a dropdown controlling when to show a confirmation dialog before closing.</comment>
   </data>
   <data name="Globals_ConfirmOnClose.Description" xml:space="preserve">
-    <value>Определяет, когда появляется диалоговое окно подтверждения перед закрытием вкладок или окон. "Всегда" — диалог отображается при закрытии любой панели.</value>
+    <value>Определяет, когда появляется диалоговое окно подтверждения перед закрытием вкладок или окон. "Всегда" - диалог отображается при закрытии любой панели.</value>
     <comment>Help text associated with Globals_ConfirmOnClose. "Always" refers to Globals_ConfirmOnCloseAlways.Content.</comment>
   </data>
   <data name="Globals_ConfirmOnCloseNever.Content" xml:space="preserve">

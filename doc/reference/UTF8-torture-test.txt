@@ -2,7 +2,7 @@
 UTF-8 encoded sample plain-text file
 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-Markus Kuhn [ˈmaʳkʊs kuːn] <http://www.cl.cam.ac.uk/~mgk25/> — 2002-07-25
+Markus Kuhn [ˈmaʳkʊs kuːn] <http://www.cl.cam.ac.uk/~mgk25/> - 2002-07-25
 
 
 The ASCII compatible UTF-8 encoding used in this plain-text file
@@ -44,7 +44,7 @@ Nicer typography in plain text files:
   ║                                          ║
   ║   • ‚deutsche‘ „Anführungszeichen“       ║
   ║                                          ║
-  ║   • †, ‡, ‰, •, 3–4, —, −5/+5, ™, …      ║
+  ║   • †, ‡, ‰, •, 3–4, -, −5/+5, ™, …      ║
   ║                                          ║
   ║   • ASCII safety test: 1lI|, 0OD, 8B     ║
   ║                      ╭─────────╮         ║
@@ -193,7 +193,7 @@ Compact font selection example text:
 
   ABCDEFGHIJKLMNOPQRSTUVWXYZ /0123456789
   abcdefghijklmnopqrstuvwxyz £©µÀÆÖÞßéöÿ
-  –—‘“”„†•…‰™œŠŸž€ ΑΒΓΔΩαβγδω АБВГДабвгд
+  –-‘“”„†•…‰™œŠŸž€ ΑΒΓΔΩαβγδω АБВГДабвгд
   ∀∂∈ℝ∧∪≡∞ ↑↗↨↻⇣ ┐┼╔╘░►☺♀ ﬁ�⑀₂ἠḂӥẄɐː⍎אԱა
 
 Greetings in various languages:

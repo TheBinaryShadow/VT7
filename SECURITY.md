@@ -1,41 +1,50 @@
-<!-- BEGIN MICROSOFT SECURITY.MD V0.0.2 BLOCK -->
+# VT7 Security Policy
 
-## Security
+VT7 takes security reports seriously, including reports that affect an
+unsupported operating-system target.
 
-Microsoft takes the security of our software products and services seriously, which includes all source code repositories managed through our GitHub organizations, which include [Microsoft](https://github.com/Microsoft), [Azure](https://github.com/Azure), [DotNet](https://github.com/dotnet), [AspNet](https://github.com/aspnet), [Xamarin](https://github.com/xamarin), and [many more](https://opensource.microsoft.com/).
+## Reporting a vulnerability
 
-If you believe you have found a security vulnerability in any Microsoft-owned repository that meets Microsoft's [definition](https://docs.microsoft.com/en-us/previous-versions/tn-archive/cc751383(v=technet.10)) of a security vulnerability, please report it to us as described below.
+Please do not open a public issue for a suspected vulnerability.
 
-## Reporting Security Issues
+Use GitHub's private vulnerability reporting for VT7:
 
-**Please do not report security vulnerabilities through public GitHub issues.**
+[Report a vulnerability privately](https://github.com/TheBinaryShadow/VT7/security/advisories/new)
 
-Instead, please report them to the Microsoft Security Response Center (MSRC) at [https://msrc.microsoft.com/create-report](https://msrc.microsoft.com/create-report).
+If that option is temporarily unavailable, do not publish exploit details.
+Contact the repository maintainer through the private contact method listed on
+the maintainer's GitHub profile and mention that you have a VT7 security report.
 
-If you prefer to submit without logging in, send email to [secure@microsoft.com](mailto:secure@microsoft.com).  If possible, encrypt your message with our PGP key; please download it from the [Microsoft Security Response Center PGP Key page](https://www.microsoft.com/en-us/msrc/pgp-key-msrc).
+Include as much of the following as you safely can:
 
-You should receive a response within 24 hours. If for some reason you do not, please follow up via email to ensure we received your original message. Additional information can be found at [microsoft.com/msrc](https://www.microsoft.com/msrc). 
+- A clear description of the problem and expected impact.
+- The affected VT7 commit or release.
+- The affected Windows 7 configuration and update tier.
+- Reproduction steps or a minimal proof of concept.
+- Relevant logs, stack traces, or crash dumps after removing secrets and
+  personal data.
+- Whether the issue appears inherited from Microsoft Terminal, a third-party
+  component, or VT7-specific code.
+- Any suggested mitigation.
 
-Please include the requested information listed below (as much as you can provide) to help us better understand the nature and scope of the possible issue:
+We will acknowledge reports as time permits, investigate them privately, and
+coordinate disclosure when a fix or mitigation is ready. VT7 is currently a
+small community project, so no guaranteed response deadline is offered.
 
-  * Type of issue (e.g. buffer overflow, SQL injection, cross-site scripting, etc.)
-  * Full paths of source file(s) related to the manifestation of the issue
-  * The location of the affected source code (tag/branch/commit or direct URL)
-  * Any special configuration required to reproduce the issue
-  * Step-by-step instructions to reproduce the issue
-  * Proof-of-concept or exploit code (if possible)
-  * Impact of the issue, including how an attacker might exploit the issue
+## Supported versions
 
-This information will help us triage your report more quickly.
+VT7 has not published a supported release.
 
-If you are reporting for a bug bounty, more complete reports can contribute to a higher bounty award. Please visit our [Microsoft Bug Bounty Program](https://microsoft.com/msrc/bounty) page for more details about our active programs.
+| Version | Security status |
+| --- | --- |
+| `main` | Active development, no stability or support guarantee |
+| Unofficial builds | Not supported by the VT7 project |
 
-## Preferred Languages
+This table will be updated before the first public alpha release.
 
-We prefer all communications to be in English.
+## Scope notes
 
-## Policy
-
-Microsoft follows the principle of [Coordinated Vulnerability Disclosure](https://www.microsoft.com/en-us/msrc/cvd).
-
-<!-- END MICROSOFT SECURITY.MD BLOCK -->
+A VT7 security fix does not make Windows 7 secure or supported. Reports about
+Windows 7 itself should follow the appropriate vendor or researcher disclosure
+process. Reports about VT7's own parsing, rendering, session handling, SSH,
+settings, update, packaging, or dependency behavior belong here.

@@ -99,7 +99,7 @@ of corner cases and employ various optimizations.
 
 ### Calculating a buffer size (checked arithmetic)
 
-When making exact calculations—such as for buffer lengths—it's often necessary
+When making exact calculations, such as for buffer lengths, it's often necessary
 to know when those calculations trigger an overflow, undefined behavior, or
 other boundary conditions. The `CheckedNumeric` template does this by storing
 a bit determining whether or not some arithmetic operation has occured that
@@ -120,7 +120,7 @@ if (!CheckAdd(kHeaderSize, CheckMul(count, kItemSize)).AssignIfValid(&size)) {
 
 ### Calculating clamped coordinates (non-sticky saturating arithmetic)
 
-Certain classes of calculations—such as coordinate calculations—require
+Certain classes of calculations, such as coordinate calculations, require
 well-defined semantics that always produce a valid result on boundary
 conditions. The `ClampedNumeric` template addresses this by providing
 performant, non-sticky saturating arithmetic operations.

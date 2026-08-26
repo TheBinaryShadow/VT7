@@ -250,7 +250,7 @@ public:
                 !singleLine || blockSelection,
 
                 /* trimTrailingWhitespace */
-                // Trim trailing whitespace if we're not in single line mode and — either
+                // Trim trailing whitespace if we're not in single line mode and either
                 // we're not in block selection mode or, we're in block selection mode and
                 // trimming is allowed.
                 !singleLine && (!blockSelection || trimBlockSelection),

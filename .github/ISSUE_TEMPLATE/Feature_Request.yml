@@ -1,20 +1,60 @@
-name: "Feature Request/Idea 🚀"
-description: Suggest a new feature or improvement (this does not mean you have to implement it)
-labels: [Issue-Feature]
-type: Feature
+name: Feature request
+description: Propose an improvement that serves the VT7 goal
+title: "[Feature] "
+labels: []
+assignees: []
 body:
-- type: textarea
-  attributes:
-    label: Description of the new feature
-    description: A clear and concise description of what the problem is that the new feature would solve.
-    placeholder: |
-      ... and guess what? I have four Terminals. And I have a hover car, and a hover house. And my computer's a runner, and it shows.
-  validations:
-    required: true
+  - type: markdown
+    attributes:
+      value: |
+        VT7 aims to build the terminal application Windows 7 always deserved. Please explain the user problem first, then the proposed feature.
 
-- type: textarea
-  attributes:
-    label: Proposed technical implementation details
-    description: This field is optional. If you have any ideas, let us know!
-  validations:
-    required: false
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or need
+      description: What is difficult, missing, or unreliable for a Windows 7 terminal user today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed experience
+      description: Describe how the feature should behave from the user's point of view.
+    validations:
+      required: true
+
+  - type: textarea
+    id: win7_value
+    attributes:
+      label: Why this belongs in VT7
+      description: Explain how the feature advances the roadmap or improves life for Windows 7 users.
+    validations:
+      required: true
+
+  - type: textarea
+    id: technical
+    attributes:
+      label: Technical notes
+      description: Optional. Mention likely APIs, dependencies, compatibility risks, or relevant upstream implementations.
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Include workarounds or smaller solutions that might address the same need.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Final checks
+      options:
+        - label: I searched existing issues and the roadmap for this idea.
+          required: true
+        - label: I understand that a feature request is not a promise or release commitment.
+          required: true
