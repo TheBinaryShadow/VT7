@@ -83,13 +83,14 @@ resize behavior, and clean shutdown. Merely launching `pwsh.exe` is not enough.
 The purpose of this milestone is to prove that the product shape can work before
 we invest in the complete interface.
 
-- [ ] Define and document the supported developer toolchain.
-- [ ] Produce a standalone x64 VT7 executable.
+- [x] Define and document the supported developer toolchain.
+- [x] Produce a standalone x64 VT7 executable.
 - [ ] Start on Windows 7 SP1 without unresolved post-Windows 7 imports.
-- [ ] Open the planned WPF or equivalent desktop host.
+- [x] Open the planned WPF or equivalent desktop host on the development
+  system.
 - [ ] Create a native HWND terminal surface.
 - [ ] Display a static TerminalCore-backed viewport.
-- [ ] Package a diagnostic build that can run on a clean test machine.
+- [x] Package a diagnostic build for clean-machine testing.
 
 Exit criterion: a VT7 window opens on Tier A hardware and displays a correctly
 sized static terminal viewport without requiring a global compatibility layer.

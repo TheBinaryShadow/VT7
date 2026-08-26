@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37614.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VT7.Host", "src\vt7\VT7.Host\VT7.Host.csproj", "{6BF96CB6-2457-4E40-A01F-3E6DB0CC9D6E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{43D07332-FDE3-4E84-84CA-AE2B821F68B9} = {43D07332-FDE3-4E84-84CA-AE2B821F68B9}
+	EndProjectSection
+EndProject
+Project("{BC8A1FFA-BEE3-4634-8014-F334798102B3}") = "VT7.Native", "src\vt7\VT7.Native\VT7.Native.vcxproj", "{43D07332-FDE3-4E84-84CA-AE2B821F68B9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6BF96CB6-2457-4E40-A01F-3E6DB0CC9D6E}.Debug|x64.ActiveCfg = Debug|x64
+		{6BF96CB6-2457-4E40-A01F-3E6DB0CC9D6E}.Debug|x64.Build.0 = Debug|x64
+		{6BF96CB6-2457-4E40-A01F-3E6DB0CC9D6E}.Release|x64.ActiveCfg = Release|x64
+		{6BF96CB6-2457-4E40-A01F-3E6DB0CC9D6E}.Release|x64.Build.0 = Release|x64
+		{43D07332-FDE3-4E84-84CA-AE2B821F68B9}.Debug|x64.ActiveCfg = Debug|x64
+		{43D07332-FDE3-4E84-84CA-AE2B821F68B9}.Debug|x64.Build.0 = Debug|x64
+		{43D07332-FDE3-4E84-84CA-AE2B821F68B9}.Release|x64.ActiveCfg = Release|x64
+		{43D07332-FDE3-4E84-84CA-AE2B821F68B9}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

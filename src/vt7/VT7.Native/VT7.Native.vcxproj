@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{43D07332-FDE3-4E84-84CA-AE2B821F68B9}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>VT7.Native</RootNamespace>
+    <ProjectName>VT7.Native</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <VCToolsVersion>14.44.35207</VCToolsVersion>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+
+  <PropertyGroup>
+    <OutDir>$(VT7BinaryRoot)</OutDir>
+    <IntDir>$(VT7IntermediateRoot)</IntDir>
+    <TargetName>VT7.Native</TargetName>
+    <TargetExt>.dll</TargetExt>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0601;WINVER=0x0601;NTDDI_VERSION=0x06010100;VT7_NATIVE_EXPORTS;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <MinimumRequiredVersion>6.01</MinimumRequiredVersion>
+      <ModuleDefinitionFile>exports.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0601;WINVER=0x0601;NTDDI_VERSION=0x06010100;VT7_NATIVE_EXPORTS;UNICODE;_UNICODE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <MinimumRequiredVersion>6.01</MinimumRequiredVersion>
+      <ModuleDefinitionFile>exports.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemGroup>
+    <ClInclude Include="include\vt7_native.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="native.cpp" />
+    <ClCompile Include="platform.cpp" />
+    <ClCompile Include="graphics.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="exports.def" />
+  </ItemGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>VT7.Host</AssemblyName>
+    <RootNamespace>VT7.Host</RootNamespace>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <OutputPath>$(VT7BinaryRoot)</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VT7.Native\VT7.Native.vcxproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

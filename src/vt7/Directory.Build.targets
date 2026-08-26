@@ -1,0 +1,23 @@
+<Project>
+  <Target Name="ValidateVT7NativeToolchain"
+          BeforeTargets="PrepareForBuild"
+          Condition="'$(MSBuildProjectExtension)' == '.vcxproj'">
+    <Error Condition="'$(PlatformToolset)' != 'v143'"
+           Text="VT7 native projects require the Visual Studio 2022 v143 toolset." />
+    <Error Condition="'$(VCToolsVersion)' != '14.44.35207'"
+           Text="VT7 native projects require MSVC 14.44.35207. Found $(VCToolsVersion)." />
+    <Error Condition="'$(WindowsTargetPlatformVersion)' != '10.0.26100.0'"
+           Text="VT7 requires Windows SDK 10.0.26100.0. Found $(WindowsTargetPlatformVersion)." />
+    <Error Condition="'$(Platform)' != 'x64'"
+           Text="The VT7 proof-of-life build supports x64 only." />
+  </Target>
+
+  <Target Name="ValidateVT7ManagedTarget"
+          BeforeTargets="PrepareForBuild"
+          Condition="'$(MSBuildProjectExtension)' == '.csproj'">
+    <Error Condition="'$(TargetFramework)' != 'net48'"
+           Text="The VT7 WPF host must target .NET Framework 4.8." />
+    <Error Condition="'$(Platform)' != 'x64'"
+           Text="The VT7 proof-of-life build supports x64 only." />
+  </Target>
+</Project>

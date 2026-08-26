@@ -113,7 +113,7 @@ build the best terminal we can for the platform we love.
 - [x] Establish the VT7 project identity and scope.
 - [x] Select and record the Microsoft Terminal upstream baseline.
 - [x] Research the Windows 7 WPF, renderer, API, PTY, and SSH paths.
-- [ ] Produce a reproducible developer build for the first VT7 executable.
+- [x] Produce a reproducible developer build for the first VT7 executable.
 - [ ] Open a static terminal viewport on Windows 7 SP1 x64.
 - [ ] Render correctly through Direct3D 11 and the software fallback.
 - [ ] Run an interactive local shell through the Windows 7 PTY backend.
@@ -129,6 +129,8 @@ claim otherwise.
 
 - [Roadmap](ROADMAP.md) - milestones, requirements, acceptance criteria, and
   non-goals.
+- [Building](BUILDING.md) - pinned toolchain, proof build, binary verification,
+  packaging, and Windows 7 test procedure.
 - [Upstream](UPSTREAM.md) - source baseline, divergence policy, and upstream
   synchronization.
 - [Contributing](CONTRIBUTING.md) - how to help and the standards we follow.

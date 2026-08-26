@@ -1,0 +1,134 @@
+<Window x:Class="VT7.Host.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="VT7 Proof of Life"
+        Width="900"
+        Height="650"
+        MinWidth="720"
+        MinHeight="540"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource WindowBackground}"
+        Foreground="White"
+        FontFamily="Segoe UI"
+        Loaded="Window_Loaded">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="#173A5E" BorderBrush="#5DAEEA" BorderThickness="0,0,0,1">
+            <Grid Margin="28,22">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="VT7" FontSize="32" FontWeight="Light" />
+                    <TextBlock Text="The terminal application Windows 7 always deserved."
+                               Margin="1,3,0,0"
+                               FontSize="14"
+                               Foreground="#D4E9F8" />
+                </StackPanel>
+                <Border Grid.Column="1" Background="#102B45" BorderBrush="#5DAEEA" BorderThickness="1" Padding="12,7" VerticalAlignment="Center">
+                    <TextBlock Text="PROOF OF LIFE 0.1" FontSize="11" FontWeight="Bold" Foreground="#8FD0FF" />
+                </Border>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1" Margin="24,20,24,0" Padding="16,13" Background="#173049" BorderBrush="#3C759F" BorderThickness="1">
+            <StackPanel>
+                <TextBlock x:Name="OverallStatusText" Text="Waiting to run platform probes" FontSize="16" FontWeight="SemiBold" />
+                <TextBlock x:Name="OverallStatusDetail" Text="The first probe runs when the window opens." Margin="0,4,0,0" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer Grid.Row="2" Margin="24,16,24,16" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <Border Background="{StaticResource PanelBackground}" BorderBrush="{StaticResource PanelBorder}" BorderThickness="1" Padding="18" Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock Text="BUILD AND PLATFORM" Style="{StaticResource SectionHeading}" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="VT7 build" Style="{StaticResource LabelText}" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="VersionValue" Text="Not available" Style="{StaticResource ValueText}" />
+                            <TextBlock Grid.Row="1" Text="Native bridge" Style="{StaticResource LabelText}" Margin="0,8,16,0" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="NativeValue" Text="Not loaded" Style="{StaticResource ValueText}" Margin="0,8,0,0" />
+                            <TextBlock Grid.Row="2" Text="Operating system" Style="{StaticResource LabelText}" Margin="0,8,16,0" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="WindowsValue" Text="Not detected" Style="{StaticResource ValueText}" Margin="0,8,0,0" />
+                            <TextBlock Grid.Row="3" Text="Managed runtime" Style="{StaticResource LabelText}" Margin="0,8,16,0" />
+                            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="RuntimeValue" Text="Not detected" Style="{StaticResource ValueText}" Margin="0,8,0,0" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{StaticResource PanelBackground}" BorderBrush="{StaticResource PanelBorder}" BorderThickness="1" Padding="18" Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock Text="WINDOWS 7 GRAPHICS PATH" Style="{StaticResource SectionHeading}" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="Primary adapter" Style="{StaticResource LabelText}" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="AdapterValue" Text="Not detected" Style="{StaticResource ValueText}" />
+                            <TextBlock Grid.Row="1" Text="Hardware D3D11" Style="{StaticResource LabelText}" Margin="0,8,16,0" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="HardwareValue" Text="Not tested" Style="{StaticResource ValueText}" Margin="0,8,0,0" />
+                            <TextBlock Grid.Row="2" Text="WARP D3D11" Style="{StaticResource LabelText}" Margin="0,8,16,0" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="WarpValue" Text="Not tested" Style="{StaticResource ValueText}" Margin="0,8,0,0" />
+                            <TextBlock Grid.Row="3" Text="DXGI 1.2 interface" Style="{StaticResource LabelText}" Margin="0,8,16,0" />
+                            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="DxgiValue" Text="Not tested" Style="{StaticResource ValueText}" Margin="0,8,0,0" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{StaticResource PanelBackground}" BorderBrush="{StaticResource PanelBorder}" BorderThickness="1" Padding="18">
+                    <StackPanel>
+                        <TextBlock Text="DIAGNOSTICS" Style="{StaticResource SectionHeading}" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="Last probe" Style="{StaticResource LabelText}" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="LastRunValue" Text="Not run" Style="{StaticResource ValueText}" />
+                            <TextBlock Grid.Row="1" Text="Log file" Style="{StaticResource LabelText}" Margin="0,8,16,0" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="LogValue" Text="Not created" Style="{StaticResource ValueText}" Margin="0,8,0,0" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="3" Background="#0B1219" BorderBrush="#293C4D" BorderThickness="0,1,0,0" Padding="24,12">
+            <Grid>
+                <TextBlock Text="A small first step, tested honestly." VerticalAlignment="Center" Foreground="{StaticResource MutedBrush}" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Open log folder" Click="OpenLogFolder_Click" Margin="0,0,10,0" Background="#2C465D" />
+                    <Button Content="Run probes again" Click="RunProbes_Click" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
