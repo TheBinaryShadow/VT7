@@ -7,29 +7,74 @@
         <SolidColorBrush x:Key="PanelBorder" Color="#35516D" />
         <SolidColorBrush x:Key="AccentBrush" Color="#65B8FF" />
         <SolidColorBrush x:Key="MutedBrush" Color="#B8C9D9" />
+        <SolidColorBrush x:Key="TextBrush" Color="#F3F7FA" />
 
         <Style TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#F3F7FA" />
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
             <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
         </Style>
 
-        <Style x:Key="SectionHeading" TargetType="TextBlock">
+        <Style x:Key="SectionHeading" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
             <Setter Property="FontSize" Value="12" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
             <Setter Property="Margin" Value="0,0,0,8" />
         </Style>
 
-        <Style x:Key="LabelText" TargetType="TextBlock">
+        <Style x:Key="LabelText" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
             <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
             <Setter Property="FontSize" Value="12" />
             <Setter Property="Margin" Value="0,0,16,0" />
         </Style>
 
-        <Style x:Key="ValueText" TargetType="TextBlock">
+        <Style x:Key="ValueText" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
             <Setter Property="FontFamily" Value="Consolas" />
             <Setter Property="FontSize" Value="12" />
             <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <!-- The proof uses string headers. Keep their text and background paired
+             instead of mixing application text styles with OS tab chrome. -->
+        <Style x:Key="ProofTabItemStyle" TargetType="TabItem">
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="Background" Value="{StaticResource PanelBackground}" />
+            <Setter Property="BorderBrush" Value="{StaticResource PanelBorder}" />
+            <Setter Property="Padding" Value="14,8" />
+            <Setter Property="Margin" Value="0,0,4,0" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="HeaderBackground" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1"
+                                SnapsToDevicePixels="True">
+                            <Grid>
+                                <TextBlock x:Name="HeaderText" Text="{TemplateBinding Header}"
+                                           Foreground="{TemplateBinding Foreground}" Margin="{TemplateBinding Padding}" />
+                                <Rectangle x:Name="KeyboardFocus" Margin="3" Stroke="{StaticResource TextBrush}"
+                                           StrokeThickness="1" StrokeDashArray="2,2" Visibility="Collapsed"
+                                           IsHitTestVisible="False" />
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="HeaderBackground" Property="Background" Value="#24445E" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="HeaderBackground" Property="Background" Value="#173A5E" />
+                                <Setter TargetName="HeaderBackground" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="KeyboardFocus" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style TargetType="Button">

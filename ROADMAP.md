@@ -52,11 +52,12 @@ entry point or DLL error.
 A release must pass Tier A. Other tiers expand confidence but do not silently
 raise the minimum requirement.
 
-Proof 0.2.0 has been tested on fully updated non-ESU and fully ESU-updated
+Proofs 0.2.0 and 0.2.1 have been tested on fully updated non-ESU and fully ESU-updated
 Windows 7 SP1 x64 setups. The non-ESU run has supplied logs and screenshots;
 the ESU run is tester-confirmed. These establish the proof on the tested
 configurations, not an exhaustive prerequisite-minimum or hardware matrix.
-See the [validation record](doc/vt7/validation/2026-09-10-viewport-proof.md).
+See the [original validation record](doc/vt7/validation/2026-09-10-viewport-proof.md)
+and [0.2.1 acceptance](doc/vt7/validation/2026-09-10-milestone-1-cleanup.md).
 
 ## Shell and session targets
 
@@ -102,16 +103,24 @@ we invest in the complete interface.
 Exit criterion: a VT7 window opens on Tier A hardware and displays a correctly
 sized static terminal viewport without requiring a global compatibility layer.
 
-The Milestone 1 technical proof has been reached on the tested Windows 7
+Milestone 1, including the 0.2.1 cleanup, is complete on the tested Windows 7
 configurations. Seven core checks and four complete window lifecycles pass in
 the supplied non-ESU logs; screenshots show the static viewport, and the tester
 confirms the ESU setup works as well. This is not a release qualification of
 every system at the prerequisite floor.
 
-Follow-up before renderer work:
+Completed cleanup before renderer work:
 
-- [ ] Correct low-contrast tab labels and diagnostic values in the WPF host.
-- [ ] Add style regression coverage and recheck both tabs visually on Windows 7.
+- [x] Correct low-contrast tab labels and diagnostic values in the WPF host
+  (0.2.1).
+- [x] Add effective-color regression coverage and native viewport tab-switch
+  checks, passing on the development system and Windows 7.
+- [x] Rerun the 0.2.1 package and visually recheck both tabs and keyboard focus
+  on Windows 7. Non-ESU logs and screenshots pass; the tester confirms Tab and
+  arrow-key navigation, focus outlines, and all tests passing on the ESU setup.
+
+See the [cleanup validation notes](doc/vt7/validation/2026-09-10-milestone-1-cleanup.md)
+for the regression reproduced before the fix, test scope, and final acceptance.
 
 Device-creation probes do not validate Atlas, and the temporary GDI viewport
 does not close any Milestone 2 rendering goals. Minimal-prerequisite snapshots,

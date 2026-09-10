@@ -1,6 +1,6 @@
 # Building VT7
 
-VT7 currently builds a static terminal viewport proof (0.2.0): a WPF desktop
+VT7 currently builds a static terminal viewport proof (0.2.1): a WPF desktop
 host, native HWND surface, and the real Microsoft Terminal core and VT parser.
 It displays a fixed demonstration and resizes the actual text buffer. It does
 not yet run shells or SSH sessions.
@@ -45,10 +45,10 @@ in [the core boundary notes](src/vt7/VT7.Core/README.md). After a verified resto
 `-NoRestore` permits an offline build using the existing extracted sources.
 
 Build output is written under `artifacts\vt7\bin`. The packaging script creates
-`artifacts\viewport-proof` and `artifacts\VT7-viewport-proof-0.2.0-x64.zip`.
+`artifacts\viewport-proof-0.2.1` and `artifacts\VT7-viewport-proof-0.2.1-x64.zip`.
 It tests the assembled package before archiving it and includes runtime DLLs,
 symbols, notices, dependency licenses, and file checksums. Generated artifacts
-are ignored by Git. The older 0.1 proof-of-life package is not overwritten.
+are ignored by Git. The older 0.1 and 0.2.0 proof packages are not overwritten.
 
 ## Verify the binary boundary
 
@@ -110,8 +110,15 @@ Normal startup opens the visual proof window:
 The automated window smoke test creates and disposes four WPF/native-window
 pairs. Each cycle changes the host dimensions eight times, checks that the
 terminal grid shrinks, forces native paints, minimizes/restores, resets the
-demo, and checks that the child HWND is destroyed. It does not verify visual
-appearance:
+demo, and checks that the child HWND is destroyed. At both large and small
+sizes, it switches to Diagnostics and back, checks ten diagnostic values and
+both selected/unselected tab-header colors, then verifies the same child HWND
+and grid return visibly and repaint. There are eight tab round trips in total.
+
+The contrast gate requires at least 4.5:1 using the effective foreground and
+background brushes in the live WPF visual tree. This is not a screenshot check
+or a claim of full accessibility compliance. Font rasterization, clipping,
+keyboard focus behavior, and high-contrast configurations need visual testing:
 
 ```powershell
 .\artifacts\vt7\bin\Debug\VT7.Host.exe --window-smoke-test
@@ -137,6 +144,8 @@ Copy and extract the proof zip on that machine. Run `RUN-DIAGNOSTICS.cmd` and
 - Narrow and widen the window repeatedly. Content should reflow without a
   crash, persistent blank surface, or continually increasing resource use.
 - Minimize, restore, switch the diagnostic/viewport tabs, and reset the demo.
+- Confirm that both headers and diagnostic values are readable. Use Tab and
+  arrow keys to switch tabs and check the visible focus indicator.
 - Close and reopen the program several times. Save a screenshot and both logs.
 
 Test once with the normal graphics driver and once in the planned WARP test
@@ -160,16 +169,26 @@ ESU logs and an exact per-system update inventory were not supplied for this
 record. See the [validation notes](doc/vt7/validation/2026-09-10-viewport-proof.md)
 for the evidence, known defect, and remaining coverage.
 
-### Known host-styling defect in 0.2.0
+### Host-styling correction in 0.2.1
 
-The tab labels have insufficient contrast, and diagnostic values can appear
-almost invisible against their dark panels. This is a WPF foreground/style
-inheritance problem, not missing diagnostic data or a TerminalCore failure.
-Until corrected, use the text logs for readable diagnostic values.
+In 0.2.0, tab labels had insufficient contrast and diagnostic values could
+appear almost invisible against their dark panels. This was a WPF foreground/
+style inheritance problem, not missing data or a TerminalCore failure.
 
-The hidden window tests check native painting and lifecycle behavior, not
-visual contrast. They can pass while this defect is present. Style regression
-coverage and a visual recheck are pending; no fix is included in 0.2.0.
+Version 0.2.1 explicitly pairs tab text/background colors, adds a keyboard-focus
+outline, and makes the diagnostic style inherit the base text style with an
+explicit light foreground. The new test reproduced the original 1.05:1
+diagnostic contrast failure before the fix; the corrected controls pass with a
+minimum measured ratio of 10.81:1 on the development machine.
+
+The new hidden tests also exercise tab switching and viewport restoration.
+The supplied 0.2.1 Windows 7 non-ESU logs pass all seven core checks, eight tab
+round trips at a minimum 10.81:1 contrast, and four window lifecycles, each with
+22 paints and 15 resizes. Screenshots show readable headers and values. The
+tester confirms Tab/arrow-key navigation and visible focus, and separately
+confirms that all tests pass on the ESU setup. This closes Milestone 1 cleanup
+acceptance on those configurations, not the full release matrix. See the
+[cleanup validation notes](doc/vt7/validation/2026-09-10-milestone-1-cleanup.md).
 
 ## Current proof architecture
 

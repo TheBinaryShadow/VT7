@@ -40,6 +40,10 @@ namespace VT7.Host
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool IsWindow(IntPtr window);
 
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool IsWindowVisible(IntPtr window);
+
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode, Pack = 8)]
         internal struct BuildInfo
         {

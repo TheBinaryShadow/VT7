@@ -1,6 +1,6 @@
 # VT7 Core proof boundary
 
-Proof version 0.2.0 builds the real Microsoft Terminal core, parser, dispatch,
+Proof version 0.2.1 builds the real Microsoft Terminal core, parser, dispatch,
 text buffer, and supporting types into `VT7.Core.lib`, then links that library
 into `VT7.Native.dll`. The static library is not a separate runtime dependency.
 This is a static viewport proof, not an interactive terminal release.
@@ -90,7 +90,7 @@ minimize/restore, reset, and native child-window disposal. The window tests are
 hidden and do not verify visual appearance. Reports and static import audits
 are kept under `artifacts/vt7/reports`.
 
-Proof 0.2 passes these checks on the development machine and in supplied logs
+Proof 0.2.0 passes these checks on the development machine and in supplied logs
 from a fully updated Windows 7 SP1 x64 non-ESU setup. The Windows 7 window test
 records four complete lifecycles, each with 18 paints and 15 resizes. Supplied
 screenshots show the 105 x 22-cell static viewport and its sample text, colors,
@@ -98,12 +98,31 @@ attributes, and box drawing. The tester also confirmed a separate fully
 ESU-updated setup as working and tested; separate ESU logs are not part of the
 current evidence set.
 
-The viewport proof is established on those tested configurations. A host-only
-styling defect leaves tab labels and diagnostic values with poor contrast;
-it remains open and is not covered by the hidden window tests. This does not
-establish production font/shaping quality, Atlas rendering, sustained stability,
-or compatibility with every minimum-prerequisite installation.
+The viewport proof is established on those tested configurations. Version 0.2.1
+corrects the host-only tab/diagnostic contrast defect without changing the
+TerminalCore sources or native ABI 2 layout. The native patch version is bumped
+so logs distinguish the cleanup package from 0.2.0.
+
+The expanded window test measures effective text/background contrast and makes
+eight round trips between tabs, checking that the native child hides, returns
+with the same handle and grid, and repaints. The new guard failed on the old
+diagnostic colors (1.05:1) and passes after the correction (minimum 10.81:1 on
+the development machine and in the supplied Windows 7 non-ESU log). This is
+not pixel-level or full accessibility QA.
+
+The 0.2.1 Windows 7 cleanup acceptance is complete on the tested configurations.
+The supplied non-ESU logs pass all seven core checks, eight tab round trips,
+and four window lifecycles with 22 paints and 15 resizes each. Screenshots show
+readable headers/values and the 105 x 21-cell viewport. The tester confirms
+Tab/arrow-key navigation and visible focus, and separately confirms all tests
+passing on the ESU setup. Separate ESU logs were not supplied.
+
+These results do not establish production font/shaping quality, Atlas
+rendering, sustained stability, or compatibility with every minimum-prerequisite
+installation.
 
 The repository validation record is
 `doc/vt7/validation/2026-09-10-viewport-proof.md`. The earlier 0.1 results remain
 a separate record of the smaller host/bridge boundary.
+Cleanup evidence is recorded in
+`doc/vt7/validation/2026-09-10-milestone-1-cleanup.md`.

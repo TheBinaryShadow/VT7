@@ -9,9 +9,9 @@ Set-StrictMode -Version 3.0
 $repositoryRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
 $artifactRoot = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "artifacts"))
 $binaryRoot = Join-Path $artifactRoot "vt7\bin\Release"
-$packageRoot = [System.IO.Path]::GetFullPath((Join-Path $artifactRoot "viewport-proof"))
-$zipPath = Join-Path $artifactRoot "VT7-viewport-proof-0.2.0-x64.zip"
-$expectedPackageRoot = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "artifacts\viewport-proof"))
+$packageRoot = [System.IO.Path]::GetFullPath((Join-Path $artifactRoot "viewport-proof-0.2.1"))
+$zipPath = Join-Path $artifactRoot "VT7-viewport-proof-0.2.1-x64.zip"
+$expectedPackageRoot = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "artifacts\viewport-proof-0.2.1"))
 
 if (-not [string]::Equals($packageRoot, $expectedPackageRoot, [StringComparison]::OrdinalIgnoreCase)) {
     throw "Refusing to package outside the expected VT7 artifact directory: $packageRoot"
@@ -27,6 +27,11 @@ if (-not $SkipBuild) {
 & (Join-Path $PSScriptRoot "Verify-VT7.ps1") -Configuration Release
 if ($LASTEXITCODE -ne 0) {
     throw "The release verification failed."
+}
+
+$hostVersion = [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $binaryRoot 'VT7.Host.exe')).FileVersion
+if ($hostVersion -ne '0.2.1.0') {
+    throw "Expected proof 0.2.1.0 before packaging, found $hostVersion. Rebuild Release."
 }
 
 if (Test-Path -LiteralPath $packageRoot) {

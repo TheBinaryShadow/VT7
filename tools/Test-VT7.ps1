@@ -30,6 +30,11 @@ foreach ($mode in @('diagnostics', 'window-smoke-test')) {
         if ($text -notmatch '(?m)^Passed: True\r?$' -or $text -match '(?m)^FAIL:') {
             throw "VT7 $mode report did not pass. See $reportPath"
         }
+        if ($mode -eq 'window-smoke-test' -and
+            ([regex]::Matches($text, '(?m)^(?:Surface: )?PASS: tab round trip,').Count -ne 8 -or
+             [regex]::Matches($text, '(?m)^PASS: HWND cycle ').Count -ne 4)) {
+            throw "VT7 window report is missing the expected eight tab round trips or four HWND cycles. See $reportPath"
+        }
         Write-Host "PASS: $mode ($reportPath)"
     }
     finally { $testProcess.Dispose() }

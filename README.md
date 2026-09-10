@@ -120,10 +120,14 @@ window-lifecycle checks pass, and the sample is visibly rendered on Windows 7.
 See the [validation record](doc/vt7/validation/2026-09-10-viewport-proof.md) for
 the evidence and scope.
 
-This is a static proof, not an interactive shell. A known host-styling defect
-makes the tab labels and diagnostic values difficult to read; fixing it and
-adding style regression coverage are the next small cleanup. Atlas rendering
-and session backends remain ahead of us.
+This is a static proof, not an interactive shell. The current cleanup build,
+0.2.1, corrects the tab/diagnostic contrast defect and adds checks for effective
+text colors and native viewport tab switching. The Windows 7 recheck passes:
+non-ESU logs and screenshots confirm the correction, and the tester confirms
+keyboard navigation, visible focus, and a successful separate ESU run.
+Milestone 1 is complete on the tested configurations. See the
+[cleanup validation notes](doc/vt7/validation/2026-09-10-milestone-1-cleanup.md).
+Atlas rendering and session backends remain ahead of us.
 
 - [x] Establish the VT7 project identity and scope.
 - [x] Select and record the Microsoft Terminal upstream baseline.

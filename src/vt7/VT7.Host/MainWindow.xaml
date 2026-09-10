@@ -33,7 +33,7 @@
                                Foreground="#D4E9F8" />
                 </StackPanel>
                 <Border Grid.Column="1" Background="#102B45" BorderBrush="#5DAEEA" BorderThickness="1" Padding="12,7" VerticalAlignment="Center">
-                    <TextBlock Text="VIEWPORT PROOF 0.2" FontSize="11" FontWeight="Bold" Foreground="#8FD0FF" />
+                    <TextBlock Text="VIEWPORT PROOF 0.2.1" FontSize="11" FontWeight="Bold" Foreground="#8FD0FF" />
                 </Border>
             </Grid>
         </Border>
@@ -45,8 +45,8 @@
             </StackPanel>
         </Border>
 
-        <TabControl Grid.Row="2" Margin="24,12,24,12" Background="{StaticResource WindowBackground}" BorderBrush="{StaticResource PanelBorder}">
-            <TabItem Header="Terminal viewport" Foreground="#152A3A">
+        <TabControl x:Name="ProofTabs" Grid.Row="2" Margin="24,12,24,12" Background="{StaticResource WindowBackground}" BorderBrush="{StaticResource PanelBorder}">
+            <TabItem Header="Terminal viewport" Style="{StaticResource ProofTabItemStyle}">
                 <Grid Margin="8">
                     <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <Border x:Name="SurfaceContainer" Background="{StaticResource WindowBackground}" ClipToBounds="True" />
@@ -56,7 +56,7 @@
                     </DockPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="Diagnostics" Foreground="#152A3A">
+            <TabItem Header="Diagnostics" Style="{StaticResource ProofTabItemStyle}">
         <ScrollViewer Margin="24,16,24,16" VerticalScrollBarVisibility="Auto">
             <StackPanel>
                 <Border Background="{StaticResource PanelBackground}" BorderBrush="{StaticResource PanelBorder}" BorderThickness="1" Padding="18" Margin="0,0,0,14">

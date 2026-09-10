@@ -92,6 +92,10 @@ regression results. Use the text logs for readable diagnostics. The defect is
 still present in 0.2.0; a styling correction, regression coverage, and Windows 7
 visual recheck are the next small follow-up.
 
+The subsequent [0.2.1 cleanup](2026-09-10-milestone-1-cleanup.md) implements the
+correction and expanded automated checks, and has now passed its Windows 7
+recheck. That acceptance is recorded separately from the original results here.
+
 ## What remains unproven
 
 - A clean snapshot containing only the exact minimum prerequisites, rather than

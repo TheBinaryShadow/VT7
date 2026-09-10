@@ -6,8 +6,12 @@ release and no finished application to install yet.
 The 0.2 engineering proof displays a static TerminalCore-backed viewport and
 has been tested on Windows 7 SP1 x64 setups with and without ESU. It does not
 run local shells or SSH sessions. See the
-[validation record](doc/vt7/validation/2026-09-10-viewport-proof.md) for scope and
-the known tab/diagnostic text contrast defect.
+[validation record](doc/vt7/validation/2026-09-10-viewport-proof.md) for scope.
+The 0.2.1 cleanup corrects the original tab/diagnostic text contrast defect and
+passes its Windows 7 runtime and visual recheck. Non-ESU logs and screenshots
+are supplied; keyboard navigation/focus and the separate ESU run are
+tester-confirmed. See the
+[cleanup acceptance record](doc/vt7/validation/2026-09-10-milestone-1-cleanup.md).
 
 ## Questions and help
 
@@ -25,8 +29,9 @@ machine status, GPU and driver, shell version, and session backend.
 
 For the viewport proof, attach `VT7-diagnostics.log`, `VT7-viewport-test.log`,
 and screenshots for visible problems. Shell and session details do not apply
-to this static build. The text logs remain readable even when the diagnostic
-panel has poor contrast. Review logs for private local paths before sharing.
+to this static build. For older 0.2.0 builds with the contrast defect, use the
+text logs for readable diagnostics. Review logs for private local paths before
+sharing.
 
 Do not report VT7-specific problems to Microsoft. VT7 is independent from
 Microsoft Terminal and has no Microsoft support relationship.

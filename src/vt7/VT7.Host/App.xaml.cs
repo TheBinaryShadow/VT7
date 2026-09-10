@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Threading;
@@ -58,6 +57,8 @@ namespace VT7.Host
                                 if (step == 0) initialColumns = info.Columns;
                                 if (step % 2 == 1 && info.Columns >= initialColumns)
                                     throw new InvalidOperationException("Resizing the WPF host did not shrink the terminal grid.");
+                                if (step == 0 || step == 7)
+                                    report.AppendLine(await ProofWindowChecks.CheckTabRoundTrip(window, viewport));
                             }
                             window.WindowState = WindowState.Minimized;
                             await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
@@ -81,7 +82,7 @@ namespace VT7.Host
                             throw new InvalidOperationException("The terminal child window survived host disposal.");
                     }
                     snapshot.SurfaceDisplay = report.ToString();
-                    snapshot.Summary = "Platform, TerminalCore, child HWND paints, resize cycles, and disposal checks passed.";
+                    snapshot.Summary = "Platform, TerminalCore, tab contrast/switching, child HWND paints, resize, and disposal checks passed.";
                 }
             }
             catch (Exception ex)
