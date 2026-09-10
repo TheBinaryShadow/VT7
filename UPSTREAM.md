@@ -39,6 +39,13 @@ The projects have different platform goals:
 
 ## Upstream synchronization
 
+The 0.2 viewport proof compiles selected inherited sources directly into a
+VT7-only static library. Its `VT7_CORE` compatibility branches, dependency pins,
+disabled features, and testing limits are recorded in
+[the core boundary notes](src/vt7/VT7.Core/README.md). Review those branches when
+updating any affected upstream file. The GDI proof surface is VT7-specific and
+does not replace the planned Atlas port.
+
 Microsoft Terminal continues to evolve. VT7 should benefit from upstream parser,
 TerminalCore, security, correctness, and performance improvements without
 blindly importing new platform dependencies.

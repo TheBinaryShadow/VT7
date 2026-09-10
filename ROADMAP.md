@@ -52,6 +52,12 @@ entry point or DLL error.
 A release must pass Tier A. Other tiers expand confidence but do not silently
 raise the minimum requirement.
 
+Proof 0.2.0 has been tested on fully updated non-ESU and fully ESU-updated
+Windows 7 SP1 x64 setups. The non-ESU run has supplied logs and screenshots;
+the ESU run is tester-confirmed. These establish the proof on the tested
+configurations, not an exhaustive prerequisite-minimum or hardware matrix.
+See the [validation record](doc/vt7/validation/2026-09-10-viewport-proof.md).
+
 ## Shell and session targets
 
 ### Required for version 1.0
@@ -75,8 +81,8 @@ resize behavior, and clean shutdown. Merely launching `pwsh.exe` is not enough.
 - [x] Replace inherited Microsoft support and contribution directions.
 - [x] Disable inherited release, project-board, and repository-management
   automation.
-- [ ] Establish a minimal VT7 build and test workflow once a meaningful target
-  exists to build.
+- [x] Establish a minimal local VT7 build, verification, test, and packaging
+  workflow. Hosted CI remains future work.
 
 ## Milestone 1: Proof of life
 
@@ -85,15 +91,31 @@ we invest in the complete interface.
 
 - [x] Define and document the supported developer toolchain.
 - [x] Produce a standalone x64 VT7 executable.
-- [ ] Start on Windows 7 SP1 without unresolved post-Windows 7 imports.
-- [x] Open the planned WPF or equivalent desktop host on the development
-  system.
-- [ ] Create a native HWND terminal surface.
-- [ ] Display a static TerminalCore-backed viewport.
+- [x] Start on Windows 7 SP1 without unresolved post-Windows 7 imports in the
+  tested configurations.
+- [x] Open the WPF desktop host on the development system and Windows 7.
+- [x] Implement a native HWND terminal surface and exercise it on Windows 7.
+- [x] Implement a static TerminalCore-backed viewport with a temporary GDI
+  renderer, passing core regression checks and visible output on Windows 7.
 - [x] Package a diagnostic build for clean-machine testing.
 
 Exit criterion: a VT7 window opens on Tier A hardware and displays a correctly
 sized static terminal viewport without requiring a global compatibility layer.
+
+The Milestone 1 technical proof has been reached on the tested Windows 7
+configurations. Seven core checks and four complete window lifecycles pass in
+the supplied non-ESU logs; screenshots show the static viewport, and the tester
+confirms the ESU setup works as well. This is not a release qualification of
+every system at the prerequisite floor.
+
+Follow-up before renderer work:
+
+- [ ] Correct low-contrast tab labels and diagnostic values in the WPF host.
+- [ ] Add style regression coverage and recheck both tabs visually on Windows 7.
+
+Device-creation probes do not validate Atlas, and the temporary GDI viewport
+does not close any Milestone 2 rendering goals. Minimal-prerequisite snapshots,
+additional hardware, and sustained stability remain part of release hardening.
 
 ## Milestone 2: Windows 7 renderer
 

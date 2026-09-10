@@ -6,11 +6,13 @@
 
 #include <til/hash.h>
 
+#ifndef VT7_CORE
 #include "UTextAdapter.h"
+#include <til/regex.h>
+#endif
 #include "../../types/inc/CodepointWidthDetector.hpp"
 #include "../renderer/base/renderer.hpp"
 #include "../types/inc/utils.hpp"
-#include <til/regex.h>
 #include "search.h"
 
 // BODGY: Misdiagnosis in MSVC 17.11: Referencing global constants in the member
@@ -3074,6 +3076,10 @@ std::optional<std::vector<til::point_span>> TextBuffer::SearchText(const std::ws
 // Returns nullopt if the parameters were invalid (e.g. regex search was requested with an invalid regex)
 std::optional<std::vector<til::point_span>> TextBuffer::SearchText(const std::wstring_view& needle, SearchFlag flags, til::CoordType rowBeg, til::CoordType rowEnd) const
 {
+#ifdef VT7_CORE
+    // The proof does not ship ICU or expose search. Report unavailable, not no matches.
+    return std::nullopt;
+#else
     rowEnd = std::min(rowEnd, _estimateOffsetOfLastCommittedRow() + 1);
 
     std::vector<til::point_span> results;
@@ -3116,6 +3122,7 @@ std::optional<std::vector<til::point_span>> TextBuffer::SearchText(const std::ws
     }
 
     return results;
+#endif
 }
 
 // Collect up all the rows that were marked, and the data marked on that row.

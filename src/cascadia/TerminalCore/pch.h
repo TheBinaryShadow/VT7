@@ -7,8 +7,10 @@
 // it after some of our C++/WinRT headers.
 #define BLOCK_TIL
 #include <LibraryIncludes.h>
+#ifndef VT7_CORE
 #include "winrt/Windows.Foundation.h"
 
 #include "winrt/Microsoft.Terminal.Core.h"
+#endif
 
 #include <til.h>

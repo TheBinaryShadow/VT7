@@ -45,6 +45,9 @@ namespace VT7.Host
                     .AppendLine("Hardware: " + snapshot.HardwareDisplay)
                     .AppendLine("WARP: " + snapshot.WarpDisplay)
                     .AppendLine("DXGI 1.2: " + snapshot.DxgiDisplay)
+                    .AppendLine("Surface: " + snapshot.SurfaceDisplay)
+                    .AppendLine("TerminalCore checks:")
+                    .AppendLine(snapshot.CoreTests)
                     .AppendLine("Native path: " + snapshot.NativePath)
                     .AppendLine("Error: " + (snapshot.Error ?? "None"))
                     .ToString();

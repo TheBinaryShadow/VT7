@@ -3,6 +3,10 @@
 
 #pragma once
 
+#ifdef VT7_CORE
+#include "../../vt7/VT7.Core/ProofRenderer.hpp"
+#else
+
 #include "../../buffer/out/textBuffer.hpp"
 #include "../inc/IRenderEngine.hpp"
 #include "../inc/RenderSettings.hpp"
@@ -182,3 +186,4 @@ namespace Microsoft::Console::Render
         std::vector<til::rect> _lastSelectionRectsByViewport{};
     };
 }
+#endif

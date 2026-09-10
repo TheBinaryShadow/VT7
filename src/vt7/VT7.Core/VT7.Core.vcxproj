@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64"><Configuration>Debug</Configuration><Platform>x64</Platform></ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64"><Configuration>Release</Configuration><Platform>x64</Platform></ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{54CBEAA0-46F4-4B91-BC5D-B2387719EB24}</ProjectGuid>
+    <ProjectName>VT7.Core</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <VCToolsVersion>14.44.35207</VCToolsVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseDebugLibraries Condition="'$(Configuration)' == 'Debug'">true</UseDebugLibraries>
+    <UseDebugLibraries Condition="'$(Configuration)' != 'Debug'">false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="Core.props" />
+  <PropertyGroup>
+    <OutDir>$(VT7BinaryRoot)</OutDir>
+    <IntDir>$(VT7IntermediateRoot)</IntDir>
+    <TargetName>VT7.Core</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings>4100;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary Condition="'$(Configuration)' == 'Debug'">MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary Condition="'$(Configuration)' != 'Debug'">MultiThreadedDLL</RuntimeLibrary>
+      <PreprocessorDefinitions Condition="'$(Configuration)' != 'Debug'">NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\terminal\input\TestHook.cpp" />
+    <ClCompile Include="..\..\cascadia\TerminalCore\Terminal.cpp"><ObjectFileName>$(IntDir)cascadia_TerminalCore_Terminal.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\cascadia\TerminalCore\TerminalApi.cpp"><ObjectFileName>$(IntDir)cascadia_TerminalCore_TerminalApi.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\cascadia\TerminalCore\TerminalSelection.cpp"><ObjectFileName>$(IntDir)cascadia_TerminalCore_TerminalSelection.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\cascadia\TerminalCore\terminalrenderdata.cpp"><ObjectFileName>$(IntDir)cascadia_TerminalCore_terminalrenderdata.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\buffer\out\cursor.cpp"><ObjectFileName>$(IntDir)buffer_out_cursor.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\buffer\out\ImageSlice.cpp"><ObjectFileName>$(IntDir)buffer_out_ImageSlice.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\buffer\out\OutputCell.cpp"><ObjectFileName>$(IntDir)buffer_out_OutputCell.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\buffer\out\OutputCellIterator.cpp"><ObjectFileName>$(IntDir)buffer_out_OutputCellIterator.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\buffer\out\OutputCellRect.cpp"><ObjectFileName>$(IntDir)buffer_out_OutputCellRect.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\buffer\out\OutputCellView.cpp"><ObjectFileName>$(IntDir)buffer_out_OutputCellView.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\buffer\out\Row.cpp"><ObjectFileName>$(IntDir)buffer_out_Row.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\buffer\out\TextColor.cpp"><ObjectFileName>$(IntDir)buffer_out_TextColor.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\buffer\out\TextAttribute.cpp"><ObjectFileName>$(IntDir)buffer_out_TextAttribute.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\buffer\out\textBuffer.cpp"><ObjectFileName>$(IntDir)buffer_out_textBuffer.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\buffer\out\textBufferCellIterator.cpp"><ObjectFileName>$(IntDir)buffer_out_textBufferCellIterator.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\buffer\out\textBufferTextIterator.cpp"><ObjectFileName>$(IntDir)buffer_out_textBufferTextIterator.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\terminal\parser\OutputStateMachineEngine.cpp"><ObjectFileName>$(IntDir)terminal_parser_OutputStateMachineEngine.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\terminal\parser\stateMachine.cpp"><ObjectFileName>$(IntDir)terminal_parser_stateMachine.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\terminal\parser\tracing.cpp"><ObjectFileName>$(IntDir)terminal_parser_tracing.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\terminal\parser\base64.cpp"><ObjectFileName>$(IntDir)terminal_parser_base64.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\terminal\adapter\adaptDispatch.cpp"><ObjectFileName>$(IntDir)terminal_adapter_adaptDispatch.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\terminal\adapter\FontBuffer.cpp"><ObjectFileName>$(IntDir)terminal_adapter_FontBuffer.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\terminal\adapter\MacroBuffer.cpp"><ObjectFileName>$(IntDir)terminal_adapter_MacroBuffer.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\terminal\adapter\PageManager.cpp"><ObjectFileName>$(IntDir)terminal_adapter_PageManager.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\terminal\adapter\SixelParser.cpp"><ObjectFileName>$(IntDir)terminal_adapter_SixelParser.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\terminal\adapter\adaptDispatchGraphics.cpp"><ObjectFileName>$(IntDir)terminal_adapter_adaptDispatchGraphics.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\terminal\adapter\terminalOutput.cpp"><ObjectFileName>$(IntDir)terminal_adapter_terminalOutput.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\terminal\input\mouseInput.cpp"><ObjectFileName>$(IntDir)terminal_input_mouseInput.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\terminal\input\terminalInput.cpp"><ObjectFileName>$(IntDir)terminal_input_terminalInput.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\types\CodepointWidthDetector.cpp"><ObjectFileName>$(IntDir)types_CodepointWidthDetector.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\types\ColorFix.cpp"><ObjectFileName>$(IntDir)types_ColorFix.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\types\convert.cpp"><ObjectFileName>$(IntDir)types_convert.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\types\colorTable.cpp"><ObjectFileName>$(IntDir)types_colorTable.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\types\GlyphWidth.cpp"><ObjectFileName>$(IntDir)types_GlyphWidth.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\types\sgrStack.cpp"><ObjectFileName>$(IntDir)types_sgrStack.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\types\Viewport.cpp"><ObjectFileName>$(IntDir)types_Viewport.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\types\utils.cpp"><ObjectFileName>$(IntDir)types_utils.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\renderer\base\RenderSettings.cpp"><ObjectFileName>$(IntDir)renderer_base_RenderSettings.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\renderer\base\fontinfo.cpp"><ObjectFileName>$(IntDir)renderer_base_fontinfo.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\renderer\base\FontInfoBase.cpp"><ObjectFileName>$(IntDir)renderer_base_FontInfoBase.cpp.obj</ObjectFileName></ClCompile>
+    <ClCompile Include="..\..\renderer\base\FontInfoDesired.cpp"><ObjectFileName>$(IntDir)renderer_base_FontInfoDesired.cpp.obj</ObjectFileName></ClCompile>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

@@ -35,7 +35,7 @@ if (-not (Test-Path -LiteralPath $dumpbinPath -PathType Leaf)) {
 New-Item -ItemType Directory -Path $reportRoot -Force | Out-Null
 
 $textExtensions = @(
-    ".cmd", ".cpp", ".cs", ".def", ".gitignore", ".h", ".json", ".md",
+    ".cmd", ".cpp", ".cs", ".csproj", ".def", ".gitignore", ".h", ".hpp", ".json", ".manifest", ".md",
     ".props", ".ps1", ".sln", ".targets", ".txt", ".vcxproj", ".xaml",
     ".xml", ".yaml", ".yml"
 )
@@ -72,6 +72,11 @@ $forbiddenImports = @(
     "WaitOnAddress",
     "WakeByAddress",
     "dcomp.dll",
+    "icu.dll",
+    "icuuc.dll",
+    "RoInitialize",
+    "RoGetActivationFactory",
+    "WindowsCreateString",
     "windows.ui.xaml.dll"
 )
 
@@ -83,7 +88,9 @@ function Assert-VT7Binary {
 
     $name = [System.IO.Path]::GetFileName($Path)
     $headers = (& $dumpbinPath /nologo /headers $Path | Out-String)
+    if ($LASTEXITCODE -ne 0) { throw "dumpbin headers failed for $Path" }
     $imports = (& $dumpbinPath /nologo /imports $Path | Out-String)
+    if ($LASTEXITCODE -ne 0) { throw "dumpbin imports failed for $Path" }
 
     [System.IO.File]::WriteAllText(
         (Join-Path $reportRoot "$name.headers.txt"),
@@ -141,6 +148,7 @@ if ($Configuration -eq "Release") {
     $redistRoot = Join-Path $installationPath "VC\Redist\MSVC\$redistVersion\x64\Microsoft.VC143.CRT"
     Assert-VT7Binary -Path (Join-Path $redistRoot "vcruntime140.dll")
     Assert-VT7Binary -Path (Join-Path $redistRoot "vcruntime140_1.dll")
+    Assert-VT7Binary -Path (Join-Path $redistRoot "msvcp140.dll")
 }
 
 Write-Host "VT7 verification passed. Reports: $reportRoot"

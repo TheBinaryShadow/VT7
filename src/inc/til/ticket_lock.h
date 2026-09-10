@@ -3,7 +3,9 @@
 
 #pragma once
 
+#ifndef VT7_CORE
 #include "atomic.h"
+#endif
 
 namespace til
 {
@@ -19,6 +21,14 @@ namespace til
     // * std::unique_lock or std::scoped_lock to prevent unbalanced lock/unlock calls
     struct ticket_lock
     {
+#ifdef VT7_CORE
+        // Windows 7 has SRW locks, but no WaitOnAddress. Recursive ownership is
+        // still managed by recursive_ticket_lock below; FIFO fairness is not promised.
+        void lock() noexcept { AcquireSRWLockExclusive(&_srw); }
+        void unlock() noexcept { ReleaseSRWLockExclusive(&_srw); }
+    private:
+        SRWLOCK _srw = SRWLOCK_INIT;
+#else
         void lock() noexcept
         {
             const auto ticket = _next_ticket.fetch_add(1, std::memory_order_relaxed);
@@ -52,6 +62,7 @@ namespace til
         // atomics are treated more like "IDs" and less like counters.
         std::atomic<uint32_t> _next_ticket{ 0 };
         std::atomic<uint32_t> _now_serving{ 0 };
+#endif
     };
 
     struct recursive_ticket_lock

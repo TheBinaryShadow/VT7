@@ -58,10 +58,13 @@ $arguments = @(
     "/m",
     "/p:Configuration=$Configuration",
     "/p:Platform=x64",
+    "/p:UseMultiToolTask=true",
+    "/p:MultiProcMaxCount=8",
     "/verbosity:minimal"
 )
 
 if (-not $NoRestore) {
+    & (Join-Path $PSScriptRoot 'Restore-VT7Dependencies.ps1')
     $arguments += "/restore"
 }
 

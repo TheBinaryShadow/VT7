@@ -38,12 +38,14 @@
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="..\VT7.Core\Core.props" />
 
   <PropertyGroup>
     <OutDir>$(VT7BinaryRoot)</OutDir>
     <IntDir>$(VT7IntermediateRoot)</IntDir>
     <TargetName>VT7.Native</TargetName>
     <TargetExt>.dll</TargetExt>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
 
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -97,10 +99,26 @@
     <ClCompile Include="native.cpp" />
     <ClCompile Include="platform.cpp" />
     <ClCompile Include="graphics.cpp" />
+    <ClCompile Include="surface.cpp" />
+    <ClCompile Include="core_tests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="exports.def" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VT7.Core\VT7.Core.vcxproj">
+      <Project>{54CBEAA0-46F4-4B91-BC5D-B2387719EB24}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>gdi32.lib;user32.lib;advapi32.lib;shlwapi.lib;ole32.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

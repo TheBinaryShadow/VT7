@@ -3,6 +3,12 @@
 VT7 is currently a pre-alpha development project. There is no supported public
 release and no finished application to install yet.
 
+The 0.2 engineering proof displays a static TerminalCore-backed viewport and
+has been tested on Windows 7 SP1 x64 setups with and without ESU. It does not
+run local shells or SSH sessions. See the
+[validation record](doc/vt7/validation/2026-09-10-viewport-proof.md) for scope and
+the known tab/diagnostic text contrast defect.
+
 ## Questions and help
 
 Use the [VT7 issue tracker](https://github.com/TheBinaryShadow/VT7/issues) for:
@@ -16,6 +22,11 @@ Use the [VT7 issue tracker](https://github.com/TheBinaryShadow/VT7/issues) for:
 Search existing issues before opening a new one. Include the requested Windows
 7 diagnostics in bug reports, especially the update tier, physical or virtual
 machine status, GPU and driver, shell version, and session backend.
+
+For the viewport proof, attach `VT7-diagnostics.log`, `VT7-viewport-test.log`,
+and screenshots for visible problems. Shell and session details do not apply
+to this static build. The text logs remain readable even when the diagnostic
+panel has poor contrast. Review logs for private local paths before sharing.
 
 Do not report VT7-specific problems to Microsoft. VT7 is independent from
 Microsoft Terminal and has no Microsoft support relationship.
@@ -34,8 +45,9 @@ Follow [SECURITY.md](SECURITY.md) and use GitHub private vulnerability reporting
 
 ## Unofficial builds
 
-There are no official VT7 binaries yet. When releases begin, official artifacts
-and checksums will be published only through the
+There are no public VT7 terminal releases yet. Local engineering proof packages
+are not alpha releases. When releases begin, official artifacts and checksums
+will be published only through the
 [VT7 releases page](https://github.com/TheBinaryShadow/VT7/releases). Treat
 builds from other locations as unofficial unless the project explicitly says
 otherwise.

@@ -3,3 +3,8 @@ EXPORTS
     VT7_GetBuildInfo
     VT7_GetPlatformInfo
     VT7_ProbeGraphics
+    VT7_CreateSurface
+    VT7_DestroySurface
+    VT7_GetSurfaceInfo
+    VT7_ResetSurface
+    VT7_RunCoreTests

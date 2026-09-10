@@ -56,8 +56,7 @@ The design is still being proven, but the working direction is:
 
 - Microsoft Terminal's MIT-licensed TerminalCore and parser for terminal state
   and VT behavior.
-- A Windows 7-compatible desktop host, currently expected to use WPF with a
-  native HWND terminal surface.
+- A .NET Framework 4.8 WPF desktop host with a native HWND terminal surface.
 - A downleveled Atlas renderer that uses the DirectX capabilities available
   through the Windows 7 Platform Update.
 - A WinPTY-based local session backend because Windows 7 does not provide
@@ -110,11 +109,27 @@ build the best terminal we can for the platform we love.
 
 ## Project status
 
+VT7 now has its first real terminal viewport running on Windows 7. Engineering
+build 0.2.0 brings together the WPF host, a native HWND surface, TerminalCore,
+and the VT parser, with a temporary GDI renderer and working buffer reflow.
+
+The proof has been tested on fully updated Windows 7 SP1 x64 setups both without
+ESU and with the full ESU update set. Supplied logs and screenshots document the
+non-ESU run; the tester separately confirmed the ESU setup. Core regression and
+window-lifecycle checks pass, and the sample is visibly rendered on Windows 7.
+See the [validation record](doc/vt7/validation/2026-09-10-viewport-proof.md) for
+the evidence and scope.
+
+This is a static proof, not an interactive shell. A known host-styling defect
+makes the tab labels and diagnostic values difficult to read; fixing it and
+adding style regression coverage are the next small cleanup. Atlas rendering
+and session backends remain ahead of us.
+
 - [x] Establish the VT7 project identity and scope.
 - [x] Select and record the Microsoft Terminal upstream baseline.
 - [x] Research the Windows 7 WPF, renderer, API, PTY, and SSH paths.
 - [x] Produce a reproducible developer build for the first VT7 executable.
-- [ ] Open a static terminal viewport on Windows 7 SP1 x64.
+- [x] Open a static terminal viewport on Windows 7 SP1 x64.
 - [ ] Render correctly through Direct3D 11 and the software fallback.
 - [ ] Run an interactive local shell through the Windows 7 PTY backend.
 - [ ] Complete the first direct SSH session.
@@ -122,8 +137,8 @@ build the best terminal we can for the platform we love.
   settings.
 - [ ] Publish the first alpha build.
 
-There are no official VT7 binaries yet. Please be careful with downloads that
-claim otherwise.
+There are no public VT7 terminal releases yet. Local engineering proof packages
+are not alpha releases. Please be careful with downloads that claim otherwise.
 
 ## Project documents
 

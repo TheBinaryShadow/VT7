@@ -137,6 +137,7 @@ namespace til // Terminal Implementation Library. Also: "Today I Learned"
     }
 }
 
+#ifndef VT7_CORE
 template<>
 struct fmt::formatter<winrt::hstring, wchar_t> : fmt::formatter<fmt::wstring_view, wchar_t>
 {
@@ -167,3 +168,4 @@ struct fmt::formatter<winrt::guid, wchar_t> : fmt::formatter<fmt::wstring_view, 
             value.Data4[7]);
     }
 };
+#endif

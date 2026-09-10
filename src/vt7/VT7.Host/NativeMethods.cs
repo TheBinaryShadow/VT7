@@ -1,11 +1,44 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace VT7.Host
 {
     internal static class NativeMethods
     {
-        internal const uint ExpectedAbiVersion = 1;
+        internal const uint ExpectedAbiVersion = 2;
+
+        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct SurfaceInfo
+        {
+            internal uint StructSize;
+            internal uint Columns;
+            internal uint Rows;
+            internal uint CellWidth;
+            internal uint CellHeight;
+            internal uint PaintCount;
+            internal uint ResizeCount;
+            internal int LastHResult;
+        }
+
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_CreateSurface(IntPtr parent, out IntPtr window);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_DestroySurface(IntPtr window);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_GetSurfaceInfo(IntPtr window, ref SurfaceInfo info);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_ResetSurface(IntPtr window);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true, CharSet = CharSet.Unicode)]
+        internal static extern int VT7_RunCoreTests([Out] StringBuilder report, uint reportCharacters);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool RedrawWindow(IntPtr window, IntPtr rectangle, IntPtr region, uint flags);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool IsWindow(IntPtr window);
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode, Pack = 8)]
         internal struct BuildInfo

@@ -9,13 +9,17 @@
 #include "../../types/inc/utils.hpp"
 #include "../../types/inc/colorTable.hpp"
 #include "../../buffer/out/search.h"
+#ifndef VT7_CORE
 #include "../../buffer/out/UTextAdapter.h"
+#endif
 
 #include <til/hash.h>
+#ifndef VT7_CORE
 #include <til/regex.h>
 #include <winrt/Microsoft.Terminal.Core.h>
 
 using namespace winrt::Microsoft::Terminal::Core;
+#endif
 using namespace Microsoft::Terminal::Core;
 using namespace Microsoft::Console;
 using namespace Microsoft::Console::Render;
@@ -72,6 +76,7 @@ void Terminal::HardResetWithoutErase()
 // Arguments:
 // - settings: the set of CoreSettings we need to use to initialize the terminal
 // - renderer: the Renderer that the terminal can use for paint invalidation.
+#ifndef VT7_CORE
 void Terminal::CreateFromSettings(ICoreSettings settings,
                                   Renderer& renderer)
 {
@@ -250,6 +255,8 @@ void Terminal::UpdateColorScheme(const ICoreScheme& scheme)
     _NotifyScrollEvent();
 }
 
+#endif
+
 void Terminal::SetHighContrastMode(bool hc) noexcept
 {
     _highContrastMode = hc;
@@ -261,6 +268,7 @@ void Terminal::SetCursorStyle(const DispatchTypes::CursorStyle cursorStyle)
     engine.Dispatch().SetCursorStyle(cursorStyle);
 }
 
+#ifndef VT7_CORE
 void Terminal::SetOptionalFeatures(winrt::Microsoft::Terminal::Core::ICoreSettings settings)
 {
     auto& engine = reinterpret_cast<OutputStateMachineEngine&>(_stateMachine->Engine());
@@ -270,6 +278,8 @@ void Terminal::SetOptionalFeatures(winrt::Microsoft::Terminal::Core::ICoreSettin
     features.set(ITermDispatch::OptionalFeature::DesktopNotification, settings.AllowOscNotifications());
     engine.Dispatch().SetOptionalFeatures(features);
 }
+
+#endif
 
 bool Terminal::IsXtermBracketedPasteModeEnabled() const noexcept
 {
@@ -1344,6 +1354,7 @@ void Terminal::_updateUrlDetection()
     }
 }
 
+#ifndef VT7_CORE
 struct URegularExpressionInterner
 {
     // Interns (caches) URegularExpression instances so that they can be reused. This method is thread-safe.
@@ -1444,6 +1455,14 @@ PointTree Terminal::_getPatterns(til::CoordType beg, til::CoordType end) const
 
     return PointTree{ std::move(intervals) };
 }
+
+#else
+PointTree Terminal::_getPatterns(til::CoordType, til::CoordType) const
+{
+    // URL detection is not part of the static VT7 viewport proof.
+    return {};
+}
+#endif
 
 // NOTE: This is the version of AddMark that comes from the UI. The VT api call into this too.
 void Terminal::AddMarkFromUI(ScrollbarData mark,
@@ -1548,6 +1567,7 @@ void Terminal::UnknownSequence() noexcept
 {
 }
 
+#ifndef VT7_CORE
 void Terminal::ColorSelection(const TextAttribute& attr, winrt::Microsoft::Terminal::Core::MatchMode matchMode)
 {
     const auto colorSelection = [this](const til::point coordStartInclusive, const til::point coordEndExclusive, const TextAttribute& attr) {
@@ -1588,6 +1608,8 @@ void Terminal::ColorSelection(const TextAttribute& attr, winrt::Microsoft::Termi
         CATCH_LOG();
     }
 }
+
+#endif
 
 // Method Description:
 // - Returns the position of the cursor relative to the visible viewport

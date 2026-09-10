@@ -87,16 +87,20 @@ public:
                 Microsoft::Console::Render::Renderer& renderer);
     void HardResetWithoutErase();
 
+#ifndef VT7_CORE
     void CreateFromSettings(winrt::Microsoft::Terminal::Core::ICoreSettings settings,
                             Microsoft::Console::Render::Renderer& renderer);
 
     void UpdateSettings(winrt::Microsoft::Terminal::Core::ICoreSettings settings);
     void UpdateAppearance(const winrt::Microsoft::Terminal::Core::ICoreAppearance& appearance);
     void UpdateColorScheme(const winrt::Microsoft::Terminal::Core::ICoreScheme& scheme);
+#endif
     void SetHighContrastMode(bool hc) noexcept;
     void SetFontInfo(const FontInfo& fontInfo);
     void SetCursorStyle(const ::Microsoft::Console::VirtualTerminal::DispatchTypes::CursorStyle cursorStyle);
+#ifndef VT7_CORE
     void SetOptionalFeatures(winrt::Microsoft::Terminal::Core::ICoreSettings settings);
+#endif
     bool IsXtermBracketedPasteModeEnabled() const noexcept;
     std::wstring_view GetWorkingDirectory() noexcept;
 
@@ -249,7 +253,9 @@ public:
     const size_t GetTaskbarState() const noexcept;
     const size_t GetTaskbarProgress() const noexcept;
 
+#ifndef VT7_CORE
     void ColorSelection(const TextAttribute& attr, winrt::Microsoft::Terminal::Core::MatchMode matchMode);
+#endif
     void PreviewText(std::wstring_view input);
 
 #pragma region TextSelection

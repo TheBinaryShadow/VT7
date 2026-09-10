@@ -22,11 +22,17 @@ not need a lengthy design discussion.
 
 ## What helps most right now
 
+The 0.2 host/core/static-viewport proof now runs on tested Windows 7 non-ESU and
+ESU setups. Start with [BUILDING.md](BUILDING.md) and the
+[validation record](doc/vt7/validation/2026-09-10-viewport-proof.md) to understand
+what already works and what the proof does not cover.
+
 - Reproducible Windows 7 build and runtime investigation.
-- Isolation of TerminalCore and the terminal renderer from modern application
+- Hardening the isolated TerminalCore boundary and removing modern renderer
   dependencies.
 - Windows 7 Atlas, DXGI, Direct3D 11, and WARP work.
-- WPF and native HWND hosting experiments.
+- WPF styling/contrast fixes, visual regression coverage, and native HWND
+  lifetime and resize hardening.
 - Local PTY and WinPTY integration.
 - SSH library evaluation and prototypes.
 - Dependency and imported-API audits.

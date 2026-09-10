@@ -9,7 +9,7 @@ extern "C"
 
     enum : uint32_t
     {
-        VT7_NATIVE_ABI_VERSION = 1,
+        VT7_NATIVE_ABI_VERSION = 2,
         VT7_TEXT_SHORT = 32,
         VT7_TEXT_MEDIUM = 64,
         VT7_TEXT_LONG = 128,
@@ -59,6 +59,25 @@ extern "C"
     } VT7_GRAPHICS_INFO;
 
 #pragma pack(pop)
+
+    typedef struct VT7_SURFACE_INFO
+    {
+        uint32_t struct_size;
+        uint32_t columns;
+        uint32_t rows;
+        uint32_t cell_width;
+        uint32_t cell_height;
+        uint32_t paint_count;
+        uint32_t resize_count;
+        int32_t last_hresult;
+    } VT7_SURFACE_INFO;
+
+    // HWND values are opaque at the ABI boundary. Calls belong to the creating UI thread.
+    int32_t __cdecl VT7_CreateSurface(void* parent, void** window);
+    int32_t __cdecl VT7_DestroySurface(void* window);
+    int32_t __cdecl VT7_GetSurfaceInfo(void* window, VT7_SURFACE_INFO* info);
+    int32_t __cdecl VT7_ResetSurface(void* window);
+    int32_t __cdecl VT7_RunCoreTests(wchar_t* report, uint32_t report_characters);
 
     uint32_t __cdecl VT7_GetAbiVersion(void);
     int32_t __cdecl VT7_GetBuildInfo(VT7_BUILD_INFO* info);

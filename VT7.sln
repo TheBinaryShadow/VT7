@@ -9,12 +9,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VT7.Host", "src\vt7\VT7.Hos
 EndProject
 Project("{BC8A1FFA-BEE3-4634-8014-F334798102B3}") = "VT7.Native", "src\vt7\VT7.Native\VT7.Native.vcxproj", "{43D07332-FDE3-4E84-84CA-AE2B821F68B9}"
 EndProject
+Project("{BC8A1FFA-BEE3-4634-8014-F334798102B3}") = "VT7.Core", "src\vt7\VT7.Core\VT7.Core.vcxproj", "{54CBEAA0-46F4-4B91-BC5D-B2387719EB24}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{54CBEAA0-46F4-4B91-BC5D-B2387719EB24}.Debug|x64.ActiveCfg = Debug|x64
+		{54CBEAA0-46F4-4B91-BC5D-B2387719EB24}.Debug|x64.Build.0 = Debug|x64
+		{54CBEAA0-46F4-4B91-BC5D-B2387719EB24}.Release|x64.ActiveCfg = Release|x64
+		{54CBEAA0-46F4-4B91-BC5D-B2387719EB24}.Release|x64.Build.0 = Release|x64
 		{6BF96CB6-2457-4E40-A01F-3E6DB0CC9D6E}.Debug|x64.ActiveCfg = Debug|x64
 		{6BF96CB6-2457-4E40-A01F-3E6DB0CC9D6E}.Debug|x64.Build.0 = Debug|x64
 		{6BF96CB6-2457-4E40-A01F-3E6DB0CC9D6E}.Release|x64.ActiveCfg = Release|x64

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace VT7.Host
 {
@@ -17,6 +18,8 @@ namespace VT7.Host
         internal string HardwareDisplay { get; set; } = "Not tested";
         internal string WarpDisplay { get; set; } = "Not tested";
         internal string DxgiDisplay { get; set; } = "Not tested";
+        internal string CoreTests { get; set; } = "Not tested";
+        internal string SurfaceDisplay { get; set; } = "Not tested (headless diagnostics do not create a window)";
         internal string NativePath { get; set; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "VT7.Native.dll");
         internal string? Error { get; set; }
     }
@@ -30,6 +33,8 @@ namespace VT7.Host
             try
             {
                 var abi = NativeMethods.VT7_GetAbiVersion();
+                if (abi != NativeMethods.ExpectedAbiVersion)
+                    throw new InvalidOperationException($"Native ABI {abi}, expected {NativeMethods.ExpectedAbiVersion}. Extract the complete matching package.");
 
                 var build = NativeMethods.NewBuildInfo();
                 var buildResult = NativeMethods.VT7_GetBuildInfo(ref build);
@@ -39,6 +44,9 @@ namespace VT7.Host
 
                 var graphics = NativeMethods.NewGraphicsInfo();
                 var graphicsResult = NativeMethods.VT7_ProbeGraphics(ref graphics);
+                var coreReport = new StringBuilder(8192);
+                var coreResult = NativeMethods.VT7_RunCoreTests(coreReport, (uint)coreReport.Capacity);
+                snapshot.CoreTests = coreReport.ToString();
 
                 snapshot.BuildDisplay = buildResult >= 0
                     ? $"{build.Product} {build.VersionMajor}.{build.VersionMinor}.{build.VersionPatch}, {build.Configuration}, {build.BuildTimestamp}"
@@ -70,11 +78,12 @@ namespace VT7.Host
                     buildResult >= 0 &&
                     platformResult >= 0 &&
                     graphicsResult >= 0 &&
+                    coreResult >= 0 &&
                     graphics.FactoryHResult >= 0 &&
                     graphics.WarpHResult >= 0;
 
                 snapshot.Summary = snapshot.Passed
-                    ? "The managed host loaded the pinned native bridge and completed the Windows-compatible graphics probes."
+                    ? "The native bridge, graphics probes, and TerminalCore regression checks passed."
                     : "One or more required probes failed. Review the results and diagnostic log before proceeding.";
             }
             catch (Exception ex) when (

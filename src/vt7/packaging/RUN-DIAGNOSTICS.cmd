@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-VT7.Host.exe --diagnostics --diagnostics-output "%~dp0VT7-diagnostics.log"
+start "" /wait "VT7.Host.exe" --diagnostics --diagnostics-output "%~dp0VT7-diagnostics.log"
 set "vt7_exit=%ERRORLEVEL%"
 if "%vt7_exit%"=="0" (
     echo VT7 diagnostics passed.

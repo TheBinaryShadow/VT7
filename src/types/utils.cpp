@@ -925,6 +925,7 @@ HRESULT Utils::GetOverlappedResultSameThread(const OVERLAPPED* overlapped, DWORD
 // - name: Bytes comprising the name (in a namespace-specific format)
 // Return Value:
 // - a new stable v5 UUID
+#ifndef VT7_CORE
 GUID Utils::CreateV5Uuid(const GUID& namespaceGuid, const std::span<const std::byte> name)
 {
     // v5 uuid generation happens over values in network byte order, so let's enforce that
@@ -1000,6 +1001,8 @@ bool Utils::CanUwpDragDrop()
 }
 
 // See CanUwpDragDrop, GH#13928 for why this is different.
+#endif
+
 bool Utils::IsRunningElevated()
 {
     static auto isElevated = []() {
@@ -1295,6 +1298,7 @@ bool Utils::IsWindows11() noexcept
     return isWindows11;
 }
 
+#ifndef VT7_CORE
 bool Utils::IsLikelyToBeEmojiOrSymbolIcon(std::wstring_view text) noexcept
 {
     if (text.size() == 1 && !IS_HIGH_SURROGATE(til::at(text, 0)))
@@ -1328,3 +1332,4 @@ bool Utils::IsLikelyToBeEmojiOrSymbolIcon(std::wstring_view text) noexcept
     }
     return off == gsl::narrow_cast<int32_t>(text.size());
 }
+#endif

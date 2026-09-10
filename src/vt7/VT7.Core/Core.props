@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <VT7DependencyRoot>$(VT7ArtifactsRoot)deps\</VT7DependencyRoot>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ForcedIncludeFiles>$(VT7RepositoryRoot)src\vt7\VT7.Core\ProofFeatures.hpp;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>/utf-8 /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>VT7_CORE;_WIN32_WINNT=0x0601;WINVER=0x0601;NTDDI_VERSION=0x06010100;UNICODE;_UNICODE;FMT_HEADER_ONLY;NOMINMAX;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(VT7RepositoryRoot)src;$(VT7RepositoryRoot)src\inc;$(VT7RepositoryRoot)dep;$(VT7RepositoryRoot)dep\Console;$(VT7RepositoryRoot)dep\Win32K;$(VT7RepositoryRoot)oss\chromium;$(VT7RepositoryRoot)oss\interval_tree;$(VT7RepositoryRoot)oss\pcg\include;$(VT7RepositoryRoot)oss\wyhash;$(VT7DependencyRoot)wil-b6ec76a2d9a609897f25a7fa0a0bdf4238e94e35\include;$(VT7DependencyRoot)GSL-152d6eb989a1ecd23fe9c9cfb2fb8cfc7c0cd0c1\include;$(VT7DependencyRoot)fmt-407c905e45ad75fc29bf0f9bb7c5c2fd3475976f\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+</Project>
