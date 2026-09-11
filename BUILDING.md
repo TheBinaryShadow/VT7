@@ -72,17 +72,46 @@ To test and package the independent graphics/font probe:
 .\tools\Package-VT7RendererProbe.ps1 -SkipBuild
 ```
 
-The archive is `artifacts\VT7-renderer-probe-0.1-x64.zip`. Extract it on Windows 7,
-run `RUN-RENDERER-PROBE.cmd`, and retain `VT7-renderer-probe.log`. It uses hidden
+The current archive is `artifacts\VT7-renderer-probe-0.5-x64.zip`. Extract it on Windows 7,
+run `RUN-RENDERER-PROBE.cmd`, and retain `VT7-renderer-probe.log` and the companion
+`VT7-renderer-probe.log.bmp`. Version 0.5 preserves the original 0.1 sample and
+includes an independent U+1F600 coverage scan, explicit candidate rendering, thirteen
+real-core-cell fixtures, whole-ink fitting, and retained Arabic visual runs.
+Natural-size glyphs use a bounded two-pixel ink halo at the probe's fixed 96 DPI;
+oversized groups remain strictly fitted. Cell allocation never changes.
+The bitmap compares natural layout with an experimental fitted visual-run path;
+structural mapping success is not visual or bidi acceptance. It uses hidden
 graphics windows and offscreen readback, not a visible terminal. Optional newer
 interfaces may be unavailable without failing the baseline. The native probe
-does not require .NET or Power Automate.
+does not require .NET or Power Automate. Keep the complete `fonts` directory:
+the build/package copies pinned Unifont and Unifont Upper 17.0.05 with their
+OFL 1.1 license and provenance. These are private probe assets, not system-installed
+fonts or a change to VT7's MIT code license. `tools/Verify-VT7Fonts.ps1` checks
+their hashes. Missing or altered assets fail the diagnostic.
 
 `Verify-VT7.ps1` audits the probe when present. For its assembled package, use
 `-Configuration Release -RendererProbeOnly -BinaryDirectory <package-folder>`;
 this checks all packaged EXE/DLL files and requires the app-local CRT files.
 The [probe validation record](doc/vt7/validation/2026-09-11-renderer-probe.md)
-records the successful local and supplied Windows 7 capability runs.
+records the successful original 0.1 local and supplied Windows 7 capability runs.
+The [2C font experiment record](doc/vt7/validation/2026-09-11-font-mapping-probe.md)
+tracks the supplied Windows 7 0.2 results separately. The
+[0.3 follow-up](doc/vt7/validation/2026-09-11-font-fitting-probe.md) records the
+supplied Windows 7 run and user confirmation that KB2729094 is installed. The
+[0.4 follow-up](doc/vt7/validation/2026-09-11-natural-size-probe.md) tracks natural-size
+fitting and its supplied Windows 7 result. The
+[0.5 follow-up](doc/vt7/validation/2026-09-11-private-font-probe.md) adds bounded
+private symbol fallback and two forced private-font fixtures. The supplied
+Windows 7 run passes 51 checks and all 13 mappings, including automatic private
+U+1F600 fallback. This accepts the bounded experiment, not production font quality.
+No AtlasEngine/controller is linked into the probe;
+TerminalCore is linked only to supply authoritative fixture cell spans. The
+earlier renderer-probe 0.1/0.2/0.3/0.4, Atlas backend 0.1, and GDI 0.2.1 archives are retained.
+
+The [next geometry/repaint plan](doc/vt7/architecture/2026-09-11-font-geometry-test-plan.md)
+defines the upcoming size/DPI and incremental-render tests. There is no 0.6 build
+or new command line yet. Keep the tested 0.5 archive unchanged when updating docs;
+new implementation must use a new package version and validation record.
 
 Run the static Windows 7 compatibility gate after a build:
 

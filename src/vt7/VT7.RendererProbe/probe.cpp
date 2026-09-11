@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <cstring>
 #include <algorithm>
+#include "FontAnalysis.hpp"
 
 using Microsoft::WRL::ComPtr;
 
@@ -124,6 +125,11 @@ namespace
         report.text << "Font observation: runs=" << collector->runs << ", faces=" << collector->faces.size()
                     << ", glyphs=" << collector->glyphs << ", missingGlyphs=" << collector->missingGlyphs << '\n';
         report.text << "Font observation is not Atlas shaping or terminal-cell acceptance. Missing glyphs depend on installed fonts.\n";
+        ComPtr<VT7::FontProbe::Collector> retained;
+        retained.Attach(new VT7::FontProbe::Collector());
+        report.Require("Retain original sample glyph diagnostics", layout->Draw(nullptr, retained.Get(), 0, 0));
+        report.text << "\nOriginal 0.1 sample diagnostics (same text, font, wrapping, and dimensions):\n";
+        VT7::FontProbe::Describe(report.text, factory, sample, retained->runs);
         for (size_t i = 0; i < collector->faces.size(); ++i)
         {
             report.Query<IDWriteFontFace1>("Font face " + std::to_string(i) + " / Face1", collector->faces[i].Get(), true);
@@ -224,13 +230,13 @@ namespace
 int wmain(int argc, wchar_t** argv)
 {
     if ((argc != 3 && argc != 4) || wcscmp(argv[1], L"--output") != 0 || !argv[2][0] ||
-        (argc == 4 && wcscmp(argv[3], L"--inject-required-failure") != 0))
+        (argc == 4 && wcscmp(argv[3], L"--inject-required-failure") != 0 && wcscmp(argv[3], L"--inject-font-failure") != 0))
     {
-        fputs("Usage: VT7.RendererProbe.exe --output <log path> [--inject-required-failure]\n", stderr);
+        fputs("Usage: VT7.RendererProbe.exe --output <log path> [--inject-required-failure|--inject-font-failure]\n", stderr);
         return 64;
     }
     Report report;
-    report.text << "VT7 renderer capability probe 0.1\nNot Atlas rendering. GDI proof is unchanged.\n"
+    report.text << "VT7 renderer capability and font probe 0.5\nNot Atlas rendering. GDI proof is unchanged.\n"
                 << "Build: " << __DATE__ << ' ' << __TIME__ << "; compiler=" << _MSC_FULL_VER
 #ifdef NDEBUG
                 << "; Release x64\n";
@@ -267,6 +273,8 @@ int wmain(int argc, wchar_t** argv)
                     report.text << "Device section stopped: " << ex.what() << '\n';
                 }
             }
+            VT7::FontProbe::Exercise(report.text, dwrite.Get(), std::wstring(argv[2]) + L".bmp", argc == 4 && wcscmp(argv[3], L"--inject-font-failure") == 0);
+            report.Result("Font diagnostic and basic cell-mapping experiment", S_OK);
         }
         catch (const std::exception& ex)
         {
@@ -274,7 +282,7 @@ int wmain(int argc, wchar_t** argv)
             report.text << "Probe stopped: " << ex.what() << '\n';
         }
     }
-    if (argc == 4) report.Result("Injected baseline failure (test harness only)", E_FAIL);
+    if (argc == 4 && wcscmp(argv[3], L"--inject-required-failure") == 0) report.Result("Injected baseline failure (test harness only)", E_FAIL);
     report.text << "\nRequired checks: " << report.checks << "\nFailed checks: " << report.failures
                 << "\nBaseline passed: " << (report.failures == 0 ? "True" : "False") << '\n';
     std::ofstream output(argv[2], std::ios::binary | std::ios::trunc);

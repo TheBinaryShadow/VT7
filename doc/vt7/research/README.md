@@ -6,6 +6,24 @@ VT7 aims to combine the inherited TerminalCore/parser/buffer with a .NET Framewo
 
 ## Planning adoption
 
+Implementation follow-up: the [0.2 font/cell probe](../validation/2026-09-11-font-mapping-probe.md)
+has supplied Windows 7 evidence identifying U+1F600 as the missing cluster.
+The [font coverage/fitting research](2026-09-11-font-coverage-and-fitting.md)
+informs the [0.3 diagnostic](../validation/2026-09-11-font-fitting-probe.md).
+The supplied 0.3 run finds no U+1F600 coverage in 575 system-collection faces,
+with zero scan errors; KB2729094 is user-confirmed installed.
+[Probe 0.4](../validation/2026-09-11-natural-size-probe.md) refines natural-size
+fitting and now has a successful supplied Windows 7 run.
+[Probe 0.5](../validation/2026-09-11-private-font-probe.md) follows the user's
+approved private-font decision: pinned Unifont/Unifont Upper, OFL 1.1 font assets,
+MIT application code, and bounded symbol fallback. Local and supplied Windows 7
+tests pass, including automatic private U+1F600 fallback. This accepts the bounded
+experiment, not final typography or production integration. The
+[next geometry/repaint plan](../architecture/2026-09-11-font-geometry-test-plan.md)
+defines the next test slices. The [geometry contract](../architecture/2026-09-11-text-geometry-contract.md)
+defines core authority and consumer boundaries. F01/F02 remain partial: final
+visual/interaction policy and the production adapter are not yet accepted.
+
 The [approved September 11 plan](../architecture/2026-09-11-research-driven-plan.md)
 and [roadmap](../../../ROADMAP.md) now adopt the reviewed findings. They own the
 current execution order: continue 2C, then finish renderer integration; run the
@@ -13,10 +31,11 @@ current execution order: continue 2C, then finish renderer integration; run the
 or daily-driver UI work. Text geometry, session ownership, input, accessibility,
 and output-security contracts move ahead of their dependent UI features.
 
-This is planning adoption, not runtime acceptance or dependency selection. The
+The original research is planning input, not runtime acceptance. The
 original subsystem recommendations remain research, and historical priority
 tables should be read with the adopted experiment mapping. The platform floor,
-upstream baseline, licensing, and existing validation results are unchanged.
+upstream baseline and existing validation results are unchanged. The later
+private-font dependency and its separate license are documented above.
 
 ## Reading order
 

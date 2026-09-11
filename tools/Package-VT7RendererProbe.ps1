@@ -5,12 +5,13 @@ Set-StrictMode -Version 3.0
 $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $artifactRoot = Join-Path $repositoryRoot 'artifacts'
 $binaryRoot = Join-Path $artifactRoot 'vt7\bin\Release'
-$packageRoot = [IO.Path]::GetFullPath((Join-Path $artifactRoot 'renderer-probe-0.1'))
-$expectedRoot = [IO.Path]::GetFullPath((Join-Path $repositoryRoot 'artifacts\renderer-probe-0.1'))
-$zipPath = Join-Path $artifactRoot 'VT7-renderer-probe-0.1-x64.zip'
+$packageRoot = [IO.Path]::GetFullPath((Join-Path $artifactRoot 'renderer-probe-0.5'))
+$expectedRoot = [IO.Path]::GetFullPath((Join-Path $repositoryRoot 'artifacts\renderer-probe-0.5'))
+$zipPath = Join-Path $artifactRoot 'VT7-renderer-probe-0.5-x64.zip'
 if (-not [string]::Equals($packageRoot, $expectedRoot, [StringComparison]::OrdinalIgnoreCase)) { throw 'Unexpected renderer package path.' }
 if (-not $SkipBuild) { & (Join-Path $PSScriptRoot 'Build-VT7.ps1') -Configuration Release }
 & (Join-Path $PSScriptRoot 'Verify-VT7.ps1') -Configuration Release -RendererProbeOnly
+& (Join-Path $PSScriptRoot 'Verify-VT7Fonts.ps1')
 
 $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
 $installation = (& $vswhere -latest -products * -version '[17.0,18.0)' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath).Trim()
@@ -43,8 +44,19 @@ foreach ($source in $sources[0..6]) {
 Copy-Item -LiteralPath (Join-Path $repositoryRoot 'LICENSE') -Destination (Join-Path $packageRoot 'LICENSE.txt')
 Copy-Item -LiteralPath (Join-Path $repositoryRoot 'NOTICE.md') -Destination $packageRoot
 Copy-Item -LiteralPath $wilLicense -Destination (Join-Path $packageRoot 'licenses\WIL.txt')
+$coreLicenses = @(
+    @('artifacts\vt7\deps\GSL-152d6eb989a1ecd23fe9c9cfb2fb8cfc7c0cd0c1\LICENSE', 'GSL.txt'),
+    @('artifacts\vt7\deps\fmt-407c905e45ad75fc29bf0f9bb7c5c2fd3475976f\LICENSE', 'fmt.txt'),
+    @('oss\chromium\LICENSE', 'chromium.txt'),
+    @('src\vt7\VT7.Core\README.md', 'CORE-PROVENANCE.md')
+)
+foreach ($entry in $coreLicenses) {
+    Copy-Item -LiteralPath (Join-Path $repositoryRoot $entry[0]) -Destination (Join-Path $packageRoot ('licenses\' + $entry[1]))
+}
 
-# Only the independent probe is shipped, never the unported Atlas library.
+# The probe links TerminalCore for cell fixtures, never the unported AtlasEngine.
+Copy-Item -LiteralPath (Join-Path $repositoryRoot 'oss\unifont') -Destination (Join-Path $packageRoot 'fonts') -Recurse
+& (Join-Path $PSScriptRoot 'Verify-VT7Fonts.ps1') -FontDirectory (Join-Path $packageRoot 'fonts')
 & (Join-Path $PSScriptRoot 'Verify-VT7.ps1') -Configuration Release -RendererProbeOnly -BinaryDirectory $packageRoot
 & (Join-Path $PSScriptRoot 'Test-VT7RendererProbe.ps1') -Configuration Release -BinaryDirectory $packageRoot
 $hashLines = Get-ChildItem -LiteralPath $packageRoot -File -Recurse | Sort-Object FullName | ForEach-Object {

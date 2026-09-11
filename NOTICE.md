@@ -1,6 +1,20 @@
 # NOTICES AND INFORMATION
 Do Not Translate or Localize
 
+## GNU Unifont and Unifont Upper (VT7 font probe)
+
+VT7 bundles unmodified GNU Unifont 17.0.05 and Unifont Upper 17.0.05 as
+application-private fallback font assets under the SIL Open Font License 1.1
+option of their upstream dual license. These fonts are not MIT licensed.
+Their original copyright notices remain embedded in both files. The full license,
+upstream licensing statement, and pinned provenance are in `oss/unifont/` in
+source distributions and `fonts/` in the renderer-probe package.
+
+Source: https://unifoundry.com/unifont/index.html
+
+VT7's application code remains MIT licensed. No Unifont utility source is linked
+into the application. The notices below are retained from Microsoft Terminal.
+
 This software incorporates material from third parties. Microsoft makes certain
 open source code available at [http://3rdpartysource.microsoft.com](http://3rdpartysource.microsoft.com), or you may
 send a check or money order for US $5.00, including the product name, the open

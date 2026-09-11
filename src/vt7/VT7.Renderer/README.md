@@ -53,6 +53,26 @@ in its constructor and font routines. It must not be constructed on Windows 7
 until Milestone 2C adapts those paths. A successfully linked backend harness
 does not establish a complete loadable AtlasEngine or renderer-controller port.
 The independent `VT7.RendererProbe.exe` remains a separate capability tool.
+Its 0.5 font experiment links TerminalCore for fixture cell spans and retains
+DirectWrite callback runs, scans scalar coverage, fits whole ink, and preserves
+RTL runs for diagnostics and a bitmap comparison. It does not
+link this Atlas library or change the full engine's unsupported font boundary.
+See `doc/vt7/validation/2026-09-11-font-mapping-probe.md` for supplied Windows 7
+0.2 findings, and `doc/vt7/validation/2026-09-11-font-fitting-probe.md` for the
+supplied 0.3 follow-up. Probe 0.4 adds natural-size glyph fitting with bounded
+ink overhang; see `doc/vt7/validation/2026-09-11-natural-size-probe.md`.
+The text-geometry contract is in `doc/vt7/architecture/2026-09-11-text-geometry-contract.md`.
+The supplied Windows 7 0.4 run passes with natural-size Latin/italic output.
+Probe 0.5 adds private OFL-licensed Unifont assets and bounded standalone-symbol
+fallback, with two forced private-font fixtures. See
+`doc/vt7/validation/2026-09-11-private-font-probe.md` and `oss/unifont/README.md`.
+These assets are not installed into Windows or wired into AtlasEngine.
+The supplied Windows 7 0.5 run passes: both private faces load, all 13 fixtures
+map, and automatic fallback renders the missing U+1F600 in Supplementary C.
+Pixel-derived font quality and narrow-symbol compression remain limitations.
+Atlas font/interaction integration remains open. The next independent test scope
+is in `doc/vt7/architecture/2026-09-11-font-geometry-test-plan.md`, starting with
+size/DPI and vertical metrics, followed by differential repaint validation.
 
 ## Provenance and evidence
 

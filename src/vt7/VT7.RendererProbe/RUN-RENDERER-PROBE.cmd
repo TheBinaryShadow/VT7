@@ -9,5 +9,6 @@ if "%vt7_exit%"=="0" (
     echo VT7 renderer capability probe failed with exit code %vt7_exit%.
 )
 echo Report: %~dp0VT7-renderer-probe.log
+echo Font comparison: %~dp0VT7-renderer-probe.log.bmp
 pause
 exit /b %vt7_exit%

@@ -39,10 +39,21 @@
       <SubSystem>Console</SubSystem>
       <MinimumRequiredVersion>6.01</MinimumRequiredVersion>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d2d1.lib;dwrite.lib;ole32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d2d1.lib;dwrite.lib;ole32.lib;user32.lib;gdi32.lib;bcrypt.lib;advapi32.lib;shlwapi.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <!-- No reference to VT7.Renderer: that library is not yet runtime-compatible. -->
-  <ItemGroup><ClCompile Include="probe.cpp" /></ItemGroup>
+  <!-- Real core cells, but no AtlasEngine or renderer-controller integration. -->
+  <ItemGroup>
+    <ClCompile Include="probe.cpp" />
+    <ClCompile Include="FontAnalysis.cpp" />
+    <ClCompile Include="CoreCells.cpp"><WarningLevel>Level3</WarningLevel><TreatWarningAsError>false</TreatWarningAsError></ClCompile>
+    <ClInclude Include="FontAnalysis.hpp" />
+    <ProjectReference Include="..\VT7.Core\VT7.Core.vcxproj"><Project>{54CBEAA0-46F4-4B91-BC5D-B2387719EB24}</Project></ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="CopyPrivateFonts" AfterTargets="Build">
+    <ItemGroup><PrivateFontAssets Include="$(MSBuildThisFileDirectory)..\..\..\oss\unifont\*" /></ItemGroup>
+    <MakeDir Directories="$(OutDir)fonts" />
+    <Copy SourceFiles="@(PrivateFontAssets)" DestinationFolder="$(OutDir)fonts" SkipUnchangedFiles="true" />
+  </Target>
 </Project>

@@ -257,18 +257,79 @@ recreation does not establish automatic recovery from real device loss (2E).
 
 ### 2C: DirectWrite and glyph path
 
-- [ ] Investigate the capability-probe font discrepancy: the Windows 7 run on
-  2026-09-11 reported 8 runs, 2 faces, 60 glyphs, and 1 missing glyph, versus
-  3 faces and no missing glyphs on the development system. Add character/cluster
-  and selected-font diagnostics, identify the exact missing character, and
-  distinguish installed-font coverage from mapping defects. Do not assume it
-  is the supplementary sample character or treat this as Unicode acceptance.
+The supplied Windows 7 probe 0.2 passes 51 required checks and maps nine fixtures.
+It identifies the original missing glyph as U+1F600, selected as Consolas glyph
+zero, and exposes Arabic joining/order and advance-only emoji fitting defects.
+See the [0.2 evidence](doc/vt7/validation/2026-09-11-font-mapping-probe.md).
+The [researched 0.3 follow-up](doc/vt7/research/2026-09-11-font-coverage-and-fitting.md)
+independently scans font coverage, directly draws a candidate if available,
+fits whole ink rather than advances alone, and preserves shaped RTL runs.
+Its eleven fixtures include mixed and marked Arabic. The
+[0.3 validation record](doc/vt7/validation/2026-09-11-font-fitting-probe.md) separates
+development-machine checks from the supplied Windows 7 run: 51 checks pass,
+eleven fixtures map, and no scanned face covers U+1F600. The user confirmed
+KB2729094 installed. The 0.3 strict fitting passes containment but over-compresses
+ordinary letters. [Probe 0.4](doc/vt7/validation/2026-09-11-natural-size-probe.md)
+preserves natural proportions with an explicit bounded ink halo, keeping strict
+compression for oversized groups. Its supplied Windows 7 run passes 51 checks,
+maps all eleven fixtures, and keeps Latin, bold, and italic draws at natural size.
+[Probe 0.5](doc/vt7/validation/2026-09-11-private-font-probe.md) adds pinned,
+application-private Unifont/Unifont Upper under OFL 1.1 without changing the MIT
+code license. Its bounded symbol fallback and two forced private-font fixtures
+pass locally and on the supplied Windows 7 setup: 51 required checks, zero
+failures, 13 mapped fixtures, and automatic U+1F600 fallback in Supplementary C.
+All 76 original cell records match 0.4. Pixel-derived glyph quality and squeezed
+one-cell symbols remain limitations, not final typography acceptance.
+These partial F01/F02 results do not close the unchecked gates below.
+
+Next execution order is defined in the
+[geometry and repaint test plan](doc/vt7/architecture/2026-09-11-font-geometry-test-plan.md):
+geometry/size/DPI probe first, differential repaint second, then production
+adapter decisions and Atlas integration. Probe 0.6 is planned, not built.
+
+- [x] Identify the exact Windows 7 missing cluster and selected font from supplied
+  evidence: U+1F600, Consolas 5.24, glyph zero, original run 7 UTF-16 [60,62).
+- [x] Distinguish unavailable font coverage from automatic fallback selection on
+  the supplied target: 575 faces, zero supporting U+1F600, zero scan errors.
+  KB2729094 is user-confirmed installed. This is a tested-machine observation,
+  not a universal font inventory or a reason to reinstall that update.
+- [ ] Accept whole-ink fitting visually on Windows 7, including emoji neighbors,
+  italic overhang, and compression quality. Extend vertical/DPI/size coverage
+  before adopting the fitting policy in Atlas.
+- [x] Bundle unmodified, pinned static Unifont/Unifont Upper 17.0.05 in the
+  independent probe, with original font licensing, provenance, hash checks,
+  and missing/altered-file negative tests. No system font installation.
+- [x] Validate both private faces on the supplied Windows 7 setup: visible forced BMP/SMP glyphs,
+  U+1F600 missing-system fallback, unchanged source/core cells and shaped scripts.
+  Keep system fonts preferred. The current substitution covers only standalone
+  symbols/pictographs occupying a complete core cluster/run, not arbitrary text.
+- [ ] Build the next geometry probe with a frozen 0.5 reference plus 12/18/24 DIP
+  text at 96/120/144/192 DPI. Derive grid metrics from the primary font, never
+  fallback advances; log rounding, baseline, vertical ink, compression, and clipping.
+- [ ] Validate size/DPI transitions and snapshot invalidation, with identical
+  core text/cells and no stale metrics. Separate offscreen scale tests from
+  actual Windows 7 HWND/display-DPI behavior.
+- [ ] Compare incremental repaint against full redraw on the same renderer and
+  configuration after each deterministic edit. Include old/new ink damage,
+  neighboring backgrounds, combining/wide glyph changes, and viewport edges.
+- [ ] Resolve private fallback's production mapping, caching, metrics/style and
+  missing-asset behavior before Atlas integration. Review pixel-derived glyph
+  quality and narrow-symbol compression; no color emoji, ZWJ composition, or
+  universal Unicode coverage claim. Font repertoire does not replace core width tables.
+- [x] Compare preserved pure/mixed/marked Arabic runs on Windows 7 in probe 0.3:
+  joining/order follow the natural reference in these bounded samples.
+- [ ] Resolve production terminal ordering and cursor/selection/hit-test contracts before
+  AtlasEngine integration. The probe's bijective cell projection is not a
+  proportional glyph hit-test map; style/font splits remain to be exercised.
 - [ ] Remove mandatory newer font-fallback and font-face interfaces; prove a
   Windows 7-compatible font mapping/shaping path before settling its design.
 - [ ] Evaluate retained `IDWriteTextLayout::Draw` callback runs first, comparing
   explicit family mapping/analyzer shaping if needed. Record correctness, font
   identity/lifetime, caching, and cost before selecting the adapter (F01/F02).
-- [ ] Define the authoritative core-cell model and mappings among UTF-16,
+- [x] Document [text geometry contract v0.1](doc/vt7/architecture/2026-09-11-text-geometry-contract.md):
+  core authority, snapshot ownership, coordinate spaces, natural ink/damage,
+  and consumer rules. Diagnostic visual bidi is not the production default.
+- [ ] Implement and verify the authoritative core-cell model and mappings among UTF-16,
   clusters, glyphs, cells, and pixels. Cursor, selection, hit testing, IME,
   accessibility, and session dimensions must share these contracts; their full
   interactive implementations remain in later milestones.

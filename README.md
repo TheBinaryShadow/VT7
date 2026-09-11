@@ -201,6 +201,11 @@ copyright and license notices of Microsoft Terminal and other included
 open-source components. New VT7 contributions are made under the same MIT
 License unless a file clearly states otherwise.
 
+The renderer probe also bundles unmodified GNU Unifont and Unifont Upper fonts
+under their SIL Open Font License 1.1 option. These font assets retain their own
+copyright/license and do not change VT7's MIT code license. See
+[font provenance and licenses](oss/unifont/README.md) and [third-party notices](NOTICE.md).
+
 ## One last thing
 
 Windows 7 still matters because its users still matter.
