@@ -1,6 +1,7 @@
 // Copyright (c) 2026 VT7 contributors.
 // Licensed under the MIT license.
 #include "FontAnalysis.hpp"
+#include "../VT7.Renderer/Win7TextMapper.hpp"
 #include <dwrite_1.h>
 #include <bcrypt.h>
 #include <wil/resource.h>
@@ -18,6 +19,7 @@ namespace VT7::FontProbe
 {
     namespace
     {
+        struct Fixture { const char* name; const wchar_t* text; const wchar_t* family; DWRITE_FONT_WEIGHT weight; DWRITE_FONT_STYLE style; };
         void Check(bool value, const char* reason) { if (!value) throw std::runtime_error(reason); }
         void Hr(HRESULT value) { if (FAILED(value)) throw std::runtime_error("DirectWrite/font diagnostic operation failed"); }
         std::string Utf8(const std::wstring& text)
@@ -402,7 +404,7 @@ namespace VT7::FontProbe
     {
         try
         {
-            if (!run || !desc || !run->fontFace || !run->glyphCount || !run->glyphIndices || !run->glyphAdvances || !run->glyphOffsets ||
+            if (!run || !desc || !run->fontFace || !run->glyphCount || !run->glyphIndices || !run->glyphAdvances ||
                 !desc->string || !desc->stringLength || !desc->clusterMap) return E_INVALIDARG;
             Run owned;
             owned.face = run->fontFace; owned.text.assign(desc->string, desc->stringLength);
@@ -411,7 +413,8 @@ namespace VT7::FontProbe
             owned.x = x; owned.y = y; owned.em = run->fontEmSize; owned.mode = mode;
             owned.glyphs.assign(run->glyphIndices, run->glyphIndices + run->glyphCount);
             owned.advances.assign(run->glyphAdvances, run->glyphAdvances + run->glyphCount);
-            owned.offsets.assign(run->glyphOffsets, run->glyphOffsets + run->glyphCount);
+            if (run->glyphOffsets) owned.offsets.assign(run->glyphOffsets, run->glyphOffsets + run->glyphCount);
+            else owned.offsets.resize(run->glyphCount); // Optional offsets mean zero displacement.
             owned.clusters.assign(desc->clusterMap, desc->clusterMap + desc->stringLength);
             for (const auto index : owned.clusters) if (index >= run->glyphCount) return E_INVALIDARG;
             runs.push_back(std::move(owned));
@@ -462,7 +465,12 @@ namespace VT7::FontProbe
         Check(!runs.empty() && std::all_of(coverage.begin(), coverage.end(), [](auto n) { return n == 1; }), "Retained callback coverage invalid");
     }
 
-    void Exercise(std::ostream& log, IDWriteFactory* factory, const std::wstring& bitmapPath, bool injectMappingFailure)
+    // Separate experiment, sharing retained runs and mapping without altering the reference lane.
+#include "GeometryProbe.inl"
+#include "RepaintProbe.inl"
+#include "AdapterProbe.inl"
+
+    void Exercise(std::ostream& log, IDWriteFactory* factory, const std::wstring& bitmapPath, bool injectMappingFailure, bool injectAdapterFailure)
     {
         const auto coverage = ScanCoverage(log, factory);
         const auto privateFonts = LoadPrivateFonts(log, factory);
@@ -517,7 +525,6 @@ namespace VT7::FontProbe
             wideCells[3].textStart == 3 && wideCells[3].textEnd == 5 && wideCells[3].cellEnd - wideCells[3].cellStart == 1,
             "Core cell geometry oracle failed");
         log << "PASS: Mapping oracles (ligature, split combining, descending clusters, invalid index, real core cells)\n";
-        struct Fixture { const char* name; const wchar_t* text; const wchar_t* family; DWRITE_FONT_WEIGHT weight; DWRITE_FONT_STYLE style; };
         const Fixture fixtures[]{
             {"Latin-combining", L"A e\u0301 cafe\u00e9 ffi", L"Consolas", DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL},
             {"CJK-wide", L"A\u4e2d\u6587B", L"Consolas", DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL},
@@ -670,5 +677,8 @@ namespace VT7::FontProbe
         log << "Font bitmap: " << Utf8(bitmapPath) << "\nFont fixtures: " << fixtureIndex << "; mapped=" << mappedCount
             << "; unresolved=" << fixtureIndex - mappedCount << '\n';
         log << "PASS: Retained runs survive layout destruction and basic core-cell mapping\n";
+        ExerciseGeometry(log, factory, bitmapPath, privateFonts, std::vector<Fixture>(std::begin(fixtures), std::end(fixtures)));
+        ExerciseRepaint(log, factory, bitmapPath, privateFonts);
+        ExerciseAdapter(log, factory, bitmapPath, privateFonts, injectAdapterFailure);
     }
 }

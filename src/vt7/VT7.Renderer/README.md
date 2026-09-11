@@ -53,7 +53,7 @@ in its constructor and font routines. It must not be constructed on Windows 7
 until Milestone 2C adapts those paths. A successfully linked backend harness
 does not establish a complete loadable AtlasEngine or renderer-controller port.
 The independent `VT7.RendererProbe.exe` remains a separate capability tool.
-Its 0.5 font experiment links TerminalCore for fixture cell spans and retains
+Its 0.8 font experiment links TerminalCore for fixture cell spans and retains
 DirectWrite callback runs, scans scalar coverage, fits whole ink, and preserves
 RTL runs for diagnostics and a bitmap comparison. It does not
 link this Atlas library or change the full engine's unsupported font boundary.
@@ -73,6 +73,25 @@ Pixel-derived font quality and narrow-symbol compression remain limitations.
 Atlas font/interaction integration remains open. The next independent test scope
 is in `doc/vt7/architecture/2026-09-11-font-geometry-test-plan.md`, starting with
 size/DPI and vertical metrics, followed by differential repaint validation.
+Probe 0.6 now implements the first offscreen matrix, preserving the 0.5 reference;
+see `doc/vt7/validation/2026-09-11-geometry-probe.md`. The crop-copy and geometry-key
+tests are not Atlas clipping/invalidation or production snapshot acceptance.
+The supplied 0.6 Windows 7 matrix passes with the recorded stacked-mark overflow.
+Probe 0.7 adds software differential repaint over fixed core-backed clusters,
+with independent full-frame and negative comparisons. See
+`doc/vt7/validation/2026-09-11-repaint-probe.md`; Atlas invalidation remains unchanged.
+The supplied 0.7 Windows 7 run passes. The geometry contract now selects
+upstream's fixed-grid/ordinary-text overlap policy with its clipping exceptions.
+
+`Win7TextMapper.hpp/.cpp` is a reusable candidate currently compiled only by
+RendererProbe 0.8, not by this Atlas library. It uses baseline layout callbacks
+for face selection, retains FontFace1, then shapes in logical source order using
+IDWriteTextAnalyzer. It owns source/cell/glyph data, uses upstream-default metrics
+and complex-path advance correction, and rejects invalid spans/stale keys.
+There is no cache, visual bidi mode, general private styled fallback, horizontal
+ink fitting, or production controller integration. The 0.8 comparison separates
+these unresolved behaviors from the accepted older diagnostic lanes. See
+`doc/vt7/validation/2026-09-11-text-adapter-probe.md` for scope and evidence.
 
 ## Provenance and evidence
 

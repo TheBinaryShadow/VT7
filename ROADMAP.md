@@ -285,7 +285,15 @@ These partial F01/F02 results do not close the unchecked gates below.
 Next execution order is defined in the
 [geometry and repaint test plan](doc/vt7/architecture/2026-09-11-font-geometry-test-plan.md):
 geometry/size/DPI probe first, differential repaint second, then production
-adapter decisions and Atlas integration. Probe 0.6 is planned, not built.
+adapter decisions and Atlas integration. [Probe 0.6](doc/vt7/validation/2026-09-11-geometry-probe.md)
+implements the offscreen geometry matrix and passes on the supplied Windows 7 setup.
+Vertical overflow observations are covered by the approved upstream-aligned
+fixed-grid/overlapping ordinary-text policy, not silently accepted clipping.
+[Probe 0.7](doc/vt7/validation/2026-09-11-repaint-probe.md) adds the isolated
+differential repaint experiment and passes the supplied Windows 7 run.
+[Probe 0.8](doc/vt7/validation/2026-09-11-text-adapter-probe.md) now exercises a
+reusable owned logical-order mapper candidate with upstream-default metrics.
+It remains separate from AtlasEngine; target 0.8 acceptance is pending.
 
 - [x] Identify the exact Windows 7 missing cluster and selected font from supplied
   evidence: U+1F600, Consolas 5.24, glyph zero, original run 7 UTF-16 [60,62).
@@ -303,15 +311,36 @@ adapter decisions and Atlas integration. Probe 0.6 is planned, not built.
   U+1F600 missing-system fallback, unchanged source/core cells and shaped scripts.
   Keep system fonts preferred. The current substitution covers only standalone
   symbols/pictographs occupying a complete core cluster/run, not arbitrary text.
-- [ ] Build the next geometry probe with a frozen 0.5 reference plus 12/18/24 DIP
+- [x] Build the next geometry probe with a frozen 0.5 reference plus 12/18/24 DIP
   text at 96/120/144/192 DPI. Derive grid metrics from the primary font, never
   fallback advances; log rounding, baseline, vertical ink, compression, and clipping.
+- [ ] Review the 0.6 matrix on Windows 7, including all 204 fixture cases, raster
+  fit retries, and stacked-mark vertical REVIEW observations. Decide vertical
+  ink/line-height behavior under the selected upstream policy, without strict
+  ordinary-text clipping or global shrink. Final visual review remains open.
+- [x] Validate the supplied 0.6 Windows 7 structural matrix: 204 fixtures,
+  1,164 ink records, 24 stacked-mark observations, and unchanged target reference.
+  The unchecked review gate above still includes integrated typography acceptance.
 - [ ] Validate size/DPI transitions and snapshot invalidation, with identical
   core text/cells and no stale metrics. Separate offscreen scale tests from
   actual Windows 7 HWND/display-DPI behavior.
 - [ ] Compare incremental repaint against full redraw on the same renderer and
   configuration after each deterministic edit. Include old/new ink damage,
   neighboring backgrounds, combining/wide glyph changes, and viewport edges.
+- [x] Implement that comparison in the separate 0.7 software-damage probe:
+  480 transitions, 24 required negative detections, partial glyph redraw, and
+  exact RGB comparison with outside-damage sentinels. Atlas invalidation is unchanged.
+- [x] Validate 0.7 on the supplied Windows 7 setup: 480 exact comparisons,
+  24 detected negative cases, unchanged outside damage and original images.
+- [x] Select upstream's fixed primary-font grid and overlapping ordinary-text
+  ink policy, retaining its special clipping cases. Older probe metrics stay frozen.
+- [ ] Repeat differential checks and verify clipping exceptions in actual Atlas.
+- [x] Implement a separate owned logical-order mapper candidate in probe 0.8:
+  baseline DirectWrite layout face selection, analyzer shaping, retained FontFace1,
+  upstream-default metrics, core-group advance correction, and boundary/key checks.
+- [ ] Validate the 0.8 comparison on Windows 7. Resolve cross-style/face joining,
+  private styled glyph handling, horizontal ink behavior and cache/lifetime costs
+  before making this candidate the AtlasEngine font adapter.
 - [ ] Resolve private fallback's production mapping, caching, metrics/style and
   missing-asset behavior before Atlas integration. Review pixel-derived glyph
   quality and narrow-symbol compression; no color emoji, ZWJ composition, or

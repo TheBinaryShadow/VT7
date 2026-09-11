@@ -1,4 +1,4 @@
-# Text geometry contract v0.1
+# Text geometry contract v0.2
 
 Date: 2026-09-11. Status: implementation contract for the next adapter work,
 not a claim that interactive consumers or the adapter are implemented.
@@ -58,6 +58,33 @@ The host must not maintain independent estimates for those positions. Session
 resize derives integral columns/rows from the same metrics, never fallback fonts.
 Implementations and interactive acceptance of these consumers remain later work.
 
+## Primary metrics and vertical ink policy
+
+Following the upstream review and user approval, VT7's initial production target
+is a fixed primary-font grid with overlapping ordinary-text ink. Row height does
+not grow when a fallback face or stacked mark is encountered. Use upstream's
+default metrics: primary `0` advance (0.5 em if unavailable), ascent + descent +
+line gap, rounded total cell dimensions, and its centered, rounded baseline.
+Font size/DPI are converted once. Future explicit cell-height settings must
+preserve upstream's metric-resolution semantics, not modify rows per character.
+
+Ordinary glyph ink can cross interior row boundaries without changing cell
+ownership, cursor position, or copy order. Clip to the viewport and preserve
+upstream's exceptions, including cell-bound box glyphs and DEC double-height
+line halves. This is not a blanket removal of all glyph clipping. No general
+vertical shrink or strict ordinary-text row clip is selected.
+
+Sources: [upstream metrics](https://github.com/microsoft/terminal/blob/main/src/renderer/atlas/AtlasEngine.api.cpp),
+[upstream text drawing and dirty bounds](https://github.com/microsoft/terminal/blob/main/src/renderer/atlas/BackendD3D.cpp),
+and [Microsoft's Atlas overlap explanation](https://devblogs.microsoft.com/commandline/windows-terminal-preview-1-18-release/).
+The reviewed current upstream source informs the policy, not an upstream merge
+or a change to VT7's pinned source baseline.
+
+The accepted 0.6/0.7 diagnostic lane keeps its original `M`-advance/separate-ceil
+metrics. Probe 0.8 adds a distinct upstream-default metric lane; it must not
+silently relabel those older images as upstream-metric evidence. Actual Atlas
+integration, damage, clipping exceptions, and legibility remain acceptance gates.
+
 ## Natural ink, compression, and repaint
 
 The 0.4 experiment separates advance fit from raster overhang. At its fixed
@@ -89,13 +116,20 @@ not the default terminal mode. Its per-cell bijection proves structural coverage
 but is not glyph hit testing for proportional joined Arabic. Do not feed that
 lane directly into production cursor/selection logic or apply bidi twice.
 
-Whether the initial complex-script adapter should use logical-order analyzer
-shaping or a deliberate visual-bidi mode remains an explicit integration gate.
-The required experiment is to compare those paths without changing core text,
+The initial candidate now uses logical-order analyzer shaping, matching upstream's
+direction flags. A visual-bidi mode is not enabled. The required experiment
+compares those paths without changing core text,
 including cursor placement, selection, mixed numbers, marks, font/style splits,
 wrapping, and reflow. Preserving joins within one captured RTL run does not prove
 joins across runs. This contract fixes authority and safety rules; it does not
 pretend that the open Arabic pixel-to-interaction mapping has been solved.
+
+The [0.8 mapper candidate](../validation/2026-09-11-text-adapter-probe.md) implements
+owned source/cell/glyph data and retained FontFace1 objects outside the probe
+helper. It remains linked only into the independent probe. Its fixed `en-US`
+locale, bounded input, lack of cache, styled-private fallback exclusions,
+cross-face/style context, and horizontal ink policy need further work before
+production integration. Snapshot-key rejection is not a concurrent cache test.
 
 ## Before Atlas integration can be accepted
 

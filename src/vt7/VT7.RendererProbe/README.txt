@@ -1,4 +1,4 @@
-VT7 renderer capability and font probe 0.5
+VT7 renderer capability and font probe 0.8
 ================================
 
 This is a Milestone 2 engineering probe, not an Atlas terminal build.
@@ -11,12 +11,14 @@ not require .NET or Power Automate. Pinned Visual C++ runtime DLLs are bundled.
 1. Extract every file to a writable local folder.
 2. Run RUN-RENDERER-PROBE.cmd, without elevation.
 3. Open VT7-renderer-probe.log.bmp to inspect the font comparison.
-4. Send both VT7-renderer-probe.log and VT7-renderer-probe.log.bmp,
-   including if the report says failure. If no image was produced, send the log.
+4. Inspect the 12 additional VT7-renderer-probe.log.bmp.geometry-<size>-<dpi>.bmp
+   images, plus the new repaint comparisons described below. Send the log and
+   all generated bitmap files (67 on success), preferably together in a ZIP,
+   including if the report says failure. If no images were produced, send the log.
 
 The console is expected. The graphics windows are hidden, so no terminal
 window will appear. A bitmap comparison is saved beside the log instead.
-A run normally takes seconds.
+A run normally takes seconds, but the new matrix performs substantially more work.
 If it hangs, report that separately; the log is written when the run finishes.
 
 PASS/FAIL lines are required baseline checks. CAPABILITY lines are observations:
@@ -108,3 +110,120 @@ See LICENSE.txt, NOTICE.md, and licenses/ for the inherited
 core and pinned WIL/GSL/fmt/Chromium provenance.
 Microsoft Visual C++ runtime DLLs retain their Visual Studio redistribution
 terms and are not relicensed under MIT. SHA256SUMS.txt covers package contents.
+
+New in 0.6: geometry matrix
+---------------------------
+The original 0.5 comparison bitmap remains the frozen reference. Twelve separate
+images cover 12/18/24 DIP text at simulated 96/120/144/192 DPI. There are 17
+fixtures per image, 204 total, including the existing corpus, descenders,
+stacked marks, explicit grid decorations, and italic/wide edge neighbors.
+
+U is unclipped fitted ink over alternating cell backgrounds. V is a diagnostic
+copy cropped to a one-row viewport. It intentionally shows what a strict clip
+would lose, not a decision to discard those marks in the product. This crop is
+implemented by a verified blit, not Atlas or DirectWrite target clipping.
+Fixture names mentioning "forced C" refer to the original comparison naming;
+both U and V show the forced private face in those two geometry fixtures.
+
+Primary Consolas supplies the grid at every size: M advance rounded to the nearest
+device pixel, ascent/descent/line gap rounded upward separately. Fallback never
+changes those dimensions. Layout DIP values are converted to pixels once, with
+a common primary baseline. All reported geometry is in device pixels afterward.
+The two-pixel natural horizontal halo remains an explicit experiment; it is not
+multiplied by DPI or accepted as a production constant. Oversized glyphs use a
+bounded raster-preflight loop before drawing. Retry counts and scales are logged.
+
+Look closely at stacked marks above A and below g, descenders, decorations,
+private glyph proportions, and first/last-cell ink. GEOMETRY_INK vertical=REVIEW
+records ink outside the primary row height. These observations inform the chosen
+overlap policy; they do not count as structural failures or disappear
+behind "Baseline passed". No general vertical shrinking is applied.
+
+The matrix also verifies source/core spans, required private ink, crop pixels,
+outside-crop sentinels, stale geometry-key rejection, and restored RGB pixels
+against initial and fresh renders. This is not a production cache/lifetime test.
+Offscreen DPI simulation does not test display settings, actual HWND resizing,
+per-monitor transitions, or Atlas incremental redraw. Do not change Windows DPI
+or log off to run this package.
+
+New in 0.7: differential repaint
+--------------------------------
+Twelve size/DPI combinations each run 20 deterministic edits twice, 480
+transitions total, on a five-row, 18-column diagnostic grid. Cases include
+italic-to-space, narrow/wide replacement, combining marks, private fallback,
+foreground/background/style changes, neighboring-row ink, and viewport edges.
+This is a fixed scene of independently shaped core-backed clusters, not a live
+TerminalCore edit/reflow session or a test of joining across separate clusters.
+
+Each new state is freshly rendered as an oracle. The incremental path starts
+from the previous frame, clears only damaged backgrounds, rerasterizes glyphs
+whose ink intersects the damage, then commits only that rectangle. The damage
+includes old/new allocation and ink, clipped only at the outer viewport. It is
+not expanded to the full viewport and it never copies pixels from the oracle.
+Scratch drawing plus bounded blit tests a software damage compositor, not
+DirectWrite clip state or Atlas's own incremental presentation path.
+
+Every transition requires exact RGB equality with the oracle and unchanged
+pixels outside damage. Two complete edit cycles must restore the initial image.
+All configurations must also detect deliberately omitted old-ink damage and
+deliberately skipped neighboring glyphs. REPAINT_NEGATIVE records with nonzero
+mismatch counts are EXPECTED and required. Positive REPAINT_STEP records must
+have mismatch=0 and outside=0. Read the final REPAINT_SUMMARY and baseline status.
+
+For each size/DPI, *.repaint-<size>-<dpi>.sample.full.bmp and
+*.sample.incremental.bmp must look identical; *.sample.difference.bmp is black.
+At 24 DIP/192 DPI, two extra negative-old and negative-neighbor triples show
+deliberately broken results with red mismatch pixels. Red in those NEGATIVE
+images is expected. Unexpected failures save additional *.failure-* triples.
+The 42 repaint bitmaps supplement the existing 13 reference/geometry images.
+
+The teal border is outside the terminal viewport and must remain untouched.
+Stacked marks may cross interior row boundaries in this experiment; top/bottom
+viewport ink is clipped deliberately. Overlapping text, narrow private symbols,
+and physical DPI behavior are not declared production-ready by pixel equality.
+The selected policy now follows upstream: fixed primary-font rows with ordinary
+text overhang. Earlier probe metric rounding and images remain frozen evidence.
+
+New in 0.8: logical-order mapper candidate
+-----------------------------------------
+Twelve additional *.adapter-<size>-<dpi>.bmp images compare:
+- N: ordinary visual DirectWrite paragraph layout, system fonts only.
+- T: the reusable Win7TextMapper candidate, original terminal column order.
+
+T does NOT reverse or visually reorder terminal cells for Arabic/Hebrew. The
+analyzer uses the same direction flags as upstream Atlas. N and T are therefore
+expected to differ on those rows. Compare shapes, marks, style boundaries and
+neighbors; do not interpret a successful mapping as complete script support.
+Arabic joining across real style/font changes remains an explicit review item.
+The equal-style split must reproduce the unsplit Arabic mapping.
+
+The T lane uses upstream's primary '0' advance, rounded total line height and
+rounded baseline, unlike the frozen 0.6/0.7 metric lane. Glyph proportions stay
+natural; terminal groups receive upstream-like final-advance correction, not
+the earlier probe's horizontal ink compression. Oversized glyphs may overlap
+neighbors. This is a measured candidate, not final horizontal-fit acceptance.
+Ordinary vertical overhang is allowed without dynamically enlarging rows.
+Box/DEC special clipping is not exercised by this bitmap mapper.
+
+The mapper uses baseline DirectWrite layout only to select faces, then destroys
+the layout and shapes owned source with IDWriteTextAnalyzer. Mapped faces must
+provide real FontFace1. No Factory2, FontFallback, or FontFace2+ is requested by
+this candidate. This does not yet remove those dependencies from AtlasEngine.
+
+All 192 fixtures check source/core/glyph coverage, cell advances, retained-data
+lifetime, fresh-remap pixels and seven stale-key variants. Eight invalid-input
+controls must be rejected. The log reports missing glyph counts explicitly.
+T's forced private BMP/SMP samples use the same pinned assets. Automatic private
+fallback remains bounded to regular standalone symbol runs; styled, multi-scalar
+and cross-run cases are not silently substituted. Missing-primary and bad assets
+fail this diagnostic; shipping fallback/recovery policy is still separate.
+
+The candidate has no layout cache or concurrent renderer, supports a bounded
+single-row input and fixed en-US analysis locale, and does not implement cursor,
+selection, IME, accessibility or visual-bidi interaction. The grid hit/copy
+checks are data-contract tests, not UI acceptance. Time samples include mapper
+construction and are diagnostic observations, not a performance benchmark.
+
+All 55 previous bitmaps are retained, plus 12 adapter comparisons, 67 total.
+Send the log and all bitmaps in a ZIP. No Windows settings changes are needed.
+The --inject-adapter-failure switch is only for the local negative-test harness.

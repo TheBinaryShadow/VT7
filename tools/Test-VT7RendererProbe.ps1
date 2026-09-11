@@ -86,6 +86,16 @@ if (-not (Test-Path -LiteralPath $bitmapPath) -or (Get-Item $bitmapPath).LastWri
 $bitmap = [IO.File]::ReadAllBytes($bitmapPath)
 if ($bitmap.Length -ne 6160054 -or [Text.Encoding]::ASCII.GetString($bitmap, 0, 2) -ne 'BM' -or
     [BitConverter]::ToInt32($bitmap, 18) -ne 1100 -or [BitConverter]::ToInt32($bitmap, 22) -ne -1400) { throw 'Invalid top-down font bitmap.' }
+& (Join-Path $PSScriptRoot 'Test-VT7Geometry.ps1') -ReportPath $reportPath -Started $started
+& (Join-Path $PSScriptRoot 'Test-VT7Repaint.ps1') -ReportPath $reportPath -Started $started
+& (Join-Path $PSScriptRoot 'Test-VT7TextAdapter.ps1') -ReportPath $reportPath -Started $started
+
+$adapterPath = Join-Path $reportRoot 'renderer-probe-adapter-failure.log'
+$adapterStarted = Get-Date
+Invoke-ProbeTest ('--output "' + $adapterPath + '" --inject-adapter-failure') 1
+if (-not (Test-Path -LiteralPath $adapterPath) -or (Get-Item -LiteralPath $adapterPath).LastWriteTime -lt $adapterStarted.AddSeconds(-2)) { throw 'Missing/stale adapter failure report.' }
+$adapterText = [IO.File]::ReadAllText($adapterPath)
+if ($adapterText -notmatch '(?m)^Baseline passed: False\r?$' -or $adapterText -notmatch 'Stale text mapper snapshot') { throw 'Stale adapter input did not fail the baseline.' }
 
 $mappingPath = Join-Path $reportRoot 'renderer-probe-mapping-failure.log'
 $mappingStarted = Get-Date

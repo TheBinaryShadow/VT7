@@ -1,6 +1,13 @@
 # Milestone 2C: next geometry and repaint tests
 
-Date: 2026-09-11. Status: implementation plan, no new build or runtime acceptance.
+Date: 2026-09-11. Status: first slice implemented in
+[probe 0.6](../validation/2026-09-11-geometry-probe.md) with supplied Windows 7
+structural acceptance. The second slice is now implemented in isolated
+[probe 0.7](../validation/2026-09-11-repaint-probe.md), with supplied Windows 7 acceptance.
+The upstream fixed-grid/overlapping-text policy is selected in the geometry
+contract. Production integration remains open. The next implemented slice is
+[probe 0.8](../validation/2026-09-11-text-adapter-probe.md), an owned logical-order
+mapper candidate tested independently before routing it into Atlas.
 Depends on the [geometry contract](2026-09-11-text-geometry-contract.md) and the
 accepted bounded [Windows 7 probe 0.5 result](../validation/2026-09-11-private-font-probe.md).
 
@@ -20,6 +27,14 @@ new font assets, a Unicode-table upgrade, color emoji, or an ESU prerequisite.
 MIT application code and the separate OFL font licenses remain unchanged.
 
 ## First build: geometry and fitting
+
+Implementation note: 0.6 uses retained DirectWrite layouts in DIP, explicitly
+converts all glyph geometry to pixels once, and aligns to primary Consolas
+metrics. Its U/V images compare unclipped ink with a verified one-row crop copy,
+not native Atlas clipping. Vertical overflow is reported as REVIEW without
+changing the font's vertical scale. Its generation guard is a diagnostic key,
+not a production snapshot/cache implementation. See the validation record for
+the precise boundaries and discovered fitting/callback corrections.
 
 Keep the existing 13-fixture 0.5 lane at 18 DIP, 10-pixel cells, and 96 DPI as a
 fixed reference. The new metric-derived matrix is additional, not a silent
@@ -67,6 +82,13 @@ offscreen package. Physical display and lifecycle acceptance remain separate.
 
 ## Second build: differential repaint
 
+Implementation note: 0.7 exercises 480 edits of fixed, independently shaped
+core-backed clusters in a five-row grid. Incremental drawing uses a previous-frame
+scratch target and commits only computed damage, without reading the full-frame
+oracle. It tests software damage composition, not Atlas's invalidation or a
+live terminal buffer/reflow path. Positive and deliberately broken comparisons
+have separate logs and image names. Exact equality does not settle overlap quality.
+
 Use the accepted geometry configuration and deterministic state transitions:
 italic to space, narrow to wide and back, combining-mark insertion/removal,
 private fallback to ordinary text, foreground/background and style changes,
@@ -91,10 +113,14 @@ in this isolated experiment is not acceptance of Atlas's own invalidation code.
 
 ## Decisions still required before integration
 
-The tests above do not settle logical-order complex-script shaping versus an
-explicit visual-bidi mode, joins across font/style runs, interaction mapping,
+The tests above do not settle joins across font/style runs, interaction mapping,
 private-face caching and lifetime under settings changes, production missing-font
 behavior, or mandatory Factory2/font-face removal. Those remain 2C gates.
+The initial mapper candidate uses source-order analyzer shaping, not the visual
+paragraph lane. Probe 0.8 compares both, using upstream-default metrics in a new
+lane while retaining every older image. It checks owned mappings, retained-face
+lifetime, style boundaries, missing glyphs and stale keys at all 12 size/DPI
+combinations. It does not claim Arabic visual/interaction acceptance or a cache.
 Ask the user before a material policy change such as broadening bundled fallback,
 changing default cell proportions, or accepting intentional loss of glyph ink.
 

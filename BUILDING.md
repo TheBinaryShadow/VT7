@@ -72,7 +72,7 @@ To test and package the independent graphics/font probe:
 .\tools\Package-VT7RendererProbe.ps1 -SkipBuild
 ```
 
-The current archive is `artifacts\VT7-renderer-probe-0.5-x64.zip`. Extract it on Windows 7,
+The current archive is `artifacts\VT7-renderer-probe-0.8-x64.zip`. Extract it on Windows 7,
 run `RUN-RENDERER-PROBE.cmd`, and retain `VT7-renderer-probe.log` and the companion
 `VT7-renderer-probe.log.bmp`. Version 0.5 preserves the original 0.1 sample and
 includes an independent U+1F600 coverage scan, explicit candidate rendering, thirteen
@@ -108,10 +108,37 @@ No AtlasEngine/controller is linked into the probe;
 TerminalCore is linked only to supply authoritative fixture cell spans. The
 earlier renderer-probe 0.1/0.2/0.3/0.4, Atlas backend 0.1, and GDI 0.2.1 archives are retained.
 
-The [next geometry/repaint plan](doc/vt7/architecture/2026-09-11-font-geometry-test-plan.md)
-defines the upcoming size/DPI and incremental-render tests. There is no 0.6 build
-or new command line yet. Keep the tested 0.5 archive unchanged when updating docs;
-new implementation must use a new package version and validation record.
+The [geometry/repaint plan](doc/vt7/architecture/2026-09-11-font-geometry-test-plan.md)
+now has its first implementation in [probe 0.6](doc/vt7/validation/2026-09-11-geometry-probe.md).
+The unchanged command also writes twelve `.log.bmp.geometry-<size>-<dpi>.bmp`
+images, alongside the frozen 0.5 reference image. These 13 images remain part of
+the current package's output. `Test-VT7Geometry.ps1` independently checks the matrix as
+part of `Test-VT7RendererProbe.ps1`. Offscreen DPI is simulated; no display-setting
+change is requested. Vertical REVIEW observations do not imply final typography
+acceptance. The supplied Windows 7 0.6 run passes the matrix checks with the same
+24 stacked-mark observations; its reference image matches the target 0.5 image.
+Both accepted archives are retained.
+
+[Probe 0.7](doc/vt7/validation/2026-09-11-repaint-probe.md) adds the differential
+repaint experiment: 480 edits across the same 12 configurations, independent
+full-frame comparisons, and deliberately broken old-ink/neighbor cases.
+`Test-VT7Repaint.ps1` runs as part of the renderer suite. There are 42 additional
+repaint images, for 55 bitmap outputs total on success. Return the log and all
+bitmaps together, preferably zipped. Red pixels in explicitly named negative
+difference images are expected; normal sample difference images must be black.
+This remains an isolated software damage experiment, not Atlas integration.
+
+The supplied 0.7 Windows 7 result passes. The approved vertical policy follows
+upstream: fixed primary-font rows with ordinary glyph overhang and special
+clipping exceptions. [Probe 0.8](doc/vt7/validation/2026-09-11-text-adapter-probe.md)
+adds 12 `.adapter-<size>-<dpi>.bmp` comparisons, bringing the total to 67 bitmaps.
+Its reusable mapper candidate selects faces with baseline DirectWrite layout,
+then shapes original core order using the analyzer. N is visual paragraph layout;
+T is logical terminal order with upstream-default metrics/advance correction.
+Arabic/Hebrew N and T intentionally differ; joining and horizontal overhang
+quality still need review. This is not the integrated Atlas font path.
+`Test-VT7TextAdapter.ps1` independently checks 192 mappings and reported coverage
+as part of the renderer suite. The suite also injects a stale-snapshot failure.
 
 Run the static Windows 7 compatibility gate after a build:
 

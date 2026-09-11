@@ -20,7 +20,17 @@ MIT application code, and bounded symbol fallback. Local and supplied Windows 7
 tests pass, including automatic private U+1F600 fallback. This accepts the bounded
 experiment, not final typography or production integration. The
 [next geometry/repaint plan](../architecture/2026-09-11-font-geometry-test-plan.md)
-defines the next test slices. The [geometry contract](../architecture/2026-09-11-text-geometry-contract.md)
+defines the next test slices. Its first implementation is
+[probe 0.6](../validation/2026-09-11-geometry-probe.md), an offscreen size/DPI matrix
+with vertical-review and crop diagnostics; the supplied Windows 7 run passes
+its structural gates while retaining the vertical-policy observations.
+[Probe 0.7](../validation/2026-09-11-repaint-probe.md) adds the isolated differential
+repaint experiment; the supplied Windows 7 result passes all 480 comparisons
+and 24 deliberate negative cases. The upstream fixed-grid/overlapping-text
+policy is now selected. [Probe 0.8](../validation/2026-09-11-text-adapter-probe.md)
+adds a logical-order owned mapper candidate and an upstream-metric comparison
+lane; Windows 7 acceptance and Atlas integration remain pending.
+The [geometry contract](../architecture/2026-09-11-text-geometry-contract.md)
 defines core authority and consumer boundaries. F01/F02 remain partial: final
 visual/interaction policy and the production adapter are not yet accepted.
 
