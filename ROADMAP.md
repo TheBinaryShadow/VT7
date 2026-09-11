@@ -128,18 +128,125 @@ additional hardware, and sustained stability remain part of release hardening.
 
 ## Milestone 2: Windows 7 renderer
 
-- [ ] Restore a Windows 7-compatible Atlas device and swap-chain path.
-- [ ] Use the DirectX interfaces supplied by the Windows 7 Platform Update.
-- [ ] Remove the frame-latency waitable-object dependency.
-- [ ] Restore a safe fallback for presentation timing.
-- [ ] Use Windows 7-compatible scaling, buffer flags, and resize behavior.
-- [ ] Support Direct3D 11 hardware rendering.
-- [ ] Support WARP fallback where practical.
-- [ ] Verify font fallback, DPI changes, high contrast, and window resizing.
+Port the real Atlas rendering path without losing the tested TerminalCore/host
+boundary. This is not just a swap-chain change: the renderer controller,
+DirectWrite font mapping, native lifetime rules, and test harness also need work.
 
-Exit criterion: the renderer survives repeated resize, maximize, restore,
-minimize, DPI, and alternate-screen transitions without corruption or device
-loss loops.
+The [code assessment and acceptance plan](doc/vt7/architecture/2026-09-11-renderer-assessment.md)
+records the reviewed source, documented platform limits, proposed decisions,
+and unresolved experiments. Source review is complete; Atlas compilation and
+runtime feasibility are not yet proven. No implementation checkbox below is
+closed by the existing device-creation probes.
+
+### 2A: Isolated build and capability baseline
+
+- [x] Review the current Atlas, renderer-controller, font, host, and build paths
+  and record confirmed dependencies separately from runtime questions.
+- [ ] Add an isolated VT7 renderer build using the pinned toolchain, explicit
+  source/feature lists, and reproducible shader compilation. Do not import the
+  complete upstream application build or silently change its baseline.
+- [ ] Audit normal imports, delay-loaded/runtime dependencies, and mandatory
+  COM interface requests in Debug, Release, and the assembled package.
+- [ ] Add capability diagnostics for the actual graphics and font paths, with
+  useful failures when prerequisites or interfaces are missing.
+- [ ] Preserve the 0.2.1 package and a selectable GDI reference path. Keep its
+  regression checks passing during integration.
+
+Gate: an isolated, loadable renderer boundary with reviewed dependencies and
+capability reports from Windows 7. Loading is not rendering acceptance.
+
+### 2B: Windows 7 presentation path
+
+- [ ] Replace mandatory newer factory/device/context/swap-chain requirements
+  with interfaces and methods supported by the Windows 7 Platform Update.
+- [ ] Use an opaque native HWND target, compatible bitblt swap effect, scaling,
+  buffer count, and flags. Exclude the DirectComposition surface path.
+- [ ] Remove mandatory frame-latency waitable objects and implement bounded,
+  interruptible scheduling without busy-spinning while hidden or minimized.
+- [ ] Start with a correctly redrawn full frame and conservative presentation.
+  Enable dirty-rectangle/scroll optimizations only after separate validation.
+- [ ] Exercise both an explicit hardware device and explicit WARP device,
+  including resize, zero-sized/minimized windows, and target recreation.
+
+Gate: actual Windows 7 frame presentation, resize, and recovery of a test target
+on hardware and WARP. A cleared frame still does not prove Atlas text rendering.
+
+### 2C: DirectWrite and glyph path
+
+- [ ] Remove mandatory newer font-fallback and font-face interfaces; prove a
+  Windows 7-compatible font mapping/shaping path before settling its design.
+- [ ] Preserve cluster boundaries, fallback runs, cell allocation, baseline,
+  decorations, and bold/italic variants. Test missing-family and missing-glyph
+  behavior rather than treating successful Latin output as Unicode acceptance.
+- [ ] Audit both Atlas backends, including Direct2D glyph rasterization used by
+  BackendD3D. Replace unchecked interface assumptions with verified capabilities.
+- [ ] Record which advanced font capabilities are available, gracefully absent,
+  or deferred. Do not claim color-font or variable-font parity from first pixels.
+
+Gate: reproducible mixed-script glyph output with correct terminal-cell
+placement on Windows 7; unresolved fallback cases remain explicitly recorded.
+
+### 2D: TerminalCore-to-Atlas integration
+
+- [ ] Integrate the real renderer controller and IRenderData path with Atlas.
+  Keep the core/test fixtures consistent with the selected renderer type.
+- [ ] Replace address-based waits in redraw/timers and synchronized output with
+  Windows 7-safe synchronization, preserving deadlines and avoiding lost wakes.
+- [ ] Define device/thread ownership, core locking, tab hide/show, and teardown.
+  Stop rendering before releasing the HWND, core, engine, or device resources.
+- [ ] Propagate actual font metrics, viewport size, invalidation, and settings
+  through the native boundary; version any ABI changes in both native and host.
+- [ ] Render the existing TerminalCore sample through Atlas and package the
+  first Windows 7 text-rendering proof with unambiguous backend diagnostics.
+
+Gate: the existing sample visibly rendered by Atlas on Windows 7, with its
+backend and completed-frame evidence recorded. This is the first user-testable
+Atlas viewport, not completion of Milestone 2.
+
+### 2E: Fallback, lifecycle, and deterministic regression checks
+
+- [ ] Add forced hardware/WARP modes and test automatic hardware-failure
+  fallback. A GDI fallback must be reported and cannot pass an Atlas test.
+- [ ] Replace GDI-only paint-count assumptions with bounded frame-completion
+  checks; retain tab contrast, child-window lifetime, and core regression tests.
+- [ ] Exercise resize/reflow, alternate-screen and cursor transitions, tab
+  switching, expose/occlusion, minimize/maximize/restore, and repeated disposal
+  using deterministic VT input without needing a session backend.
+- [ ] Inject recoverable device/presentation failures and verify bounded retry,
+  resource recreation, clean shutdown, and understandable terminal failure.
+- [ ] Test wait/notify races, synchronized-output timeout, and teardown while
+  rendering is idle, active, hidden, or recovering.
+
+Gate: automated lifecycle/recovery suites pass with the requested backend;
+fault injection is recorded separately from real driver/device-loss evidence.
+
+### 2F: Visual and stability acceptance
+
+- [ ] Verify hardware Atlas and forced-WARP text rendering on Windows 7, with
+  logs and screenshots. Use the non-ESU setup for iteration and confirm the ESU
+  setup at milestone acceptance, not by assuming equivalent behavior.
+- [ ] Verify font fallback, accents/combining marks, wide and supplementary
+  characters, ligatures, box drawing, colors, decorations, and cursor alignment.
+- [ ] Test Windows 7 system-DPI configurations at 100%, 125%, and 150%, including
+  WPF/native sizing and clipping. Treat newer per-monitor DPI separately.
+- [ ] Verify Aero/basic and high-contrast behavior, keyboard focus, and readable
+  host diagnostics without silently overriding explicit terminal colors.
+- [ ] Run the quantified stress/idle checks in the acceptance plan, collect
+  resource and frame-time measurements, and investigate continuing growth or
+  unexplained rendering while idle. Record remaining coverage gaps honestly.
+- [ ] Pass Debug/Release verification and tests, audit the complete portable
+  package, and record the exact build, backend, environment, and results.
+
+Exit criterion: real Atlas text rendering works on the tested Windows 7 hardware
+and WARP paths and passes the lifecycle, font, DPI, theme, and stability checks
+above without persistent corruption, hangs, or device-loss loops. First pixels,
+a successful factory query, or a newer-Windows run alone cannot close this
+milestone. Minimum-prerequisite/extended hardware release qualification remains
+part of Milestone 6 and must not be claimed from the two existing test setups.
+
+Out of scope: local shells, SSH, daily-driver UI expansion, upstream merging,
+system DLL replacement, and modern composition effects. Early restrictions
+must be documented, not silently turned into permanent product limitations.
 
 ## Milestone 3: Local interactive sessions
 
