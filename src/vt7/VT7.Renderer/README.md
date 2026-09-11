@@ -53,7 +53,7 @@ in its constructor and font routines. It must not be constructed on Windows 7
 until Milestone 2C adapts those paths. A successfully linked backend harness
 does not establish a complete loadable AtlasEngine or renderer-controller port.
 The independent `VT7.RendererProbe.exe` remains a separate capability tool.
-Its 0.9 font experiment links TerminalCore for fixture cell spans and retains
+Its 0.11 font experiment links TerminalCore for fixture cell spans and retains
 DirectWrite callback runs, scans scalar coverage, fits whole ink, and preserves
 RTL runs for diagnostics and a bitmap comparison. It does not
 link this Atlas library or change the full engine's unsupported font boundary.
@@ -101,6 +101,40 @@ only oversized groups horizontally into their allocations. Actual draw bounds
 are checked; vertical ink is not shrunk or row-clipped. It remains a bitmap
 raster candidate, not an Atlas glyph cache, shader change or partial-present
 implementation. See `doc/vt7/validation/2026-09-11-horizontal-fitting-probe.md`.
+
+Probe 0.10 keeps Arabic repair in `VT7.RendererProbe/ArabicProbe.inl`, not in
+this library. It retains complete layout glyph data, compares whole-source
+shaping in the selected face/style, and refuses to cut boundary-spanning
+clusters. Native/repaired proportional text and logical/visual grid lanes expose
+the separate context, spacing and ordering decisions. The mapper, fitter,
+AtlasEngine and terminal interaction policy are unchanged. See
+`doc/vt7/validation/2026-09-11-arabic-context-probe.md` for the bounded tests.
+
+Probe 0.11 adds `VT7.RendererProbe/JoinedProbe.inl`, still outside this library.
+It gives an explicitly declared Arabic span one shared raster-measured fit over
+its combined TerminalCore allocation. It preserves internal run positioning,
+uses no vertical scaling, and checks ownership, containment and software row
+repaint. This does not establish a production joining segmenter, bidi mode,
+cursor/selection contract or cache. Unsafe cross-style ligatures remain reviews.
+See `doc/vt7/validation/2026-09-11-joined-span-probe.md`.
+
+Probe 0.12 adds `VT7.RendererProbe/LigatureProbe.inl`, also outside this library.
+It compares complete lam-alef shapes in the requested faces with spatial
+different-outline hybrids and same-outline color painting. Source/core cells
+remain unchanged; different-outline cases explicitly require review. No hybrid,
+cluster-wide font override or new terminal interaction policy is enabled.
+See `doc/vt7/validation/2026-09-11-cross-style-ligature-probe.md`.
+
+Probe 0.13 adds isolated marked/contextual same-outline painting and source
+selection in `VT7.RendererProbe/PaintProbe.inl`. It retains complete word geometry
+while varying spatial colors, with source-cluster and partial-paint checks.
+The approved direction excludes different-outline hybrids as the default.
+No interactive cursor, selection, hit test or Atlas path is changed. See
+`doc/vt7/validation/2026-09-11-marked-paint-probe.md`.
+The supplied Windows 7 matrix passes all eight validators and preserves the
+139 earlier target bitmaps. The long-word highlight mismatch remains an explicit
+interaction gate. These results do not accept the production font adapter or
+integrate same-outline paint into Atlas.
 
 ## Provenance and evidence
 

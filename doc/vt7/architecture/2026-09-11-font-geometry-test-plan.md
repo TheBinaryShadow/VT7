@@ -14,6 +14,19 @@ overflow and Arabic quality explicitly open. The user-approved next slice is
 retain the raw candidate, measure whole-group ink, protect neighbors from
 oversized groups, and test conservative partial-row redraw. Do not change
 core widths, vertical scale, or the selected logical-order policy in this slice.
+The supplied 0.9 Windows 7 containment/repaint run now passes. The next bounded
+slice is [0.10 Arabic context](../validation/2026-09-11-arabic-context-probe.md):
+test whole-source context across style/face boundaries, preserve exact source
+ownership, and compare natural versus cell-grid placement. Its visual projection
+is diagnostic only. Contextual glyph identity, connected cursive spacing, and
+terminal bidi/cursor policy are separate acceptance gates. A shaping cluster
+crossing a style boundary must not be arbitrarily sliced to make a test pass.
+The supplied 0.10 Windows 7 run passes its context/structural tests. The next
+slice, [0.11 joined spans](../validation/2026-09-11-joined-span-probe.md), fits a
+complete declared Arabic span into its combined allocation. It preserves
+internal positioning with one transform, checks old/new row damage and retains
+the unsafe-ligature review policy. Visual span formation, centering and cursor
+mapping remain decisions, not implicit consequences of a successful raster test.
 Depends on the [geometry contract](2026-09-11-text-geometry-contract.md) and the
 accepted bounded [Windows 7 probe 0.5 result](../validation/2026-09-11-private-font-probe.md).
 
@@ -118,6 +131,29 @@ Repeat backend-specific checks when the real Atlas path is integrated; success
 in this isolated experiment is not acceptance of Atlas's own invalidation code.
 
 ## Decisions still required before integration
+
+[Probe 0.13](../validation/2026-09-11-marked-paint-probe.md) extends same-outline
+paint to marks and joining context. Require complete core/source partitions,
+mark-safe logical substring checks, full-raster color references, stale rejection
+and partial color/selection repaint. Review the visible strip boundaries before
+moving on to cursor/hit testing; do not infer those policies from source checks.
+The supplied Windows 7 matrix now passes, including 432 source round trips,
+432 raster references and 288 exact partial paint repaints. Earlier 139 target
+images remain unchanged. The visible long-word highlight mismatch is retained
+as a review gate, not dismissed because the source-selection oracle passes.
+
+The next proposed interaction slice must compare visible-position mapping with
+authoritative core cells and original source intervals, including spare-space
+and span-edge clicks, combining marks and shared ligatures. Keep the existing
+paint/geometry references frozen. Do not change source, terminal widths or the
+default bidi/caret policy as an incidental consequence of a hit-test experiment.
+
+[Probe 0.12](../validation/2026-09-11-cross-style-ligature-probe.md) adds an
+isolated cross-style lam-alef matrix. Compare intact per-face shapes against
+spatial hybrids and same-outline color slices. Require raster-reference,
+outside-allocation, stale-key and dropped-color controls, but keep different-
+outline seam quality and source-to-paint policy as explicit review gates.
+Do not count earlier repaint tests as coverage of hybrid edits or scrolling.
 
 The tests above do not settle joins across font/style runs, interaction mapping,
 private-face caching and lifetime under settings changes, production missing-font

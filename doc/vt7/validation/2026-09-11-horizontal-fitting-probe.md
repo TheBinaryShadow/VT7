@@ -3,7 +3,8 @@
 Date: 2026-09-11. Branch: `initial-implementation-and-assessment`.
 Source base: `3dcc155c96c9a7037bbf2137006e48b877cd1d8d` plus this uncommitted work.
 Release stamp: `Sep 11 2026 16:00:47`, compiler `194435228`.
-Development runtime: Windows NT 10.0.19044. Windows 7 0.9 acceptance is pending.
+Development runtime: Windows NT 10.0.19044. The supplied Windows 7 0.9
+containment/repaint run passes; final fit quality remains open. See below.
 
 ## Motivation and scope
 
@@ -138,8 +139,34 @@ its known overflow intentionally for comparison.
 
 No fonts are installed and no assets, licenses, OS prerequisites, DPI/code-page
 settings or host UI are changed. The same MIT code and OFL font licensing applies.
-0.9 Windows 7 execution and visual review are pending. Atlas integration, Arabic
-context/style handling, cache/lifetime costs and final fit quality remain open.
+The supplied 0.9 Windows 7 execution now passes the containment checks below.
+Atlas integration, Arabic context/style handling, cache/lifetime costs and final
+fit quality remain open.
+
+## Supplied Windows 7 result
+
+Archive `probe-0.9-bitmaps-and-log.zip`: 2,869,267 bytes, SHA256
+`C0A7BFF178FD98CEFCA6806403199062992C7C76F171FB04B7CAB955349008F8`.
+The 80 flat entries contain one log and 79 BMPs, 374,959,248 bytes uncompressed.
+Evidence is preserved under ignored
+`artifacts/vt7/evidence/horizontal-probe-win7-c0a7bff1`.
+Log SHA256: `D99028E868CDD86886E01F7CB30227D28C0CECF51FBA24196E7EDA388B1DFDAD`.
+
+The log reports Windows NT 6.1.7601, Release x64 built Sep 11 2026 16:00:47,
+compiler 194435228, captured 2026-09-11 14:10:09 UTC. All 51 required checks pass.
+The geometry, repaint, adapter and horizontal independent validators pass:
+
+- 144 horizontal fixtures, 984 groups, 94 compressed groups.
+- 12 detected raw-overflow controls and 72 exact partial-row repaints.
+- Zero positive protection escapes or reported failures.
+- Natural Latin/italic pixels identical across all 12 configurations.
+- All 67 earlier BMPs byte-identical to the supplied 0.8 target evidence.
+
+Inspection at 18 DIP/96 DPI and 24 DIP/192 DPI confirms the emoji sequence no
+longer covers the following B, and vertical marks remain. The one-cell yin-yang
+is noticeably squeezed. Woman/laptop remain separate monochrome glyphs, not a
+composed emoji. Accept containment as a bounded result, not final typography.
+This archive does not independently establish a second ESU-machine run.
 
 ## Frozen package verification
 

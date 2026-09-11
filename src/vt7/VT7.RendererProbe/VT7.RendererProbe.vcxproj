@@ -54,6 +54,10 @@
     <ClInclude Include="RepaintProbe.inl" />
     <ClInclude Include="AdapterProbe.inl" />
     <ClInclude Include="HorizontalProbe.inl" />
+    <ClInclude Include="ArabicProbe.inl" />
+    <ClInclude Include="JoinedProbe.inl" />
+    <ClInclude Include="LigatureProbe.inl" />
+    <ClInclude Include="PaintProbe.inl" />
     <ProjectReference Include="..\VT7.Core\VT7.Core.vcxproj"><Project>{54CBEAA0-46F4-4B91-BC5D-B2387719EB24}</Project></ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

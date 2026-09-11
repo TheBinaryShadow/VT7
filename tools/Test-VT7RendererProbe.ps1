@@ -15,9 +15,9 @@ New-Item -ItemType Directory -Path $reportRoot -Force | Out-Null
 function Invoke-ProbeTest([string]$Arguments, [int]$ExpectedExit) {
     $process = Start-Process -FilePath $executable -ArgumentList $Arguments -PassThru -WindowStyle Hidden
     try {
-        if (-not $process.WaitForExit(60000)) {
+        if (-not $process.WaitForExit(120000)) {
             $process.Kill()
-            throw 'Renderer probe exceeded its 60-second timeout.'
+            throw 'Renderer probe exceeded its 120-second timeout.'
         }
         if ($process.ExitCode -ne $ExpectedExit) { throw "Renderer probe exit $($process.ExitCode), expected $ExpectedExit. See $reportRoot" }
     }
@@ -90,6 +90,38 @@ if ($bitmap.Length -ne 6160054 -or [Text.Encoding]::ASCII.GetString($bitmap, 0, 
 & (Join-Path $PSScriptRoot 'Test-VT7Repaint.ps1') -ReportPath $reportPath -Started $started
 & (Join-Path $PSScriptRoot 'Test-VT7TextAdapter.ps1') -ReportPath $reportPath -Started $started
 & (Join-Path $PSScriptRoot 'Test-VT7Horizontal.ps1') -ReportPath $reportPath -Started $started
+& (Join-Path $PSScriptRoot 'Test-VT7Arabic.ps1') -ReportPath $reportPath -Started $started
+& (Join-Path $PSScriptRoot 'Test-VT7Joined.ps1') -ReportPath $reportPath -Started $started
+& (Join-Path $PSScriptRoot 'Test-VT7Ligature.ps1') -ReportPath $reportPath -Started $started
+& (Join-Path $PSScriptRoot 'Test-VT7Paint.ps1') -ReportPath $reportPath -Started $started
+
+$paintPath = Join-Path $reportRoot 'renderer-probe-paint-failure.log'
+$paintStarted = Get-Date
+Invoke-ProbeTest ('--output "' + $paintPath + '" --inject-paint-failure') 1
+if (-not (Test-Path -LiteralPath $paintPath) -or (Get-Item -LiteralPath $paintPath).LastWriteTime -lt $paintStarted.AddSeconds(-2)) { throw 'Missing/stale paint failure report.' }
+$paintText = [IO.File]::ReadAllText($paintPath)
+if ($paintText -notmatch '(?m)^Baseline passed: False\r?$' -or $paintText -notmatch 'Paint raster reference differs') { throw 'Swapped paint colors did not fail the baseline.' }
+
+$ligaturePath = Join-Path $reportRoot 'renderer-probe-ligature-failure.log'
+$ligatureStarted = Get-Date
+Invoke-ProbeTest ('--output "' + $ligaturePath + '" --inject-ligature-failure') 1
+if (-not (Test-Path -LiteralPath $ligaturePath) -or (Get-Item -LiteralPath $ligaturePath).LastWriteTime -lt $ligatureStarted.AddSeconds(-2)) { throw 'Missing/stale ligature failure report.' }
+$ligatureText = [IO.File]::ReadAllText($ligaturePath)
+if ($ligatureText -notmatch '(?m)^Baseline passed: False\r?$' -or $ligatureText -notmatch 'Ligature composite reference differs') { throw 'Lost ligature paint style did not fail the baseline.' }
+
+$joinedPath = Join-Path $reportRoot 'renderer-probe-joined-failure.log'
+$joinedStarted = Get-Date
+Invoke-ProbeTest ('--output "' + $joinedPath + '" --inject-joined-failure') 1
+if (-not (Test-Path -LiteralPath $joinedPath) -or (Get-Item -LiteralPath $joinedPath).LastWriteTime -lt $joinedStarted.AddSeconds(-2)) { throw 'Missing/stale joined failure report.' }
+$joinedText = [IO.File]::ReadAllText($joinedPath)
+if ($joinedText -notmatch '(?m)^Baseline passed: False\r?$' -or $joinedText -notmatch 'Joined (shared-transform reference differs|allocation protection failed)') { throw 'Broken joined spacing did not fail the baseline.' }
+
+$arabicPath = Join-Path $reportRoot 'renderer-probe-arabic-failure.log'
+$arabicStarted = Get-Date
+Invoke-ProbeTest ('--output "' + $arabicPath + '" --inject-arabic-failure') 1
+if (-not (Test-Path -LiteralPath $arabicPath) -or (Get-Item -LiteralPath $arabicPath).LastWriteTime -lt $arabicStarted.AddSeconds(-2)) { throw 'Missing/stale Arabic failure report.' }
+$arabicText = [IO.File]::ReadAllText($arabicPath)
+if ($arabicText -notmatch '(?m)^Baseline passed: False\r?$' -or $arabicText -notmatch 'Arabic context differs from whole-word face/style oracle') { throw 'Context loss did not fail the Arabic baseline.' }
 
 $fitPath = Join-Path $reportRoot 'renderer-probe-fit-failure.log'
 $fitStarted = Get-Date

@@ -297,7 +297,23 @@ It remains separate from AtlasEngine; the supplied 0.8 Windows 7 structural run
 passes while exposing horizontal overflow and unresolved Arabic typography.
 [Probe 0.9](doc/vt7/validation/2026-09-11-horizontal-fitting-probe.md) adds a
 separate raster-measured horizontal fitter and neighbor-protection checks.
-Its Windows 7 acceptance remains pending.
+The supplied 0.9 Windows 7 run passes containment and repaint checks, with
+67 earlier images unchanged. Narrow-symbol appearance remains an open quality gate.
+[Probe 0.10](doc/vt7/validation/2026-09-11-arabic-context-probe.md) now separates
+Arabic context repair, logical/visual ordering, and proportional/grid placement.
+Its supplied Windows 7 structural/context run passes; no terminal bidi policy
+is changed. [Probe 0.11](doc/vt7/validation/2026-09-11-joined-span-probe.md)
+now tests shared-span fitting within the combined core allocation, independently
+of production cursor/selection decisions. The supplied Windows 7 0.11 matrix
+passes with all 103 earlier target images unchanged.
+[Probe 0.12](doc/vt7/validation/2026-09-11-cross-style-ligature-probe.md) compares
+whole-source lam-alef shapes with paint-only and different-outline spatial
+composites. Different-outline hybrids remain REVIEW, not production policy.
+[Probe 0.13](doc/vt7/validation/2026-09-11-marked-paint-probe.md) extends same-outline
+paint to marks, joining context and core-cluster source selection. Its supplied
+Windows 7 matrix passes all eight validators, with the 139 earlier target images
+unchanged. The visible highlight mismatch remains open; the next proposed slice
+is interaction mapping, not another claim of finished terminal selection.
 
 - [x] Identify the exact Windows 7 missing cluster and selected font from supplied
   evidence: U+1F600, Consolas 5.24, glyph zero, original run 7 UTF-16 [60,62).
@@ -347,8 +363,51 @@ Its Windows 7 acceptance remains pending.
 - [x] Implement a separate horizontal fitting candidate in probe 0.9, preserving
   raw mapper output, source/cells, natural-size Latin/italic, and vertical scale.
   Add raster bounds, neighbor sentinels, overflow controls and partial-row repaint.
-- [ ] Validate 0.9 on Windows 7, including emoji/B separation and private-symbol
-  compression quality. Natural overhang allowance is not a universal no-overlap claim.
+- [x] Validate 0.9 containment on the supplied Windows 7 setup: 144 cases,
+  94 fitted groups, 72 exact row repaints and visible emoji/B separation.
+  Private-symbol compression quality remains open. Natural overhang allowance
+  is not a universal no-overlap claim.
+- [x] Implement the separate 0.10 Arabic context experiment: retain baseline
+  layout data, reshape whole-source context per selected face/style, reject
+  unsafe boundary-spanning clusters, and compare logical/visual grid placement
+  against native and repaired proportional references. Keep the mapper unchanged.
+- [x] Validate 0.10 on the supplied Windows 7 setup: cross-bold/italic/family and fallback boundaries,
+  context/isolated-word controls, retained/direct raster identity, marked text,
+  join controls, mixed digits, source/cell ownership and explicit lam-alef reviews.
+- [x] Implement the separate 0.11 joined-span experiment: one shared horizontal
+  transform across a fixture-declared Arabic span, unchanged core allocation,
+  raster containment, source ownership, stale/displaced/unfitted controls and
+  partial repaint comparisons. Preserve the earlier 103 images and lam-alef reviews.
+- [x] Validate the bounded 0.11 matrix on Windows 7, including connected appearance, natural-width
+  centering/spare allocation, compressed spans, marks and A/B neighbors. This
+  is not yet a production joining-span segmenter or mixed-paragraph bidi mode.
+- [x] Implement the separate 0.12 cross-style lam-alef comparison: exact selected
+  faces, whole-source cluster observations, common-scale variants, spatial hybrid
+  and same-outline paint lanes, pixel references and dropped-color/stale controls.
+- [x] Validate 0.12 on Windows 7. Review italic/family hybrid seams and fallback
+  cluster observations; do not equate contained spatial slices with character-
+  owned font styling or accept a cluster-wide font choice implicitly.
+- [x] Record the user-approved direction after 0.12: carry forward same-outline
+  paint, do not adopt different-outline spatial hybrids as the default, and
+  keep outline-changing ligature policy explicit.
+- [x] Implement the isolated 0.13 marked/contextual paint experiment: whole-shape
+  color strips, core-cluster source selection/copy oracles, stale/color controls
+  and partial color/selection repaint. Preserve the earlier 139 images.
+- [x] Validate the bounded 0.13 matrix on the supplied Windows 7 setup: 432 source
+  round trips, 432 raster references, 288 exact partial paint repaints and all
+  139 earlier target images unchanged. Inspect marks, connections and fallback.
+- [ ] Resolve the visible 0.13 highlight/paint ambiguity before interaction
+  acceptance. Centered glyphs need not align with their allocated cell stripe;
+  spatial paint can cross marks or shared ligatures. Source ownership alone is
+  not anatomical glyph ownership or correct visual selection.
+- [ ] Build the next isolated interaction-mapping experiment: relate visible
+  glyph/cluster positions to source/core cells, compare caret and selection
+  placement, and test spare-space/edge clicks and mark/ligature selections.
+  Preserve terminal widths and source text. No default bidi, centering or caret
+  policy is selected merely by this plan or a static selection stripe.
+- [ ] Settle cursive spacing and boundary-spanning ligatures before adopting
+  Arabic context repair. Correct glyph forms alone do not make a connected word
+  on a fixed cell grid. Do not silently add visual bidi or proportional hit testing.
 - [ ] Resolve cross-style/face joining,
   private styled glyph handling, horizontal ink behavior and cache/lifetime costs
   before making this candidate the AtlasEngine font adapter.

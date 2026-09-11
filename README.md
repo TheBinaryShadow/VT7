@@ -148,6 +148,14 @@ proof uses fixed, pre-mapped Consolas glyphs. Windows 7 font fallback/shaping,
 TerminalCore/controller integration, and session backends remain ahead of us.
 The accepted 0.2.1 GDI proof stays intact while Milestone 2 continues.
 
+The separate font and geometry experiments have progressed through
+[renderer probe 0.13](doc/vt7/validation/2026-09-11-marked-paint-probe.md).
+The supplied Windows 7 run passes all eight validation suites, including marked
+Arabic painting and partial repaint, while preserving every earlier comparison
+image. Same-outline color painting is promising; different-outline hybrids are
+not being adopted as the default. Cursor, selection and hit-test mapping remain
+open, and these probe results are not a completed Atlas terminal renderer.
+
 The [research-driven plan](doc/vt7/architecture/2026-09-11-research-driven-plan.md)
 keeps font/cell mapping as the next step. Before substantial session integration
 or daily-driver UI work, a new feasibility gate will test local-console fidelity,

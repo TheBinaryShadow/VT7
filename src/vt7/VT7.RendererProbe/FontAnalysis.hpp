@@ -50,5 +50,5 @@ namespace VT7::FontProbe
 
     void Describe(std::ostream& log, IDWriteFactory* factory, const std::wstring& source, const std::vector<Run>& runs);
     // Throws on structural/ownership/mapping regression. Missing glyphs are observations.
-    void Exercise(std::ostream& log, IDWriteFactory* factory, const std::wstring& bitmapPath, bool injectMappingFailure = false, bool injectAdapterFailure = false, bool injectFitFailure = false);
+    void Exercise(std::ostream& log, IDWriteFactory* factory, const std::wstring& bitmapPath, bool injectMappingFailure = false, bool injectAdapterFailure = false, bool injectFitFailure = false, bool injectArabicFailure = false, bool injectJoinedFailure = false, bool injectLigatureFailure = false, bool injectPaintFailure = false);
 }

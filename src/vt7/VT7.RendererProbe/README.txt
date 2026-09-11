@@ -1,4 +1,4 @@
-VT7 renderer capability and font probe 0.9
+VT7 renderer capability and font probe 0.13
 ================================
 
 This is a Milestone 2 engineering probe, not an Atlas terminal build.
@@ -13,7 +13,7 @@ not require .NET or Power Automate. Pinned Visual C++ runtime DLLs are bundled.
 3. Open VT7-renderer-probe.log.bmp to inspect the font comparison.
 4. Inspect the 12 additional VT7-renderer-probe.log.bmp.geometry-<size>-<dpi>.bmp
    images, plus the new repaint comparisons described below. Send the log and
-   all generated bitmap files (79 on success), preferably together in a ZIP,
+   all generated bitmap files (151 on success), preferably together in a ZIP,
    including if the report says failure. If no images were produced, send the log.
 
 The console is expected. The graphics windows are hidden, so no terminal
@@ -232,7 +232,7 @@ New in 0.9: horizontal fitting and neighboring pixels
 -----------------------------------------------------
 Twelve new *.horizontal-<size>-<dpi>.bmp images compare R (raw mapper) with
 F (fitted). The older 67 images, including the raw 0.8 adapter lane, remain.
-There are now 79 bitmaps on success. Return them all with the log in a ZIP.
+Version 0.9 produced 79 bitmaps. Version 0.10 retains them and adds 24 Arabic images.
 
 The fitting layer measures whole source/core/shaping groups using natural
 advances and actual raster ink. Text, glyph IDs, cell ownership and row metrics
@@ -265,3 +265,147 @@ separate open issue and is not fixed by horizontal fitting.
 No font assets, licenses, system settings or prerequisites changed. The new
 fitter is still a bounded, uncached bitmap candidate outside AtlasEngine.
 The --inject-fit-failure option is only for the local negative-test harness.
+
+New in 0.10: Arabic context, ordering and spacing
+-----------------------------------------------
+Twenty-four *.arabic-<size>-<dpi>-<page>.bmp images cover twelve fixtures at
+12/18/24 DIP and 96/120/144/192 offscreen DPI, with two pages per combination.
+Keep every earlier bitmap too: 103 BMPs plus the log on success.
+
+N: native DirectWrite paragraph layout, including any boundary limitations.
+L: unchanged 0.8 mapper plus 0.9 fitting in logical terminal order.
+C: contextual glyphs projected into logical core cells.
+V: the same contextual glyphs projected into diagnostic visual-order cells.
+P: repaired glyphs at natural proportional spacing, without cell-grid fitting.
+
+C/V reuse the earlier directional diagnostic fitter with its two-pixel natural
+halo. They are not the 0.9 fitter or a proposed final cursive-spacing policy.
+P makes context changes visible without the spacing imposed by a terminal grid.
+Neither V nor P is an enabled terminal rendering mode. Source text and core
+cell widths remain untouched; cursor/selection/reflow behavior is not tested.
+
+Fixtures include plain and marked Arabic, mixed Latin/digits, bold/italic and
+Arial/Times New Roman boundaries, redundant same-style ranges, Consolas fallback,
+lam-alef style splitting, ZWJ/ZWNJ controls, Arabic digits and a Latin control.
+The old mapper has no per-range family input, so L is explicitly unavailable
+for the forced family-boundary fixture instead of drawing a different request.
+
+Whole-source context is shaped separately in each selected face/style. The
+candidate retains only glyphs owned by the requested interval, with exact face
+identity checks. A cluster shared across the boundary is left unchanged and
+logged as ARABIC_REPAIR ... REVIEW. This is expected for the lam-alef split,
+not permission to claim it fixed. No presentation-form characters are inserted.
+
+Checks: 180 whole-word context comparisons, 60 deliberately isolated-word
+controls, 144 exact immediate-versus-retained natural raster comparisons,
+144 shifted-output controls, and complete logical/visual source/cell ownership.
+Glyph IDs and repair counts depend on the actual fonts. Some fonts reuse a
+glyph across positions, so the isolated word must differ, not every character.
+--inject-arabic-failure deliberately loses context and must fail the baseline.
+
+Look particularly at N versus P at style/family boundaries, and C versus V
+versus P for plain/marked Arabic. Correct contextual forms do not guarantee
+connected cursive text when groups are independently placed on fixed cells.
+The supplied Windows 7 0.10 run passes its structural/context tests. Final
+typography, ligature/style policy, caching and Atlas integration remain open.
+No assets, licenses or system settings changed.
+
+New in 0.11: joined spans inside a fixed terminal allocation
+----------------------------------------------------------
+Twelve *.joined-<size>-<dpi>.bmp images add 120 cases. There are now 115 BMPs
+on success, plus the log. The earlier 103 images retain their original lanes.
+
+S: contextual glyph groups fitted separately to visual-order cells.
+J: the entire fixture-declared Arabic span shares one horizontal transform.
+P: the same repaired word at natural proportional spacing, without neighbors.
+
+The surrounding A/B remain in their original core columns. The word receives
+the sum of its real TerminalCore cell widths, using the primary Consolas grid.
+J preserves all relative run origins, natural advances, offsets and vertical
+scale. It centers natural-width text without stretching it; oversized spans
+are compressed horizontally as a unit, with actual raster containment checks.
+Blank space within a generous allocation is intentional in this experiment.
+
+Ten fixtures cover plain/marked Arabic, bold/italic/family/fallback boundaries,
+lam-alef style splitting, joining controls, a wide nonjoining stress case and
+a longer joined word. The spans are explicit fixture inputs, not a production
+Unicode segmentation or mixed-paragraph bidi implementation. Source ownership
+does not imply that every glyph visually aligns with its individual core cell.
+
+Cross-style lam-alef retains the 0.10 policy: leave unsafe boundary runs as they
+were and report REVIEW. Do not cut a shared ligature, drop a style, or rewrite
+source. Natural Arabic ordering inside J is diagnostic; no terminal mode changes.
+
+Tests check 120 shared-transform raster references, 120 displaced-run controls,
+120 stale-snapshot rejections, full source/core ownership, and pixel protection
+outside the allocation on both scratch and colored comparison surfaces. Twelve
+unfitted wide-span controls must spill. Seventy-two partial row repaints must
+match fresh full redraws, preserve outside-damage pixels and restore the initial
+frame after text/mark/style/family/width changes. These are software tests, not
+Atlas/GPU invalidation, scrolling, selection or concurrent-cache acceptance.
+
+Compare S with J, especially Plain, Marks, style/family boundaries and Long-joined.
+Watch the A/B neighbors and the compressed Wide-nonjoining sample. Lam-alef is
+still explicitly unresolved. Return every bitmap and the log, including failure
+images. --inject-joined-failure is a deliberate local-harness spacing failure.
+The supplied Windows 7 0.11 matrix passes. No new dependencies or font installation.
+
+New in 0.12: cross-style lam-alef policy comparison
+-------------------------------------------------
+Return the log and all 139 BMPs. Twenty-four new *.ligature-<size>-<dpi>-<page>.bmp
+images compare eight standalone pairs at the same twelve sizes/offscreen DPIs.
+The earlier 115 images are preserved. The supplied Windows 7 0.12 matrix passes.
+
+N: original mixed-style layout, fitted as one pair.
+L: whole pair in the physical face/style selected for lam.
+A: whole pair in the physical face/style selected for alef.
+X: left spatial region from A, right from L. Different-outline cases are REVIEW.
+C: one unchanged L outline, yellow left region and cyan right region.
+
+L/A are references, not permission to discard one character's style. X is a
+diagnostic hybrid, not authentic per-character outline ownership. The seam is
+the middle of the combined two-column allocation, not a font-provided caret.
+C isolates paint-only changes; it does not honor mixed outline styles.
+
+Compare bold, reversed bold, italic, family, fallback, hamza and madda cases.
+Inspect X for kinks or mismatched strokes. A contained image is not necessarily
+correct typography. Fallback faces may not report a shared lam-alef cluster;
+the log records this instead of assuming every selected face behaves like Arial.
+
+Checks cover 96 fixtures, exact selected faces, original source/core allocation,
+whole-source shaping, 384 pixel references on uniform/alternating backgrounds,
+192 dropped-color controls, 96 stale rejections and all five panel lane guards.
+--inject-ligature-failure deliberately drops a paint color and must fail.
+No new hybrid incremental-edit or cursor/selection tests are claimed.
+No font installation, source substitution, dependency or licensing change.
+
+New in 0.13: marks, joining context and same-outline paint
+--------------------------------------------------------
+Return the log and all 151 BMPs. Twelve new *.paint-<size>-<dpi>.bmp pages
+extend the same-outline color approach; all 139 earlier images remain.
+The different-outline X hybrid is not adopted as a default.
+
+U: the complete retained outline in uniform white.
+C: alternating cyan/yellow by logical core cluster, in diagnostic RTL cell regions.
+S: source query [1,2) expanded to its core cluster, highlighted and painted white.
+
+Six fixtures cover marked lam-alef, surrounding beh letters, a marked word,
+stacked marks, a longer joined word and Consolas fallback. The whole word is
+shaped before paint decisions. Marks remain in the copied base cluster, but a
+visual mark can cross a spatial paint boundary. Please report confusing color
+or selection behavior even if the checks pass. Blank allocated space is possible.
+
+Checks include 432 pixel references, 144 exact uniform recombinations, 144
+dropped-color controls, source/cell partitions and logical substring oracles,
+72 stale rejections and 288 exact partial color/selection repaints. Injecting
+--inject-paint-failure swaps colors and must fail. No clipboard is accessed.
+This is not interactive cursor/selection, mixed bidi, reflow or Atlas acceptance.
+The supplied Windows 7 0.13 run passes all eight validators: 51 required checks,
+zero failures, and all 139 earlier target BMPs unchanged. Marks and connections
+remain visible in the inspected samples. The long-word selection stripe still
+does not neatly identify the intended letter within centered glyph geometry.
+Visible-position/source/core interaction mapping remains a proposed next test,
+not completed caret or selection support. No assets or system settings change.
+
+This source README includes the later Windows 7 assessment. The frozen 0.13
+archive retains its original handoff README and published checksum.

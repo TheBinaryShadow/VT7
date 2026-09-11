@@ -72,7 +72,7 @@ To test and package the independent graphics/font probe:
 .\tools\Package-VT7RendererProbe.ps1 -SkipBuild
 ```
 
-The current archive is `artifacts\VT7-renderer-probe-0.9-x64.zip`. Extract it on Windows 7,
+The current archive is `artifacts\VT7-renderer-probe-0.13-x64.zip`. Extract it on Windows 7,
 run `RUN-RENDERER-PROBE.cmd`, and retain `VT7-renderer-probe.log` and the companion
 `VT7-renderer-probe.log.bmp`. Version 0.5 preserves the original 0.1 sample and
 includes an independent U+1F600 coverage scan, explicit candidate rendering, thirteen
@@ -148,8 +148,47 @@ neighbor sentinels, natural Latin/italic pixel identity, deliberate overflow
 controls, and 72 conservative partial-row repaints are checked by the probe.
 `Test-VT7Horizontal.ps1` independently validates the logged matrix and bitmap
 structure. The suite injects an unfitted overflow that must fail the baseline.
-Return all bitmaps plus the log, preferably zipped. Windows 7 0.9 acceptance and
-Atlas integration remain pending; no new system setting or update is required.
+The supplied Windows 7 0.9 containment run passes. Narrow-symbol quality and
+Atlas integration remain open; no new system setting or update is required.
+
+[Probe 0.10](doc/vt7/validation/2026-09-11-arabic-context-probe.md) adds 24
+`.arabic-<size>-<dpi>-<page>.bmp` images, for 103 bitmaps on success. Its five
+lanes separate native layout, legacy mapper, repaired logical/visual grid
+projections, and repaired proportional text. Arabic context repair is a bounded
+probe, not an enabled terminal bidi mode. Unsafe lam-alef splits are explicit
+REVIEW observations. Run `Test-VT7Arabic.ps1 -ReportPath <log>` to validate the
+matrix; the renderer suite also injects lost context and requires failure.
+The supplied Windows 7 0.10 run passes its structural/context checks, with
+96 repaired runs and 24 explicit lam-alef boundary reviews. The fixed-grid
+cursive spacing decision remains open.
+
+[Probe 0.11](doc/vt7/validation/2026-09-11-joined-span-probe.md) adds 12
+`.joined-<size>-<dpi>.bmp` images, for 115 bitmaps on success. It compares
+per-group fitting with a single transform across a fixture-declared Arabic
+span inside its combined core allocation. `Test-VT7Joined.ps1 -ReportPath <log>`
+checks the matrix, ownership, containment, negative controls and 72 partial
+repaint records. The renderer suite injects broken relative run placement.
+The supplied Windows 7 0.11 matrix passes, with all 103 earlier target BMPs unchanged.
+
+[Probe 0.12](doc/vt7/validation/2026-09-11-cross-style-ligature-probe.md) adds 24
+`.ligature-<size>-<dpi>-<page>.bmp` images. Return the log and all 139 BMPs in a
+ZIP. N/L/A/X/C compare native split styles, whole-source shapes in each selected
+face, a REVIEW-only spatial hybrid and same-outline two-color painting.
+`Test-VT7Ligature.ps1 -ReportPath <log>` validates the matrix independently.
+The suite also injects lost paint styling. Its per-process timeout is now 120
+seconds for the expanded matrix. The supplied Windows 7 0.12 matrix passes.
+
+[Probe 0.13](doc/vt7/validation/2026-09-11-marked-paint-probe.md) adds twelve
+`.paint-<size>-<dpi>.bmp` pages for 151 BMPs total. Return all images and the log.
+U/C/S compare uniform text, per-core-cluster colors and a snapped selection on
+marked/joined words. `Test-VT7Paint.ps1` checks the matrix and source mapping.
+The suite also swaps paint colors as a required negative. Cursor/hit testing
+is not implemented. The supplied Windows 7 0.13 run passes all eight validators:
+51 required checks, zero failures, 432 paint raster comparisons and 288 partial
+paint repaints. All 139 earlier target BMPs remain byte-identical. Source
+selection preserves bases with marks, but the long-word highlight still exposes
+the mismatch between allocated cells and centered glyph positions. Interaction
+mapping remains the next experiment, not an accepted production behavior.
 
 Run the static Windows 7 compatibility gate after a build:
 

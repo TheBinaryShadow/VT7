@@ -471,9 +471,19 @@ namespace VT7::FontProbe
 #include "RepaintProbe.inl"
 #include "AdapterProbe.inl"
 #include "HorizontalProbe.inl"
+#include "ArabicProbe.inl"
+#include "JoinedProbe.inl"
+#include "LigatureProbe.inl"
+#include "PaintProbe.inl"
 
-    void Exercise(std::ostream& log, IDWriteFactory* factory, const std::wstring& bitmapPath, bool injectMappingFailure, bool injectAdapterFailure, bool injectFitFailure)
+    void Exercise(std::ostream& log, IDWriteFactory* factory, const std::wstring& bitmapPath, bool injectMappingFailure, bool injectAdapterFailure, bool injectFitFailure, bool injectArabicFailure, bool injectJoinedFailure, bool injectLigatureFailure, bool injectPaintFailure)
     {
+        // Earlier injected faults keep their original matrix cost and scope.
+        if (!(injectMappingFailure || injectAdapterFailure || injectFitFailure || injectArabicFailure || injectJoinedFailure || injectLigatureFailure))
+            ExercisePaint(log, factory, bitmapPath, injectPaintFailure);
+        ExerciseLigature(log, factory, bitmapPath, injectLigatureFailure);
+        ExerciseJoined(log, factory, bitmapPath, injectJoinedFailure);
+        ExerciseArabic(log, factory, bitmapPath, injectArabicFailure);
         const auto coverage = ScanCoverage(log, factory);
         const auto privateFonts = LoadPrivateFonts(log, factory);
         UINT32 symbol = 0;

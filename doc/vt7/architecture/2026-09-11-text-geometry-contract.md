@@ -151,7 +151,42 @@ locale, bounded input, lack of cache, styled-private fallback exclusions,
 cross-face/style context, and horizontal ink policy need further work before
 production integration. Snapshot-key rejection is not a concurrent cache test.
 
+[Probe 0.10](../validation/2026-09-11-arabic-context-probe.md) keeps Arabic
+context repair outside that mapper. It compares whole-source shaping in the
+selected face/style, refuses unsafe ligature cuts, and separates contextual
+glyph identity from cell-grid spacing and visual ordering. Its proportional
+reference and visual-cell lane are diagnostics, not amendments to core cursor,
+selection or width authority. Joined-word/group placement and boundary-spanning
+style ownership remain explicit gates before production integration.
+
+[Probe 0.11](../validation/2026-09-11-joined-span-probe.md) tests a larger draw
+unit without changing source ownership: a declared Arabic span may share one
+fit over the sum of its core columns. Its inner glyph positions need not align
+with individual column edges. Containment of the span does not settle visual
+caret stops, selection painting, terminal bidi, or production span formation.
+Its natural-width centering and common horizontal compression are candidates;
+they do not authorize expansion of core widths or vertical scaling.
+
 ## Before Atlas integration can be accepted
+
+[Probe 0.13](../validation/2026-09-11-marked-paint-probe.md) keeps full retained
+word geometry while varying paint by diagnostic RTL core-cell strips. Source
+selection snaps to the owning core cluster, not necessarily the entire shaping
+ligature. The logical copied substring preserves the base and its marks. Neither
+that source check nor a spatial highlight establishes anatomical glyph ownership,
+font caret positions or accepted interactive selection. Different-outline hybrids
+are not adopted as the default following the user's 0.12 review.
+Its supplied Windows 7 matrix passes, but the long-word highlight demonstrates
+that successful source ownership is not sufficient for visual selection.
+Next compare visible-position/source/core mappings, including empty allocated
+space and shared glyphs, without changing core widths. Cursor and selection
+policies remain unaccepted until those interaction cases are resolved.
+
+[Probe 0.12](../validation/2026-09-11-cross-style-ligature-probe.md) keeps source
+ownership separate from spatial painting. A two-column lam-alef may share a
+shaping cluster; a paint seam is not a character-owned glyph boundary. Same-
+outline color slices and different-outline hybrids are distinct experiments.
+No cluster-wide font override, caret position or production hybrid is selected.
 
 - Preserve the accepted 0.4/0.5 Windows 7 fixed-geometry comparison as a regression
   reference. Expand it through the [geometry/repaint plan](2026-09-11-font-geometry-test-plan.md).

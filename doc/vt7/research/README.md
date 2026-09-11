@@ -32,7 +32,24 @@ adds a logical-order owned mapper candidate and an upstream-metric comparison
 lane; its supplied Windows 7 structural run passes, with horizontal overflow and
 Arabic quality still open. [Probe 0.9](../validation/2026-09-11-horizontal-fitting-probe.md)
 implements a separate raster-measured horizontal fitter and neighbor checks.
-Its Windows 7 acceptance and Atlas integration remain pending.
+Its supplied Windows 7 containment/repaint run passes; narrow-symbol quality
+and Atlas integration remain open. [Probe 0.10](../validation/2026-09-11-arabic-context-probe.md)
+adds bounded Arabic context repair and separate ordering/spacing comparisons.
+Its supplied Windows 7 run passes the bounded checks. Neither successful glyph matching nor a diagnostic
+visual projection settles terminal bidi, cursive spacing or interactive hit tests.
+[Probe 0.11](../validation/2026-09-11-joined-span-probe.md) tests shared-span
+fitting and partial repaint inside an unchanged combined core allocation.
+Its supplied Windows 7 matrix passes; production span formation and interaction
+policy remain open. [Probe 0.12](../validation/2026-09-11-cross-style-ligature-probe.md)
+compares whole-source lam-alef shapes and spatial paint/style alternatives.
+Its supplied Windows 7 matrix passes. The user approved carrying forward
+same-outline paint, not different-outline hybrids as the default.
+[Probe 0.13](../validation/2026-09-11-marked-paint-probe.md) extends that experiment
+to marked/joined words and source selection. Its supplied Windows 7 matrix passes
+all eight validators, with 139 earlier target BMPs unchanged. The long-word
+highlight mismatch remains open; source ownership does not settle visual
+selection. Visible-position/source/core interaction mapping is the next proposed
+experiment, not implemented behavior.
 The [geometry contract](../architecture/2026-09-11-text-geometry-contract.md)
 defines core authority and consumer boundaries. F01/F02 remain partial: final
 visual/interaction policy and the production adapter are not yet accepted.
