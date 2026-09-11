@@ -89,6 +89,14 @@ if ($bitmap.Length -ne 6160054 -or [Text.Encoding]::ASCII.GetString($bitmap, 0, 
 & (Join-Path $PSScriptRoot 'Test-VT7Geometry.ps1') -ReportPath $reportPath -Started $started
 & (Join-Path $PSScriptRoot 'Test-VT7Repaint.ps1') -ReportPath $reportPath -Started $started
 & (Join-Path $PSScriptRoot 'Test-VT7TextAdapter.ps1') -ReportPath $reportPath -Started $started
+& (Join-Path $PSScriptRoot 'Test-VT7Horizontal.ps1') -ReportPath $reportPath -Started $started
+
+$fitPath = Join-Path $reportRoot 'renderer-probe-fit-failure.log'
+$fitStarted = Get-Date
+Invoke-ProbeTest ('--output "' + $fitPath + '" --inject-fit-failure') 1
+if (-not (Test-Path -LiteralPath $fitPath) -or (Get-Item -LiteralPath $fitPath).LastWriteTime -lt $fitStarted.AddSeconds(-2)) { throw 'Missing/stale fit failure report.' }
+$fitText = [IO.File]::ReadAllText($fitPath)
+if ($fitText -notmatch '(?m)^Baseline passed: False\r?$' -or $fitText -notmatch 'Horizontal neighbor protection failed') { throw 'Unfitted overflow did not fail the baseline.' }
 
 $adapterPath = Join-Path $reportRoot 'renderer-probe-adapter-failure.log'
 $adapterStarted = Get-Date

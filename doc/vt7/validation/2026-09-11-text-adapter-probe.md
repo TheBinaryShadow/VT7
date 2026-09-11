@@ -2,7 +2,8 @@
 
 Date: 2026-09-11. Branch: `initial-implementation-and-assessment`.
 Source base: `42de4b631716e98ef5e231f170f167d671c97939` plus uncommitted 0.6-0.8 work.
-Windows 7 acceptance of 0.8 is pending. This is not an Atlas terminal build.
+The supplied Windows 7 0.8 structural run passes; see the target evidence below.
+This is not an Atlas terminal build or final typography acceptance.
 
 ## Why this slice
 
@@ -150,7 +151,7 @@ log plus all 67 bitmaps in a ZIP. No font installation, code-page/DPI change,
 even on failure. Expect N/T RTL differences and explicit missing-glyph records;
 report unexpected boxes, lost marks, overlap, and style-boundary artifacts.
 
-0.8 Windows 7 execution and review are pending. Integration must not skip the
+Integration must not skip the
 cache/context/style and horizontal-quality gates just because this mapper runs.
 
 ## Frozen package
@@ -161,3 +162,35 @@ SHA256: `DB4263A4127A7D534F1DA3DA8AE2BBB78AD76FCCC1133C1C11471BBD3AF04F9E`.
 
 The final manifest recheck covers all 19 entries. Changed-text punctuation,
 90 local Markdown links, and `git diff --check` pass. No commit or push was made.
+
+## Supplied Windows 7 evidence
+
+Returned archive: `probe-0.8-bitmaps-and-log.zip`, SHA256
+`60F9A8BE0EEDEBF114E68EB3CAEA51D84FFF28F8160C59EB4592F53895638D30`.
+Log SHA256: `6FE97BAE020A493A5C24D4DB282DFFC0E1DA3ABFBE05F1780997F9271A8282A4`.
+It records Windows NT 6.1.7601, the Release stamp above, compiler 194435228,
+and capture UTC 2026-09-11 12:48:22. The log and 67 bitmaps are retained unchanged
+in `artifacts/vt7/evidence/adapter-probe-win7-60f9a8be/`; derived PNG previews are
+separate files. No separate ESU or minimum-prerequisite run is inferred.
+
+- 51 required checks pass, zero failures. All three independent validators pass.
+- 192 adapter cases, 1,020 glyph groups, 1,344 stale-key rejections and eight
+  invalid-input controls pass. Baseline layout/analyzer and real FontFace1 work
+  for the tested mappings without constructing AtlasEngine.
+- Geometry retains 204 fixtures, 1,164 ink records and 24 vertical observations.
+  Repaint retains 480 exact comparisons and 24 detected negative controls.
+- All 55 earlier bitmaps are byte-identical to the supplied Windows 7 0.7 files.
+- Automatic private U+1F600 fallback works in the Supplementary T lane, and both
+  forced private samples are nonempty. System-only N can legitimately show tofu.
+
+Visual inspection of the 18 DIP/96 DPI and 24 DIP/192 DPI comparisons confirms
+remaining horizontal overflow: the uncomposed emoji sequence draws into B, and
+the private yin-yang exceeds its one-cell allocation. At 18 DIP/96 DPI, the
+sequence's ink extends to x=316 while B's cell starts at x=300. The private BMP
+ink spans x=269..290 for an allocation x=270..280. These are not typography passes.
+Arabic logical ordering differs from paragraph layout as planned, but joining
+and spacing still require work. Stacked marks remain visible across row edges.
+
+The user approved tackling horizontal fitting/protection next. The separate
+[0.9 fitting candidate](2026-09-11-horizontal-fitting-probe.md) keeps the accepted
+0.8 raw lane intact; it does not close the Arabic or Atlas integration gates.

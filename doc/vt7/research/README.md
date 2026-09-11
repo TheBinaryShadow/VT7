@@ -29,7 +29,10 @@ repaint experiment; the supplied Windows 7 result passes all 480 comparisons
 and 24 deliberate negative cases. The upstream fixed-grid/overlapping-text
 policy is now selected. [Probe 0.8](../validation/2026-09-11-text-adapter-probe.md)
 adds a logical-order owned mapper candidate and an upstream-metric comparison
-lane; Windows 7 acceptance and Atlas integration remain pending.
+lane; its supplied Windows 7 structural run passes, with horizontal overflow and
+Arabic quality still open. [Probe 0.9](../validation/2026-09-11-horizontal-fitting-probe.md)
+implements a separate raster-measured horizontal fitter and neighbor checks.
+Its Windows 7 acceptance and Atlas integration remain pending.
 The [geometry contract](../architecture/2026-09-11-text-geometry-contract.md)
 defines core authority and consumer boundaries. F01/F02 remain partial: final
 visual/interaction policy and the production adapter are not yet accepted.

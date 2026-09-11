@@ -72,7 +72,7 @@ To test and package the independent graphics/font probe:
 .\tools\Package-VT7RendererProbe.ps1 -SkipBuild
 ```
 
-The current archive is `artifacts\VT7-renderer-probe-0.8-x64.zip`. Extract it on Windows 7,
+The current archive is `artifacts\VT7-renderer-probe-0.9-x64.zip`. Extract it on Windows 7,
 run `RUN-RENDERER-PROBE.cmd`, and retain `VT7-renderer-probe.log` and the companion
 `VT7-renderer-probe.log.bmp`. Version 0.5 preserves the original 0.1 sample and
 includes an independent U+1F600 coverage scan, explicit candidate rendering, thirteen
@@ -139,6 +139,17 @@ Arabic/Hebrew N and T intentionally differ; joining and horizontal overhang
 quality still need review. This is not the integrated Atlas font path.
 `Test-VT7TextAdapter.ps1` independently checks 192 mappings and reported coverage
 as part of the renderer suite. The suite also injects a stale-snapshot failure.
+
+The supplied 0.8 Windows 7 structural run passes, while documenting horizontal
+overflow and unresolved Arabic typography. [Probe 0.9](doc/vt7/validation/2026-09-11-horizontal-fitting-probe.md)
+adds 12 `.horizontal-<size>-<dpi>.bmp` images, R (raw) versus F (fitted), for
+79 outputs total. It preserves the earlier 67 images. Whole-group raster fitting,
+neighbor sentinels, natural Latin/italic pixel identity, deliberate overflow
+controls, and 72 conservative partial-row repaints are checked by the probe.
+`Test-VT7Horizontal.ps1` independently validates the logged matrix and bitmap
+structure. The suite injects an unfitted overflow that must fail the baseline.
+Return all bitmaps plus the log, preferably zipped. Windows 7 0.9 acceptance and
+Atlas integration remain pending; no new system setting or update is required.
 
 Run the static Windows 7 compatibility gate after a build:
 

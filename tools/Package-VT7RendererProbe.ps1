@@ -5,9 +5,9 @@ Set-StrictMode -Version 3.0
 $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $artifactRoot = Join-Path $repositoryRoot 'artifacts'
 $binaryRoot = Join-Path $artifactRoot 'vt7\bin\Release'
-$packageRoot = [IO.Path]::GetFullPath((Join-Path $artifactRoot 'renderer-probe-0.8'))
-$expectedRoot = [IO.Path]::GetFullPath((Join-Path $repositoryRoot 'artifacts\renderer-probe-0.8'))
-$zipPath = Join-Path $artifactRoot 'VT7-renderer-probe-0.8-x64.zip'
+$packageRoot = [IO.Path]::GetFullPath((Join-Path $artifactRoot 'renderer-probe-0.9'))
+$expectedRoot = [IO.Path]::GetFullPath((Join-Path $repositoryRoot 'artifacts\renderer-probe-0.9'))
+$zipPath = Join-Path $artifactRoot 'VT7-renderer-probe-0.9-x64.zip'
 if (-not [string]::Equals($packageRoot, $expectedRoot, [StringComparison]::OrdinalIgnoreCase)) { throw 'Unexpected renderer package path.' }
 if (-not $SkipBuild) { & (Join-Path $PSScriptRoot 'Build-VT7.ps1') -Configuration Release }
 & (Join-Path $PSScriptRoot 'Verify-VT7.ps1') -Configuration Release -RendererProbeOnly

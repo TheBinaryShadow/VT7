@@ -94,6 +94,26 @@ Use an integer baseline offset. Oversized groups use the 0.3 whole-ink transform
 no enlargement, and zero allowed ink spill beyond their cell span.
 The two-pixel value is a probe parameter, not a DPI-independent shipping constant.
 
+The 0.9 candidate adds a separate `FittedRow`, retaining the mapper snapshot and
+rendering parameters alongside per-group transforms and measured ink. It uses
+natural glyph advances within each whole source/core/shaping group, not an
+already corrected pen advance to infer outline width. Source text, cell widths,
+glyph identities and mapper arrays are not rewritten by fitting.
+
+Its candidate natural allowance is `ceil(cellWidth / 5)` pixels. A half-pixel
+per-column advance tolerance accounts for primary-grid rounding. Eligible natural
+groups retain scale 1 and offset 0. Oversized groups use the whole available
+allocation, reducing only horizontal scale until the actual raster fits without
+spill. No fixed horizontal inset, vertical shrink, or ordinary row clip is added.
+Measurements and draws must use matching rendering parameters and integer pixel
+origins; actual draw bounds are checked too. Nonempty ink must not vanish.
+
+This protects outside the declared natural allowance, not every pixel in an
+adjacent cell: ordinary italic overhang remains legal. Compressed groups have
+zero allowance. Private narrow-symbol aspect/legibility and script quality
+remain visual gates. The grid-scaled allowance is an explicit experiment, not
+a universal production constant or a replacement for Atlas-specific tests.
+
 The production renderer must clear backgrounds before drawing ink, and account
 for the union of old and new ink extents when invalidating/repainting. Repaint
 intersecting neighboring glyphs as needed, clipped to the terminal viewport.

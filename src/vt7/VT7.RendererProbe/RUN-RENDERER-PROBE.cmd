@@ -13,6 +13,7 @@ echo Font comparison: %~dp0VT7-renderer-probe.log.bmp
 echo Geometry comparisons: %~dp0VT7-renderer-probe.log.bmp.geometry-*.bmp
 echo Repaint comparisons: %~dp0VT7-renderer-probe.log.bmp.repaint-*.bmp
 echo Adapter comparisons: %~dp0VT7-renderer-probe.log.bmp.adapter-*.bmp
+echo Horizontal fitting: %~dp0VT7-renderer-probe.log.bmp.horizontal-*.bmp
 echo Send the log and all generated bitmaps, including if the baseline fails.
 pause
 exit /b %vt7_exit%

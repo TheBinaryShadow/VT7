@@ -47,11 +47,13 @@
     <ClCompile Include="probe.cpp" />
     <ClCompile Include="FontAnalysis.cpp" />
     <ClCompile Include="..\VT7.Renderer\Win7TextMapper.cpp" />
+    <ClCompile Include="..\VT7.Renderer\Win7GlyphFitter.cpp" />
     <ClCompile Include="CoreCells.cpp"><WarningLevel>Level3</WarningLevel><TreatWarningAsError>false</TreatWarningAsError></ClCompile>
     <ClInclude Include="FontAnalysis.hpp" />
     <ClInclude Include="GeometryProbe.inl" />
     <ClInclude Include="RepaintProbe.inl" />
     <ClInclude Include="AdapterProbe.inl" />
+    <ClInclude Include="HorizontalProbe.inl" />
     <ProjectReference Include="..\VT7.Core\VT7.Core.vcxproj"><Project>{54CBEAA0-46F4-4B91-BC5D-B2387719EB24}</Project></ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

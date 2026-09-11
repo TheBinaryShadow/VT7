@@ -8,6 +8,12 @@ The upstream fixed-grid/overlapping-text policy is selected in the geometry
 contract. Production integration remains open. The next implemented slice is
 [probe 0.8](../validation/2026-09-11-text-adapter-probe.md), an owned logical-order
 mapper candidate tested independently before routing it into Atlas.
+The supplied 0.8 Windows 7 run now passes its structural checks, with horizontal
+overflow and Arabic quality explicitly open. The user-approved next slice is
+[0.9 horizontal fitting](../validation/2026-09-11-horizontal-fitting-probe.md):
+retain the raw candidate, measure whole-group ink, protect neighbors from
+oversized groups, and test conservative partial-row redraw. Do not change
+core widths, vertical scale, or the selected logical-order policy in this slice.
 Depends on the [geometry contract](2026-09-11-text-geometry-contract.md) and the
 accepted bounded [Windows 7 probe 0.5 result](../validation/2026-09-11-private-font-probe.md).
 

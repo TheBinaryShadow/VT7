@@ -230,13 +230,13 @@ namespace
 int wmain(int argc, wchar_t** argv)
 {
     if ((argc != 3 && argc != 4) || wcscmp(argv[1], L"--output") != 0 || !argv[2][0] ||
-        (argc == 4 && wcscmp(argv[3], L"--inject-required-failure") != 0 && wcscmp(argv[3], L"--inject-font-failure") != 0 && wcscmp(argv[3], L"--inject-adapter-failure") != 0))
+        (argc == 4 && wcscmp(argv[3], L"--inject-required-failure") != 0 && wcscmp(argv[3], L"--inject-font-failure") != 0 && wcscmp(argv[3], L"--inject-adapter-failure") != 0 && wcscmp(argv[3], L"--inject-fit-failure") != 0))
     {
-        fputs("Usage: VT7.RendererProbe.exe --output <log path> [--inject-required-failure|--inject-font-failure|--inject-adapter-failure]\n", stderr);
+        fputs("Usage: VT7.RendererProbe.exe --output <log path> [--inject-required-failure|--inject-font-failure|--inject-adapter-failure|--inject-fit-failure]\n", stderr);
         return 64;
     }
     Report report;
-    report.text << "VT7 renderer capability and font probe 0.8\nNot Atlas rendering. GDI proof is unchanged.\n"
+    report.text << "VT7 renderer capability and font probe 0.9\nNot Atlas rendering. GDI proof is unchanged.\n"
                 << "Build: " << __DATE__ << ' ' << __TIME__ << "; compiler=" << _MSC_FULL_VER
 #ifdef NDEBUG
                 << "; Release x64\n";
@@ -275,7 +275,8 @@ int wmain(int argc, wchar_t** argv)
             }
             VT7::FontProbe::Exercise(report.text, dwrite.Get(), std::wstring(argv[2]) + L".bmp",
                 argc == 4 && wcscmp(argv[3], L"--inject-font-failure") == 0,
-                argc == 4 && wcscmp(argv[3], L"--inject-adapter-failure") == 0);
+                argc == 4 && wcscmp(argv[3], L"--inject-adapter-failure") == 0,
+                argc == 4 && wcscmp(argv[3], L"--inject-fit-failure") == 0);
             report.Result("Font diagnostic and basic cell-mapping experiment", S_OK);
         }
         catch (const std::exception& ex)

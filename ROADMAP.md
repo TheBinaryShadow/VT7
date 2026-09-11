@@ -293,7 +293,11 @@ fixed-grid/overlapping ordinary-text policy, not silently accepted clipping.
 differential repaint experiment and passes the supplied Windows 7 run.
 [Probe 0.8](doc/vt7/validation/2026-09-11-text-adapter-probe.md) now exercises a
 reusable owned logical-order mapper candidate with upstream-default metrics.
-It remains separate from AtlasEngine; target 0.8 acceptance is pending.
+It remains separate from AtlasEngine; the supplied 0.8 Windows 7 structural run
+passes while exposing horizontal overflow and unresolved Arabic typography.
+[Probe 0.9](doc/vt7/validation/2026-09-11-horizontal-fitting-probe.md) adds a
+separate raster-measured horizontal fitter and neighbor-protection checks.
+Its Windows 7 acceptance remains pending.
 
 - [x] Identify the exact Windows 7 missing cluster and selected font from supplied
   evidence: U+1F600, Consolas 5.24, glyph zero, original run 7 UTF-16 [60,62).
@@ -338,7 +342,14 @@ It remains separate from AtlasEngine; target 0.8 acceptance is pending.
 - [x] Implement a separate owned logical-order mapper candidate in probe 0.8:
   baseline DirectWrite layout face selection, analyzer shaping, retained FontFace1,
   upstream-default metrics, core-group advance correction, and boundary/key checks.
-- [ ] Validate the 0.8 comparison on Windows 7. Resolve cross-style/face joining,
+- [x] Validate the 0.8 structural comparison on the supplied Windows 7 setup:
+  192 mappings, retained data, 1,344 stale checks, and unchanged earlier images.
+- [x] Implement a separate horizontal fitting candidate in probe 0.9, preserving
+  raw mapper output, source/cells, natural-size Latin/italic, and vertical scale.
+  Add raster bounds, neighbor sentinels, overflow controls and partial-row repaint.
+- [ ] Validate 0.9 on Windows 7, including emoji/B separation and private-symbol
+  compression quality. Natural overhang allowance is not a universal no-overlap claim.
+- [ ] Resolve cross-style/face joining,
   private styled glyph handling, horizontal ink behavior and cache/lifetime costs
   before making this candidate the AtlasEngine font adapter.
 - [ ] Resolve private fallback's production mapping, caching, metrics/style and

@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 #include "FontAnalysis.hpp"
 #include "../VT7.Renderer/Win7TextMapper.hpp"
+#include "../VT7.Renderer/Win7GlyphFitter.hpp"
 #include <dwrite_1.h>
 #include <bcrypt.h>
 #include <wil/resource.h>
@@ -469,8 +470,9 @@ namespace VT7::FontProbe
 #include "GeometryProbe.inl"
 #include "RepaintProbe.inl"
 #include "AdapterProbe.inl"
+#include "HorizontalProbe.inl"
 
-    void Exercise(std::ostream& log, IDWriteFactory* factory, const std::wstring& bitmapPath, bool injectMappingFailure, bool injectAdapterFailure)
+    void Exercise(std::ostream& log, IDWriteFactory* factory, const std::wstring& bitmapPath, bool injectMappingFailure, bool injectAdapterFailure, bool injectFitFailure)
     {
         const auto coverage = ScanCoverage(log, factory);
         const auto privateFonts = LoadPrivateFonts(log, factory);
@@ -680,5 +682,6 @@ namespace VT7::FontProbe
         ExerciseGeometry(log, factory, bitmapPath, privateFonts, std::vector<Fixture>(std::begin(fixtures), std::end(fixtures)));
         ExerciseRepaint(log, factory, bitmapPath, privateFonts);
         ExerciseAdapter(log, factory, bitmapPath, privateFonts, injectAdapterFailure);
+        ExerciseHorizontal(log, factory, bitmapPath, privateFonts, injectFitFailure);
     }
 }

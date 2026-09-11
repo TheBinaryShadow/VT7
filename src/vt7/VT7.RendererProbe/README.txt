@@ -1,4 +1,4 @@
-VT7 renderer capability and font probe 0.8
+VT7 renderer capability and font probe 0.9
 ================================
 
 This is a Milestone 2 engineering probe, not an Atlas terminal build.
@@ -13,7 +13,7 @@ not require .NET or Power Automate. Pinned Visual C++ runtime DLLs are bundled.
 3. Open VT7-renderer-probe.log.bmp to inspect the font comparison.
 4. Inspect the 12 additional VT7-renderer-probe.log.bmp.geometry-<size>-<dpi>.bmp
    images, plus the new repaint comparisons described below. Send the log and
-   all generated bitmap files (67 on success), preferably together in a ZIP,
+   all generated bitmap files (79 on success), preferably together in a ZIP,
    including if the report says failure. If no images were produced, send the log.
 
 The console is expected. The graphics windows are hidden, so no terminal
@@ -227,3 +227,41 @@ construction and are diagnostic observations, not a performance benchmark.
 All 55 previous bitmaps are retained, plus 12 adapter comparisons, 67 total.
 Send the log and all bitmaps in a ZIP. No Windows settings changes are needed.
 The --inject-adapter-failure switch is only for the local negative-test harness.
+
+New in 0.9: horizontal fitting and neighboring pixels
+-----------------------------------------------------
+Twelve new *.horizontal-<size>-<dpi>.bmp images compare R (raw mapper) with
+F (fitted). The older 67 images, including the raw 0.8 adapter lane, remain.
+There are now 79 bitmaps on success. Return them all with the log in a ZIP.
+
+The fitting layer measures whole source/core/shaping groups using natural
+advances and actual raster ink. Text, glyph IDs, cell ownership and row metrics
+are unchanged. Natural groups retain scale 1 and offset 0. Their allowance is
+ceil(cellWidth/5) pixels, two pixels at a ten-pixel cell. A half-pixel-per-column
+advance tolerance accounts for primary-grid rounding. This allowance scales
+with grid size and is an explicit candidate, not a final universal setting.
+
+Oversized groups use only horizontal compression, starting with the full
+available width and reducing it if actual raster bounds still spill. There is
+no permanent inset, vertical shrink or ordinary row clipping. Nonempty ink must
+remain visible. Compressed groups may not spill into neighboring columns.
+Natural groups may retain legal overhang within their declared allowance; this
+does not promise that all neighboring-cell pixels are protected from italics.
+
+The test checks each group's pixel changes over full-height contrasting neighbor
+sentinels, confirms measured/drawn bounds, and intentionally draws an oversized
+private glyph without fitting. That negative control must escape. Latin and
+italic raw/fitted pixels must match exactly. Seventy-two conservative partial-row
+repaints must equal fresh full redraw and leave pixels outside damage unchanged.
+These reuse a scratch surface and bounded blit, not Atlas partial presentation.
+
+Inspect the emoji fixture's following B, narrow private yin-yang, private smiley,
+italic edges, CJK/Indic neighbors and stacked accents. The uncomposed emoji
+sequence is not promised to become a single composed/color emoji. The narrow
+private symbol can still look compressed even with correct containment.
+Arabic and Hebrew keep logical terminal order. Their typography/context is a
+separate open issue and is not fixed by horizontal fitting.
+
+No font assets, licenses, system settings or prerequisites changed. The new
+fitter is still a bounded, uncached bitmap candidate outside AtlasEngine.
+The --inject-fit-failure option is only for the local negative-test harness.

@@ -53,7 +53,7 @@ in its constructor and font routines. It must not be constructed on Windows 7
 until Milestone 2C adapts those paths. A successfully linked backend harness
 does not establish a complete loadable AtlasEngine or renderer-controller port.
 The independent `VT7.RendererProbe.exe` remains a separate capability tool.
-Its 0.8 font experiment links TerminalCore for fixture cell spans and retains
+Its 0.9 font experiment links TerminalCore for fixture cell spans and retains
 DirectWrite callback runs, scans scalar coverage, fits whole ink, and preserves
 RTL runs for diagnostics and a bitmap comparison. It does not
 link this Atlas library or change the full engine's unsupported font boundary.
@@ -92,6 +92,15 @@ There is no cache, visual bidi mode, general private styled fallback, horizontal
 ink fitting, or production controller integration. The 0.8 comparison separates
 these unresolved behaviors from the accepted older diagnostic lanes. See
 `doc/vt7/validation/2026-09-11-text-adapter-probe.md` for scope and evidence.
+
+The supplied 0.8 Windows 7 structural run passes. `Win7GlyphFitter.hpp/.cpp`,
+also compiled only into RendererProbe, adds an independent fitting layer for
+0.9. It retains source/cells and rendering parameters, measures natural/raster
+ink, preserves natural groups with a declared grid-scaled halo, and compresses
+only oversized groups horizontally into their allocations. Actual draw bounds
+are checked; vertical ink is not shrunk or row-clipped. It remains a bitmap
+raster candidate, not an Atlas glyph cache, shader change or partial-present
+implementation. See `doc/vt7/validation/2026-09-11-horizontal-fitting-probe.md`.
 
 ## Provenance and evidence
 
