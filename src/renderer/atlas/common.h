@@ -9,6 +9,11 @@
 
 namespace Microsoft::Console::Render::Atlas
 {
+#ifdef VT7_ATLAS
+    using AtlasFontFace = IDWriteFontFace1;
+#else
+    using AtlasFontFace = IDWriteFontFace2;
+#endif
 #define ATLAS_FLAG_OPS(type, underlying)                                                       \
     constexpr type operator~(type v) noexcept                                                  \
     {                                                                                          \
@@ -436,7 +441,7 @@ namespace Microsoft::Console::Render::Atlas
 
     struct FontMapping
     {
-        wil::com_ptr<IDWriteFontFace2> fontFace;
+        wil::com_ptr<AtlasFontFace> fontFace;
         size_t glyphsFrom = 0;
         size_t glyphsTo = 0;
     };
@@ -503,6 +508,11 @@ namespace Microsoft::Console::Render::Atlas
         //// Parameters which are constant across backends.
         wil::com_ptr<ID2D1Factory> d2dFactory;
         wil::com_ptr<IDWriteFactory2> dwriteFactory;
+#ifdef VT7_ATLAS
+        // Backends need only Factory1. The engine's fallback mapper above is
+        // still unported and must not be mistaken for this backend boundary.
+        wil::com_ptr<IDWriteFactory1> dwriteFactory1;
+#endif
         wil::com_ptr<IDWriteFactory4> dwriteFactory4; // optional, might be nullptr
         wil::com_ptr<IDWriteTextAnalyzer1> textAnalyzer;
         std::function<void(HRESULT, wil::zwstring_view)> warningCallback;
@@ -518,7 +528,11 @@ namespace Microsoft::Console::Render::Atlas
         } dxgi;
         struct
         {
+#ifdef VT7_ATLAS
+            wil::com_ptr<IDXGISwapChain1> swapChain;
+#else
             wil::com_ptr<IDXGISwapChain2> swapChain;
+#endif
             wil::unique_handle handle;
             wil::unique_handle frameLatencyWaitableObject;
             til::generation_t generation;
@@ -527,8 +541,13 @@ namespace Microsoft::Console::Render::Atlas
             u16x2 targetSize{};
             bool waitForPresentation = false;
         } swapChain;
+#ifdef VT7_ATLAS
+        wil::com_ptr<ID3D11Device1> device;
+        wil::com_ptr<ID3D11DeviceContext1> deviceContext;
+#else
         wil::com_ptr<ID3D11Device2> device;
         wil::com_ptr<ID3D11DeviceContext2> deviceContext;
+#endif
 
         //// Parameters which change seldom.
         GenerationalSettings s;

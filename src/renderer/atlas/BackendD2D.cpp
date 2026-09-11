@@ -96,8 +96,9 @@ void BackendD2D::_handleSettingsUpdate(const RenderingPayload& p)
                 .dpiX = static_cast<f32>(p.s->font->dpi),
                 .dpiY = static_cast<f32>(p.s->font->dpi),
             };
-            // ID2D1RenderTarget and ID2D1DeviceContext are the same and I'm tired of pretending they're not.
-            THROW_IF_FAILED(p.d2dFactory->CreateDxgiSurfaceRenderTarget(surface.get(), &props, reinterpret_cast<ID2D1RenderTarget**>(_renderTarget.put())));
+            wil::com_ptr<ID2D1RenderTarget> target;
+            THROW_IF_FAILED(p.d2dFactory->CreateDxgiSurfaceRenderTarget(surface.get(), &props, target.put()));
+            _renderTarget = target.query<ID2D1DeviceContext>();
 
             _renderTarget->SetUnitMode(D2D1_UNIT_MODE_PIXELS);
 

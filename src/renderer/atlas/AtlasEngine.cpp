@@ -42,6 +42,9 @@ AtlasEngine::AtlasEngine()
 #endif
 
     THROW_IF_FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(_p.dwriteFactory), reinterpret_cast<::IUnknown**>(_p.dwriteFactory.addressof())));
+#ifdef VT7_ATLAS
+    _p.dwriteFactory1 = _p.dwriteFactory.query<IDWriteFactory1>();
+#endif
     _p.dwriteFactory4 = _p.dwriteFactory.try_query<IDWriteFactory4>();
 
     THROW_IF_FAILED(_p.dwriteFactory->GetSystemFontFallback(_api.systemFontFallback.addressof()));
@@ -876,7 +879,7 @@ void AtlasEngine::_mapRegularText(size_t offBeg, size_t offEnd)
     for (u32 idx = gsl::narrow_cast<u32>(offBeg), mappedEnd = 0; idx < offEnd; idx = mappedEnd)
     {
         u32 mappedLength = 0;
-        wil::com_ptr<IDWriteFontFace2> mappedFontFace;
+        wil::com_ptr<AtlasFontFace> mappedFontFace;
         _mapCharacters(_api.bufferLine.data() + idx, gsl::narrow_cast<u32>(offEnd - idx), &mappedLength, mappedFontFace.addressof());
         mappedEnd = idx + mappedLength;
 
@@ -976,7 +979,7 @@ void AtlasEngine::_mapBuiltinGlyphs(size_t offBeg, size_t offEnd)
     row.mappings.emplace_back(nullptr, gsl::narrow_cast<u32>(initialIndicesCount), gsl::narrow_cast<u32>(row.glyphIndices.size()));
 }
 
-void AtlasEngine::_mapCharacters(const wchar_t* text, const u32 textLength, u32* mappedLength, IDWriteFontFace2** mappedFontFace) const
+void AtlasEngine::_mapCharacters(const wchar_t* text, const u32 textLength, u32* mappedLength, AtlasFontFace** mappedFontFace) const
 {
     TextAnalysisSource analysisSource{ _p.userLocaleName.c_str(), text, textLength };
     const auto& textFormatAxis = _api.textFormatAxes[static_cast<size_t>(_api.attributes)];
@@ -1020,7 +1023,9 @@ void AtlasEngine::_mapCharacters(const wchar_t* text, const u32 textLength, u32*
 
         if (font)
         {
-            THROW_IF_FAILED(font->CreateFontFace(reinterpret_cast<IDWriteFontFace**>(mappedFontFace)));
+            wil::com_ptr<IDWriteFontFace> face;
+            THROW_IF_FAILED(font->CreateFontFace(face.addressof()));
+            THROW_IF_FAILED(face->QueryInterface(IID_PPV_ARGS(mappedFontFace)));
         }
     }
 
@@ -1029,7 +1034,7 @@ void AtlasEngine::_mapCharacters(const wchar_t* text, const u32 textLength, u32*
     assert(scale == 1);
 }
 
-void AtlasEngine::_mapComplex(IDWriteFontFace2* mappedFontFace, u32 idx, u32 length, ShapedRow& row)
+void AtlasEngine::_mapComplex(AtlasFontFace* mappedFontFace, u32 idx, u32 length, ShapedRow& row)
 {
     _api.analysisResults.clear();
 

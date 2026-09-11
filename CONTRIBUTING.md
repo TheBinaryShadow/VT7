@@ -27,22 +27,38 @@ ESU setups. Start with [BUILDING.md](BUILDING.md) and the
 [validation record](doc/vt7/validation/2026-09-10-viewport-proof.md) to understand
 what already works and what the proof does not cover.
 
+The isolated Atlas backend proof now also has Windows 7 hardware/WARP results,
+including visible Direct3D11 and repeated device recreation. Read the
+[backend validation record](doc/vt7/validation/2026-09-11-atlas-backend-proof.md)
+before renderer changes. Preserve the GDI regressions and keep fixed-glyph
+backend evidence separate from full font shaping, controller integration,
+automatic recovery, and session acceptance.
+
 - Reproducible Windows 7 build and runtime investigation.
 - Hardening the isolated TerminalCore boundary and removing modern renderer
   dependencies.
 - Windows 7 Atlas, DXGI, Direct3D 11, and WARP work.
 - WPF styling/contrast fixes, visual regression coverage, and native HWND
   lifetime and resize hardening.
-- Local PTY and WinPTY integration.
-- SSH library evaluation and prototypes.
-- Dependency and imported-API audits.
+- Local PTY fidelity experiments and subsequent WinPTY candidate integration.
+- Microsoft Win32-OpenSSH direct-I/O/control-path experiments before selecting
+  the SSH implementation.
+- Dependency, imported-API, and behavior-level compatibility audits.
 - Automated tests that protect Windows 7-specific behavior.
 - Physical Windows 7 testing with precise system and driver information.
+
+Follow the [research-driven plan](doc/vt7/architecture/2026-09-11-research-driven-plan.md)
+and link relevant changes to the [experiment IDs](doc/vt7/research/20-validation-and-experiments.md).
+Font/cell mapping is next; 3A session feasibility must precede substantial local
+integration or daily-driver UI work. Research priority labels are not new test
+results or permission to skip an open acceptance gate.
 
 ## Windows 7 compatibility rules
 
 - Do not assume an API exists because the current Windows SDK exposes it.
 - Check the documented minimum client and the actual import table.
+- Check flags, enum/metric values, required interface methods, and lifetime
+  semantics too. A downlevel export can still be used with unsupported behavior.
 - Keep compatibility wrappers explicit and close to the platform boundary.
 - Prefer runtime feature detection when multiple Windows versions can share a
   safe code path.
@@ -53,6 +69,11 @@ what already works and what the proof does not cover.
   rendering.
 - Record the Windows edition, update tier, architecture, GPU, driver, shell,
   and session backend used for manual tests.
+- Keep core/renderer capability separate from end-to-end backend fidelity.
+  Include exact dependency/font versions and package hashes where applicable.
+- Add cancellation, bounded-resource, callback-ownership, and output-policy
+  tests with each session feature. Keep secrets and ordinary terminal content
+  out of default logs; replay must not perform desktop actions by default.
 
 Passing on Windows 10 or Windows 11 is useful information, but it is not proof
 that a VT7 change works on Windows 7.

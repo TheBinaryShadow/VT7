@@ -5,6 +5,11 @@ host, native HWND surface, and the real Microsoft Terminal core and VT parser.
 It displays a fixed demonstration and resizes the actual text buffer. It does
 not yet run shells or SSH sessions.
 
+The solution also builds an independent capability probe and an Atlas backend
+proof (0.1). The latter renders fixed glyphs through real Atlas backends and
+has passed automated Windows 7 hardware/WARP tests plus visible Direct3D11
+checks. It is separate from the GDI host, not a complete Atlas terminal port.
+
 ## Pinned developer toolchain
 
 The proof build is intentionally narrow and reproducible:
@@ -52,6 +57,33 @@ are ignored by Git. The older 0.1 and 0.2.0 proof packages are not overwritten.
 
 ## Verify the binary boundary
 
+The solution also builds the Milestone 2 `VT7.Renderer.lib` isolated target
+and independent `VT7.RendererProbe.exe`. The library is not linked into the
+GDI host. Its backends run in the separate tested harness, while the full
+AtlasEngine font/controller runtime remains unported. See the
+[renderer boundary](src/vt7/VT7.Renderer/README.md).
+
+To test and package the independent graphics/font probe:
+
+```powershell
+.\tools\Test-VT7RendererProbe.ps1 -Configuration Debug
+.\tools\Build-VT7.ps1 -Configuration Release -NoRestore
+.\tools\Test-VT7RendererProbe.ps1 -Configuration Release
+.\tools\Package-VT7RendererProbe.ps1 -SkipBuild
+```
+
+The archive is `artifacts\VT7-renderer-probe-0.1-x64.zip`. Extract it on Windows 7,
+run `RUN-RENDERER-PROBE.cmd`, and retain `VT7-renderer-probe.log`. It uses hidden
+graphics windows and offscreen readback, not a visible terminal. Optional newer
+interfaces may be unavailable without failing the baseline. The native probe
+does not require .NET or Power Automate.
+
+`Verify-VT7.ps1` audits the probe when present. For its assembled package, use
+`-Configuration Release -RendererProbeOnly -BinaryDirectory <package-folder>`;
+this checks all packaged EXE/DLL files and requires the app-local CRT files.
+The [probe validation record](doc/vt7/validation/2026-09-11-renderer-probe.md)
+records the successful local and supplied Windows 7 capability runs.
+
 Run the static Windows 7 compatibility gate after a build:
 
 ```powershell
@@ -73,6 +105,42 @@ Complete `dumpbin` header and import reports are saved under
 substitute for testing on Windows 7.
 
 ## Run the automated checks
+
+### Atlas backend experiment
+
+The solution also builds `VT7.AtlasProof.exe`, which links the real Atlas
+backends and shared Windows 7 presentation code. It deliberately bypasses the
+still-unported AtlasEngine font mapper and the TerminalCore/controller path.
+It does not replace the accepted GDI host.
+
+```powershell
+.\tools\Test-VT7AtlasProof.ps1 -Configuration Debug
+.\tools\Test-VT7AtlasProof.ps1 -Configuration Release
+.\tools\Package-VT7AtlasProof.ps1
+```
+
+The test runner executes both backends on forced hardware and forced WARP,
+with 19 frames per combination, pre-Present pixel readback, resize/redraw,
+color changes, explicit device recreation, and negative CLI/failure checks.
+It writes reports and diagnostic PNGs under
+`artifacts\vt7\reports\<configuration>\Atlas`. Each process has a 60-second limit.
+PNGs show the back buffer, not the visible desktop.
+
+The archive is `artifacts\VT7-atlas-backend-proof-0.1-x64.zip`. Extract it on
+Windows 7 and run `RUN-ATLAS-TESTS.cmd`, then the hardware and WARP launchers
+for visible testing. The batch launcher does not impose a hang timeout.
+`Verify-VT7.ps1 -AtlasProofOnly -BinaryDirectory <package directory>` audits
+every assembled EXE/DLL. No .NET or Power Automate is needed for this harness.
+See the [backend validation record](doc/vt7/validation/2026-09-11-atlas-backend-proof.md)
+for limitations and current evidence.
+
+The issued 0.1 package passed all four automated combinations on Windows 7
+SP1 x64. Visible hardware/WARP Direct3D11 sessions and repeated R-key
+recreation also passed. Keep that archive unchanged as the tested checkpoint;
+documentation-only updates do not require repackaging it. Rerunning a launcher
+overwrites its own log/images, so preserve evidence before repeating tests.
+
+### GDI host and core checks
 
 The recommended local test command waits for each process, checks its exit
 code, and requires a fresh passing report:
@@ -207,7 +275,9 @@ into the bridge. A WPF `HwndHost` embeds the GDI proof surface through ABI 2.
 The core is compiled without WinRT settings, ICU search/URL detection, and the
 modern renderer worker. See the core boundary notes for the exact limitations.
 
-Atlas, local PTY sessions, SSH, and the final terminal UI remain future work.
+AtlasEngine font mapping and controller/core integration, local PTY sessions,
+SSH, and the final terminal UI remain future work. The separate Atlas backend
+proof is established on the tested Windows 7 setup, not integrated into ABI 2.
 The Windows 7 host/core/viewport proof is now established on the tested
 non-ESU and ESU configurations. Minimal-prerequisite clean snapshots, broader
 hardware coverage, production text rendering, and long-running session

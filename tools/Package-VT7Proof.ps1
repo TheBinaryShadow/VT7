@@ -110,8 +110,9 @@ Copy-Item -LiteralPath (Join-Path $repositoryRoot 'oss\chromium\LICENSE') -Desti
 
 $symbolRoot = Join-Path $packageRoot "symbols"
 New-Item -ItemType Directory -Path $symbolRoot -Force | Out-Null
-Get-ChildItem -LiteralPath $binaryRoot -Filter "*.pdb" -File |
-    Copy-Item -Destination $symbolRoot
+foreach ($symbol in @('VT7.Host.pdb', 'VT7.Native.pdb', 'VT7.Core.pdb')) {
+    Copy-Item -LiteralPath (Join-Path $binaryRoot $symbol) -Destination $symbolRoot
+}
 
 $hashLines = Get-ChildItem -LiteralPath $packageRoot -File -Recurse |
     Sort-Object FullName |

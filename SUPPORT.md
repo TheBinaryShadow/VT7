@@ -13,6 +13,11 @@ are supplied; keyboard navigation/focus and the separate ESU run are
 tester-confirmed. See the
 [cleanup acceptance record](doc/vt7/validation/2026-09-10-milestone-1-cleanup.md).
 
+The separate Atlas backend proof 0.1 now passes its four automated Windows 7
+hardware/WARP modes, with visible Direct3D11 and repeated R-key recreation
+checks. It uses fixed glyphs, not the complete terminal font/controller path.
+See the [backend acceptance scope](doc/vt7/validation/2026-09-11-atlas-backend-proof.md).
+
 ## Questions and help
 
 Use the [VT7 issue tracker](https://github.com/TheBinaryShadow/VT7/issues) for:
@@ -32,6 +37,13 @@ and screenshots for visible problems. Shell and session details do not apply
 to this static build. For older 0.2.0 builds with the contrast defect, use the
 text logs for readable diagnostics. Review logs for private local paths before
 sharing.
+
+For the independent capability probe, attach `VT7-renderer-probe.log`.
+For the Atlas backend proof, attach its `Logs` folder and visible screenshots.
+Identify Direct3D11 versus Direct2D and hardware versus WARP; preserve older
+logs before rerunning a launcher, which overwrites its own files. Back-buffer
+PNGs are useful diagnostics but are not desktop screenshots. Report hangs and
+retain partial logs rather than treating missing completion as success.
 
 Do not report VT7-specific problems to Microsoft. VT7 is independent from
 Microsoft Terminal and has no Microsoft support relationship.

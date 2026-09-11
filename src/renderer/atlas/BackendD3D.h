@@ -146,7 +146,7 @@ namespace Microsoft::Console::Render::Atlas
             // BODGY: At the time of writing IDWriteFontFallback::MapCharacters returns the same IDWriteFontFace instance
             // for the same font face variant as long as someone is holding a reference to the instance (see ActiveFaceCache).
             // This allows us to hash the value of the pointer as if it was uniquely identifying the font face variant.
-            wil::com_ptr<IDWriteFontFace2> fontFace;
+            wil::com_ptr<AtlasFontFace> fontFace;
 
             // The 4 entries map to the 4 corresponding LineRendition enum values.
             til::linear_flat_set<AtlasGlyphEntry, AtlasGlyphEntryHashTrait> glyphs[4];
@@ -159,7 +159,7 @@ namespace Microsoft::Console::Render::Atlas
                 return static_cast<bool>(entry.fontFace);
             }
 
-            static constexpr size_t hash(const IDWriteFontFace2* fontFace) noexcept
+            static constexpr size_t hash(const AtlasFontFace* fontFace) noexcept
             {
                 return til::flat_set_hash_integer(std::bit_cast<uintptr_t>(fontFace));
             }
@@ -169,12 +169,12 @@ namespace Microsoft::Console::Render::Atlas
                 return hash(entry.fontFace.get());
             }
 
-            static bool equals(const AtlasFontFaceEntry& entry, const IDWriteFontFace2* fontFace) noexcept
+            static bool equals(const AtlasFontFaceEntry& entry, const AtlasFontFace* fontFace) noexcept
             {
                 return entry.fontFace.get() == fontFace;
             }
 
-            static void assign(AtlasFontFaceEntry& entry, IDWriteFontFace2* fontFace) noexcept
+            static void assign(AtlasFontFaceEntry& entry, AtlasFontFace* fontFace) noexcept
             {
                 entry.fontFace = fontFace;
             }

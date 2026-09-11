@@ -32,7 +32,7 @@ The projects have different platform goals:
 | --- | --- | --- |
 | Operating-system floor | Modern supported Windows | Windows 7 SP1 x64 |
 | Application shell | Modern Windows application stack | Windows 7-compatible desktop host |
-| Local pseudoterminal | ConPTY | WinPTY-based backend |
+| Local pseudoterminal | ConPTY | WinPTY-first candidate, fidelity-gated behind a replaceable backend |
 | Rendering | Current Atlas and modern DXGI paths | Downleveled Atlas path for Windows 7 Direct3D 11 |
 | Packaging | MSIX, Store, portable distributions | Portable Windows 7-compatible distribution |
 | Composition | Modern Windows composition features | HWND-first Windows 7 presentation |
@@ -44,7 +44,17 @@ VT7-only static library. Its `VT7_CORE` compatibility branches, dependency pins,
 disabled features, and testing limits are recorded in
 [the core boundary notes](src/vt7/VT7.Core/README.md). Review those branches when
 updating any affected upstream file. The GDI proof surface is VT7-specific and
-does not replace the planned Atlas port.
+does not replace the Atlas integration work.
+
+The isolated `VT7.Renderer` target now compiles the inherited Atlas backends,
+shaders, and ColorFix, plus VT7's shared Windows 7 presentation helper. The
+`VT7_ATLAS` branches select older graphics/font-face interfaces and disable
+unsupported optional paths. Backend interface-query fixes also touch the
+inherited Atlas sources. Review these changes when updating the affected files;
+the [renderer boundary notes](src/vt7/VT7.Renderer/README.md) describe their scope.
+The standalone backend proof has passed on the tested Windows 7 machine, but
+the full AtlasEngine font mapper and renderer controller remain unported.
+This work does not change the recorded upstream baseline or merge policy.
 
 Microsoft Terminal continues to evolve. VT7 should benefit from upstream parser,
 TerminalCore, security, correctness, and performance improvements without
@@ -56,7 +66,8 @@ Our synchronization rules are:
    review.
 2. Prefer focused cherry-picks or carefully reviewed subsystem updates.
 3. Examine new Win32, WinRT, DirectX, packaging, and toolchain dependencies
-   before accepting a change.
+   before accepting a change. Audit flags, metrics, interface methods, and
+   behavior on existing exports, not only newly imported API names.
 4. Keep Windows 7 compatibility changes narrow and documented when possible.
 5. Preserve original authorship and commit references for imported fixes.
 6. Add tests for every VT7-specific compatibility behavior that can be tested.

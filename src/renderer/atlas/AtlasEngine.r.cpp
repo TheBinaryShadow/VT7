@@ -6,6 +6,9 @@
 
 #include "BackendD2D.h"
 #include "BackendD3D.h"
+#ifdef VT7_ATLAS
+#include "../../vt7/VT7.Renderer/Win7Presentation.hpp"
+#endif
 
 // #### NOTE ####
 // If you see any code in here that contains "_api." you might be seeing a race condition.
@@ -32,6 +35,12 @@ using namespace Microsoft::Console::Render::Atlas;
 [[nodiscard]] HRESULT AtlasEngine::Present() noexcept
 try
 {
+#ifdef VT7_ATLAS
+    if (!_p.s->target->hwnd || !IsWindowVisible(_p.s->target->hwnd) || IsIconic(_p.s->target->hwnd))
+    {
+        return S_FALSE;
+    }
+#endif
     if (!_p.dxgi.adapter)
     {
         _recreateAdapter();
@@ -47,6 +56,9 @@ try
         _handleSwapChainUpdate();
     }
 
+#ifdef VT7_ATLAS
+    _p.MarkAllAsDirty();
+#endif
     _b->Render(_p);
     _present();
     return S_OK;
@@ -98,6 +110,11 @@ void AtlasEngine::WaitUntilCanRender() noexcept
 
 void AtlasEngine::_recreateAdapter()
 {
+#ifdef VT7_ATLAS
+    _destroySwapChain();
+    _b.reset();
+    Win7::CreateDevice(_p);
+#else
 #ifndef NDEBUG
     if (IsDebuggerPresent())
     {
@@ -163,6 +180,7 @@ void AtlasEngine::_recreateAdapter()
         _p.dxgi.adapterFlags = desc.Flags;
         _b.reset();
     }
+#endif
 }
 
 void AtlasEngine::_recreateBackend()
@@ -173,6 +191,12 @@ void AtlasEngine::_recreateBackend()
 
     auto graphicsAPI = _p.s->target->graphicsAPI;
 
+#ifdef VT7_ATLAS
+    if (graphicsAPI == GraphicsAPI::Automatic && _p.s->target->useWARP)
+    {
+        graphicsAPI = GraphicsAPI::Direct2D;
+    }
+#else
     auto deviceFlags =
         D3D11_CREATE_DEVICE_SINGLETHREADED
 #ifndef NDEBUG
@@ -282,6 +306,7 @@ void AtlasEngine::_recreateBackend()
 
     _p.device = std::move(device);
     _p.deviceContext = std::move(deviceContext);
+#endif
 
     switch (graphicsAPI)
     {
@@ -317,12 +342,17 @@ void AtlasEngine::_handleSwapChainUpdate()
     _p.swapChain.generation = _p.s.generation();
 }
 
+#ifndef VT7_ATLAS
 static constexpr DXGI_SWAP_CHAIN_FLAG swapChainFlags = ATLAS_DEBUG_DISABLE_FRAME_LATENCY_WAITABLE_OBJECT ? DXGI_SWAP_CHAIN_FLAG{} : DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+#endif
 
 void AtlasEngine::_createSwapChain()
 {
     _destroySwapChain();
 
+#ifdef VT7_ATLAS
+    Win7::CreateSwapChain(_p);
+#else
     DXGI_SWAP_CHAIN_DESC1 desc{
         .Width = _p.s->targetSize.x,
         .Height = _p.s->targetSize.y,
@@ -388,6 +418,7 @@ void AtlasEngine::_createSwapChain()
         }
         CATCH_LOG()
     }
+#endif
 }
 
 void AtlasEngine::_destroySwapChain()
@@ -412,14 +443,19 @@ void AtlasEngine::_destroySwapChain()
 void AtlasEngine::_resizeBuffers()
 {
     _b->ReleaseResources();
+#ifdef VT7_ATLAS
+    Win7::ResizeSwapChain(_p);
+#else
     _p.deviceContext->ClearState();
 
     THROW_IF_FAILED(_p.swapChain.swapChain->ResizeBuffers(0, _p.s->targetSize.x, _p.s->targetSize.y, DXGI_FORMAT_UNKNOWN, swapChainFlags));
     _p.swapChain.targetSize = _p.s->targetSize;
+#endif
 }
 
 void AtlasEngine::_updateMatrixTransform()
 {
+#ifndef VT7_ATLAS
     if (!_p.s->target->hwnd)
     {
         // XAML's SwapChainPanel combines the worst of both worlds and always applies a transform
@@ -430,11 +466,13 @@ void AtlasEngine::_updateMatrixTransform()
         };
         THROW_IF_FAILED(_p.swapChain.swapChain->SetMatrixTransform(&matrix));
     }
+#endif
     _p.swapChain.fontGeneration = _p.s->font.generation();
 }
 
 void AtlasEngine::_waitUntilCanRender() noexcept
 {
+#ifndef VT7_ATLAS
     // IDXGISwapChain2::GetFrameLatencyWaitableObject returns an auto-reset event.
     // Once we've waited on the event, waiting on it again will block until the timeout elapses.
     // _waitForPresentation guards against this.
@@ -446,10 +484,14 @@ void AtlasEngine::_waitUntilCanRender() noexcept
             _p.swapChain.waitForPresentation = false;
         }
     }
+#endif
 }
 
 void AtlasEngine::_present()
 {
+#ifdef VT7_ATLAS
+    THROW_IF_FAILED(Win7::Present(_p));
+#else
     const RECT fullRect{ 0, 0, _p.swapChain.targetSize.x, _p.swapChain.targetSize.y };
 
     DXGI_PRESENT_PARAMETERS params{};
@@ -506,4 +548,5 @@ void AtlasEngine::_present()
     THROW_IF_FAILED(hr);
 
     _p.swapChain.waitForPresentation = true;
+#endif
 }

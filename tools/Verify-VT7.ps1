@@ -1,20 +1,27 @@
 [CmdletBinding()]
 param(
     [ValidateSet("Debug", "Release")]
-    [string]$Configuration = "Debug"
+    [string]$Configuration = "Debug",
+    [string]$BinaryDirectory,
+    [switch]$RendererProbeOnly,
+    [switch]$AtlasProofOnly
 )
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 3.0
 
 $repositoryRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
-$binaryRoot = Join-Path $repositoryRoot "artifacts\vt7\bin\$Configuration"
+$binaryRoot = if ($BinaryDirectory) { [IO.Path]::GetFullPath($BinaryDirectory) } else { Join-Path $repositoryRoot "artifacts\vt7\bin\$Configuration" }
 $reportRoot = Join-Path $repositoryRoot "artifacts\vt7\reports\$Configuration"
 $hostPath = Join-Path $binaryRoot "VT7.Host.exe"
 $nativePath = Join-Path $binaryRoot "VT7.Native.dll"
+$rendererProbePath = Join-Path $binaryRoot "VT7.RendererProbe.exe"
+$atlasProofPath = Join-Path $binaryRoot "VT7.AtlasProof.exe"
 $vswherePath = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
 
-foreach ($binaryPath in @($hostPath, $nativePath)) {
+if ($RendererProbeOnly -and $AtlasProofOnly) { throw 'Select only one standalone verification target.' }
+$requiredImages = if ($AtlasProofOnly) { @($atlasProofPath) } elseif ($RendererProbeOnly) { @($rendererProbePath) } else { @($hostPath, $nativePath) }
+foreach ($binaryPath in $requiredImages) {
     if (-not (Test-Path -LiteralPath $binaryPath -PathType Leaf)) {
         throw "VT7 binary was not found: $binaryPath. Run tools\Build-VT7.ps1 first."
     }
@@ -66,6 +73,7 @@ $forbiddenImports = @(
     "CreateDXGIFactory2",
     "CreatePseudoConsole",
     "DCompositionCreateDevice",
+    "DXGIGetDebugInterface1",
     "GetDpiForWindow",
     "ResizePseudoConsole",
     "SetThreadDescription",
@@ -131,10 +139,30 @@ function Assert-VT7Binary {
     Write-Host "Verified $name"
 }
 
-Assert-VT7Binary -Path $hostPath
-Assert-VT7Binary -Path $nativePath
+foreach ($binaryPath in $requiredImages) { Assert-VT7Binary -Path $binaryPath }
+if (-not $RendererProbeOnly -and -not $AtlasProofOnly -and (Test-Path -LiteralPath $rendererProbePath)) {
+    Assert-VT7Binary -Path $rendererProbePath
+}
+if (-not $RendererProbeOnly -and -not $AtlasProofOnly -and (Test-Path -LiteralPath $atlasProofPath)) {
+    Assert-VT7Binary -Path $atlasProofPath
+}
 
-if ($Configuration -eq "Release") {
+if ($BinaryDirectory) {
+    if ($Configuration -eq 'Release') {
+        foreach ($runtime in @('msvcp140.dll', 'vcruntime140.dll', 'vcruntime140_1.dll')) {
+            if (-not (Test-Path -LiteralPath (Join-Path $binaryRoot $runtime) -PathType Leaf)) {
+                throw "Assembled Release package is missing app-local runtime: $runtime"
+            }
+        }
+    }
+    # Audit every native image in an assembled package, not just its entrypoint.
+    foreach ($image in Get-ChildItem -LiteralPath $binaryRoot -File -Recurse) {
+        if ($image.Extension -in @('.dll', '.exe') -and $requiredImages -notcontains $image.FullName) {
+            Assert-VT7Binary -Path $image.FullName
+        }
+    }
+}
+elseif ($Configuration -eq "Release") {
     $redistVersionPath = Join-Path $installationPath "VC\Auxiliary\Build\Microsoft.VCRedistVersion.default.txt"
     if (-not (Test-Path -LiteralPath $redistVersionPath -PathType Leaf)) {
         throw "Visual Studio's app-local runtime version marker was not found: $redistVersionPath"

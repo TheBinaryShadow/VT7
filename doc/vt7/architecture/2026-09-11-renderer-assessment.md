@@ -6,6 +6,32 @@ Reviewed September 11, 2026, at VT7 commit
 baseline remains unchanged. This is a source/documentation assessment, not
 evidence that Atlas has compiled or run under VT7.
 
+Subsequent implementation progress is tracked in the
+[2A build/probe record](../validation/2026-09-11-renderer-probe.md). The static
+library now compiles. The subsequent
+[Atlas backend experiment](../validation/2026-09-11-atlas-backend-proof.md)
+now passes locally and on the tested Windows 7 SP1 x64 machine. All four
+backend/device combinations pass automated pixel checks; visible Direct3D11
+hardware/WARP sessions and repeated R-key recreation also pass. Font mapping,
+controller integration, and full runtime acceptance remain open. The source
+findings below describe the original reviewed commit; the validation records
+track later implementation and tests without rewriting that historical snapshot.
+
+## Research-driven planning follow-up
+
+The [approved September 11 plan](2026-09-11-research-driven-plan.md) keeps the
+renderer direction and strengthens 2C: define the core-owned text/cell geometry
+shared by rendering, cursor, selection/search, mouse, IME, accessibility, and
+session dimensions. Investigate the recorded missing glyph while comparing the
+fallback adapter's correctness, retained ownership, and cost. These contracts
+do not require implementing live sessions or the complete input/UI stack in 2C.
+
+Behavior-level audits include flags and metrics such as caret-blink settings,
+not only imports. The full controller's scheduling and teardown gates remain
+open. The original assessment and first-slice plan below are historical context;
+the roadmap and linked validation records describe present progress. No new
+renderer tests were performed for this planning update.
+
 ## Conclusion and confidence
 
 An application-local Atlas port is a reasonable implementation direction, but

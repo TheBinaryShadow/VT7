@@ -315,7 +315,11 @@ void BackendD3D::_updateFontDependents(const RenderingPayload& p)
         _curlyUnderline.height = gsl::narrow_cast<u16>(height);
     }
 
+#ifdef VT7_ATLAS
+    DWrite_GetRenderParams(p.dwriteFactory1.get(), &_gamma, &_cleartypeEnhancedContrast, &_grayscaleEnhancedContrast, _textRenderingParams.put());
+#else
     DWrite_GetRenderParams(p.dwriteFactory.get(), &_gamma, &_cleartypeEnhancedContrast, &_grayscaleEnhancedContrast, _textRenderingParams.put());
+#endif
     // Clearing the atlas requires BeginDraw(), which is expensive. Defer this until we need Direct2D anyways.
     _fontChangedResetGlyphAtlas = true;
     _textShadingType = font.antialiasingMode == AntialiasingMode::ClearType ? ShadingType::TextClearType : ShadingType::TextGrayscale;
@@ -859,8 +863,9 @@ void BackendD3D::_resizeGlyphAtlas(const RenderingPayload& p, const u16 u, const
             .type = D2D1_RENDER_TARGET_TYPE_DEFAULT,
             .pixelFormat = { DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED },
         };
-        // ID2D1RenderTarget and ID2D1DeviceContext are the same and I'm tired of pretending they're not.
-        THROW_IF_FAILED(p.d2dFactory->CreateDxgiSurfaceRenderTarget(surface.get(), &props, reinterpret_cast<ID2D1RenderTarget**>(_d2dRenderTarget.addressof())));
+        wil::com_ptr<ID2D1RenderTarget> target;
+        THROW_IF_FAILED(p.d2dFactory->CreateDxgiSurfaceRenderTarget(surface.get(), &props, target.addressof()));
+        _d2dRenderTarget = target.query<ID2D1DeviceContext>();
         _d2dRenderTarget.try_query_to(_d2dRenderTarget4.addressof());
 
         _d2dRenderTarget->SetUnitMode(D2D1_UNIT_MODE_PIXELS);

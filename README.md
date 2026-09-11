@@ -50,6 +50,13 @@ The first complete release is intended to provide:
   software-rendering fallback where practical.
 - Portable distribution without MSIX or Microsoft Store dependencies.
 
+Rich color and Unicode are core/renderer goals and end-to-end direct SSH goals.
+Local Windows console sessions travel through a different path, whose fidelity
+must be measured separately. We will publish tested backend capabilities rather
+than promise that every application can deliver everything the renderer can draw.
+Missing font coverage must not corrupt the original text. Color emoji, variable
+font axes, and full bidirectional terminal behavior need separate scope decisions.
+
 ## The current direction
 
 The design is still being proven, but the working direction is:
@@ -59,10 +66,12 @@ The design is still being proven, but the working direction is:
 - A .NET Framework 4.8 WPF desktop host with a native HWND terminal surface.
 - A downleveled Atlas renderer that uses the DirectX capabilities available
   through the Windows 7 Platform Update.
-- A WinPTY-based local session backend because Windows 7 does not provide
-  ConPTY.
+- WinPTY as the first local session backend candidate, with console fidelity
+  tested before committing to its integration behind a replaceable boundary.
 - A direct SSH backend for correct authentication, host-key handling, remote
-  PTY allocation, and resize messages.
+  PTY allocation, and resize messages. Evaluate Microsoft Win32-OpenSSH first,
+  including an external-process path that preserves remote terminal bytes;
+  the integration and shipping dependency have not yet been selected.
 - A portable application package that can be extracted and run without modern
   Windows deployment infrastructure.
 
@@ -127,14 +136,32 @@ non-ESU logs and screenshots confirm the correction, and the tester confirms
 keyboard navigation, visible focus, and a successful separate ESU run.
 Milestone 1 is complete on the tested configurations. See the
 [cleanup validation notes](doc/vt7/validation/2026-09-10-milestone-1-cleanup.md).
-Atlas rendering and session backends remain ahead of us.
+Atlas has now drawn its first real frames on Windows 7, too. The separate
+backend proof runs both Atlas Direct3D11 and Direct2D on hardware and WARP.
+All four automated modes pass, and screenshots show the Direct3D11 sample
+visibly rendered on both devices. Resize/redraw and explicit device recreation
+pass, including repeated R-key recreation in the visible windows. See the
+[Atlas backend validation](doc/vt7/validation/2026-09-11-atlas-backend-proof.md).
+
+This is another foundation stone, not a finished terminal renderer. The Atlas
+proof uses fixed, pre-mapped Consolas glyphs. Windows 7 font fallback/shaping,
+TerminalCore/controller integration, and session backends remain ahead of us.
+The accepted 0.2.1 GDI proof stays intact while Milestone 2 continues.
+
+The [research-driven plan](doc/vt7/architecture/2026-09-11-research-driven-plan.md)
+keeps font/cell mapping as the next step. Before substantial session integration
+or daily-driver UI work, a new feasibility gate will test local-console fidelity,
+direct OpenSSH I/O and resize, and Windows 7 input behavior. Full SSH delivery
+remains a later milestone. These are approved plans, not new compatibility results.
 
 - [x] Establish the VT7 project identity and scope.
 - [x] Select and record the Microsoft Terminal upstream baseline.
 - [x] Research the Windows 7 WPF, renderer, API, PTY, and SSH paths.
 - [x] Produce a reproducible developer build for the first VT7 executable.
 - [x] Open a static terminal viewport on Windows 7 SP1 x64.
-- [ ] Render correctly through Direct3D 11 and the software fallback.
+- [x] Prove the isolated Atlas backends on Windows 7 hardware and forced WARP.
+- [ ] Integrate complete terminal rendering, font fallback, and automatic
+  graphics fallback with TerminalCore.
 - [ ] Run an interactive local shell through the Windows 7 PTY backend.
 - [ ] Complete the first direct SSH session.
 - [ ] Add the daily-driver interface, including tabs, panes, profiles, and
@@ -148,6 +175,8 @@ are not alpha releases. Please be careful with downloads that claim otherwise.
 
 - [Roadmap](ROADMAP.md) - milestones, requirements, acceptance criteria, and
   non-goals.
+- [Research and planning decision](doc/vt7/architecture/2026-09-11-research-driven-plan.md)
+  - accepted sequencing, shared contracts, and experiment-to-milestone mapping.
 - [Building](BUILDING.md) - pinned toolchain, proof build, binary verification,
   packaging, and Windows 7 test procedure.
 - [Upstream](UPSTREAM.md) - source baseline, divergence policy, and upstream
