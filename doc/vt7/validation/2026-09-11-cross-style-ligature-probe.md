@@ -1,5 +1,11 @@
 # Probe 0.12: cross-style lam-alef policy comparison
 
+Planning update, 2026-09-12: this comparison is retained under Milestone 7/POL03.
+Same-outline paint remains a research candidate and different-outline hybrids
+remain unaccepted, not baseline port requirements. The
+[port-first plan](../architecture/2026-09-12-port-first-plan.md) supersedes
+historical next-task wording below without changing results or package evidence.
+
 Date: 2026-09-11. Milestone 2C / F01-F02. Supplied Windows 7 matrix passes.
 Branch: `initial-implementation-and-assessment`. No production policy change.
 
@@ -135,7 +141,7 @@ and family changes. No independent ESU run is inferred from this archive.
 
 After reviewing the images, the user approved carrying forward same-outline
 painting while rejecting the mixed-outline hybrid as the recommended default.
-This does not authorize a cluster-wide font override. The next isolated step is
+This does not authorize a cluster-wide font override. The subsequent isolated step was
 [0.13 marked paint/source selection](2026-09-11-marked-paint-probe.md).
 
 Original local package evidence and handoff:

@@ -8,6 +8,7 @@ body:
     attributes:
       value: |
         VT7 aims to build the terminal application Windows 7 always deserved. Please explain the user problem first, then the proposed feature.
+        Our current priority is finishing the application port. Non-blocking improvements go to Milestone 7 for polish/release triage and may be deferred until after release.
 
   - type: textarea
     id: problem
@@ -29,7 +30,7 @@ body:
     id: win7_value
     attributes:
       label: Why this belongs in VT7
-      description: Explain how the feature advances the roadmap or improves life for Windows 7 users.
+      description: Explain the affected roadmap checkpoint or user workflow. Is this blocking the port or a non-blocking improvement? Include evidence and any current workaround.
     validations:
       required: true
 

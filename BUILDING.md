@@ -10,6 +10,11 @@ proof (0.1). The latter renders fixed glyphs through real Atlas backends and
 has passed automated Windows 7 hardware/WARP tests plus visible Direct3D11
 checks. It is separate from the GDI host, not a complete Atlas terminal port.
 
+For what to build next, use the [port-first checkpoints](doc/vt7/architecture/2026-09-12-port-first-plan.md)
+and [roadmap](ROADMAP.md). The commands below reproduce existing proofs; they
+do not require extending every probe before application integration. No package
+or runtime acceptance is changed by this documentation update.
+
 ## Pinned developer toolchain
 
 The proof build is intentionally narrow and reproducible:
@@ -188,7 +193,11 @@ is not implemented. The supplied Windows 7 0.13 run passes all eight validators:
 paint repaints. All 139 earlier target BMPs remain byte-identical. Source
 selection preserves bases with marks, but the long-word highlight still exposes
 the mismatch between allocated cells and centered glyph positions. Interaction
-mapping remains the next experiment, not an accepted production behavior.
+mapping is deferred under Milestone 7/POL02, not an accepted production behavior
+or the next build task. The [port-first plan](doc/vt7/architecture/2026-09-12-port-first-plan.md)
+prioritizes minimal font adaptation and an integrated Atlas viewport. The probe
+commands and frozen packages remain reproducible regression/research tools;
+their optional typography policies need not be implemented to finish the port.
 
 Run the static Windows 7 compatibility gate after a build:
 

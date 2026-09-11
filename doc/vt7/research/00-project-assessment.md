@@ -1,5 +1,11 @@
 # Project assessment and research priorities
 
+Current execution note, 2026-09-12: this is a historical assessment, not the
+current task queue. The [port-first plan](../architecture/2026-09-12-port-first-plan.md)
+prioritizes minimal Windows 7 adaptation and application integration. The roadmap's
+Milestone 7 retains non-blocking improvements for polish triage or post-release
+work. Original findings and evidence limitations below remain unchanged.
+
 Assessed 2026-09-11. Repository HEAD: **28cb8bf7d023e270989b37d038c35364cf87540b**. Assessment includes the existing uncommitted working files, including VT7.Renderer, VT7.RendererProbe, Win7Presentation, Atlas changes, and updated build/validation documents. Their presence is not evidence that they have been committed, packaged, or accepted.
 
 The working tree was being developed during this research. A final read at approximately **04:11 UTC** also found VT7.AtlasProof and its test harness. Its source constructs fixed Consolas glyph payloads and calls the real Atlas backends directly, bypassing AtlasEngine font mapping and TerminalCore. The harness requests hardware/WARP and D2D/D3D runs with redraw/readback checks. This is useful additional test infrastructure; no results from running that new harness were assessed here. [14]

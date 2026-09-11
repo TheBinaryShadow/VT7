@@ -6,6 +6,13 @@ The [roadmap](../../../ROADMAP.md) owns the execution checklist and completion
 state. Research documents explain the evidence and alternatives; validation
 records own runtime results. This planning change ran no application tests.
 
+Updated sequencing, 2026-09-12: the [port-first decision](2026-09-12-port-first-plan.md)
+supersedes this document's next-task wording. Reuse upstream behavior, implement
+the minimal Windows 7 font boundary, then integrate AtlasEngine/controller with
+TerminalCore. Optional typography and new interaction policies move to Milestone 7.
+The contracts and milestone identities below remain; historical experiments are
+not all prerequisites to integration. No existing result is relabeled or rerun.
+
 ## What stays unchanged
 
 - Windows 7 SP1 x64 and the declared prerequisite/test tiers remain the target.
@@ -23,7 +30,8 @@ records own runtime results. This planning change ran no application tests.
 ### 1. Continue the renderer, define shared text geometry
 
 Proceed with 2C, including the previously deferred missing-glyph investigation.
-Test layout-callback fallback first; choose it only after retained run ownership,
+The missing-glyph cause is now recorded and bounded fallback probes have passed.
+Use that evidence for the minimal production adapter; choose it only after retained run ownership,
 cluster/cell mapping, correctness, and cost are understood. Explicit family
 mapping plus analyzer shaping remains a comparison candidate.
 
@@ -108,13 +116,14 @@ Experiment definitions and evidence requirements remain in the
 
 | Stage | Experiments / decision evidence | Completion boundary |
 | --- | --- | --- |
-| 2C | F01, F02 | Identified missing-glyph cause and chosen font/cell adapter; use versioned mixed-script fixtures. |
+| 2C | F01 evidence, remaining production F02 | Minimum Windows 7 font/cell adapter with inherited shaping/grid policies; enhanced typography is deferred, not an integration gate. |
 | Remaining 2B/2D/2E/2F | G01, G02, T01 | Extend existing backend evidence to integrated redraw, scheduling, ownership, recovery, and visual acceptance. Do not repeat accepted checks merely to rename them. |
 | 3A | P01, I01, S00 plus written contracts | Local fidelity and SSH architecture choices before substantial 3B or 4 work; no production SSH claim. |
 | 3B/3C | U01, P02, I01, I02; initial paste/output-policy checks | Required local shells/native apps, input/IME, ordered streaming, bounded lifecycle and safe host actions. |
 | 4 | A01, C01, D01; U01 range checks | Usable panes/profiles/settings, native accessible text, cluster-safe copy/search and persistence. |
 | 5 | S01 and direct-SSH U01/I01/I02/C01 coverage | Selected SSH implementation passes trust, authentication, terminal fidelity, resize, and failure acceptance. |
 | Every runtime addition and 6 | L01 and extended regression/soak matrix | Dependency closure, privacy, exact package evidence, and complete-product qualification. |
+| 7 | Deferred POL01-POL06 and new observations | Bounded polish selection, explicit disposition of optional work, and release readiness. |
 
 Priority labels in original research are not a global instruction to execute
 everything immediately. In particular, SSH selection moves forward to 3A,
@@ -124,8 +133,9 @@ finished interface. Milestone 2 remains independent of live transports.
 
 ## Next handoff
 
-The next implementation slice is 2C: improve per-cluster/font diagnostics,
-identify the recorded discrepancy, and prove the fallback-to-cell adapter.
-Continue renderer integration and acceptance afterward, then perform 3A before
+The next implementation slice is C1/2C: adapt the real AtlasEngine font boundary
+using the existing evidence and upstream-aligned cell/shaping policy. Then C2/2D
+delivers the integrated Atlas viewport, followed by renderer acceptance and 3A before
 substantial session/UI construction. This record does not authorize expanding
 the baseline, importing an unreviewed dependency, or bypassing an unresolved gate.
+Do not build the deferred 0.13 interaction follow-up as the next task.

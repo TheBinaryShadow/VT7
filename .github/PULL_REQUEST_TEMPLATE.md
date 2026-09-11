@@ -6,6 +6,13 @@ What does this change, and what user or engineering problem does it solve?
 
 Closes #
 
+## Scope and priority
+
+Which roadmap checkpoint or required workflow does this serve? Explain whether
+it fixes a port/release blocker or is an approved optional improvement. Record
+new non-blocking observations in Milestone 7 with evidence and follow-up, rather
+than expanding this change. Identify any intentional departure from upstream.
+
 ## Windows 7 reasoning
 
 - Which Windows 7 APIs, prerequisites, or compatibility boundaries matter here?

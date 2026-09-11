@@ -4,6 +4,12 @@ VT7 renderer capability and font probe 0.13
 This is a Milestone 2 engineering probe, not an Atlas terminal build.
 It does not replace or modify the accepted VT7 0.2.1 GDI proof.
 
+Development direction, 2026-09-12: finish the application port first. This probe
+and its frozen evidence remain regression/research tools. The next deliverable
+is minimal Windows 7 font adaptation and an integrated Atlas viewport, not a
+new optional typography test. See ROADMAP.md Milestone 7 and
+doc/vt7/architecture/2026-09-12-port-first-plan.md in the source repository.
+
 Requires Windows 7 SP1 x64 with the documented VT7 graphics/loader/UCRT
 prerequisites, including Platform Update KB2670838. This native probe does
 not require .NET or Power Automate. Pinned Visual C++ runtime DLLs are bundled.
@@ -404,8 +410,9 @@ The supplied Windows 7 0.13 run passes all eight validators: 51 required checks,
 zero failures, and all 139 earlier target BMPs unchanged. Marks and connections
 remain visible in the inspected samples. The long-word selection stripe still
 does not neatly identify the intended letter within centered glyph geometry.
-Visible-position/source/core interaction mapping remains a proposed next test,
-not completed caret or selection support. No assets or system settings change.
+Visible-position/source/core interaction mapping is deferred under Milestone 7,
+POL02, not the next test or completed caret/selection support. Baseline grid-based
+interaction remains required. No assets or system settings change.
 
 This source README includes the later Windows 7 assessment. The frozen 0.13
 archive retains its original handoff README and published checksum.

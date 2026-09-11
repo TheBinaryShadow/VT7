@@ -1,5 +1,10 @@
 # Probe 0.10: Arabic context, ordering and cursive spacing
 
+Planning update, 2026-09-12: enhanced context repair and joined-word layout are
+retained research under Milestone 7/POL01, not requirements for the baseline port.
+The [port-first plan](../architecture/2026-09-12-port-first-plan.md) supersedes
+historical next-experiment wording below. Results and adoption limits are unchanged.
+
 Date: 2026-09-11. Milestone 2C / F01-F02. Supplied Windows 7 structural/context
 validation passes. Final Arabic typography and integration remain open.
 
@@ -148,7 +153,7 @@ Inspection at 18 DIP/96 DPI and 24 DIP/192 DPI shows improved connections in P
 across the tested style/family boundaries. C/V still separate letters. All
 24 reviews are the deliberately unresolved lam-alef style split. This accepts
 the bounded context experiment, not final Arabic rendering or a separate ESU run.
-The next experiment is [shared-span fitting](2026-09-11-joined-span-probe.md).
+The subsequent experiment was [shared-span fitting](2026-09-11-joined-span-probe.md).
 
 ## Windows 7 handoff
 

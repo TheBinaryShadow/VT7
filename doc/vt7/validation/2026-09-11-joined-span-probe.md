@@ -1,5 +1,11 @@
 # Probe 0.11: joined Arabic spans inside a terminal allocation
 
+Planning update, 2026-09-12: shared-span fitting/centering and its interaction
+questions are deferred under Milestone 7/POL01-POL02. They must be resolved before
+adopting this enhanced layout, not before integrating upstream-style Atlas.
+See the [port-first plan](../architecture/2026-09-12-port-first-plan.md).
+The recorded results and historical follow-ups below retain their original scope.
+
 Date: 2026-09-11. Milestone 2C / F01-F02. Supplied Windows 7 matrix passes.
 Branch: `initial-implementation-and-assessment`. Built on the existing 0.10
 working-tree implementation, without committing or replacing the frozen package.
@@ -160,7 +166,7 @@ the supplied 0.10 archive byte-for-byte. No separate ESU run is inferred.
 Visual review confirms the tested J connections, visible marks and contained
 wide spans; long-word centering leaves spare allocation. Cross-style lam-alef
 remains unresolved. This accepts the bounded experiment, not production Arabic
-typography or interaction. The next comparison is
+typography or interaction. The subsequent comparison was
 [0.12 cross-style lam-alef](2026-09-11-cross-style-ligature-probe.md).
 
 Original handoff instructions:

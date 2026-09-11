@@ -6,6 +6,13 @@ VT7 aims to combine the inherited TerminalCore/parser/buffer with a .NET Framewo
 
 ## Planning adoption
 
+Current direction is the [September 12 port-first plan](../architecture/2026-09-12-port-first-plan.md)
+and [roadmap](../../../ROADMAP.md). Finish the minimal compatibility adapters and
+real application integration first. This research collection retains its dated
+findings and original priorities as reference, not an instruction to implement
+every experiment. Record non-blocking ideas in Milestone 7 for release triage or
+post-release work; required correctness, security and workflows remain gates.
+
 Implementation follow-up: the [0.2 font/cell probe](../validation/2026-09-11-font-mapping-probe.md)
 has supplied Windows 7 evidence identifying U+1F600 as the missing cluster.
 The [font coverage/fitting research](2026-09-11-font-coverage-and-fitting.md)
@@ -19,8 +26,8 @@ approved private-font decision: pinned Unifont/Unifont Upper, OFL 1.1 font asset
 MIT application code, and bounded symbol fallback. Local and supplied Windows 7
 tests pass, including automatic private U+1F600 fallback. This accepts the bounded
 experiment, not final typography or production integration. The
-[next geometry/repaint plan](../architecture/2026-09-11-font-geometry-test-plan.md)
-defines the next test slices. Its first implementation is
+[geometry/repaint history](../architecture/2026-09-11-font-geometry-test-plan.md)
+records the following test slices. Its first implementation is
 [probe 0.6](../validation/2026-09-11-geometry-probe.md), an offscreen size/DPI matrix
 with vertical-review and crop diagnostics; the supplied Windows 7 run passes
 its structural gates while retaining the vertical-policy observations.
@@ -48,15 +55,16 @@ same-outline paint, not different-outline hybrids as the default.
 to marked/joined words and source selection. Its supplied Windows 7 matrix passes
 all eight validators, with 139 earlier target BMPs unchanged. The long-word
 highlight mismatch remains open; source ownership does not settle visual
-selection. Visible-position/source/core interaction mapping is the next proposed
-experiment, not implemented behavior.
+selection. Visible-position/source/core interaction mapping is now deferred
+under Milestone 7/POL02, not the next implementation task.
 The [geometry contract](../architecture/2026-09-11-text-geometry-contract.md)
-defines core authority and consumer boundaries. F01/F02 remain partial: final
-visual/interaction policy and the production adapter are not yet accepted.
+defines core authority and consumer boundaries. The missing-glyph cause has been
+identified; production F02/adapter integration remains open. Enhanced visual
+layout/interaction policy is separate deferred work, not its acceptance gate.
 
 The [approved September 11 plan](../architecture/2026-09-11-research-driven-plan.md)
-and [roadmap](../../../ROADMAP.md) now adopt the reviewed findings. They own the
-current execution order: continue 2C, then finish renderer integration; run the
+adopted the reviewed findings. The September 12 revision and roadmap now own the
+execution order: minimal 2C adaptation, then renderer integration; run the
 3A WinPTY/OpenSSH/input feasibility gate before substantial local integration
 or daily-driver UI work. Text geometry, session ownership, input, accessibility,
 and output-security contracts move ahead of their dependent UI features.

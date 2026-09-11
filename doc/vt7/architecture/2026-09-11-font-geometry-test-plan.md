@@ -1,27 +1,33 @@
-# Milestone 2C: next geometry and repaint tests
+# Milestone 2C: geometry and repaint experiment history
+
+Sequencing update, 2026-09-12: the [port-first plan](2026-09-12-port-first-plan.md)
+and [roadmap](../../../ROADMAP.md) supersede the historical next-slice instructions
+below. Probes 0.6-0.13 and their acceptance evidence are retained. Continue with
+minimal Windows 7 font adaptation and real Atlas integration, not an additional
+optional typography probe. POL01-POL04 track enhanced layout/paint/quality work.
 
 Date: 2026-09-11. Status: first slice implemented in
 [probe 0.6](../validation/2026-09-11-geometry-probe.md) with supplied Windows 7
 structural acceptance. The second slice is now implemented in isolated
 [probe 0.7](../validation/2026-09-11-repaint-probe.md), with supplied Windows 7 acceptance.
 The upstream fixed-grid/overlapping-text policy is selected in the geometry
-contract. Production integration remains open. The next implemented slice is
+contract. Production integration remains open. The subsequent slice was
 [probe 0.8](../validation/2026-09-11-text-adapter-probe.md), an owned logical-order
 mapper candidate tested independently before routing it into Atlas.
 The supplied 0.8 Windows 7 run now passes its structural checks, with horizontal
-overflow and Arabic quality explicitly open. The user-approved next slice is
+overflow and Arabic quality explicitly open. The subsequent user-approved slice was
 [0.9 horizontal fitting](../validation/2026-09-11-horizontal-fitting-probe.md):
 retain the raw candidate, measure whole-group ink, protect neighbors from
 oversized groups, and test conservative partial-row redraw. Do not change
 core widths, vertical scale, or the selected logical-order policy in this slice.
-The supplied 0.9 Windows 7 containment/repaint run now passes. The next bounded
-slice is [0.10 Arabic context](../validation/2026-09-11-arabic-context-probe.md):
+The supplied 0.9 Windows 7 containment/repaint run now passes. The subsequent bounded
+slice was [0.10 Arabic context](../validation/2026-09-11-arabic-context-probe.md):
 test whole-source context across style/face boundaries, preserve exact source
 ownership, and compare natural versus cell-grid placement. Its visual projection
 is diagnostic only. Contextual glyph identity, connected cursive spacing, and
 terminal bidi/cursor policy are separate acceptance gates. A shaping cluster
 crossing a style boundary must not be arbitrarily sliced to make a test pass.
-The supplied 0.10 Windows 7 run passes its context/structural tests. The next
+The supplied 0.10 Windows 7 run passes its context/structural tests. The subsequent
 slice, [0.11 joined spans](../validation/2026-09-11-joined-span-probe.md), fits a
 complete declared Arabic span into its combined allocation. It preserves
 internal positioning with one transform, checks old/new row damage and retains
@@ -30,7 +36,7 @@ mapping remain decisions, not implicit consequences of a successful raster test.
 Depends on the [geometry contract](2026-09-11-text-geometry-contract.md) and the
 accepted bounded [Windows 7 probe 0.5 result](../validation/2026-09-11-private-font-probe.md).
 
-## Execution order and boundaries
+## Original experiment order and boundaries
 
 1. Build probe 0.6 for primary-font grid metrics, size/DPI transforms, vertical
    ink, and fallback fitting. Test locally, then return a separate Windows 7 package.
@@ -130,7 +136,12 @@ old-ink or neighbor damage in a negative test and require the comparator to catc
 Repeat backend-specific checks when the real Atlas path is integrated; success
 in this isolated experiment is not acceptance of Atlas's own invalidation code.
 
-## Decisions still required before integration
+## Deferred typography adoption conditions
+
+The following conditions apply if the experimental layout or paint paths are
+adopted later. They do not block integrating the upstream-style renderer.
+Milestone 7 owns their release triage. Ordinary core-grid cursor/selection
+correctness remains required in its implementing milestones.
 
 [Probe 0.13](../validation/2026-09-11-marked-paint-probe.md) extends same-outline
 paint to marks and joining context. Require complete core/source partitions,
@@ -142,7 +153,7 @@ The supplied Windows 7 matrix now passes, including 432 source round trips,
 images remain unchanged. The visible long-word highlight mismatch is retained
 as a review gate, not dismissed because the source-selection oracle passes.
 
-The next proposed interaction slice must compare visible-position mapping with
+The deferred POL02 interaction slice would compare visible-position mapping with
 authoritative core cells and original source intervals, including spare-space
 and span-edge clicks, combining marks and shared ligatures. Keep the existing
 paint/geometry references frozen. Do not change source, terminal widths or the
@@ -155,9 +166,10 @@ outside-allocation, stale-key and dropped-color controls, but keep different-
 outline seam quality and source-to-paint policy as explicit review gates.
 Do not count earlier repaint tests as coverage of hybrid edits or scrolling.
 
-The tests above do not settle joins across font/style runs, interaction mapping,
-private-face caching and lifetime under settings changes, production missing-font
-behavior, or mandatory Factory2/font-face removal. Those remain 2C gates.
+The tests above do not settle enhanced joins or proportional interaction mapping;
+those remain deferred adoption conditions. Private-face caching and lifetime
+under settings changes, production missing-font behavior, and mandatory newer
+font-interface removal remain current 2C compatibility work.
 The initial mapper candidate uses source-order analyzer shaping, not the visual
 paragraph lane. Probe 0.8 compares both, using upstream-default metrics in a new
 lane while retaining every older image. It checks owned mappings, retained-face
@@ -165,6 +177,10 @@ lifetime, style boundaries, missing glyphs and stale keys at all 12 size/DPI
 combinations. It does not claim Arabic visual/interaction acceptance or a cache.
 Ask the user before a material policy change such as broadening bundled fallback,
 changing default cell proportions, or accepting intentional loss of glyph ink.
+
+Current integration must preserve inherited shaping direction and cluster advance
+fitting. Reuse ownership/fallback work from the candidate only where applicable;
+do not require its optional fitter, joined-span layout or paint compositor.
 
 Each build must have a separate validation record, frozen package hash, and clear
 local versus Windows 7 evidence. Reuse the existing toolchain and regression

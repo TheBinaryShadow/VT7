@@ -22,6 +22,19 @@ not need a lengthy design discussion.
 
 ## What helps most right now
 
+Follow the [port-first plan](doc/vt7/architecture/2026-09-12-port-first-plan.md):
+reuse pinned upstream behavior and focus on Windows 7 adaptation and application
+integration. State which current checkpoint or required workflow a change serves.
+For a new experiment, name the blocking question, bounded test and decision it
+will enable before expanding the probe suite.
+
+Record non-blocking observations in the roadmap's Milestone 7 register, with
+user impact, evidence, baseline/workaround, proposed follow-up and a condition
+that would make the issue blocking. Optional typography, UI refinements and
+optimizations should not interrupt the port. Release triage may defer them to
+post-release work. Source loss, unsafe input, security, stability and failures
+of required workflows remain immediate concerns, not optional polish.
+
 The 0.2 host/core/static-viewport proof now runs on tested Windows 7 non-ESU and
 ESU setups. Start with [BUILDING.md](BUILDING.md) and the
 [validation record](doc/vt7/validation/2026-09-10-viewport-proof.md) to understand
@@ -47,9 +60,9 @@ automatic recovery, and session acceptance.
 - Automated tests that protect Windows 7-specific behavior.
 - Physical Windows 7 testing with precise system and driver information.
 
-Follow the [research-driven plan](doc/vt7/architecture/2026-09-11-research-driven-plan.md)
+Follow the [port-first checkpoints](doc/vt7/architecture/2026-09-12-port-first-plan.md)
 and link relevant changes to the [experiment IDs](doc/vt7/research/20-validation-and-experiments.md).
-Font/cell mapping is next; 3A session feasibility must precede substantial local
+Minimal font adaptation and the integrated Atlas viewport are next; 3A session feasibility must precede substantial local
 integration or daily-driver UI work. Research priority labels are not new test
 results or permission to skip an open acceptance gate.
 

@@ -39,6 +39,16 @@ The projects have different platform goals:
 
 ## Upstream synchronization
 
+VT7 follows an upstream-first port policy: preserve the pinned source's terminal
+semantics, shaping/cell placement and interaction behavior wherever practical.
+Make narrow Windows 7 compatibility adaptations and test their changed boundaries
+plus affected regressions. Do not turn improvements beyond upstream into port
+prerequisites. Record deliberate behavioral departures with evidence and approval;
+optional improvements go to Milestone 7 under the
+[port-first plan](doc/vt7/architecture/2026-09-12-port-first-plan.md).
+This does not authorize a merge, update the pinned baseline, or waive an inherited
+security defect or required-workflow failure.
+
 The 0.2 viewport proof compiles selected inherited sources directly into a
 VT7-only static library. Its `VT7_CORE` compatibility branches, dependency pins,
 disabled features, and testing limits are recorded in

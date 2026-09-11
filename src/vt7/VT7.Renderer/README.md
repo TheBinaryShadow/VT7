@@ -1,5 +1,11 @@
 # Isolated Atlas renderer target
 
+Current development priority: implement the minimum Windows 7 font boundary,
+then connect the real AtlasEngine/controller to TerminalCore and the host.
+Follow the [port-first checkpoints](../../../doc/vt7/architecture/2026-09-12-port-first-plan.md).
+Keep inherited shaping/grid/interaction behavior; optional fitting, joined Arabic
+and paint experiments are Milestone 7 research, not integration prerequisites.
+
 `VT7.Renderer.lib` builds the eleven inherited non-PCH Atlas translation units,
 the existing `ColorFix.cpp`, and VT7's `Win7Presentation.cpp`. Four shader
 headers are generated from the inherited HLSL with the pinned toolchain.
@@ -53,7 +59,7 @@ in its constructor and font routines. It must not be constructed on Windows 7
 until Milestone 2C adapts those paths. A successfully linked backend harness
 does not establish a complete loadable AtlasEngine or renderer-controller port.
 The independent `VT7.RendererProbe.exe` remains a separate capability tool.
-Its 0.11 font experiment links TerminalCore for fixture cell spans and retains
+Its 0.13 font experiment links TerminalCore for fixture cell spans and retains
 DirectWrite callback runs, scans scalar coverage, fits whole ink, and preserves
 RTL runs for diagnostics and a bitmap comparison. It does not
 link this Atlas library or change the full engine's unsupported font boundary.
@@ -70,9 +76,9 @@ These assets are not installed into Windows or wired into AtlasEngine.
 The supplied Windows 7 0.5 run passes: both private faces load, all 13 fixtures
 map, and automatic fallback renders the missing U+1F600 in Supplementary C.
 Pixel-derived font quality and narrow-symbol compression remain limitations.
-Atlas font/interaction integration remains open. The next independent test scope
-is in `doc/vt7/architecture/2026-09-11-font-geometry-test-plan.md`, starting with
-size/DPI and vertical metrics, followed by differential repaint validation.
+Atlas integration remains open. The completed independent experiment sequence
+is in `doc/vt7/architecture/2026-09-11-font-geometry-test-plan.md`; it is retained
+as evidence, not a queue of prerequisites to implementing upstream-style Atlas.
 Probe 0.6 now implements the first offscreen matrix, preserving the 0.5 reference;
 see `doc/vt7/validation/2026-09-11-geometry-probe.md`. The crop-copy and geometry-key
 tests are not Atlas clipping/invalidation or production snapshot acceptance.
@@ -132,8 +138,9 @@ The approved direction excludes different-outline hybrids as the default.
 No interactive cursor, selection, hit test or Atlas path is changed. See
 `doc/vt7/validation/2026-09-11-marked-paint-probe.md`.
 The supplied Windows 7 matrix passes all eight validators and preserves the
-139 earlier target bitmaps. The long-word highlight mismatch remains an explicit
-interaction gate. These results do not accept the production font adapter or
+139 earlier target bitmaps. The long-word highlight mismatch remains an adoption
+gate for the deferred POL02 experiment, not for baseline core-grid interaction.
+These results do not accept the production font adapter or
 integrate same-outline paint into Atlas.
 
 ## Provenance and evidence

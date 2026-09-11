@@ -4,6 +4,12 @@ Date: 2026-09-11. Status: implementation contract for the next adapter work,
 not a claim that interactive consumers or the adapter are implemented.
 This follows the approved [research-driven plan](2026-09-11-research-driven-plan.md).
 
+Sequencing clarification, 2026-09-12: the [port-first decision](2026-09-12-port-first-plan.md)
+preserves this contract's core authority, upstream grid and safety rules.
+Descriptions of experimental fitting, joining and paint below are not production
+requirements. Their adoption conditions move to Milestone 7/POL01-POL04; the
+minimum upstream-aligned adapter and real Atlas viewport are the current goal.
+
 ## Authority and coordinate spaces
 
 TerminalCore owns text, cells, cursor state, viewport dimensions, and reflow.
@@ -137,19 +143,21 @@ but is not glyph hit testing for proportional joined Arabic. Do not feed that
 lane directly into production cursor/selection logic or apply bidi twice.
 
 The initial candidate now uses logical-order analyzer shaping, matching upstream's
-direction flags. A visual-bidi mode is not enabled. The required experiment
-compares those paths without changing core text,
-including cursor placement, selection, mixed numbers, marks, font/style splits,
-wrapping, and reflow. Preserving joins within one captured RTL run does not prove
+direction flags. A visual-bidi mode is not enabled or required for integration.
+Baseline acceptance tests cover core-grid placement, mixed numbers, marks,
+font/style splits, wrapping and reflow in their implementing milestones.
+Comparing alternative visual ordering and interaction is deferred research.
+Preserving joins within one captured RTL run does not prove
 joins across runs. This contract fixes authority and safety rules; it does not
 pretend that the open Arabic pixel-to-interaction mapping has been solved.
 
 The [0.8 mapper candidate](../validation/2026-09-11-text-adapter-probe.md) implements
 owned source/cell/glyph data and retained FontFace1 objects outside the probe
 helper. It remains linked only into the independent probe. Its fixed `en-US`
-locale, bounded input, lack of cache, styled-private fallback exclusions,
-cross-face/style context, and horizontal ink policy need further work before
-production integration. Snapshot-key rejection is not a concurrent cache test.
+locale, bounded input, lack of cache and styled-private fallback exclusions need
+production review. Preserve inherited style/shaping and horizontal-ink behavior;
+optional context repair/fitting is not required. Snapshot-key rejection is not
+a concurrent cache test.
 
 [Probe 0.10](../validation/2026-09-11-arabic-context-probe.md) keeps Arabic
 context repair outside that mapper. It compares whole-source shaping in the
@@ -157,7 +165,7 @@ selected face/style, refuses unsafe ligature cuts, and separates contextual
 glyph identity from cell-grid spacing and visual ordering. Its proportional
 reference and visual-cell lane are diagnostics, not amendments to core cursor,
 selection or width authority. Joined-word/group placement and boundary-spanning
-style ownership remain explicit gates before production integration.
+style ownership are adoption gates for that enhancement, not for baseline Atlas.
 
 [Probe 0.11](../validation/2026-09-11-joined-span-probe.md) tests a larger draw
 unit without changing source ownership: a declared Arabic span may share one
@@ -167,7 +175,7 @@ caret stops, selection painting, terminal bidi, or production span formation.
 Its natural-width centering and common horizontal compression are candidates;
 they do not authorize expansion of core widths or vertical scaling.
 
-## Before Atlas integration can be accepted
+## Deferred layout and paint experiments
 
 [Probe 0.13](../validation/2026-09-11-marked-paint-probe.md) keeps full retained
 word geometry while varying paint by diagnostic RTL core-cell strips. Source
@@ -178,9 +186,9 @@ font caret positions or accepted interactive selection. Different-outline hybrid
 are not adopted as the default following the user's 0.12 review.
 Its supplied Windows 7 matrix passes, but the long-word highlight demonstrates
 that successful source ownership is not sufficient for visual selection.
-Next compare visible-position/source/core mappings, including empty allocated
-space and shared glyphs, without changing core widths. Cursor and selection
-policies remain unaccepted until those interaction cases are resolved.
+The proposed visible-position/source/core comparison, including empty allocated
+space and shared glyphs, is deferred under POL02. Its alternate cursor/selection
+policies remain unaccepted; baseline integration retains core-grid interactions.
 
 [Probe 0.12](../validation/2026-09-11-cross-style-ligature-probe.md) keeps source
 ownership separate from spatial painting. A two-column lam-alef may share a
@@ -188,12 +196,14 @@ shaping cluster; a paint seam is not a character-owned glyph boundary. Same-
 outline color slices and different-outline hybrids are distinct experiments.
 No cluster-wide font override, caret position or production hybrid is selected.
 
+## Before baseline Atlas integration can be accepted
+
 - Preserve the accepted 0.4/0.5 Windows 7 fixed-geometry comparison as a regression
   reference. Expand it through the [geometry/repaint plan](2026-09-11-font-geometry-test-plan.md).
 - Add snapshot generation/lifetime tests and source/core/glyph/pixel range tests,
   including partial redraw with overhang, stale caches, and viewport clipping.
-- Compare the logical-order complex-script path with the current visual probe,
-  and settle the intended mode before routing interactive consumers through it.
+- Preserve inherited logical-order shaping and core-grid mapping. Keep the visual
+  probe outside production interaction; no alternate bidi mode is required.
 - Exercise different cell sizes/DPI, style/face splits, and vertical metrics.
 - Complete the Factory2/font-face capability audit and adapter cost/cache checks.
 

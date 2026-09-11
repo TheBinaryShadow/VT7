@@ -20,6 +20,12 @@ See the [backend acceptance scope](doc/vt7/validation/2026-09-11-atlas-backend-p
 
 ## Questions and help
 
+Current development prioritizes the Windows 7 application port. Non-blocking
+ideas are welcome and are collected for Milestone 7 polish/release triage in the
+[roadmap](ROADMAP.md); they are not promises for the first release. Report broken
+required workflows, text corruption, crashes and security concerns promptly
+through the appropriate channels below. Those are not cosmetic backlog items.
+
 Use the [VT7 issue tracker](https://github.com/TheBinaryShadow/VT7/issues) for:
 
 - Build and development questions.

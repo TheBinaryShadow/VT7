@@ -1,5 +1,11 @@
 # Milestone 2C: horizontal fitting and neighbor protection, probe 0.9
 
+Planning update, 2026-09-12: this fitter is an optional candidate, not a required
+replacement for upstream Atlas placement. Preserve its evidence under POL04 in
+Milestone 7. Actual source/cell errors or lasting repaint corruption remain
+renderer blockers. The [port-first plan](../architecture/2026-09-12-port-first-plan.md)
+owns current sequencing; the results below retain their original scope.
+
 Date: 2026-09-11. Branch: `initial-implementation-and-assessment`.
 Source base: `3dcc155c96c9a7037bbf2137006e48b877cd1d8d` plus this uncommitted work.
 Release stamp: `Sep 11 2026 16:00:47`, compiler `194435228`.

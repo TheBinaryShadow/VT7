@@ -19,6 +19,14 @@ track later implementation and tests without rewriting that historical snapshot.
 
 ## Research-driven planning follow-up
 
+Current sequencing is governed by the [September 12 port-first decision](2026-09-12-port-first-plan.md).
+The source review and acceptance evidence below remain dated records. Minimal
+font adaptation and the first integrated Atlas viewport come next; optional
+joined-word layout, glyph-quality refinements and enhanced hit testing belong
+to Milestone 7. Validate inherited policies and our compatibility changes,
+without requiring a typography redesign. Scheduling, source/cell correctness,
+repaint, lifecycle and required-workflow defects remain renderer gates.
+
 The [approved September 11 plan](2026-09-11-research-driven-plan.md) keeps the
 renderer direction and strengthens 2C: define the core-owned text/cell geometry
 shared by rendering, cursor, selection/search, mouse, IME, accessibility, and

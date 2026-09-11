@@ -59,6 +59,17 @@ font axes, and full bidirectional terminal behavior need separate scope decision
 
 ## The current direction
 
+Our immediate priority is a working application port: bring the proven upstream
+terminal behavior to Windows 7, adapting the parts that depend on newer Windows.
+We do not need to redesign terminal typography before people can use VT7.
+
+Our longer-term ambition stays high. Better text rendering, thoughtful finishing
+touches and ideas discovered along the way belong in the roadmap's final
+**Polish and release readiness** milestone. We will review them before release,
+complete a bounded selection, and explicitly carry optional work forward when
+needed. Correctness, security, stability and required workflows are never merely
+polish. A useful terminal first, then deliberate improvements, with care throughout.
+
 The design is still being proven, but the working direction is:
 
 - Microsoft Terminal's MIT-licensed TerminalCore and parser for terminal state
@@ -153,11 +164,13 @@ The separate font and geometry experiments have progressed through
 The supplied Windows 7 run passes all eight validation suites, including marked
 Arabic painting and partial repaint, while preserving every earlier comparison
 image. Same-outline color painting is promising; different-outline hybrids are
-not being adopted as the default. Cursor, selection and hit-test mapping remain
-open, and these probe results are not a completed Atlas terminal renderer.
+not being adopted as the default. Enhanced joined-word layout and its unresolved
+cursor/selection mapping are deferred research, not prerequisites to the port.
+These probe results are not a completed Atlas terminal renderer.
 
-The [research-driven plan](doc/vt7/architecture/2026-09-11-research-driven-plan.md)
-keeps font/cell mapping as the next step. Before substantial session integration
+The [port-first plan](doc/vt7/architecture/2026-09-12-port-first-plan.md)
+sets the next deliverable: minimal Windows 7 font adaptation followed by the real
+AtlasEngine/controller rendering TerminalCore content in the viewport. Before substantial session integration
 or daily-driver UI work, a new feasibility gate will test local-console fidelity,
 direct OpenSSH I/O and resize, and Windows 7 input behavior. Full SSH delivery
 remains a later milestone. These are approved plans, not new compatibility results.
@@ -184,7 +197,9 @@ are not alpha releases. Please be careful with downloads that claim otherwise.
 - [Roadmap](ROADMAP.md) - milestones, requirements, acceptance criteria, and
   non-goals.
 - [Research and planning decision](doc/vt7/architecture/2026-09-11-research-driven-plan.md)
-  - accepted sequencing, shared contracts, and experiment-to-milestone mapping.
+  - original shared contracts and experiment-to-milestone mapping.
+- [Port-first execution plan](doc/vt7/architecture/2026-09-12-port-first-plan.md)
+  - current short/long-term goals, integration checkpoints and improvement triage.
 - [Building](BUILDING.md) - pinned toolchain, proof build, binary verification,
   packaging, and Windows 7 test procedure.
 - [Upstream](UPSTREAM.md) - source baseline, divergence policy, and upstream

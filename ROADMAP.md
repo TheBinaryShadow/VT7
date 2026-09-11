@@ -4,7 +4,7 @@ This roadmap defines what VT7 is trying to achieve and how we will know when it
 has arrived. It is intentionally ambitious. Windows 7 users have waited long
 enough for a terminal that treats the platform as a first-class home.
 
-VT7 is research-heavy work. Milestones are ordered by technical dependency,
+VT7 is a port-first engineering effort. Milestones are ordered by technical dependency,
 not assigned calendar dates. We will publish dates only after the underlying
 risks are understood well enough to make those dates meaningful.
 
@@ -23,14 +23,28 @@ risks are understood well enough to make those dates meaningful.
 8. Core/renderer capability and end-to-end session capability are separate
    promises. A backend limitation must be measured, not hidden or silently
    adopted as a permanent product limitation.
+9. Reuse pinned upstream behavior first. Adapt incompatible Windows 7 boundaries
+   without making enhanced typography or other optional improvements prerequisites.
+10. Fix blockers in their owning milestone; record non-blocking ideas in
+    Milestone 7 for bounded polish triage or explicit post-release work.
 
 ## Research-driven execution plan
 
-The [September 11 planning decision](doc/vt7/architecture/2026-09-11-research-driven-plan.md)
-adopts the [research findings](doc/vt7/research/README.md) without changing
-the platform floor, upstream baseline, or previously recorded test results.
-Milestone numbering stays stable. The next implementation work is 2C, followed
-by the remaining renderer integration and acceptance gates.
+The [September 12 port-first decision](doc/vt7/architecture/2026-09-12-port-first-plan.md)
+updates the [September 11 plan](doc/vt7/architecture/2026-09-11-research-driven-plan.md).
+It keeps the platform floor, upstream baseline, required product workflows, and
+recorded test results. Milestones 0 through 6 retain their numbers; Milestone 7
+adds final polish and release readiness, not a requirement to implement every idea.
+
+Short term: complete the application port, starting with the minimum 2C font
+adaptation and a real TerminalCore-backed Atlas viewport in 2D. Then close the
+integrated renderer gates and proceed to sessions and the daily-driver interface.
+Long term: improve the finished port deliberately, using retained research and
+user feedback without making optional enhancements an indefinite release barrier.
+
+The decision defines C1-C5 deliverable checkpoints. Reuse upstream policies and
+existing tests; run new bounded experiments only for named compatibility or
+integration questions. Optional typography research is no longer the next step.
 
 Before substantial local-session integration or daily-driver UI construction,
 3A must resolve WinPTY fidelity, the OpenSSH integration choice, and input/session
@@ -41,6 +55,17 @@ belong with each implementing change; Milestone 6 qualifies the assembled produc
 Use the experiment IDs in the [validation backlog](doc/vt7/research/20-validation-and-experiments.md)
 to connect decisions, implementations, and exact Windows 7 evidence. Research
 recommendations and unchecked gates are not implemented or accepted features.
+
+### Blocker and improvement triage
+
+A blocker prevents an agreed workflow, Windows 7 execution, terminal/text
+correctness, safe interaction, stability, security, baseline accessibility, or
+legal distribution. It stays in the implementing milestone. Optional appearance,
+new behavior beyond upstream, and optimizations with a correct baseline go to
+Milestone 7 with evidence and a follow-up condition. Do not hide a port regression
+as polish or silently reduce a promised workflow. Investigate uncertain cases
+with a bounded comparison before deciding. Historical research priorities are
+not additional current gates.
 
 ## Supported system target
 
@@ -188,7 +213,7 @@ and on the tested Windows 7 SP1 x64 machine (49 required checks, zero failures).
 It does not load Atlas, and cannot
 close Atlas rendering or integration gates.
 
-The next [backend experiment](doc/vt7/validation/2026-09-11-atlas-backend-proof.md)
+The [backend experiment](doc/vt7/validation/2026-09-11-atlas-backend-proof.md)
 now links and runs the real Atlas Direct3D11 and Direct2D backends with a shared
 Windows 7 presentation adapter. Debug/Release hardware/WARP pixel tests pass
 locally, and all four Release backend/device combinations pass on the tested
@@ -257,6 +282,13 @@ recreation does not establish automatic recovery from real device loss (2E).
 
 ### 2C: DirectWrite and glyph path
 
+Current gate: the minimum Windows 7 font adaptation needed by the real AtlasEngine,
+preserving inherited shaping direction, cluster-to-cell advance fitting and primary
+grid behavior. Reuse the 0.8 mapper's applicable ownership/fallback work, not the
+entire experimental rendering stack. Enhanced Arabic layout and fitting/paint
+alternatives are retained below as completed research and tracked in Milestone 7;
+they are not prerequisites to the first Atlas viewport.
+
 The supplied Windows 7 probe 0.2 passes 51 required checks and maps nine fixtures.
 It identifies the original missing glyph as U+1F600, selected as Consolas glyph
 zero, and exposes Arabic joining/order and advance-only emoji fitting defects.
@@ -282,10 +314,10 @@ All 76 original cell records match 0.4. Pixel-derived glyph quality and squeezed
 one-cell symbols remain limitations, not final typography acceptance.
 These partial F01/F02 results do not close the unchecked gates below.
 
-Next execution order is defined in the
+The completed experiment sequence is described in the
 [geometry and repaint test plan](doc/vt7/architecture/2026-09-11-font-geometry-test-plan.md):
-geometry/size/DPI probe first, differential repaint second, then production
-adapter decisions and Atlas integration. [Probe 0.6](doc/vt7/validation/2026-09-11-geometry-probe.md)
+geometry/size/DPI and differential repaint preceded adapter work. The current
+next step is minimal adapter integration, not another typography probe. [Probe 0.6](doc/vt7/validation/2026-09-11-geometry-probe.md)
 implements the offscreen geometry matrix and passes on the supplied Windows 7 setup.
 Vertical overflow observations are covered by the approved upstream-aligned
 fixed-grid/overlapping ordinary-text policy, not silently accepted clipping.
@@ -298,7 +330,8 @@ passes while exposing horizontal overflow and unresolved Arabic typography.
 [Probe 0.9](doc/vt7/validation/2026-09-11-horizontal-fitting-probe.md) adds a
 separate raster-measured horizontal fitter and neighbor-protection checks.
 The supplied 0.9 Windows 7 run passes containment and repaint checks, with
-67 earlier images unchanged. Narrow-symbol appearance remains an open quality gate.
+67 earlier images unchanged. Narrow-symbol appearance is tracked under POL04;
+integrated fallback correctness remains required.
 [Probe 0.10](doc/vt7/validation/2026-09-11-arabic-context-probe.md) now separates
 Arabic context repair, logical/visual ordering, and proportional/grid placement.
 Its supplied Windows 7 structural/context run passes; no terminal bidi policy
@@ -312,8 +345,8 @@ composites. Different-outline hybrids remain REVIEW, not production policy.
 [Probe 0.13](doc/vt7/validation/2026-09-11-marked-paint-probe.md) extends same-outline
 paint to marks, joining context and core-cluster source selection. Its supplied
 Windows 7 matrix passes all eight validators, with the 139 earlier target images
-unchanged. The visible highlight mismatch remains open; the next proposed slice
-is interaction mapping, not another claim of finished terminal selection.
+unchanged. The visible highlight mismatch and proposed interaction experiment
+are deferred under POL02 in Milestone 7, not prerequisites to upstream-style Atlas.
 
 - [x] Identify the exact Windows 7 missing cluster and selected font from supplied
   evidence: U+1F600, Consolas 5.24, glyph zero, original run 7 UTF-16 [60,62).
@@ -334,13 +367,12 @@ is interaction mapping, not another claim of finished terminal selection.
 - [x] Build the next geometry probe with a frozen 0.5 reference plus 12/18/24 DIP
   text at 96/120/144/192 DPI. Derive grid metrics from the primary font, never
   fallback advances; log rounding, baseline, vertical ink, compression, and clipping.
-- [ ] Review the 0.6 matrix on Windows 7, including all 204 fixture cases, raster
-  fit retries, and stacked-mark vertical REVIEW observations. Decide vertical
-  ink/line-height behavior under the selected upstream policy, without strict
-  ordinary-text clipping or global shrink. Final visual review remains open.
+- [ ] Validate the selected upstream vertical-ink and clipping policy in actual
+  Atlas, using relevant 0.6 fixtures. Record non-blocking stacked-mark appearance
+  and fitting refinements under POL04; do not reopen the selected row-height policy.
 - [x] Validate the supplied 0.6 Windows 7 structural matrix: 204 fixtures,
   1,164 ink records, 24 stacked-mark observations, and unchanged target reference.
-  The unchecked review gate above still includes integrated typography acceptance.
+  Integrated policy/correctness acceptance remains open, not a new line-height design.
 - [ ] Validate size/DPI transitions and snapshot invalidation, with identical
   core text/cells and no stale metrics. Separate offscreen scale tests from
   actual Windows 7 HWND/display-DPI behavior.
@@ -389,42 +421,34 @@ is interaction mapping, not another claim of finished terminal selection.
   owned font styling or accept a cluster-wide font choice implicitly.
 - [x] Record the user-approved direction after 0.12: carry forward same-outline
   paint, do not adopt different-outline spatial hybrids as the default, and
-  keep outline-changing ligature policy explicit.
+  keep outline-changing ligature policy explicit. This is now retained research
+  under POL03, not a commitment to integrate it before the port works.
 - [x] Implement the isolated 0.13 marked/contextual paint experiment: whole-shape
   color strips, core-cluster source selection/copy oracles, stale/color controls
   and partial color/selection repaint. Preserve the earlier 139 images.
 - [x] Validate the bounded 0.13 matrix on the supplied Windows 7 setup: 432 source
   round trips, 432 raster references, 288 exact partial paint repaints and all
   139 earlier target images unchanged. Inspect marks, connections and fallback.
-- [ ] Resolve the visible 0.13 highlight/paint ambiguity before interaction
-  acceptance. Centered glyphs need not align with their allocated cell stripe;
-  spatial paint can cross marks or shared ligatures. Source ownership alone is
-  not anatomical glyph ownership or correct visual selection.
-- [ ] Build the next isolated interaction-mapping experiment: relate visible
-  glyph/cluster positions to source/core cells, compare caret and selection
-  placement, and test spare-space/edge clicks and mark/ligature selections.
-  Preserve terminal widths and source text. No default bidi, centering or caret
-  policy is selected merely by this plan or a static selection stripe.
-- [ ] Settle cursive spacing and boundary-spanning ligatures before adopting
-  Arabic context repair. Correct glyph forms alone do not make a connected word
-  on a fixed cell grid. Do not silently add visual bidi or proportional hit testing.
-- [ ] Resolve cross-style/face joining,
-  private styled glyph handling, horizontal ink behavior and cache/lifetime costs
-  before making this candidate the AtlasEngine font adapter.
+- [ ] Integrate only the required Windows 7 font adaptation, preserving upstream
+  shaping/cell policies and checking style/fallback ownership and bounded costs.
+  Experimental Arabic context repair, joined-word fitting, ligature styles and
+  alternate hit testing are deferred to POL01-POL03. Their adoption conditions
+  remain requirements for those enhancements, not for the baseline port.
 - [ ] Resolve private fallback's production mapping, caching, metrics/style and
-  missing-asset behavior before Atlas integration. Review pixel-derived glyph
-  quality and narrow-symbol compression; no color emoji, ZWJ composition, or
+  missing-asset behavior before Atlas integration. Track pixel-derived glyph
+  quality and narrow-symbol refinements under POL04; no color emoji, ZWJ composition, or
   universal Unicode coverage claim. Font repertoire does not replace core width tables.
 - [x] Compare preserved pure/mixed/marked Arabic runs on Windows 7 in probe 0.3:
   joining/order follow the natural reference in these bounded samples.
-- [ ] Resolve production terminal ordering and cursor/selection/hit-test contracts before
-  AtlasEngine integration. The probe's bijective cell projection is not a
-  proportional glyph hit-test map; style/font splits remain to be exercised.
+- [ ] Preserve inherited terminal ordering and core-grid interaction contracts
+  in the Atlas adapter. Verify ranges and cursor geometry; ordinary interactive
+  selection, mouse, IME and accessibility follow in their owning milestones.
+  No proportional/visual-bidi hit-test design is required for baseline integration.
 - [ ] Remove mandatory newer font-fallback and font-face interfaces; prove a
   Windows 7-compatible font mapping/shaping path before settling its design.
-- [ ] Evaluate retained `IDWriteTextLayout::Draw` callback runs first, comparing
-  explicit family mapping/analyzer shaping if needed. Record correctness, font
-  identity/lifetime, caching, and cost before selecting the adapter (F01/F02).
+- [ ] Reuse the existing layout-callback/analyzer evidence for the production
+  adapter. Compare another approach only if a named integration blocker requires
+  it. Record correctness, font identity/lifetime, caching and cost (remaining F02).
 - [x] Document [text geometry contract v0.1](doc/vt7/architecture/2026-09-11-text-geometry-contract.md):
   core authority, snapshot ownership, coordinate spaces, natural ink/damage,
   and consumer rules. Diagnostic visual bidi is not the production default.
@@ -445,8 +469,11 @@ is interaction mapping, not another claim of finished terminal selection.
   Color emoji, variable-font axes, and full bidi terminal behavior require
   separate scope decisions, not an implied promise inside Unicode support.
 
-Gate: reproducible mixed-script glyph output with correct terminal-cell
-placement on Windows 7; unresolved fallback cases remain explicitly recorded.
+Gate: a Windows 7-compatible full-engine font path with reproducible mixed-script
+output, preserved source/core cells and upstream-aligned placement, owned data,
+safe fallback and reviewed dependencies. Record inherited limitations separately
+from adaptation defects. Enhanced joined Arabic, visual bidi and optional fitting
+are not gate requirements. Next: C2/2D, the first integrated Atlas viewport.
 
 ### 2D: TerminalCore-to-Atlas integration
 
@@ -489,6 +516,9 @@ fault injection is recorded separately from real driver/device-loss evidence.
   setup at milestone acceptance, not by assuming equivalent behavior.
 - [ ] Verify font fallback, accents/combining marks, wide and supplementary
   characters, ligatures, box drawing, colors, decorations, and cursor alignment.
+  Judge baseline behavior against the pinned upstream policy and agreed corpus,
+  not the optional joined-word experiments. Source loss, wrong cells and lasting
+  corruption block acceptance; additional typographic refinements go to Milestone 7.
 - [ ] Test Windows 7 system-DPI configurations at 100%, 125%, and 150%, including
   WPF/native sizing and clipping. Treat newer per-monitor DPI separately.
 - [ ] Verify Aero/basic and high-contrast behavior, keyboard focus, and readable
@@ -657,7 +687,11 @@ terminal bytes, secure trust/authentication handling, initial/live PTY sizing,
 and bounded lifecycle behavior. Neither a line-oriented redirected command nor
 `ssh.exe` through legacy console reconstruction substitutes for this gate.
 
-## Milestone 6: Alpha and beta hardening
+## Milestone 6: Product qualification and hardening
+
+Qualify the assembled port for release readiness, then extend this evidence
+through alpha/beta feedback. Milestone 7 makes the public release decision;
+hardening and release review repeat as the product approaches 1.0.
 
 - [ ] Qualify the complete product across a repeatable physical/virtual Windows 7
   matrix. Verify a clean minimum Tier A image without developer tools (L01),
@@ -676,6 +710,79 @@ and bounded lifecycle behavior. Neither a line-oriented redirected command nor
 - [ ] Test long-running sessions and repeated tab and pane creation.
 - [ ] Produce signed or checksum-verifiable portable release artifacts.
 - [ ] Document installation, prerequisites, recovery, and uninstallation.
+
+## Milestone 7: Polish and release readiness
+
+The final checkpoint before the first public release, repeated for later releases
+and 1.0. Milestone 6 supplies whole-product qualification; this milestone reviews
+the assembled user experience, chooses bounded polish work, and makes the release
+decision. Neither postpones security or correctness fixes from earlier milestones.
+
+- [ ] Review required workflows, known limitations, prerequisites, diagnostics,
+  accessibility and first-run/documentation clarity in the assembled application.
+- [ ] Triage every deferred item below: select for this release, defer to a named
+  post-release backlog/milestone, or reject with a reason. Record the decision;
+  an unchecked optional improvement is not automatically a release blocker.
+- [ ] Finish the selected polish scope and revalidate affected Windows 7 paths.
+  Do not introduce an experimental rendering/interaction policy without its tests.
+- [ ] Verify the candidate package, provenance/licenses, evidence, release notes
+  and support instructions. Claims must distinguish implemented, tested and deferred.
+- [ ] Record the release scope and go/no-go decision. All required release gates
+  must pass; a scope reduction needs explicit approval, not a polish label.
+
+Exit criterion: required qualification passes, the selected polish is complete,
+and every remaining idea has an explicit disposition. Local engineering packages
+remain proofs, not public alpha releases. Optional enhancements may follow after
+release; their mere presence in this register does not promise delivery in 1.0.
+
+### Deferred improvements register
+
+All entries start as **deferred, awaiting release triage**, not active port work.
+Keep IDs stable. Add observations here as they arise with user impact, evidence,
+baseline behavior, proposed follow-up and a blocker trigger. A substantial separate
+workstream may receive its own post-release milestone after an explicit decision.
+
+- **POL01: Enhanced Arabic context and joined-word layout.** Better connected
+  cursive output across style/font boundaries. Preserve the upstream logical-grid
+  baseline now. Retain [0.10 context](doc/vt7/validation/2026-09-11-arabic-context-probe.md)
+  and [0.11 joined-span](doc/vt7/validation/2026-09-11-joined-span-probe.md) evidence.
+  Later compare context repair, span formation, centering and compression with
+  the integrated baseline. Promote an actual adapter-induced shaping regression
+  affecting the required corpus, not the desire for new paragraph-style layout.
+- **POL02: Interaction and paint for experimental joined spans.** The
+  [0.13 highlight discrepancy](doc/vt7/validation/2026-09-11-marked-paint-probe.md)
+  shows that correct source selection need not paint the expected visible glyph.
+  Keep ordinary core-grid cursor/selection now; defer the proposed visible-position
+  experiment, spare-space/edge clicks and mark/ligature ownership. These must be
+  resolved before adopting POL01's alternate layout. Incorrect source copy or
+  cell mapping in the baseline is an immediate blocker in its owning milestone.
+- **POL03: Cross-style lam-alef and glyph painting.** Preserve
+  [0.12 comparisons](doc/vt7/validation/2026-09-11-cross-style-ligature-probe.md)
+  and 0.13 marked paint. Same-outline painting remains a candidate; different-
+  outline spatial hybrids are not adopted. Later investigate seams and deliberate
+  style ownership without slicing source clusters. Baseline source loss or an
+  adaptation-induced style/cell regression is blocking; optional hybrid styling is not.
+- **POL04: Fallback glyph appearance and fitting.** Retain the original glyph
+  discrepancy, [font coverage findings](doc/vt7/research/2026-09-11-font-coverage-and-fitting.md),
+  [0.6 geometry](doc/vt7/validation/2026-09-11-geometry-probe.md) and
+  [0.9 horizontal fitting](doc/vt7/validation/2026-09-11-horizontal-fitting-probe.md).
+  The missing U+1F600 cause and bounded private-font proof are established; production
+  fallback remains 2C work. Keep the primary grid and upstream overhang policy.
+  Review squeezed one-cell symbols, pixel-derived shapes and stacked-mark appearance
+  later. Missing required fallback, illegible required text caused by our port,
+  source loss or stale/erased neighbor pixels remain renderer blockers.
+- **POL05: Advanced font and bidi capabilities.** Color emoji, variable axes,
+  broader font repertoire and full terminal bidi need separate scope, interaction
+  and dependency decisions. Use static/monochrome fonts and inherited ordering
+  initially. See the [geometry contract](doc/vt7/architecture/2026-09-11-text-geometry-contract.md)
+  and [font research](doc/vt7/research/07-font-assets-and-emoji.md). No promise of
+  universal Unicode coverage; required-corpus failures still receive blocker triage.
+- **POL06: Optional presentation and performance refinements.** Retain the
+  conservative complete-frame HWND presentation baseline. Evaluate dirty-region/
+  scroll optimizations and visual refinements only against integrated measurements
+  and the [renderer acceptance plan](doc/vt7/architecture/2026-09-11-renderer-assessment.md).
+  Idle spinning, unbounded growth, recovery loops or unusable responsiveness remain
+  blockers; an optimization is optional when the correctness/performance gates pass.
 
 ## Version 1.0 acceptance bar
 
@@ -725,6 +832,11 @@ VT7 1.0 is complete only when all of the following are true:
 - Making Windows 7 a supported or secure operating system again.
 
 ## Beyond version 1.0
+
+Milestone 7 triage carries optional work here with evidence and explicit scope;
+it is not discarded when the first release ships. A substantial selected workstream
+can receive its own milestone. Neither this list nor the polish register is a
+promise to deliver every enhancement in the first release.
 
 Possible later work includes serial connections, additional SSH features,
 session restoration, quake mode, shell integration, richer accessibility,

@@ -36,19 +36,28 @@ Record unavailable data explicitly. Never turn an unexecuted optional test into 
 
 ## Adopted execution mapping
 
+The [September 12 port-first decision](../architecture/2026-09-12-port-first-plan.md)
+narrows current F02 work to the Windows 7 adapter and inherited shaping/cell
+behavior, followed by real Atlas integration. The broad original experiment
+targets below are research scope, not a demand to solve enhanced typography or
+visual bidi before proceeding. Reuse existing evidence; investigate a named
+blocker with a bounded test and an explicit next action. Non-blocking observations
+go to Milestone 7/POL entries, distinct from these historical experiment IDs.
+
 The [approved planning decision](../architecture/2026-09-11-research-driven-plan.md)
 maps these stable experiment IDs to the [roadmap](../../../ROADMAP.md). Priorities
 below indicate risk, not a requirement to run the entire backlog before 2C.
 
 | Milestone | Required experiments and timing |
 | --- | --- |
-| 2C | F01/F02 next, as part of font/cell mapping. |
+| 2C | Reuse F01 missing-glyph evidence; finish the minimum production F02 font/cell adapter with inherited policies. |
 | Remaining renderer gates | G01/G02/T01, extending the recorded fixed-glyph results to the integrated controller and real text. |
 | 3A, before substantial local/UI integration | P01/I01/S00 plus written session, input/IME, accessibility-range, and output-security contracts. |
 | 3B/3C | U01/P02/I01/I02; initial paste and output-policy checks accompany first real sessions. |
 | 4 | A01/C01/D01 and U01 selection/search range coverage. |
 | 5 | S01 plus direct-SSH U01/I01/I02/C01 revalidation; S00 alone is not SSH acceptance. |
 | Runtime additions and 6 | L01 dependency checks throughout, followed by clean-minimum full-package qualification and extended soak coverage. |
+| 7 | Triage POL01-POL06 and new optional findings; validate selected polish and explicitly defer remaining ideas. |
 
 Link implementing changes and run manifests to each applicable ID. A partial
 pass names the exact subcases completed and the remaining work. G01/G02 are not

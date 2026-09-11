@@ -1,5 +1,12 @@
 # Probe 0.13: marked Arabic paint and source selection
 
+Planning update, 2026-09-12: preserve this successful bounded experiment and its
+visible highlight discrepancy under Milestone 7/POL02-POL03. The proposed enhanced
+interaction follow-up is deferred, not the next implementation task. Baseline
+Atlas keeps inherited grid behavior; ordinary selection/copy correctness is still
+required. See the [port-first plan](../architecture/2026-09-12-port-first-plan.md).
+No results, source, frozen packages or acceptance claims change with this note.
+
 Date: 2026-09-11. Milestone 2C / F01-F02. Supplied Windows 7 matrix passes.
 Branch: `initial-implementation-and-assessment`.
 
@@ -162,7 +169,7 @@ supplied Windows 7 setup, not complete Arabic typography, cursor navigation,
 interactive selection, mixed bidi, actual display-DPI transitions or Atlas
 integration. No separate ESU run is inferred from this archive.
 
-## Reproduction and next experiment
+## Reproduction and deferred interaction follow-up
 
 Extract `artifacts/VT7-renderer-probe-0.13-x64.zip` into a fresh writable folder,
 keep `fonts/` intact, and run `RUN-RENDERER-PROBE.cmd` normally. Return the log
@@ -173,7 +180,7 @@ region, long-word spare space and fallback. Report confusing mark colors or
 selection boundaries even if every mechanical check passes. Cursor navigation,
 hit testing, mixed-direction text and production selection policy are still
 open. Different-outline hybrids remain excluded from the recommended default.
-The next proposed interaction-mapping experiment should:
+If selected during Milestone 7 triage or later, the POL02 interaction experiment should:
 
 - Map visible glyph/cluster positions back to source intervals and authoritative
   core cells without changing terminal widths or source text.
@@ -184,7 +191,7 @@ The next proposed interaction-mapping experiment should:
   crossing combining marks or ligatures. Report ambiguity instead of inventing
   character-owned outline boundaries.
 
-These are pending experiments, not implemented interaction behavior or an
+These are deferred experiments, not baseline integration gates, implemented behavior or an
 approved change to terminal bidi, centering, caret stops or selection policy.
 The frozen 0.13 archive and its packaged handoff README remain unchanged;
 this source-tree record contains the subsequent target assessment.

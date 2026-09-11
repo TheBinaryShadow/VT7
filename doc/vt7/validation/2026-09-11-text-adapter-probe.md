@@ -1,5 +1,11 @@
 # Milestone 2C: owned logical-order mapper candidate, probe 0.8
 
+Planning update, 2026-09-12: reuse this candidate's applicable ownership/fallback
+work for the minimum upstream-aligned font port. Its bounded tests are not full
+Atlas acceptance. Enhanced Arabic and alternative fitting are deferred under
+Milestone 7; see the [port-first plan](../architecture/2026-09-12-port-first-plan.md).
+The dated evidence and original experiment boundaries below are retained.
+
 Date: 2026-09-11. Branch: `initial-implementation-and-assessment`.
 Source base: `42de4b631716e98ef5e231f170f167d671c97939` plus uncommitted 0.6-0.8 work.
 The supplied Windows 7 0.8 structural run passes; see the target evidence below.

@@ -5,6 +5,12 @@ text buffer, and supporting types into `VT7.Core.lib`, then links that library
 into `VT7.Native.dll`. The static library is not a separate runtime dependency.
 This is a static viewport proof, not an interactive terminal release.
 
+The [port-first plan](../../../doc/vt7/architecture/2026-09-12-port-first-plan.md)
+keeps this inherited core and its cell semantics as the integration foundation.
+Adapt incompatible platform boundaries and restore required workflows without
+using optional renderer experiments to redefine terminal widths or source order.
+Non-blocking improvements are tracked in the roadmap's final polish milestone.
+
 ## Provenance
 
 The inherited source baseline is Microsoft Terminal commit
