@@ -4,10 +4,10 @@
 
 Windows 7 got so much right. It was quick, focused, familiar, and built around
 the person sitting in front of the computer. For many of us it was more than an
-operating system. It was the place where we learned, built, repaired, played,
-and got real work done.
+operating system. It was the soul of where we learned, built, repaired, played,
+and got work done.
 
-Its terminal experience never received the same care.
+It's terminal experience never received the same care.
 
 VT7 exists to finish that story.
 
@@ -28,7 +28,7 @@ application for Windows 7.
 
 ## What we are building
 
-VT7 is planned as a standalone x64 desktop application for Windows 7 SP1. It
+VT7 is planned as a standalone x64 desktop application for Windows 7. It
 will reuse the strongest portable parts of Microsoft's open-source Terminal,
 including its terminal core, VT parser, text buffer, and rendering work, while
 replacing dependencies that require newer versions of Windows.
@@ -38,7 +38,7 @@ The first complete release is intended to provide:
 - Tabs and split panes.
 - Profiles for local shells and remote connections.
 - Command Prompt and Windows PowerShell 5.1 sessions.
-- PowerShell 7.0 through 7.2.24 sessions.
+- PowerShell 7 sessions, up to version 7.2.24.
 - SSH sessions with proper remote PTY creation and resize handling.
 - Unicode, wide characters, combining characters, box drawing, and emoji where
   the selected font and Windows 7 can support them.
@@ -51,24 +51,26 @@ The first complete release is intended to provide:
 - Portable distribution without MSIX or Microsoft Store dependencies.
 
 Rich color and Unicode are core/renderer goals and end-to-end direct SSH goals.
-Local Windows console sessions travel through a different path, whose fidelity
-must be measured separately. We will publish tested backend capabilities rather
-than promise that every application can deliver everything the renderer can draw.
-Missing font coverage must not corrupt the original text. Color emoji, variable
-font axes, and full bidirectional terminal behavior need separate scope decisions.
+Local Windows console sessions travel through a different path, whose usability
+and compatiblity must be assessed. We will publish tested backend capabilities
+rather than promise that every application can deliver everything the renderer
+can draw. Missing font coverage must not corrupt the original text. Color emoji,
+variable font axes, and full bidirectional terminal behavior need separate scope
+decisions.
 
 ## The current direction
 
 Our immediate priority is a working application port: bring the proven upstream
-terminal behavior to Windows 7, adapting the parts that depend on newer Windows.
+terminal behavior to Windows 7, adapting the parts that depend on newer Windows
+features, system APIs, and similar.
 We do not need to redesign terminal typography before people can use VT7.
 
 Our longer-term ambition stays high. Better text rendering, thoughtful finishing
 touches and ideas discovered along the way belong in the roadmap's final
 **Polish and release readiness** milestone. We will review them before release,
 complete a bounded selection, and explicitly carry optional work forward when
-needed. Correctness, security, stability and required workflows are never merely
-polish. A useful terminal first, then deliberate improvements, with care throughout.
+needed. Security, stability and required workflows are not polish. A useful terminal
+first, then deliberate improvements, with care throughout.
 
 The design is still being proven, but the working direction is:
 
@@ -81,10 +83,11 @@ The design is still being proven, but the working direction is:
   tested before committing to its integration behind a replaceable boundary.
 - A direct SSH backend for correct authentication, host-key handling, remote
   PTY allocation, and resize messages. Evaluate Microsoft Win32-OpenSSH first,
-  including an external-process path that preserves remote terminal bytes;
-  the integration and shipping dependency have not yet been selected.
+  including an external-process path that preserves remote terminal bytes.
+  The integration and shipping dependency have not yet been selected.
 - A portable application package that can be extracted and run without modern
-  Windows deployment infrastructure.
+  Windows deployment infrastructure. (With a setup file to follow after the first
+  full release)
 
 These are engineering choices, not articles of faith. We will keep what proves
 reliable on Windows 7 and change what does not.
@@ -105,12 +108,12 @@ Planned shell coverage:
 | --- | --- |
 | Command Prompt | First-class local support |
 | Windows PowerShell 5.1 | First-class local support |
-| PowerShell 7.0 to 7.2.24 | First-class local support |
+| PowerShell 7 up-to version 7.2.24 | First-class local support |
 | Native Windows console applications | Support through the local PTY backend |
 | SSH | First-class remote support |
 
-PowerShell 7.3 and newer depend on .NET versions that dropped Windows 7. They
-are outside the initial compatibility promise.
+PowerShell 7.3 and newer depend on .NET versions that dropped Windows 7 support.
+They are outside of the initial compatibility promise.
 
 ## What VT7 is not
 
