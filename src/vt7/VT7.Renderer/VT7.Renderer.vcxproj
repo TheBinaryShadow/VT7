@@ -52,6 +52,7 @@
   <!-- Backend harness boundary. The full engine/font mapper is not yet ported. -->
   <ItemGroup>
     <ClCompile Include="Win7Presentation.cpp" />
+    <ClCompile Include="Win7FontFallback.cpp" />
     <ClCompile Include="..\..\types\ColorFix.cpp" />
     <ClCompile Include="..\..\renderer\atlas\AtlasEngine.cpp" />
     <ClCompile Include="..\..\renderer\atlas\AtlasEngine.api.cpp" />

@@ -129,7 +129,33 @@ build the best terminal we can for the platform we love.
 
 ## Project status
 
-VT7 now has its first real terminal viewport running on Windows 7. Engineering
+Engineering build **0.3.0** now connects TerminalCore to the real AtlasEngine and
+renderer controller, with a minimum Windows 7 font adapter. Debug and Release
+tests pass locally through Direct3D11 and Direct2D, on hardware and forced WARP;
+GDI remains a selectable reference. The supplied Windows 7 run now passes C1/C2 on the tested configuration.
+See the [Atlas viewport record](doc/vt7/validation/2026-09-12-atlas-viewport.md).
+This is a static viewport, not yet an interactive terminal or a closed Milestone 2.
+
+Engineering build **0.3.1** passes the supplied Windows 7 differential repaint,
+cursor-cell and first-frame status checks on the tested setup. See the
+[C3 repaint record](doc/vt7/validation/2026-09-12-atlas-repaint.md).
+
+Build **0.3.2** adds automatic Direct3D11 hardware-to-WARP fallback,
+bounded recovery and explicit failure reporting. Forced backend modes remain
+strict. Debug, assembled Release and supplied Windows 7 checks pass for the
+bounded recovery slice. Injected failures are not real driver-loss evidence.
+See the [recovery record](doc/vt7/validation/2026-09-12-atlas-recovery.md).
+
+Build **0.3.3** passes the font/settings tests at measured Windows 7 DPI 96, 120
+and 144, but the higher-scale viewport/recovery suites exposed failures. It is
+not accepted as an all-green scaling checkpoint. The corrective **0.3.4** build
+now passes every positive suite at all three actual Windows 7 scales, including
+startup fit, status-layout stability and recovery. This closes the bounded
+scaling checkpoint on the tested setup, not Milestone 2. Scheduling, idle/resource
+stress, themes and broader qualification remain ahead. See the
+[scaling correction record](doc/vt7/validation/2026-09-12-atlas-scaling-correction.md).
+
+VT7 already has its first real terminal viewport running on Windows 7. Engineering
 build 0.2.0 brings together the WPF host, a native HWND surface, TerminalCore,
 and the VT parser, with a temporary GDI renderer and working buffer reflow.
 
@@ -140,7 +166,7 @@ window-lifecycle checks pass, and the sample is visibly rendered on Windows 7.
 See the [validation record](doc/vt7/validation/2026-09-10-viewport-proof.md) for
 the evidence and scope.
 
-This is a static proof, not an interactive shell. The current cleanup build,
+This is a static proof, not an interactive shell. The accepted cleanup build,
 0.2.1, corrects the tab/diagnostic contrast defect and adds checks for effective
 text colors and native viewport tab switching. The Windows 7 recheck passes:
 non-ESU logs and screenshots confirm the correction, and the tester confirms
@@ -154,9 +180,10 @@ visibly rendered on both devices. Resize/redraw and explicit device recreation
 pass, including repeated R-key recreation in the visible windows. See the
 [Atlas backend validation](doc/vt7/validation/2026-09-11-atlas-backend-proof.md).
 
-This is another foundation stone, not a finished terminal renderer. The Atlas
-proof uses fixed, pre-mapped Consolas glyphs. Windows 7 font fallback/shaping,
-TerminalCore/controller integration, and session backends remain ahead of us.
+This is another foundation stone, not a finished terminal renderer. That Atlas
+backend proof uses fixed, pre-mapped Consolas glyphs. Build 0.3.0 adds the actual
+font/controller/core path, now accepted on the tested Windows 7 setup. Broader
+renderer qualification and session backends remain ahead.
 The accepted 0.2.1 GDI proof stays intact while Milestone 2 continues.
 
 The separate font and geometry experiments have progressed through
@@ -169,8 +196,10 @@ cursor/selection mapping are deferred research, not prerequisites to the port.
 These probe results are not a completed Atlas terminal renderer.
 
 The [port-first plan](doc/vt7/architecture/2026-09-12-port-first-plan.md)
-sets the next deliverable: minimal Windows 7 font adaptation followed by the real
-AtlasEngine/controller rendering TerminalCore content in the viewport. Before substantial session integration
+sets the next acceptance step: the remaining C3 renderer gates. After the accepted
+0.3.4 Windows 7 scaling matrix, the next bounded slice covers synchronized-output
+timeouts, idle CPU, resource growth and shutdown stress. Theme and broader
+environment coverage remain open. Before substantial session integration
 or daily-driver UI work, a new feasibility gate will test local-console fidelity,
 direct OpenSSH I/O and resize, and Windows 7 input behavior. Full SSH delivery
 remains a later milestone. These are approved plans, not new compatibility results.
@@ -224,7 +253,7 @@ copyright and license notices of Microsoft Terminal and other included
 open-source components. New VT7 contributions are made under the same MIT
 License unless a file clearly states otherwise.
 
-The renderer probe also bundles unmodified GNU Unifont and Unifont Upper fonts
+The renderer probe and Atlas viewport bundle unmodified GNU Unifont and Unifont Upper fonts
 under their SIL Open Font License 1.1 option. These font assets retain their own
 copyright/license and do not change VT7's MIT code license. See
 [font provenance and licenses](oss/unifont/README.md) and [third-party notices](NOTICE.md).

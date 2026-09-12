@@ -28,6 +28,21 @@
 
 using namespace Microsoft::Console::Render::Atlas;
 
+#ifdef VT7_ATLAS
+namespace
+{
+    bool RecoverableDeviceFailure(HRESULT hr) noexcept
+    {
+        return hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET ||
+            hr == DXGI_ERROR_DEVICE_HUNG || hr == DXGI_ERROR_DRIVER_INTERNAL_ERROR || hr == D2DERR_RECREATE_TARGET;
+    }
+    bool HardwareUnavailable(HRESULT hr) noexcept
+    {
+        return RecoverableDeviceFailure(hr) || hr == DXGI_ERROR_UNSUPPORTED || hr == DXGI_ERROR_NOT_CURRENTLY_AVAILABLE;
+    }
+}
+#endif
+
 #pragma region IRenderEngine
 
 // Present() is called without the console buffer lock being held.
@@ -60,12 +75,53 @@ try
     _p.MarkAllAsDirty();
 #endif
     _b->Render(_p);
+#ifdef VT7_ATLAS
+    if (_frameCapture) _frameCapture(_p);
+    if (const auto faults = _presentFaults.load(); faults)
+    {
+        if (faults != UINT32_MAX) _presentFaults.fetch_sub(1);
+        ++_injectedFailures;
+        THROW_HR(DXGI_ERROR_DEVICE_REMOVED);
+    }
+#endif
     _present();
+#ifdef VT7_ATLAS
+    _deviceFailureStreak = 0;
+    _actualMode.store((_p.s->target->graphicsAPI == GraphicsAPI::Direct2D ? 3u : 1u) +
+        ((_p.dxgi.adapterFlags & DXGI_ADAPTER_FLAG_SOFTWARE) ? 1u : 0u));
+    ++_completedFrames;
+    _completedRequest.store(_paintingFrame);
+    if (_notifyRecovery)
+    {
+        _notifyRecovery = false;
+        if (_recoveryCallback) _recoveryCallback();
+    }
+#endif
     return S_OK;
 }
 catch (const wil::ResultException& exception)
 {
     const auto hr = exception.GetErrorCode();
+
+#ifdef VT7_ATLAS
+    _lastRenderFailure.store(hr);
+    ++_recoveryFailures;
+    _notifyRecovery = true;
+    if (RecoverableDeviceFailure(hr))
+    {
+        if (_automaticWARP && !_stickyWARP && ++_deviceFailureStreak >= 2)
+        {
+            _stickyWARP = true;
+            ++_fallbacks;
+        }
+        _p.dxgi = {};
+        return E_PENDING;
+    }
+    // Only the controller's exhausted-retry callback is fatal. A warning from
+    // an intermediate attempt must not poison a subsequently recovered surface.
+    _b.reset();
+    return hr;
+#else
 
     if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET || hr == D2DERR_RECREATE_TARGET)
     {
@@ -89,6 +145,7 @@ catch (const wil::ResultException& exception)
 
     _b.reset();
     return hr;
+#endif
 }
 CATCH_RETURN()
 
@@ -113,7 +170,28 @@ void AtlasEngine::_recreateAdapter()
 #ifdef VT7_ATLAS
     _destroySwapChain();
     _b.reset();
-    Win7::CreateDevice(_p);
+    auto create = [&](bool warp) {
+        ++_deviceAttempts;
+        if (_creationFault == 2 || (_creationFault == 1 && !warp))
+        {
+            ++_injectedFailures;
+            THROW_HR(DXGI_ERROR_UNSUPPORTED);
+        }
+        Win7::CreateDevice(_p, warp);
+        ++_deviceGeneration;
+    };
+    const bool warp = _stickyWARP || _p.s->target->useWARP;
+    try { create(warp); }
+    catch (const wil::ResultException& exception)
+    {
+        if (!_automaticWARP || warp || !HardwareUnavailable(exception.GetErrorCode())) throw;
+        _lastRenderFailure.store(exception.GetErrorCode());
+        ++_recoveryFailures;
+        _stickyWARP = true;
+        ++_fallbacks;
+        _notifyRecovery = true;
+        create(true);
+    }
 #else
 #ifndef NDEBUG
     if (IsDebuggerPresent())

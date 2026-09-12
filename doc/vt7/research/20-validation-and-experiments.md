@@ -1,5 +1,17 @@
 # Diagnostics and Windows 7 acceptance experiments
 
+Current execution checkpoint, September 12: the supplied
+[0.3.0 Windows 7 run](../validation/2026-09-12-atlas-viewport.md) accepts the bounded
+C1/C2 font/core/Atlas integration. [0.3.1](../validation/2026-09-12-atlas-repaint.md)
+passes the supplied Windows 7 repaint/cursor checks. The
+[0.3.2 recovery slice](../validation/2026-09-12-atlas-recovery.md) also passes supplied target testing.
+The [0.3.4 scaling matrix](../validation/2026-09-12-atlas-scaling-correction.md)
+now passes all positive suites at actual Windows 7 96/120/144 DPI on the tested
+setup, resolving the recorded 0.3.3 failures. Scheduling/idle/resource/shutdown
+checks are next; theme and broader renderer qualification remain open.
+This status supersedes next-task wording in the dated
+assessment/plan below, without retroactively changing its original evidence.
+
 Research date: 2026-09-11. This is a proposed experiment backlog, not an execution report. No application builds, installations or runtime tests were performed for this research.
 
 ## Preserve the strength and limits of existing evidence
@@ -65,6 +77,12 @@ fully closed by the existing backend proof. Session isolation, bounded resources
 trust policies, and privacy-aware diagnostics are tested with their implementation,
 not first introduced during final hardening. Original research did not execute
 the experiments; the mapping adds no test results.
+
+Execution follow-up: the linked 0.3.4 validation record, not the original research
+table, establishes the accepted actual 96/120/144 system-DPI matrix and bounded
+G01/G02-related repaint/lifecycle/recovery coverage on the supplied setup.
+Remaining G01/G02 transitions and T01 scheduling/idle/resource/shutdown stress
+are still open. No additional test or implementation is implied by updating this index.
 
 ## Priority experiments
 

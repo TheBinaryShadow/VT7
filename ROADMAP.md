@@ -46,6 +46,18 @@ The decision defines C1-C5 deliverable checkpoints. Reuse upstream policies and
 existing tests; run new bounded experiments only for named compatibility or
 integration questions. Optional typography research is no longer the next step.
 
+Implementation checkpoint: [Atlas viewport 0.3.0](doc/vt7/validation/2026-09-12-atlas-viewport.md)
+now connects the minimum font adapter and real AtlasEngine/controller to the
+core and host. Local Debug/Release checks pass in GDI and four Atlas modes.
+The supplied Windows 7 run now accepts C1/C2 on its tested configuration.
+C3 repaint/cursor checks in 0.3.1 now have supplied Windows 7 acceptance.
+The 0.3.2 automatic fallback/recovery slice also passes the supplied Windows 7
+run at its tested scale. The 0.3.3 higher-scale viewport/recovery failures are
+resolved in the accepted 0.3.4 matrix: all positive suites pass at measured
+Windows 7 96/120/144 system DPI. The bounded scaling gate is closed on this setup.
+Next are synchronized-output/wait-notify, idle/resource and shutdown stress checks.
+This does not close Milestone 2 or start another optional typography experiment.
+
 Before substantial local-session integration or daily-driver UI construction,
 3A must resolve WinPTY fidelity, the OpenSSH integration choice, and input/session
 contracts. This brings SSH feasibility forward, not full Milestone 5 delivery.
@@ -206,8 +218,9 @@ DirectWrite font mapping, native lifetime rules, and test harness also need work
 
 The [code assessment and acceptance plan](doc/vt7/architecture/2026-09-11-renderer-assessment.md)
 records the reviewed source, documented platform limits, proposed decisions,
-and unresolved experiments. The isolated Atlas library now compiles in Debug
-and Release; the full engine's font port and integration remain unproven. The independent
+and unresolved experiments. The full engine now compiles and runs locally in
+Debug and Release through the 0.3.0 font/controller/core path; its bounded Windows 7
+C1/C2 acceptance now passes on the supplied setup. The independent
 [capability probe](doc/vt7/validation/2026-09-11-renderer-probe.md) passes locally
 and on the tested Windows 7 SP1 x64 machine (49 required checks, zero failures).
 It does not load Atlas, and cannot
@@ -243,14 +256,16 @@ yet recorded; Milestone 1's ESU results do not substitute for it.
   probe passes on the development system and the tested Windows 7 setup.
 - [x] Preserve the accepted 0.2.1 archive and keep GDI/core regressions passing
   through the isolated Atlas backend work.
-- [ ] Add a selectable GDI reference path during Atlas/host integration and
-  keep its regression checks passing.
+- [x] Add a selectable GDI reference path during Atlas/host integration and
+  keep its local Debug/Release regression checks passing in 0.3.0.
 
 Gate: an isolated, loadable renderer boundary with reviewed dependencies and
 capability reports from Windows 7. Loading is not rendering acceptance.
-This gate remains open: the full engine still needs font/runtime adaptation,
-and a linked backend harness is not a load test of that full engine. The GDI proof and
-accepted archive are preserved; selectable Atlas/GDI integration is still ahead.
+This gate remains open for the complete behavior audit, not for lack of bounded
+target load/render evidence. The full-engine adaptation passes local static
+import audits; supplied Windows 7 C1/C2 evidence and the accepted 0.3.4 scaling
+matrix cover the tested paths and setup. The accepted GDI archive is preserved
+and the host offers selectable Atlas/GDI modes.
 
 ### 2B: Windows 7 presentation path
 
@@ -281,6 +296,13 @@ The fixed-glyph backend proof now supplies that initial presentation evidence.
 recreation does not establish automatic recovery from real device loss (2E).
 
 ### 2C: DirectWrite and glyph path
+
+0.3.0 implements the minimum boundary: baseline layout callbacks select owned
+FontFace1 ranges, core-cluster boundaries remain authoritative, and Atlas keeps
+its inherited shaping/fitting. A bounded cache and styled private symbol fallback
+are in place. The 48-case local font check and missing/altered-asset controls pass.
+Windows 7 font identities and the bounded mixed-script sample now pass;
+C3 qualification still needs testing. No experimental Arabic/fitter pipeline has been adopted.
 
 Current gate: the minimum Windows 7 font adaptation needed by the real AtlasEngine,
 preserving inherited shaping direction, cluster-to-cell advance fitting and primary
@@ -317,7 +339,9 @@ These partial F01/F02 results do not close the unchecked gates below.
 The completed experiment sequence is described in the
 [geometry and repaint test plan](doc/vt7/architecture/2026-09-11-font-geometry-test-plan.md):
 geometry/size/DPI and differential repaint preceded adapter work. The current
-next step is minimal adapter integration, not another typography probe. [Probe 0.6](doc/vt7/validation/2026-09-11-geometry-probe.md)
+next step is the bounded C3 scheduling and stability slice after the accepted
+0.3.4 scaling correction, not another typography probe.
+[Probe 0.6](doc/vt7/validation/2026-09-11-geometry-probe.md)
 implements the offscreen geometry matrix and passes on the supplied Windows 7 setup.
 Vertical overflow observations are covered by the approved upstream-aligned
 fixed-grid/overlapping ordinary-text policy, not silently accepted clipping.
@@ -429,13 +453,16 @@ are deferred under POL02 in Milestone 7, not prerequisites to upstream-style Atl
 - [x] Validate the bounded 0.13 matrix on the supplied Windows 7 setup: 432 source
   round trips, 432 raster references, 288 exact partial paint repaints and all
   139 earlier target images unchanged. Inspect marks, connections and fallback.
-- [ ] Integrate only the required Windows 7 font adaptation, preserving upstream
-  shaping/cell policies and checking style/fallback ownership and bounded costs.
+- [x] Implement the required Windows 7 font adaptation in 0.3.0, retaining
+  upstream shaping/cell policies and owned mappings with a bounded cache.
+  Local style/range checks pass; bounded target acceptance passes; wider cost measurements remain open.
   Experimental Arabic context repair, joined-word fitting, ligature styles and
   alternate hit testing are deferred to POL01-POL03. Their adoption conditions
   remain requirements for those enhancements, not for the baseline port.
-- [ ] Resolve private fallback's production mapping, caching, metrics/style and
-  missing-asset behavior before Atlas integration. Track pixel-derived glyph
+- [x] Implement bounded private fallback mapping, caching, primary-grid metrics,
+  simulated bold/oblique styles and fail-closed missing/altered-asset diagnostics
+  for the initial Atlas integration. Bounded target rendering acceptance passes; broader qualification remains open.
+  Track pixel-derived glyph
   quality and narrow-symbol refinements under POL04; no color emoji, ZWJ composition, or
   universal Unicode coverage claim. Font repertoire does not replace core width tables.
 - [x] Compare preserved pure/mixed/marked Arabic runs on Windows 7 in probe 0.3:
@@ -444,7 +471,7 @@ are deferred under POL02 in Milestone 7, not prerequisites to upstream-style Atl
   in the Atlas adapter. Verify ranges and cursor geometry; ordinary interactive
   selection, mouse, IME and accessibility follow in their owning milestones.
   No proportional/visual-bidi hit-test design is required for baseline integration.
-- [ ] Remove mandatory newer font-fallback and font-face interfaces; prove a
+- [x] Remove mandatory newer font-fallback and font-face interfaces; prove a
   Windows 7-compatible font mapping/shaping path before settling its design.
 - [ ] Reuse the existing layout-callback/analyzer evidence for the production
   adapter. Compare another approach only if a named integration blocker requires
@@ -461,7 +488,7 @@ are deferred under POL02 in Milestone 7, not prerequisites to upstream-style Atl
   behavior rather than treating successful Latin output as Unicode acceptance.
 - [ ] Audit both Atlas backends, including Direct2D glyph rasterization used by
   BackendD3D. Replace unchecked interface assumptions with verified capabilities.
-- [ ] Record which advanced font capabilities are available, gracefully absent,
+- [x] Record which advanced font capabilities are available, gracefully absent,
   or deferred. Do not claim color-font or variable-font parity from first pixels.
 - [ ] Record the inherited Unicode width/cluster and bidi-ordering policies.
   Preserve original text even when a glyph is missing. Use versioned font/corpus
@@ -473,36 +500,75 @@ Gate: a Windows 7-compatible full-engine font path with reproducible mixed-scrip
 output, preserved source/core cells and upstream-aligned placement, owned data,
 safe fallback and reviewed dependencies. Record inherited limitations separately
 from adaptation defects. Enhanced joined Arabic, visual bidi and optional fitting
-are not gate requirements. Next: C2/2D, the first integrated Atlas viewport.
+are not gate requirements. C1 and C2 are accepted in 0.3.0 on the supplied Windows 7
+setup; C3 still owns the broader renderer checks below.
 
 ### 2D: TerminalCore-to-Atlas integration
 
-- [ ] Integrate the real renderer controller and IRenderData path with Atlas.
+- [x] Integrate the real renderer controller and IRenderData path with Atlas.
   Keep the core/test fixtures consistent with the selected renderer type.
-- [ ] Replace address-based waits in redraw/timers and synchronized output with
-  Windows 7-safe synchronization, preserving deadlines and avoiding lost wakes.
-- [ ] Define device/thread ownership, core locking, tab hide/show, and teardown.
+- [x] Replace address-based waits in redraw/timers and synchronized output with
+  Windows 7 kernel events and interruptible stop paths. Local tests pass;
+  deadline/lost-wake stress and target scheduling acceptance remain open in 2B/2E.
+- [x] Define device/thread ownership, core locking, tab hide/show, and teardown.
   Stop rendering before releasing the HWND, core, engine, or device resources.
-- [ ] Propagate actual font metrics, viewport size, invalidation, and settings
+- [x] Propagate actual font metrics, viewport size, invalidation, and settings
   through the native boundary; version any ABI changes in both native and host.
-- [ ] Render the existing TerminalCore sample through Atlas and package the
+- [x] Render the existing TerminalCore sample through Atlas locally and package the
   first Windows 7 text-rendering proof with unambiguous backend diagnostics.
 
 Gate: the existing sample visibly rendered by Atlas on Windows 7, with its
 backend and completed-frame evidence recorded. This is the first user-testable
 Atlas viewport, not completion of Milestone 2.
+Implementation is present in 0.3.0, ABI 3. All five local modes pass lifecycle
+checks; the four Atlas modes have completed-frame/readback evidence, repeat-reset
+comparisons and a failing blank-frame control. The supplied Windows 7 run now
+passes this gate: all five modes, 20 window lifecycles, 40 tab round trips,
+visible hardware/WARP output and automatic private U+1F600 fallback. The blank
+negative remains local evidence, not an additional supplied target test.
 
 ### 2E: Fallback, lifecycle, and deterministic regression checks
 
-- [ ] Add forced hardware/WARP modes and test automatic hardware-failure
+First C3 slice: [0.3.1 integrated repaint checks](doc/vt7/validation/2026-09-12-atlas-repaint.md)
+compare normal invalidation with forced full redraw across two window sizes.
+Local Debug/Release runs pass 128 exact comparisons and 32 cursor-cell checks
+per configuration, plus the injected pixel-mismatch control. The status-label
+correction has a first-frame regression check. The supplied Windows 7 run passes
+the same matrix. This does not close recovery, DPI or scheduling/stability gates.
+
+Second slice: [0.3.2 controlled recovery](doc/vt7/validation/2026-09-12-atlas-recovery.md)
+adds an explicit automatic mode, sticky WARP fallback, retry diagnostics and
+16 injected-failure scenarios, all passing on the supplied Windows 7 setup.
+Third slice: [0.3.3 settings/DPI](doc/vt7/validation/2026-09-12-atlas-settings.md)
+adds font family/size/weight transitions, reflow, hidden updates, input rejection,
+exact repaint and WPF/native pixel-geometry checks. All five settings modes pass
+at measured Windows 7 96/120/144 DPI. In that 0.3.3 build, at both higher scales
+only 1/6 viewport and 7/16 recovery cases passed. Those failures remain recorded.
+[0.3.4 scaling correction](doc/vt7/validation/2026-09-12-atlas-scaling-correction.md)
+addresses monitor work-area startup fit, status text changing viewport height,
+and a first-row-only blank-frame assumption. Its supplied Windows 7 matrix now
+passes all 6 viewport modes, 4 repaint modes, 16 recovery cases and 5 settings
+modes at each actual scale. Strict same-device image comparison is retained.
+This accepts the bounded system-DPI checkpoint on the tested configuration.
+Next, prioritize synchronized-output/wait-notify, idle/resource and shutdown checks;
+defer non-blocking typography and visual refinements to Milestone 7.
+
+- [x] Add forced hardware/WARP modes and test automatic hardware-failure
   fallback. A GDI fallback must be reported and cannot pass an Atlas test.
-- [ ] Replace GDI-only paint-count assumptions with bounded frame-completion
+- [x] Replace GDI-only paint-count assumptions with bounded frame-completion
   checks; retain tab contrast, child-window lifetime, and core regression tests.
+  The 0.3.0 Windows 7 matrix passes. Its visible status label can show a stale
+  count; 0.3.1 corrects reporting with local and supplied Windows 7 first-frame checks.
 - [ ] Exercise resize/reflow, alternate-screen and cursor transitions, tab
   switching, expose/occlusion, minimize/maximize/restore, and repeated disposal
   using deterministic VT input without needing a session backend.
-- [ ] Inject recoverable device/presentation failures and verify bounded retry,
+  0.3.4 passes deterministic resize/reflow, alternate-screen/cursor, tab,
+  minimize/restore and disposal regressions at all three scales. Broader
+  expose/occlusion/maximize and stress coverage still require qualification.
+- [x] Inject recoverable device/presentation failures and verify bounded retry,
   resource recreation, clean shutdown, and understandable terminal failure.
+  The 0.3.2 supplied target matrix accepts the bounded injected cases, not all
+  failure sites or real driver-loss/suspend/remote-session behavior.
 - [ ] Test wait/notify races, synchronized-output timeout, and teardown while
   rendering is idle, active, hidden, or recovering.
 
@@ -519,8 +585,10 @@ fault injection is recorded separately from real driver/device-loss evidence.
   Judge baseline behavior against the pinned upstream policy and agreed corpus,
   not the optional joined-word experiments. Source loss, wrong cells and lasting
   corruption block acceptance; additional typographic refinements go to Milestone 7.
-- [ ] Test Windows 7 system-DPI configurations at 100%, 125%, and 150%, including
-  WPF/native sizing and clipping. Treat newer per-monitor DPI separately.
+- [x] Test Windows 7 system-DPI configurations at 100%, 125%, and 150%, including
+  WPF/native sizing and clipping. The supplied 0.3.4 logs and hardware/WARP launch
+  screenshots accept this bounded checkpoint on the tested Windows 7 setup.
+  Treat newer per-monitor DPI, other monitors and a separate ESU run separately.
 - [ ] Verify Aero/basic and high-contrast behavior, keyboard focus, and readable
   host diagnostics without silently overriding explicit terminal colors.
 - [ ] Run the quantified stress/idle checks in the acceptance plan, collect
@@ -766,8 +834,9 @@ workstream may receive its own post-release milestone after an explicit decision
   discrepancy, [font coverage findings](doc/vt7/research/2026-09-11-font-coverage-and-fitting.md),
   [0.6 geometry](doc/vt7/validation/2026-09-11-geometry-probe.md) and
   [0.9 horizontal fitting](doc/vt7/validation/2026-09-11-horizontal-fitting-probe.md).
-  The missing U+1F600 cause and bounded private-font proof are established; production
-  fallback remains 2C work. Keep the primary grid and upstream overhang policy.
+  The missing U+1F600 cause and bounded private-font proof are established; the
+  minimum Atlas fallback is accepted in the supplied 0.3.0 Windows 7 run.
+  Keep the primary grid and upstream overhang policy.
   Review squeezed one-cell symbols, pixel-derived shapes and stacked-mark appearance
   later. Missing required fallback, illegible required text caused by our port,
   source loss or stale/erased neighbor pixels remain renderer blockers.
@@ -777,12 +846,23 @@ workstream may receive its own post-release milestone after an explicit decision
   initially. See the [geometry contract](doc/vt7/architecture/2026-09-11-text-geometry-contract.md)
   and [font research](doc/vt7/research/07-font-assets-and-emoji.md). No promise of
   universal Unicode coverage; required-corpus failures still receive blocker triage.
+  Multiple explicit fallback-family preferences are unsupported in the initial
+  single-primary-family viewport. Review that configuration feature with the
+  Milestone 4 font settings rather than silently ignoring extra families.
 - **POL06: Optional presentation and performance refinements.** Retain the
   conservative complete-frame HWND presentation baseline. Evaluate dirty-region/
   scroll optimizations and visual refinements only against integrated measurements
   and the [renderer acceptance plan](doc/vt7/architecture/2026-09-11-renderer-assessment.md).
   Idle spinning, unbounded growth, recovery loops or unusable responsiveness remain
   blockers; an optimization is optional when the correctness/performance gates pass.
+- **POL07: Richer renderer failure diagnostics.** The
+  [0.3.2 recovery slice](doc/vt7/validation/2026-09-12-atlas-recovery.md) separates
+  transient errors, fatal state, requested/actual backend and device generations.
+  Retain this bounded reporting for port work. Later add exact core/controller
+  stage provenance and the driver's device-removal reason so a historical Atlas
+  HRESULT is not mistaken for a newer non-Atlas failure's cause. Broader injection
+  sites belong with that work. A failure hidden as success, repeated recovery loop
+  or inability to diagnose a current port blocker promotes the relevant fix now.
 
 ## Version 1.0 acceptance bar
 

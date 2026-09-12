@@ -19,6 +19,23 @@ the VT7 viewport on Windows 7, followed by renderer acceptance and interactive
 sessions. It is not another optional typography probe. The fixed-glyph Atlas
 harness and the separate 0.13 font probe do not yet establish that integration.
 
+Implementation follow-up: [viewport 0.3.0](../validation/2026-09-12-atlas-viewport.md)
+now implements C1/C2 and passes the supplied Windows 7 acceptance run on the
+tested configuration. C3 renderer qualification is next. This is a separate implementation result, not a change
+to the dated planning decision or acceptance of the optional research paths.
+
+The first C3 implementation is [0.3.1](../validation/2026-09-12-atlas-repaint.md):
+integrated repaint/cursor checks and a status-label correction. Local and supplied
+Windows 7 tests pass. The [0.3.2 slice](../validation/2026-09-12-atlas-recovery.md)
+also passes supplied Windows 7 automatic fallback and controlled recovery tests.
+The [0.3.3 settings/DPI](../validation/2026-09-12-atlas-settings.md) tests pass at
+all three actual scales. Its higher-scale viewport/recovery failures are now
+resolved in the [accepted 0.3.4 matrix](../validation/2026-09-12-atlas-scaling-correction.md).
+The bounded actual system-DPI gate is closed on the tested Windows 7 setup.
+Next are synchronized-output/wait-notify, idle CPU, resource-growth and shutdown
+stress. Theme/high-contrast, broader device transitions and milestone-level ESU
+qualification remain open. Simulated DPI is still distinct from actual-system evidence.
+
 ## Long-term goal
 
 Deliver a dependable, welcoming terminal that makes Windows 7 users' everyday

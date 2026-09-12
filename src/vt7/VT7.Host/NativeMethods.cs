@@ -6,7 +6,20 @@ namespace VT7.Host
 {
     internal static class NativeMethods
     {
-        internal const uint ExpectedAbiVersion = 2;
+        internal const uint ExpectedAbiVersion = 7;
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct SurfaceSettings
+        {
+            internal uint StructSize, SystemDpi, EffectiveDpi, DpiOverride;
+            internal uint FontFamily, FontPoints, FontWeight, Generation;
+            internal uint ClientWidth, ClientHeight;
+        }
+
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_GetSurfaceSettings(IntPtr window, ref SurfaceSettings settings);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_SetSurfaceFont(IntPtr window, uint family, uint points, uint weight, uint diagnosticDpi);
 
         [StructLayout(LayoutKind.Sequential, Pack = 8)]
         internal struct SurfaceInfo
@@ -19,16 +32,37 @@ namespace VT7.Host
             internal uint PaintCount;
             internal uint ResizeCount;
             internal int LastHResult;
+            internal uint RendererMode;
+            internal uint RequestedFrame;
+            internal uint CompletedRequest;
+            internal uint HeaderInkPixels;
+            internal ulong RasterHash;
+            internal uint RequestedRendererMode;
+            internal uint DeviceGeneration;
+            internal uint DeviceAttempts;
+            internal uint RecoveryFailures;
+            internal uint FallbackCount;
+            internal uint InjectedFailures;
+            internal int LastRenderFailure;
+            internal uint FrameInkPixels;
+            internal uint RasterWidth;
+            internal uint RasterHeight;
         }
 
         [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-        internal static extern int VT7_CreateSurface(IntPtr parent, out IntPtr window);
+        internal static extern int VT7_CreateSurface(IntPtr parent, uint rendererMode, out IntPtr window);
         [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         internal static extern int VT7_DestroySurface(IntPtr window);
         [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         internal static extern int VT7_GetSurfaceInfo(IntPtr window, ref SurfaceInfo info);
         [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         internal static extern int VT7_ResetSurface(IntPtr window);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_InjectSurfaceFailure(IntPtr window, uint fault);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true, CharSet = CharSet.Unicode)]
+        internal static extern int VT7_SaveSurfaceCapture(IntPtr window, string path);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true, CharSet = CharSet.Unicode)]
+        internal static extern int VT7_SurfaceRepaintCheck(IntPtr window, uint operation, uint step, [Out] StringBuilder report, uint capacity);
         [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true, CharSet = CharSet.Unicode)]
         internal static extern int VT7_RunCoreTests([Out] StringBuilder report, uint reportCharacters);
 

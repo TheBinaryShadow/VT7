@@ -2,6 +2,14 @@
 
 Research date: 2026-09-11. Priority: P1; affects renderer and interface design.
 
+Implementation status, 2026-09-12: the [0.3.4 scaling matrix](../validation/2026-09-12-atlas-scaling-correction.md)
+passes all positive suites on the supplied Windows 7 SP1 x64 setup at actual
+96/120/144 system DPI. Native initial-window work-area fit, WPF/client/raster
+geometry, status-layout stability and the bounded viewport lifecycle are tested.
+The earlier status-wrapping and blank-first-row failures are resolved. This does
+not establish multi-monitor moves, per-monitor awareness, Aero/basic/high contrast,
+remote/suspend behavior or session input. Recommendations below retain that scope.
+
 ## Existing ownership
 
 VT7.Host targets .NET Framework 4.8 and uses HwndHost. BuildWindowCore creates the native child; DestroyWindowCore calls the native destruction function. Public surface calls are currently UI-thread operations. The manifest declares system DPI awareness. [1]

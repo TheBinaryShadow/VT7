@@ -5,7 +5,7 @@
 #include <windows.h>
 // Atlas stores optional newer DirectWrite types even when targeting older APIs.
 // Expose declarations only, then restore the target. This does not implement
-// those interfaces and is not evidence that the unported library can run on 7.
+// those interfaces and is not itself evidence of Windows 7 runtime compatibility.
 #pragma push_macro("NTDDI_VERSION")
 #pragma push_macro("_WIN32_WINNT")
 #undef NTDDI_VERSION
@@ -19,7 +19,7 @@
 #pragma pop_macro("_WIN32_WINNT")
 #pragma pop_macro("NTDDI_VERSION")
 
-// Explicit selections for the isolated VT7 Atlas backend/presentation build.
+// Explicit selections for the VT7 Atlas engine/backend/presentation build.
 #define VT7_ATLAS 1
 #define TIL_FEATURE_CONHOSTATLASENGINECUSTOMSHADERS_ENABLED 0
 struct Feature_AtlasEngineLoudErrors { static constexpr bool IsEnabled() noexcept { return true; } };

@@ -3,10 +3,6 @@
 
 #pragma once
 
-#ifdef VT7_CORE
-#include "../../vt7/VT7.Core/ProofRenderer.hpp"
-#else
-
 #include "../../buffer/out/textBuffer.hpp"
 #include "../inc/IRenderEngine.hpp"
 #include "../inc/RenderSettings.hpp"
@@ -149,8 +145,15 @@ namespace Microsoft::Console::Render
         // Base render loop & timer management
         wil::srwlock _threadMutex;
         wil::unique_handle _thread;
+#ifdef VT7_CORE
+        wil::unique_event _enable;
+        wil::unique_event _wake;
+        wil::unique_event _outputReady;
+        wil::unique_event _stop;
+#else
         wil::slim_event_manual_reset _enable;
-        std::atomic<bool> _redraw;
+#endif
+        std::atomic<bool> _redraw{false};
         std::atomic<bool> _threadKeepRunning{ false };
         til::small_vector<IRenderEngine*, 2> _engines;
         til::small_vector<TimerRoutine, 4> _timers;
@@ -186,4 +189,3 @@ namespace Microsoft::Console::Render
         std::vector<til::rect> _lastSelectionRectsByViewport{};
     };
 }
-#endif

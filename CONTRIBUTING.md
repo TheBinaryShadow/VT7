@@ -62,7 +62,22 @@ automatic recovery, and session acceptance.
 
 Follow the [port-first checkpoints](doc/vt7/architecture/2026-09-12-port-first-plan.md)
 and link relevant changes to the [experiment IDs](doc/vt7/research/20-validation-and-experiments.md).
-Minimal font adaptation and the integrated Atlas viewport are next; 3A session feasibility must precede substantial local
+The minimum font boundary and integrated Atlas viewport now have local and
+supplied Windows 7 C1/C2 acceptance in 0.3.0. C3 renderer gates are next; see the
+[integration record](doc/vt7/validation/2026-09-12-atlas-viewport.md).
+0.3.1 C3 repaint/cursor and status checks have local and supplied Windows 7
+acceptance recorded in the
+[repaint record](doc/vt7/validation/2026-09-12-atlas-repaint.md).
+0.3.2 automatic fallback and controlled recovery pass supplied target testing;
+see the [recovery record](doc/vt7/validation/2026-09-12-atlas-recovery.md). Keep
+injected failures distinct from real driver failures and forced renderer modes strict.
+0.3.3 font/settings tests passed at actual Windows 7 96/120/144 DPI but exposed
+higher-scale viewport/recovery failures. Current 0.3.4 passes all positive suites
+at those scales on the supplied setup, accepting the bounded scaling checkpoint.
+Next are scheduling/idle/resource/shutdown checks, not optional typography.
+Retain negative controls and exact same-device
+comparisons; see the [correction record](doc/vt7/validation/2026-09-12-atlas-scaling-correction.md).
+The 3A feasibility gate applies before substantial local
 integration or daily-driver UI work. Research priority labels are not new test
 results or permission to skip an open acceptance gate.
 

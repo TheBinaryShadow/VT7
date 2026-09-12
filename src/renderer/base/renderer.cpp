@@ -27,6 +27,14 @@ Renderer::Renderer(RenderSettings& renderSettings, IRenderData* pData) :
     _renderSettings(renderSettings),
     _pData(pData)
 {
+#ifdef VT7_CORE
+    // Kernel events work on Windows 7. Auto-reset wake remembers a signal
+    // arriving between the predicate check and wait; no address waits required.
+    _enable.create(wil::EventOptions::ManualReset);
+    _wake.create();
+    _outputReady.create(wil::EventOptions::ManualReset);
+    _stop.create(wil::EventOptions::ManualReset);
+#endif
     _cursorBlinker = RegisterTimer("cursor blink", [](Renderer& renderer, TimerHandle) {
         renderer._cursorBlinkerOn = !renderer._cursorBlinkerOn;
     });
@@ -74,6 +82,13 @@ void Renderer::EnablePainting()
     if (const auto guard = _threadMutex.lock_exclusive(); !_thread)
     {
         _threadKeepRunning.store(true, std::memory_order_relaxed);
+#ifdef VT7_CORE
+        _stop.ResetEvent();
+        // Teardown signals outputReady to unblock the old worker. Reconcile it
+        // with the core's current synchronized-output state before restarting.
+        if (_isSynchronizingOutput) _outputReady.ResetEvent();
+        else _outputReady.SetEvent();
+#endif
 
         _thread.reset(CreateThread(nullptr, 0, s_renderThread, this, 0, nullptr));
         THROW_LAST_ERROR_IF(!_thread);
@@ -107,6 +122,10 @@ void Renderer::TriggerTeardown() noexcept
         // The render thread first waits for the event and then checks _threadKeepRunning. By doing it
         // in reverse order here, we ensure that it's impossible for the render thread to miss this.
         _threadKeepRunning.store(false, std::memory_order_relaxed);
+#ifdef VT7_CORE
+        _stop.SetEvent();
+        _outputReady.SetEvent();
+#endif
         NotifyPaintFrame();
         _enable.SetEvent();
 
@@ -120,7 +139,11 @@ void Renderer::TriggerTeardown() noexcept
 void Renderer::NotifyPaintFrame() noexcept
 {
     _redraw.store(true, std::memory_order_relaxed);
+#ifdef VT7_CORE
+    _wake.SetEvent();
+#else
     til::atomic_notify_one(_redraw);
+#endif
 }
 
 DWORD WINAPI Renderer::s_renderThread(void* param) noexcept
@@ -130,6 +153,10 @@ DWORD WINAPI Renderer::s_renderThread(void* param) noexcept
 
 DWORD Renderer::_renderThread() noexcept
 {
+#ifdef VT7_CORE
+    const auto com = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+    const auto uninit = wil::scope_exit([&] { if (SUCCEEDED(com)) CoUninitialize(); });
+#endif
     while (_threadKeepRunning.load(std::memory_order_relaxed))
     {
         _enable.wait();
@@ -215,7 +242,11 @@ void Renderer::_startTimer(TimerHandle handle, TimerRepr delay, TimerRepr interv
 
     // Tickle _waitUntilCanRender() into calling _calculateTimerMaxWait() again.
     // WaitOnAddress() will return with TRUE, even if the atomic didn't change.
+#ifdef VT7_CORE
+    _wake.SetEvent();
+#else
     til::atomic_notify_one(_redraw);
+#endif
 }
 
 void Renderer::StopTimer(TimerHandle handle)
@@ -260,6 +291,9 @@ void Renderer::_waitUntilTimerOrRedraw() noexcept
         }
 
         // and wait until the timer expires, or we potentially got a rendering request.
+#ifdef VT7_CORE
+        if (!_wake.wait(wait)) break;
+#else
         constexpr auto bad = false;
         if (!til::atomic_wait(_redraw, bad, wait))
         {
@@ -267,6 +301,7 @@ void Renderer::_waitUntilTimerOrRedraw() noexcept
             assert(GetLastError() == ERROR_TIMEOUT); // What else could it be?
             break;
         }
+#endif
 
         // If WaitOnAddress returned TRUE, we got signaled and retry.
     }
@@ -349,7 +384,11 @@ DWORD Renderer::_timerToMillis(TimerRepr t) noexcept
         {
             // Add a bit of backoff.
             // Sleep 100, 200, 400, 600, 800ms, 1600ms before failing out and disabling the renderer.
+#ifdef VT7_CORE
+            if (_stop.wait(renderBackoffBaseTimeMilliseconds * (1 << (attempt - 1)))) return S_FALSE;
+#else
             Sleep(renderBackoffBaseTimeMilliseconds * (1 << (attempt - 1)));
+#endif
         }
 
         // BODGY: Optimally we would want to retry per engine, but that causes different
@@ -448,8 +487,16 @@ try
         return S_OK;
     }
 
+#ifdef VT7_CORE
+    HRESULT endPaintResult = S_OK;
+#endif
     auto endPaint = wil::scope_exit([&]() {
+#ifdef VT7_CORE
+        endPaintResult = pEngine->EndPaint();
+        LOG_IF_FAILED(endPaintResult);
+#else
         LOG_IF_FAILED(pEngine->EndPaint());
+#endif
 
         // If the engine tells us it really wants to redraw immediately,
         // tell the thread so it doesn't go to sleep and ticks again
@@ -488,7 +535,11 @@ try
     endPaint.reset();
 
     // As we leave the scope, EndPaint will be called (declared above)
+#ifdef VT7_CORE
+    return endPaintResult;
+#else
     return S_OK;
+#endif
 }
 catch (...)
 {
@@ -516,11 +567,18 @@ void Renderer::SynchronizedOutputChanged() noexcept
     // If `_isSynchronizingOutput` is true, it'll kick the
     // render thread into calling `_synchronizeWithOutput()`...
     _isSynchronizingOutput = so;
+#ifdef VT7_CORE
+    if (so) _outputReady.ResetEvent();
+#endif
 
     if (!_isSynchronizingOutput)
     {
         // ...otherwise, unblock `_synchronizeWithOutput()` from the `WaitOnAddress` call.
+#ifdef VT7_CORE
+        _outputReady.SetEvent();
+#else
         WakeByAddressSingle(&_isSynchronizingOutput);
+#endif
 
         // It's crucial to give the render thread at least a chance to gain the lock.
         // Otherwise, a VT application could continuously spam DECSET 2026 (Synchronized Output) and
@@ -543,7 +601,9 @@ void Renderer::_synchronizeWithOutput() noexcept
 
     UINT64 start = 0;
     DWORD elapsed = 0;
+#ifndef VT7_CORE
     bool wrong = false;
+#endif
 
     QueryUnbiasedInterruptTime(&start);
 
@@ -552,9 +612,16 @@ void Renderer::_synchronizeWithOutput() noexcept
     {
         // We can't call a blocking function while holding the console lock, so release it temporarily.
         _pData->UnlockConsole();
+#ifdef VT7_CORE
+        const auto ok = _outputReady.wait(timeout - elapsed);
+#else
         const auto ok = WaitOnAddress(&_isSynchronizingOutput, &wrong, sizeof(_isSynchronizingOutput), timeout - elapsed);
+#endif
         _pData->LockConsole();
 
+#ifdef VT7_CORE
+        if (!_threadKeepRunning.load(std::memory_order_relaxed)) break;
+#endif
         if (!ok || !_isSynchronizingOutput)
         {
             break;

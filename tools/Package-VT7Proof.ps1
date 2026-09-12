@@ -9,9 +9,9 @@ Set-StrictMode -Version 3.0
 $repositoryRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
 $artifactRoot = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "artifacts"))
 $binaryRoot = Join-Path $artifactRoot "vt7\bin\Release"
-$packageRoot = [System.IO.Path]::GetFullPath((Join-Path $artifactRoot "viewport-proof-0.2.1"))
-$zipPath = Join-Path $artifactRoot "VT7-viewport-proof-0.2.1-x64.zip"
-$expectedPackageRoot = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "artifacts\viewport-proof-0.2.1"))
+$packageRoot = [System.IO.Path]::GetFullPath((Join-Path $artifactRoot "atlas-viewport-0.3.4"))
+$zipPath = Join-Path $artifactRoot "VT7-atlas-viewport-0.3.4-x64.zip"
+$expectedPackageRoot = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "artifacts\atlas-viewport-0.3.4"))
 
 if (-not [string]::Equals($packageRoot, $expectedPackageRoot, [StringComparison]::OrdinalIgnoreCase)) {
     throw "Refusing to package outside the expected VT7 artifact directory: $packageRoot"
@@ -30,8 +30,8 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $hostVersion = [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $binaryRoot 'VT7.Host.exe')).FileVersion
-if ($hostVersion -ne '0.2.1.0') {
-    throw "Expected proof 0.2.1.0 before packaging, found $hostVersion. Rebuild Release."
+if ($hostVersion -ne '0.3.4.0') {
+    throw "Expected Atlas viewport 0.3.4.0 before packaging, found $hostVersion. Rebuild Release."
 }
 
 if (Test-Path -LiteralPath $packageRoot) {
@@ -93,9 +93,17 @@ Copy-Item -LiteralPath (Join-Path $repositoryRoot "src\vt7\packaging\README.txt"
 Copy-Item -LiteralPath (Join-Path $repositoryRoot "src\vt7\packaging\RUN-VT7.cmd") -Destination $packageRoot
 Copy-Item -LiteralPath (Join-Path $repositoryRoot "src\vt7\packaging\RUN-DIAGNOSTICS.cmd") -Destination $packageRoot
 Copy-Item -LiteralPath (Join-Path $repositoryRoot "src\vt7\packaging\RUN-VIEWPORT-TEST.cmd") -Destination $packageRoot
+Copy-Item -LiteralPath (Join-Path $repositoryRoot "src\vt7\packaging\RUN-ATLAS-WARP.cmd") -Destination $packageRoot
+Copy-Item -LiteralPath (Join-Path $repositoryRoot "src\vt7\packaging\RUN-GDI-REFERENCE.cmd") -Destination $packageRoot
+Copy-Item -LiteralPath (Join-Path $repositoryRoot "src\vt7\packaging\RUN-REPAINT-TEST.cmd") -Destination $packageRoot
+Copy-Item -LiteralPath (Join-Path $repositoryRoot "src\vt7\packaging\RUN-RECOVERY-TEST.cmd") -Destination $packageRoot
+Copy-Item -LiteralPath (Join-Path $repositoryRoot "src\vt7\packaging\RUN-SETTINGS-TEST.cmd") -Destination $packageRoot
 Copy-Item -LiteralPath (Join-Path $repositoryRoot "LICENSE") -Destination (Join-Path $packageRoot "LICENSE.txt")
 Copy-Item -LiteralPath (Join-Path $repositoryRoot "NOTICE.md") -Destination $packageRoot
 Copy-Item -LiteralPath (Join-Path $repositoryRoot "src\vt7\VT7.Core\README.md") -Destination (Join-Path $packageRoot "CORE-PROVENANCE.md")
+Copy-Item -LiteralPath (Join-Path $repositoryRoot "src\vt7\VT7.Renderer\README.md") -Destination (Join-Path $packageRoot "RENDERER-PROVENANCE.md")
+& (Join-Path $PSScriptRoot 'Verify-VT7Fonts.ps1')
+Copy-Item -LiteralPath (Join-Path $repositoryRoot 'oss\unifont') -Destination (Join-Path $packageRoot 'fonts') -Recurse
 
 $licenseRoot = Join-Path $packageRoot 'licenses'
 New-Item -ItemType Directory -Path $licenseRoot -Force | Out-Null
@@ -104,9 +112,15 @@ Copy-Item -LiteralPath (Join-Path $dependencyRoot 'wil-b6ec76a2d9a609897f25a7fa0
 Copy-Item -LiteralPath (Join-Path $dependencyRoot 'GSL-152d6eb989a1ecd23fe9c9cfb2fb8cfc7c0cd0c1\LICENSE') -Destination (Join-Path $licenseRoot 'GSL.txt')
 Copy-Item -LiteralPath (Join-Path $dependencyRoot 'fmt-407c905e45ad75fc29bf0f9bb7c5c2fd3475976f\LICENSE') -Destination (Join-Path $licenseRoot 'fmt.txt')
 Copy-Item -LiteralPath (Join-Path $repositoryRoot 'oss\chromium\LICENSE') -Destination (Join-Path $licenseRoot 'chromium.txt')
+Copy-Item -LiteralPath (Join-Path $repositoryRoot 'oss\stb\LICENSE') -Destination (Join-Path $licenseRoot 'stb.txt')
 
 # Test the assembled files, including the app-local runtime, before creating an archive.
 & (Join-Path $PSScriptRoot 'Test-VT7.ps1') -Configuration Release -BinaryDirectory $packageRoot
+& (Join-Path $PSScriptRoot 'Test-VT7AtlasRepaint.ps1') -Configuration Release -BinaryDirectory $packageRoot
+& (Join-Path $PSScriptRoot 'Test-VT7AtlasRecovery.ps1') -Configuration Release -BinaryDirectory $packageRoot
+& (Join-Path $PSScriptRoot 'Test-VT7AtlasSettings.ps1') -Configuration Release -BinaryDirectory $packageRoot
+& (Join-Path $PSScriptRoot 'Test-VT7FontAssets.ps1') -Configuration Release -BinaryDirectory $packageRoot
+& (Join-Path $PSScriptRoot 'Verify-VT7.ps1') -Configuration Release -BinaryDirectory $packageRoot
 
 $symbolRoot = Join-Path $packageRoot "symbols"
 New-Item -ItemType Directory -Path $symbolRoot -Force | Out-Null

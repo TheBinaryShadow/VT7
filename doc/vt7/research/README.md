@@ -13,6 +13,21 @@ findings and original priorities as reference, not an instruction to implement
 every experiment. Record non-blocking ideas in Milestone 7 for release triage or
 post-release work; required correctness, security and workflows remain gates.
 
+The new [Atlas viewport 0.3.0](../validation/2026-09-12-atlas-viewport.md) implements
+the minimum face-selection adapter and real AtlasEngine/controller/core path.
+Local results and supplied Windows 7 C1/C2 acceptance pass on the tested setup. The current
+[0.3.1 C3 slice](../validation/2026-09-12-atlas-repaint.md) tests actual Atlas
+invalidation and cursor pixels and passes the supplied Windows 7 run. The
+[0.3.2 slice](../validation/2026-09-12-atlas-recovery.md) adds controlled recovery
+and passes supplied target testing. The
+[0.3.3 settings/DPI slice](../validation/2026-09-12-atlas-settings.md) passes its
+font matrix at actual 96/120/144 DPI. Its viewport/recovery failures are resolved
+in the [accepted 0.3.4 scaling matrix](../validation/2026-09-12-atlas-scaling-correction.md).
+Scheduling/idle/resource/shutdown checks are next; full renderer qualification
+remains open. This acceptance is limited to the supplied Windows 7 configuration.
+Simulated and actual-system DPI stay distinct. The independent mapper,
+fitter and enhanced Arabic experiments below remain separate research.
+
 Implementation follow-up: the [0.2 font/cell probe](../validation/2026-09-11-font-mapping-probe.md)
 has supplied Windows 7 evidence identifying U+1F600 as the missing cluster.
 The [font coverage/fitting research](2026-09-11-font-coverage-and-fitting.md)

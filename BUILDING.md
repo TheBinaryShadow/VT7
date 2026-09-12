@@ -1,19 +1,26 @@
 # Building VT7
 
-VT7 currently builds a static terminal viewport proof (0.2.1): a WPF desktop
-host, native HWND surface, and the real Microsoft Terminal core and VT parser.
+VT7 currently builds a static Atlas viewport proof (0.3.4): a WPF desktop
+host, native HWND surface, the real Microsoft Terminal core/VT parser, AtlasEngine
+and renderer controller with a minimum Windows 7 font adapter.
 It displays a fixed demonstration and resizes the actual text buffer. It does
 not yet run shells or SSH sessions.
 
 The solution also builds an independent capability probe and an Atlas backend
 proof (0.1). The latter renders fixed glyphs through real Atlas backends and
 has passed automated Windows 7 hardware/WARP tests plus visible Direct3D11
-checks. It is separate from the GDI host, not a complete Atlas terminal port.
+checks. It remains separate from the integrated host. The supplied 0.3.0 Windows 7
+run accepted the bounded full-engine C1/C2 path. The integrated 0.3.4 correction
+now passes the supplied actual 100%, 125% and 150% system-DPI matrix; broader
+renderer acceptance remains separate.
 
 For what to build next, use the [port-first checkpoints](doc/vt7/architecture/2026-09-12-port-first-plan.md)
 and [roadmap](ROADMAP.md). The commands below reproduce existing proofs; they
-do not require extending every probe before application integration. No package
-or runtime acceptance is changed by this documentation update.
+do not require extending every probe before application integration. The
+[0.3.0 validation record](doc/vt7/validation/2026-09-12-atlas-viewport.md) records
+the initial Windows 7 C1/C2 acceptance. The current
+[0.3.4 validation record](doc/vt7/validation/2026-09-12-atlas-scaling-correction.md)
+separates local checks, accepted target scaling results and remaining C3 coverage.
 
 ## Pinned developer toolchain
 
@@ -55,17 +62,18 @@ in [the core boundary notes](src/vt7/VT7.Core/README.md). After a verified resto
 `-NoRestore` permits an offline build using the existing extracted sources.
 
 Build output is written under `artifacts\vt7\bin`. The packaging script creates
-`artifacts\viewport-proof-0.2.1` and `artifacts\VT7-viewport-proof-0.2.1-x64.zip`.
+`artifacts\atlas-viewport-0.3.4` and `artifacts\VT7-atlas-viewport-0.3.4-x64.zip`.
+Accepted 0.3.0 artifacts are preserved unchanged.
 It tests the assembled package before archiving it and includes runtime DLLs,
 symbols, notices, dependency licenses, and file checksums. Generated artifacts
-are ignored by Git. The older 0.1 and 0.2.0 proof packages are not overwritten.
+are ignored by Git. Older proof packages, including accepted 0.2.1, are not overwritten.
 
 ## Verify the binary boundary
 
 The solution also builds the Milestone 2 `VT7.Renderer.lib` isolated target
-and independent `VT7.RendererProbe.exe`. The library is not linked into the
-GDI host. Its backends run in the separate tested harness, while the full
-AtlasEngine font/controller runtime remains unported. See the
+and independent `VT7.RendererProbe.exe`. The library now links into VT7.Native,
+with the real AtlasEngine/controller/font path and a selectable GDI reference.
+The older backend harness remains independently testable. See the
 [renderer boundary](src/vt7/VT7.Renderer/README.md).
 
 To test and package the independent graphics/font probe:
@@ -109,7 +117,7 @@ fitting and its supplied Windows 7 result. The
 private symbol fallback and two forced private-font fixtures. The supplied
 Windows 7 run passes 51 checks and all 13 mappings, including automatic private
 U+1F600 fallback. This accepts the bounded experiment, not production font quality.
-No AtlasEngine/controller is linked into the probe;
+No AtlasEngine is linked into the probe and no renderer worker is started;
 TerminalCore is linked only to supply authoritative fixture cell spans. The
 earlier renderer-probe 0.1/0.2/0.3/0.4, Atlas backend 0.1, and GDI 0.2.1 archives are retained.
 
@@ -225,7 +233,7 @@ substitute for testing on Windows 7.
 
 The solution also builds `VT7.AtlasProof.exe`, which links the real Atlas
 backends and shared Windows 7 presentation code. It deliberately bypasses the
-still-unported AtlasEngine font mapper and the TerminalCore/controller path.
+AtlasEngine font mapper and the TerminalCore/controller path.
 It does not replace the accepted GDI host.
 
 ```powershell
@@ -255,7 +263,42 @@ recreation also passed. Keep that archive unchanged as the tested checkpoint;
 documentation-only updates do not require repackaging it. Rerunning a launcher
 overwrites its own log/images, so preserve evidence before repeating tests.
 
-### GDI host and core checks
+### Integrated Atlas/GDI host and core checks
+
+0.3.0 has supplied Windows 7 C1/C2 acceptance; 0.3.1 repaint/cursor checks also
+pass on the supplied target setup. Use the following in Debug or Release:
+
+```powershell
+.\tools\Test-VT7AtlasRepaint.ps1 -Configuration Debug
+```
+
+This runs 32 exact comparisons and eight cursor-cell checks per Atlas mode,
+across two window sizes, plus an expected-failure pixel-mismatch control.
+Reports/captures: `artifacts/vt7/reports/<configuration>/Repaint/`.
+See the [test design and limits](doc/vt7/validation/2026-09-12-atlas-repaint.md).
+
+0.3.2 adds `tools/Test-VT7AtlasRecovery.ps1 -Configuration Debug` (or Release):
+16 controlled startup, removal, exhausted-retry and close-during-backoff scenarios.
+Reports/captures live under `artifacts/vt7/reports/<configuration>/Recovery/`.
+Each process has a 45-second outer limit; the in-process asynchronous wait is
+10 seconds. These are injected failures, not real driver-loss evidence. See the
+[policy and remaining gates](doc/vt7/validation/2026-09-12-atlas-recovery.md).
+
+0.3.2 now has supplied Windows 7 acceptance of that bounded recovery matrix.
+0.3.3 adds `tools/Test-VT7AtlasSettings.ps1 -Configuration Debug` (or Release).
+Current 0.3.4 retains that matrix and adds startup work-area, status-layout and
+blank-first-row controls to the viewport tests. Same-device recovery still
+requires exact RGB; before/after geometry is logged. The 0.3.3 higher-DPI failures
+are retained historically; 0.3.4 passes every positive suite at all three measured
+Windows 7 scales on the supplied setup. To reproduce, run all five packaged
+test launchers at each actual 100/125/150 percent scale. See the
+[corrective build record](doc/vt7/validation/2026-09-12-atlas-scaling-correction.md).
+Five Atlas modes each run 10 font/settings cases and eight invalid-input checks,
+plus hidden updates. Two separate local negative controls verify geometry and
+expected system-DPI rejection. Reports/20 captures are under
+`artifacts/vt7/reports/<configuration>/Settings/`. Use `-ExpectedSystemDpi 96`,
+`120` or `144` to assert the actual environment, not change it. Renderer DPI
+overrides are simulations. See the [settings record](doc/vt7/validation/2026-09-12-atlas-settings.md).
 
 The recommended local test command waits for each process, checks its exit
 code, and requires a fresh passing report:
@@ -264,10 +307,14 @@ code, and requires a fresh passing report:
 .\tools\Test-VT7.ps1 -Configuration Debug
 ```
 
-It runs both headless diagnostics and the hidden native-window test. Use
+It runs headless diagnostics, six hidden viewport modes and a blank-frame
+negative control. Use
 `-Configuration Release` for a release build. Reports are written to
-`artifacts\vt7\reports\<configuration>\diagnostics.log` and
-`window-smoke-test.log`.
+`artifacts\vt7\reports\<configuration>\diagnostics-gdi.log` and
+`window-smoke-test-<renderer>.log`, with a PNG for each Atlas mode.
+Use `-Renderers gdi` or `-Renderers atlas-d3d-warp` for a focused recheck.
+`tools/Test-VT7FontAssets.ps1 -Configuration Release` checks missing/altered
+private assets in disposable copies, without changing the source fonts.
 
 The WPF application can execute its native and graphics checks without opening
 a window:
@@ -280,8 +327,8 @@ a window:
 
 Exit code 0 means all required proof probes passed. The report records the
 native ABI, detected Windows version, .NET runtime, graphics adapter, hardware
-Direct3D 11 result, WARP result, DXGI 1.2 availability, and seven TerminalCore
-regression results. A copy is also
+Direct3D 11 result, WARP result, DXGI 1.2 availability, seven TerminalCore
+regression results and the new 48-case font-boundary check. A copy is also
 written to `%LOCALAPPDATA%\VT7\Logs` when that directory is writable.
 
 Normal startup opens the visual proof window:
@@ -297,6 +344,12 @@ demo, and checks that the child HWND is destroyed. At both large and small
 sizes, it switches to Diagnostics and back, checks ten diagnostic values and
 both selected/unselected tab-header colors, then verifies the same child HWND
 and grid return visibly and repaint. There are eight tab round trips in total.
+
+Atlas tests wait for a completed requested frame, inspect pre-Present header ink,
+compare repeated reset hashes and verify no frame growth while the tab is hidden.
+They save a full-sample back-buffer PNG with blinking disabled for determinism.
+The injected blank frame must fail the header-ink check. These are integration
+oracles, not a full text-correctness, differential repaint or idle-CPU suite.
 
 The contrast gate requires at least 4.5:1 using the effective foreground and
 background brushes in the live WPF visual tree. This is not a screenshot check
@@ -317,29 +370,61 @@ Tier A Windows 7 system can establish compatibility. Use a clean snapshot with:
 - .NET Framework 4.8.
 - The remaining prerequisites listed in [ROADMAP.md](ROADMAP.md).
 
-Copy and extract the proof zip on that machine. Run `RUN-DIAGNOSTICS.cmd` and
-`RUN-VIEWPORT-TEST.cmd`, retaining `VT7-diagnostics.log` and
-`VT7-viewport-test.log`. Then run `RUN-VT7.cmd` and inspect the terminal viewport:
+Copy and extract the entire 0.3.4 zip, including `fonts/`, on that machine.
+Run `RUN-DIAGNOSTICS.cmd` and `RUN-VIEWPORT-TEST.cmd`, retaining
+`VT7-diagnostics.log` and the complete `Logs` folder. The latter runs GDI and
+all four forced Atlas backend/device modes plus automatic mode, with separate logs and Atlas PNG captures.
+Run `RUN-REPAINT-TEST.cmd` and retain all logs/captures, including the expected
+failure `repaint-negative.log`. Verify the visible `frames (snapshot)` label
+becomes nonzero after startup; it is not a live counter.
+Run `RUN-RECOVERY-TEST.cmd`. All 16 scenarios should PASS, including assertions
+about intentionally exhausted retries. Keep every recovery log and PNG.
+Run `RUN-SETTINGS-TEST.cmd` and choose the current actual Windows scaling.
+To reproduce the accepted matrix, repeat all five suites at actual Windows 7
+100/125/150 percent scaling, restarting
+the Windows session/application after the OS change as required. Save work before
+signing out. The launcher does not change the OS. It preserves different DPI runs
+in separately named reports, but overwrites another run at the same DPI.
+Capture normal/WARP viewport and Diagnostics screenshots at each scale and inspect
+clipping, legibility and focus. Capture the initial window before manual resizing
+to verify work-area fit. Preserve each scale's results separately. Expected fatal
+AppData snapshots are not failed recovery verdicts; correlate them with the named
+test reports as described in the correction record.
+Then run `RUN-VT7.cmd` (automatic Atlas Direct3D11) and inspect the viewport:
 
 - Confirm that colored text, bold, underline, and box drawing appear.
 - Note missing or clipped accented, combining, and CJK glyphs, including the
-  chosen fonts and display scaling. GDI font fallback is not a finished feature.
+  chosen fonts and display scaling. Also inspect the two fallback symbols.
+  Logical-cell Arabic is inherited behavior, not the earlier joined-word experiment.
 - Narrow and widen the window repeatedly. Content should reflow without a
   crash, persistent blank surface, or continually increasing resource use.
 - Minimize, restore, switch the diagnostic/viewport tabs, and reset the demo.
 - Confirm that both headers and diagnostic values are readable. Use Tab and
   arrow keys to switch tabs and check the visible focus indicator.
-- Close and reopen the program several times. Save a screenshot and both logs.
+- Close and reopen the program several times. Save screenshots and all logs.
 
-Test once with the normal graphics driver and once in the planned WARP test
-environment. These graphics probes create devices; the temporary viewport
-itself uses GDI, not Direct3D or WARP rendering.
+Repeat visible checks with `RUN-ATLAS-WARP.cmd`. `RUN-GDI-REFERENCE.cmd` selects
+the old reference. For visible Direct2D checks use `VT7.Host.exe --renderer
+atlas-d2d-hardware` or `--renderer atlas-d2d-warp`. Automatic mode (`atlas-auto`)
+can switch hardware to WARP and reports the actual backend; forced modes never
+switch. Archive logs before rerunning, since launchers overwrite
+their own output names. Report hangs with partial logs, never as a pass.
 
 Do not claim Windows 7 runtime compatibility from PE inspection or a newer
 Windows test alone. Record the exact OS servicing level, graphics driver, CPU,
 diagnostic log, and outcome for each test.
 
 ## Recorded Windows 7 results
+
+The current 0.3.4 corrective matrix is accepted on the supplied Windows 7 SP1 x64
+setup, .NET Framework 4.8.4795.0, AMD Radeon RX 6800 XT, at actual 96/120/144 DPI.
+At each scale, diagnostics, 6 viewport modes, 4 repaint modes, 16 injected
+recovery cases and 5 settings modes pass. Recovery dimensions remain stable;
+native work-area checks and normal/WARP launch screenshots confirm initial fit.
+See the [complete acceptance record](doc/vt7/validation/2026-09-12-atlas-scaling-correction.md)
+for archive identity, counts and expected negative/fatal snapshots. This closes
+the bounded scaling checkpoint, not theme, stress, separate ESU or broader
+device/driver qualification. The earlier records below retain their original scope.
 
 Proof 0.2.0 has been tested on fully updated Windows 7 SP1 x64 setups without
 ESU and with the full ESU update set. The supplied non-ESU reports show ABI 2
@@ -386,13 +471,15 @@ the Windows 7 Platform Update capabilities without binding startup to a newer
 Windows export.
 
 `VT7.Core.lib` now links the inherited parser and terminal state implementation
-into the bridge. A WPF `HwndHost` embeds the GDI proof surface through ABI 2.
-The core is compiled without WinRT settings, ICU search/URL detection, and the
-modern renderer worker. See the core boundary notes for the exact limitations.
+into the bridge. A WPF `HwndHost` embeds the selectable Atlas/GDI surface through
+ABI 7 (0.3.3 used ABI 6, 0.3.2 used ABI 5, 0.3.1 used ABI 4). The real renderer worker uses Windows 7 events and stops before HWND
+destruction. The core is compiled without WinRT settings or ICU search/URL
+detection. See the core boundary notes for the exact limitations.
 
-AtlasEngine font mapping and controller/core integration, local PTY sessions,
-SSH, and the final terminal UI remain future work. The separate Atlas backend
-proof is established on the tested Windows 7 setup, not integrated into ABI 2.
+AtlasEngine font mapping and controller/core integration now pass locally and
+on the supplied Windows 7 setup. C3 renderer qualification, local PTY sessions,
+SSH and the final UI remain ahead.
+The separate Atlas backend proof is established on the tested Windows 7 setup.
 The Windows 7 host/core/viewport proof is now established on the tested
 non-ESU and ESU configurations. Minimal-prerequisite clean snapshots, broader
 hardware coverage, production text rendering, and long-running session

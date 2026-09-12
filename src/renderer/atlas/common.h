@@ -507,11 +507,11 @@ namespace Microsoft::Console::Render::Atlas
     {
         //// Parameters which are constant across backends.
         wil::com_ptr<ID2D1Factory> d2dFactory;
-        wil::com_ptr<IDWriteFactory2> dwriteFactory;
 #ifdef VT7_ATLAS
-        // Backends need only Factory1. The engine's fallback mapper above is
-        // still unported and must not be mistaken for this backend boundary.
+        wil::com_ptr<IDWriteFactory1> dwriteFactory;
         wil::com_ptr<IDWriteFactory1> dwriteFactory1;
+#else
+        wil::com_ptr<IDWriteFactory2> dwriteFactory;
 #endif
         wil::com_ptr<IDWriteFactory4> dwriteFactory4; // optional, might be nullptr
         wil::com_ptr<IDWriteTextAnalyzer1> textAnalyzer;

@@ -530,6 +530,9 @@ void AtlasEngine::_resolveTransparencySettings() noexcept
 try
 {
     std::vector<DWRITE_FONT_FEATURE> fontFeatures;
+#ifdef VT7_ATLAS
+    RETURN_HR_IF(E_NOTIMPL, !axes.empty()); // Static faces only on the initial Windows 7 path.
+#endif
     if (!features.empty())
     {
         fontFeatures.reserve(features.size() + 3);
@@ -644,7 +647,9 @@ void AtlasEngine::_resolveFontMetrics(const FontInfoDesired& fontInfoDesired, Fo
     std::wstring primaryFontName;
     std::wstring missingFontNames;
     wil::com_ptr<IDWriteFontFamily> primaryFontFamily;
+#ifndef VT7_ATLAS
     wil::com_ptr<IDWriteFontFallbackBuilder> fontFallbackBuilder;
+#endif
 
     // Resolves a comma-separated font list similar to CSS' font-family property. The first font in the list
     // that can be resolved successfully will be the primary font which dictates the cell size among others.
@@ -681,6 +686,11 @@ void AtlasEngine::_resolveFontMetrics(const FontInfoDesired& fontInfoDesired, Fo
         }
         else
         {
+#ifdef VT7_ATLAS
+            // A secondary-family preference needs an explicit Windows 7 policy.
+            // Do not silently accept settings that this first integration ignores.
+            THROW_HR(E_NOTIMPL);
+#else
             if (!fontFallbackBuilder)
             {
                 THROW_IF_FAILED(_p.dwriteFactory->CreateFontFallbackBuilder(fontFallbackBuilder.addressof()));
@@ -697,6 +707,7 @@ void AtlasEngine::_resolveFontMetrics(const FontInfoDesired& fontInfoDesired, Fo
                 /* localeName             */ nullptr,
                 /* baseFamilyName         */ nullptr,
                 /* scale                  */ 1.0f));
+#endif
         }
     });
 
@@ -718,12 +729,14 @@ void AtlasEngine::_resolveFontMetrics(const FontInfoDesired& fontInfoDesired, Fo
         THROW_IF_FAILED(fontCollection->GetFontFamily(index, primaryFontFamily.addressof()));
     }
 
+#ifndef VT7_ATLAS
     auto fontFallback = _api.systemFontFallback;
     if (fontFallbackBuilder)
     {
         THROW_IF_FAILED(fontFallbackBuilder->AddMappings(_api.systemFontFallback.get()));
         THROW_IF_FAILED(fontFallbackBuilder->CreateFontFallback(fontFallback.put()));
     }
+#endif
 
     wil::com_ptr<IDWriteFont> primaryFont;
     THROW_IF_FAILED(primaryFontFamily->GetFirstMatchingFont(static_cast<DWRITE_FONT_WEIGHT>(requestedWeight), DWRITE_FONT_STRETCH_NORMAL, DWRITE_FONT_STYLE_NORMAL, primaryFont.addressof()));
@@ -848,8 +861,10 @@ void AtlasEngine::_resolveFontMetrics(const FontInfoDesired& fontInfoDesired, Fo
         // as we might cause _api to be in an inconsistent state otherwise.
 
         fontMetrics->fontCollection = std::move(fontCollection);
+#ifndef VT7_ATLAS
         fontMetrics->fontFallback = std::move(fontFallback);
         fontMetrics->fontFallback.try_query_to(fontMetrics->fontFallback1.put());
+#endif
         fontMetrics->fontName = std::move(primaryFontName);
         fontMetrics->fontSize = fontSizeInPx;
         fontMetrics->cellSize = { cellWidth, cellHeight };
@@ -872,6 +887,9 @@ void AtlasEngine::_resolveFontMetrics(const FontInfoDesired& fontInfoDesired, Fo
 
         fontMetrics->builtinGlyphs = fontInfoDesired.GetEnableBuiltinGlyphs();
         fontMetrics->colorGlyphs = fontInfoDesired.GetEnableColorGlyphs();
+#ifdef VT7_ATLAS
+        fontMetrics->colorGlyphs = false;
+#endif
     }
 }
 

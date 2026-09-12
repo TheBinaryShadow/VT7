@@ -1,75 +1,130 @@
-VT7 static viewport proof 0.2.1
-==============================
+VT7 Atlas viewport 0.3.4
+=======================
 
 The terminal application Windows 7 always deserved, one tested step at a time.
-This is an engineering build, not a usable terminal release. It displays a
-fixed VT demonstration. It cannot run commands, local shells, or SSH sessions.
+This engineering build connects the real AtlasEngine and renderer controller
+to TerminalCore in the WPF/native HWND viewport. It is still a static terminal
+demonstration, not a usable shell or a public alpha release.
 
-Target system
--------------
+Target: Windows 7 SP1 x64, Platform Update KB2670838, .NET Framework 4.8,
+UCRT KB2999226, required loader/SHA-2/servicing prerequisites, and D3D11 hardware
+or WARP. See the source ROADMAP.md for the complete target/test tiers.
+No system DLL replacement, font installation or compatibility layer is needed.
 
-- Windows 7 SP1 x64 with Platform Update KB2670838
-- .NET Framework 4.8 and the Universal C Runtime (KB2999226)
-- KB2533623 or a superseding update, plus SHA-2/servicing prerequisites
-- A Direct3D 11 driver, or a system capable of creating a WARP device
+Keep all DLLs and the entire fonts directory beside the EXE. The included
+Unifont files are checked against pinned SHA256 values before DirectWrite loads
+them. A missing or altered file is a diagnostic failure, not silent fallback.
 
-See the repository ROADMAP.md for the complete target and test tiers. Visual
-C++ runtime DLLs are included beside the program. No system DLL replacement
-or global compatibility layer is part of this proof.
+Windows 7 test procedure
+------------------------
 
-The 0.2.0 viewport was tested on Windows 7 with and without ESU. Version 0.2.1
-corrects its tab/diagnostic text contrast and adds automated style and tab-switch
-checks. The 0.2.1 Windows 7 non-ESU recheck passes in supplied logs and screenshots;
-keyboard navigation, visible focus, and a separate successful ESU run are
-tester-confirmed. This completes Milestone 1 on the tested configurations,
-not compatibility testing of every prerequisite-minimum or hardware setup.
+1. Extract the complete archive into a fresh writable folder. Do not overwrite
+   the 0.3.3 evidence or accepted 0.3.2/0.3.1/0.3.0/0.2.1 viewport or 0.13 probe folders.
+2. Run RUN-DIAGNOSTICS.cmd. Keep VT7-diagnostics.log, including failures.
+3. Run RUN-VIEWPORT-TEST.cmd. It runs six hidden modes: GDI reference, Atlas
+   Direct3D11 hardware/WARP, Atlas Direct2D hardware/WARP and automatic. Keep the entire
+   Logs folder. Each Atlas mode also produces a diagnostic back-buffer PNG,
+   not a desktop screenshot. The hidden tests include frame completion/pixels,
+   repeat-reset consistency, resizing, tab hide/show and disposal.
+   Also run RUN-REPAINT-TEST.cmd: four Atlas modes, two window sizes, 32 exact
+   comparisons and eight cursor-cell checks per mode. Keep its captures and the
+   repaint-negative.log, which must fail with Atlas differential repaint mismatch.
+   Run RUN-RECOVERY-TEST.cmd for 16 controlled failure scenarios. All should PASS,
+   including tests that intentionally reach a fatal state and assert retries stop.
+   Errors are injected inside VT7, not into the driver. No system changes occur.
+   Run RUN-SETTINGS-TEST.cmd and choose the ACTUAL Windows scaling: 100, 125 or
+   150 percent. Five Atlas modes must pass. Reports include the selected DPI in
+   their names and four PNGs per mode. A wrong expected system DPI must fail.
+4. Run RUN-VT7.cmd for visible automatic Atlas Direct3D11. Run
+   RUN-ATLAS-WARP.cmd for visible Atlas Direct3D11 WARP. The status identifies
+   the actual backend and recovery/fallback counts. Auto mode can select WARP;
+   forced modes never substitute a different device. GDI is never automatic.
+   RUN-GDI-REFERENCE.cmd opens the retained GDI comparison path.
+5. Enlarge the window to see the complete sample. Inspect Latin, bold,
+   underline, box drawing, combining/CJK text, symbols and logical-cell Arabic.
+   Resize, switch tabs, minimize/restore, reset and reopen several times.
+   Inspect keyboard navigation, focus and readable Diagnostics too.
+6. Return VT7-diagnostics.log, the Logs folder and desktop screenshots of
+   hardware and WARP. Include GPU/driver, actual display scale and Windows
+   update tier. Report any hang, missing glyph, misplaced cell or stale pixels.
 
-Test procedure
---------------
+To reproduce the accepted system-DPI matrix, run ALL five test launchers at Windows 7
+100/125/150 percent scaling. Change scaling yourself, save your work before any
+required sign-out, and start a new Windows session/application before testing.
+The launcher does not change scaling. Internal renderer overrides of 96/120/144
+DPI are simulations and do not count as three system-scaling runs. At each real
+scale, also capture the normal and WARP viewport and Diagnostics, inspect text,
+clipping, tabs and focus, then retain that scale's screenshots and Logs separately.
+You can send the current-scale results first and test the other scales afterward.
+At 150 percent especially, capture each visible window immediately after launch,
+before manually resizing. Its title bar and bottom buttons should fit the work
+area. Short viewports can scroll the sample's first lines out of view.
 
-1. Extract every file to a writable local folder. Keep all DLLs beside the EXE.
-2. Run RUN-DIAGNOSTICS.cmd. Retain VT7-diagnostics.log, even if it fails.
-3. Run RUN-VIEWPORT-TEST.cmd. Retain VT7-viewport-test.log, even if it fails.
-   This runs hidden window, contrast, tab-switch, paint, resize, reset, and
-   disposal tests. It checks both selected and unselected tab-header colors.
-4. Run RUN-VT7.cmd. Confirm the static terminal demonstration appears.
-5. Inspect colors, bold, underline, box drawing, accented and wide characters.
-   Report missing or clipped glyphs. Font fallback is not a finished feature.
-6. Resize repeatedly, minimize/restore, switch tabs, and reset the demo.
-   Resizing should preserve/reflow content, not recreate the demonstration.
-   Both tab labels and all diagnostic values should now be readable. Returning
-   to the terminal tab must show the viewport again. Use Tab and arrow keys to
-   check keyboard tab navigation and the visible focus outline too.
-7. Close and reopen several times. Send both logs and a screenshot, with your
-   Windows update level, graphics driver version, CPU, and display scaling.
+Release 0.3.4 now passes all positive suites at actual Windows 7 96/120/144 DPI
+on the supplied SP1 x64, .NET Framework 4.8.4795.0, Radeon RX 6800 XT setup.
+This accepts the bounded corrective scaling checkpoint, not all of Milestone 2
+or a separate ESU/hardware matrix. AppData may record intentionally fatal test
+surfaces as Passed: False; match these to the passing named recovery reports.
+Only repaint-negative.log deliberately fails among the named packaged tests.
+The source documentation records this post-test acceptance. The originally
+issued archive remains unchanged, including its pre-acceptance README and hash.
 
-What this tests
----------------
+What changed and what did not
+-----------------------------
 
-- WPF startup, native ABI 2 loading, and Windows version detection.
-- Windows 7-compatible DXGI, hardware D3D11, and WARP device creation.
-- Seven checks against the actual TerminalCore/parser/text buffer.
-- A real native child HWND, GDI paints, resize propagation, and disposal.
-- Eight tab round trips, preserving the HWND and grid and verifying a repaint.
-- At least 4.5:1 contrast for diagnostic values and both tab-header states,
-  measured from effective WPF text/background brushes, not screenshot pixels.
+- Native ABI 7 and matching managed host, with actual completed-frame reporting,
+  requested/actual device, device generations, retry/fallback and injection counts.
+- Baseline Windows 7 DirectWrite layout selects font faces. Atlas retains its
+  own logical-order shaping, primary grid and glyph-cluster advance fitting.
+- Pinned private monochrome symbol fallback is used only when the system face
+  lacks the standalone cluster, with DirectWrite bold/oblique simulations.
+- Real renderer control with Windows 7 event waits; hidden tab workers stop
+  before resources can be destroyed and restart on return.
+- Seven inherited-core regression checks plus a 48-mapping font-boundary suite.
+- Integrated normal-invalidation/full-redraw RGB comparisons, VT edits and cursor
+  show/move/shape/hide bounds. The negative alters a saved CPU comparison pixel.
+- Bounded first-frame status refresh fixes the stale zero-frame label. The label
+  now says frames (snapshot), not a live counter. No per-frame logging is added.
+- Automatic hardware-to-WARP fallback on eligible device creation failure or two
+  consecutive recoverable device failures. WARP stays selected for this surface.
+- Existing controller retry bound and interruptible shutdown, plus posted UI
+  notifications on recovered/fatal transitions. Injection is diagnostic-only.
+- Bounded primary-font settings: Consolas/Courier New, size and normal/bold weight,
+  worker parking, core reflow, hidden updates and input validation. This is an
+  engineering API/test, not the final settings UI or arbitrary-font preferences.
+- Ten settings cases per Atlas mode, exact redraw/source/geometry checks, baseline
+  restoration, and measured WPF/native system DPI. The visible status reports DPI.
+- Frame waits include newer pending requests, avoiding stale settings readback.
+- Corrective 0.3.4 fits the initial window to the monitor work area. Status text
+  stays one line, with full details in its tooltip and logs, so recovery reporting
+  cannot resize the terminal behind an image comparison. New controls reproduce
+  the old wrapping behavior and accept a blank first row with visible text below.
+  Entirely blank frames still fail. Recovery logs now include before/after client
+  and captured image dimensions; strict same-device RGB comparison remains.
 
-The viewport uses a temporary double-buffered GDI renderer, not Atlas or a
-Direct3D renderer. Core Unicode tests check buffer behavior, not visual shaping.
-See CORE-PROVENANCE.md for source provenance and deliberately excluded features.
+The new path does not adopt the optional Arabic joining/centering, cross-style
+ligature or paint experiments. Their evidence is retained for final polish.
+Only one primary family is accepted in this first integration; comma-separated
+secondary-family lists and variable axes are explicitly unsupported. System
+fallback still selects other families as needed. Color glyphs are disabled.
+Unknown characters retain core text/cells; no universal font coverage is claimed.
 
-There are no sessions, keyboard forwarding, selection/copy/paste, scrolling UI,
-search, tabs for sessions, panes, or profiles yet. The Diagnostics tab is a test
-panel, not a terminal session tab.
+The next work is bounded scheduling, idle CPU, resource-growth and shutdown stress.
+Broader real-device-loss/race/soak acceptance, Windows 7 theme/high-contrast
+coverage and full Milestone 2 qualification remain ahead. The actual
+100/125/150 percent scaling checkpoint is accepted only on the tested setup.
+There are no sessions, keyboard forwarding, interactive selection/copy/paste,
+scrolling UI, search, session tabs, panes or profiles yet. The Diagnostics tab
+is a test panel. Use the roadmap for current port-first checkpoints.
 
-Diagnostics are written locally, including a copy in %LOCALAPPDATA%\VT7\Logs.
-Nothing is uploaded. Logs include machine/software details and local paths;
-review them before sharing. SHA256SUMS.txt covers the supplied files, including
-symbols and licenses. It is an integrity list, not a digital signature.
+Privacy and licensing
+---------------------
 
-License
--------
+Logs remain local and include environment information and paths. Review before
+sharing. Test captures contain only the fixed demonstration. Nothing is uploaded.
+SHA256SUMS.txt is an integrity manifest, not a digital signature.
 
-VT7 is MIT licensed. See LICENSE.txt, NOTICE.md, CORE-PROVENANCE.md, and licenses/.
-The bundled Visual C++ runtime DLLs are Microsoft components redistributed under
-the applicable Visual Studio license terms, not the VT7 MIT License.
+VT7 code remains MIT licensed. See LICENSE.txt, NOTICE.md, CORE-PROVENANCE.md,
+RENDERER-PROVENANCE.md and licenses/. The unmodified Unifont assets retain
+their separate OFL 1.1 license and attribution in fonts/. Visual C++ runtime
+DLLs retain Microsoft's redistribution terms. No new third-party code is added.

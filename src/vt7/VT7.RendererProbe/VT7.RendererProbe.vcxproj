@@ -42,7 +42,7 @@
       <AdditionalDependencies>d3d11.lib;dxgi.lib;d2d1.lib;dwrite.lib;ole32.lib;user32.lib;gdi32.lib;bcrypt.lib;advapi32.lib;shlwapi.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <!-- Real core cells, but no AtlasEngine or renderer-controller integration. -->
+  <!-- Real core cells/controller notifications; no AtlasEngine or active render worker. -->
   <ItemGroup>
     <ClCompile Include="probe.cpp" />
     <ClCompile Include="FontAnalysis.cpp" />

@@ -1,6 +1,6 @@
-# VT7 Core proof boundary
+# VT7 Core and renderer boundary
 
-Proof version 0.2.1 builds the real Microsoft Terminal core, parser, dispatch,
+Engineering version 0.3.4 builds the real Microsoft Terminal core, parser, dispatch,
 text buffer, and supporting types into `VT7.Core.lib`, then links that library
 into `VT7.Native.dll`. The static library is not a separate runtime dependency.
 This is a static viewport proof, not an interactive terminal release.
@@ -55,20 +55,32 @@ upstream project files are not redirected to this proof configuration.
 - `til/winrt.h`: omit only the WinRT string/GUID formatting specializations.
 - `types/utils.cpp`: exclude unused UUID, UWP drag/drop, and ICU emoji helper
   definitions that pull in newer platform dependencies. They are not emulated.
-- `renderer/base/renderer.hpp`: select `ProofRenderer.hpp`, a small redraw
-  notification adapter. It is not the Atlas renderer or its render thread.
+- `renderer/base/renderer.hpp/.cpp`: use the actual renderer controller, with
+  Windows 7 kernel events replacing address-based redraw and synchronized-output
+  waits. Stop signals interrupt waiting before the worker is joined. The old
+  `ProofRenderer.hpp` is now only a forwarding compatibility header, not a second
+  renderer class. Frozen proof 0.2.1 used the earlier notification-only adapter.
+- `terminalrenderdata.cpp`: use `GetCaretBlinkTime` without the newer caret-blink
+  system metric, treating zero/infinite or out-of-range intervals as no blink.
 - `ProofFeatures.hpp`: explicitly select the feature flags needed by this
   isolated build without the upstream feature-staging runtime.
 
 ## Native viewport
 
-The WPF `HwndHost` owns a native child window through C ABI version 2. That
+The WPF `HwndHost` owns a native child window through C ABI version 4 (0.3.0 used ABI 3). That
 window writes a fixed VT demonstration through `Terminal::Write`, reads actual
 buffer rows and attributes, and calls `Terminal::UserResize` as its client size
 changes. Resizing does not replace the content with a fresh demonstration.
 The reset button is the only action that explicitly recreates the demo buffer.
 
-The temporary renderer uses double-buffered GDI and a Consolas cell grid. It
+Atlas is now the default renderer, using the actual controller/IRenderData path,
+primary-font metrics and inherited cell fitting. Direct3D11 and Direct2D each
+have explicit hardware/WARP modes. Hide/show stops and restarts the worker;
+teardown stops it before destroying native resources. Default automatic mode
+can fall back from Direct3D11 hardware to WARP; forced modes remain strict.
+See the [renderer boundary](../VT7.Renderer/README.md).
+
+The selectable reference renderer uses double-buffered GDI and a Consolas cell grid. It
 draws the core's foreground/background colors, bold and underline attributes,
 and wide-cell allocation. This makes the native/core boundary testable before
 the Direct3D renderer port. It does not establish production font fallback,
@@ -83,6 +95,32 @@ to the parser/core dependency graph, but it is not an advertised proof feature.
 
 ## Checks and acceptance
 
+0.3.1 adds an ordered diagnostic repaint command, normal-invalidation/full-redraw
+comparisons and cursor-cell bounds, plus a first-frame status-label regression.
+These checks pass locally and in the supplied Windows 7 run. See the
+[C3 slice record](../../../doc/vt7/validation/2026-09-12-atlas-repaint.md).
+
+0.3.2 exercises the existing six-attempt renderer retry loop with controlled
+Atlas device/presentation errors and an automatic WARP policy. Recovery tests
+retain sampled core text, effective colors, grid and cursor state; forced-mode
+recreation also compares exact RGB output. Core parsing/shaping policy is not
+changed. See the [recovery record](../../../doc/vt7/validation/2026-09-12-atlas-recovery.md).
+
+0.3.4 corrects host scaling integration and diagnostic assumptions, with ABI 7
+frame dimensions and whole-frame nonuniformity. No core reflow policy changes.
+The supplied Windows 7 0.3.4 matrix passes at actual 96/120/144 DPI, including
+same-device recovery pixel/core comparisons and settings reflow. This accepts
+the bounded scaling checkpoint; scheduling/resource stress and broader
+qualification remain open. See the
+[acceptance record](../../../doc/vt7/validation/2026-09-12-atlas-scaling-correction.md).
+
+0.3.3 updates Atlas/core font metrics while the render worker is parked, then
+uses UserResize to reflow existing content. Tests preserve a nonblank styled
+fixture across family/size/weight and DPI changes, compare exact full redraws,
+restore baseline pixels and exercise a hidden settings update. This is not the
+Milestone 4 settings UI or arbitrary-font configuration. See the
+[settings record](../../../doc/vt7/validation/2026-09-12-atlas-settings.md).
+
 `VT7_RunCoreTests` exercises the real core with seven checks: cursor and erase,
 indexed/true-color attributes, wide/combining cell allocation, alternate-screen
 restoration, resize/reflow content preservation, sequences split across writes,
@@ -90,11 +128,24 @@ and the SRW-backed core lock under contention. These are focused regression
 checks, not a replacement for the upstream test suite. Unicode buffer checks
 do not verify the appearance of glyphs on screen.
 
-`tools/Test-VT7.ps1` runs those checks and graphics probes, then exercises four
-complete WPF/native-window lifecycles, repeated resizing, forced painting,
-minimize/restore, reset, and native child-window disposal. The window tests are
-hidden and do not verify visual appearance. Reports and static import audits
-are kept under `artifacts/vt7/reports`.
+The eighth check exercises the new font boundary with 48 mappings across six
+texts, two sizes and four styles, cached repeats, core-cluster preservation,
+font-file identities, required symbol coverage and invalid inputs. It does not
+replace a mixed-script raster/interaction acceptance suite.
+
+`tools/Test-VT7.ps1` runs diagnostics and six viewport modes: GDI plus both
+Atlas backends on hardware/WARP and automatic. Each mode gets four complete WPF/native-window
+lifecycles, repeated resizing, minimize/restore, reset and disposal, plus eight
+tab round trips. Atlas tests wait for a completed requested frame, check captured
+header ink, identical repeat resets, and no frame growth while hidden. Readback
+is on the renderer thread before discard presentation; PNG saving uses an owned
+CPU copy. An injected blank-frame control must fail. Captures are not desktop
+screenshots or universal glyph correctness oracles. Test cursors do not blink.
+Reports and static import audits are kept under `artifacts/vt7/reports`.
+
+The [0.3.0 integration record](../../../doc/vt7/validation/2026-09-12-atlas-viewport.md)
+records local results and supplied Windows 7 C1/C2 acceptance. The results below
+refer to the older GDI packages and are not used as substitutes for the new Atlas results.
 
 Proof 0.2.0 passes these checks on the development machine and in supplied logs
 from a fully updated Windows 7 SP1 x64 non-ESU setup. The Windows 7 window test

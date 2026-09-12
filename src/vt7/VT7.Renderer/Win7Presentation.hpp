@@ -8,6 +8,7 @@ namespace Microsoft::Console::Render::Atlas::Win7
     // All calls and resource destruction belong to one rendering thread.
     // Callers release backend resources before Resize/DestroySwapChain.
     void CreateDevice(RenderingPayload& p);
+    void CreateDevice(RenderingPayload& p, bool warp);
     void CreateSwapChain(RenderingPayload& p);
     void DestroySwapChain(RenderingPayload& p) noexcept;
     void ResizeSwapChain(RenderingPayload& p);

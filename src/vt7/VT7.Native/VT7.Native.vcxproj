@@ -109,16 +109,25 @@
     <ProjectReference Include="..\VT7.Core\VT7.Core.vcxproj">
       <Project>{54CBEAA0-46F4-4B91-BC5D-B2387719EB24}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\VT7.Renderer\VT7.Renderer.vcxproj">
+      <Project>{B169532A-1256-41A4-9864-7BC783EBE5D1}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ForcedIncludeFiles>$(MSBuildThisFileDirectory)..\VT7.Renderer\RendererFeatures.hpp;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>gdi32.lib;user32.lib;advapi32.lib;shlwapi.lib;ole32.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;dwrite.lib;d2d1.lib;d3dcompiler.lib;windowscodecs.lib;bcrypt.lib;gdi32.lib;user32.lib;advapi32.lib;shlwapi.lib;ole32.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="CopyVT7PrivateFonts" AfterTargets="Build">
+    <ItemGroup><VT7PrivateFontAssets Include="$(MSBuildThisFileDirectory)..\..\..\oss\unifont\*" /></ItemGroup>
+    <MakeDir Directories="$(OutDir)fonts" />
+    <Copy SourceFiles="@(VT7PrivateFontAssets)" DestinationFolder="$(OutDir)fonts" SkipUnchangedFiles="true" />
+  </Target>
 </Project>

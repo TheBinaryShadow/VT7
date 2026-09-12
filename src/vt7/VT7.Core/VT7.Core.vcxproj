@@ -40,6 +40,8 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\renderer\base\renderer.cpp" />
+    <ClCompile Include="..\..\renderer\base\CSSLengthPercentage.cpp" />
     <ClCompile Include="..\..\terminal\input\TestHook.cpp" />
     <ClCompile Include="..\..\cascadia\TerminalCore\Terminal.cpp"><ObjectFileName>$(IntDir)cascadia_TerminalCore_Terminal.cpp.obj</ObjectFileName></ClCompile>
     <ClCompile Include="..\..\cascadia\TerminalCore\TerminalApi.cpp"><ObjectFileName>$(IntDir)cascadia_TerminalCore_TerminalApi.cpp.obj</ObjectFileName></ClCompile>

@@ -7,9 +7,13 @@ namespace Microsoft::Console::Render::Atlas::Win7
 {
     void CreateDevice(RenderingPayload& p)
     {
+        CreateDevice(p, p.s->target->useWARP);
+    }
+
+    void CreateDevice(RenderingPayload& p, bool warp)
+    {
         // No adapter enumeration shortcut for WARP on Windows 7. Request it
         // explicitly, and derive the factory from the device actually created.
-        const bool warp = p.s->target->useWARP;
         const auto driver = warp ? D3D_DRIVER_TYPE_WARP : D3D_DRIVER_TYPE_HARDWARE;
         UINT flags = D3D11_CREATE_DEVICE_SINGLETHREADED | D3D11_CREATE_DEVICE_BGRA_SUPPORT;
         if (!warp) flags |= D3D11_CREATE_DEVICE_PREVENT_INTERNAL_THREADING_OPTIMIZATIONS;

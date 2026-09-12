@@ -42,11 +42,17 @@ TimerDuration Terminal::GetBlinkInterval() noexcept
 {
     if (!_cursorBlinkInterval)
     {
+#ifdef VT7_CORE
+        // Windows 7 has no SM_CARETBLINKINGENABLED metric. Its documented
+        // caret preference is GetCaretBlinkTime(), with INFINITE disabling it.
+        const auto enabled = true;
+#else
         const auto enabled = GetSystemMetrics(SM_CARETBLINKINGENABLED);
+#endif
         const auto interval = GetCaretBlinkTime();
         // >10s --> no blinking. The limit is arbitrary, because technically the valid range
         // on Windows is 200-1200ms. GetCaretBlinkTime() returns INFINITE for no blinking, 0 for errors.
-        _cursorBlinkInterval = enabled && interval <= 10000 ? std ::chrono::milliseconds(interval) : TimerDuration::max();
+        _cursorBlinkInterval = enabled && interval > 0 && interval <= 10000 ? std ::chrono::milliseconds(interval) : TimerDuration::max();
     }
     return *_cursorBlinkInterval;
 }

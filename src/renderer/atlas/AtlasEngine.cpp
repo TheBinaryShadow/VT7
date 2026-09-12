@@ -44,10 +44,12 @@ AtlasEngine::AtlasEngine()
     THROW_IF_FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(_p.dwriteFactory), reinterpret_cast<::IUnknown**>(_p.dwriteFactory.addressof())));
 #ifdef VT7_ATLAS
     _p.dwriteFactory1 = _p.dwriteFactory.query<IDWriteFactory1>();
-#endif
+    _win7Fonts = std::make_unique<VT7::Text::FontFallback>(_p.dwriteFactory.get());
+#else
     _p.dwriteFactory4 = _p.dwriteFactory.try_query<IDWriteFactory4>();
 
     THROW_IF_FAILED(_p.dwriteFactory->GetSystemFontFallback(_api.systemFontFallback.addressof()));
+#endif
 
     wil::com_ptr<IDWriteTextAnalyzer> textAnalyzer;
     THROW_IF_FAILED(_p.dwriteFactory->CreateTextAnalyzer(textAnalyzer.addressof()));
@@ -61,6 +63,9 @@ AtlasEngine::AtlasEngine()
 [[nodiscard]] HRESULT AtlasEngine::StartPaint() noexcept
 try
 {
+#ifdef VT7_ATLAS
+    _paintingFrame = _requestedFrame;
+#endif
     if (const auto hwnd = _api.s->target->hwnd)
     {
         RECT rect;
@@ -738,6 +743,10 @@ void AtlasEngine::_recreateFontDependentResources()
         _p.userLocaleName = std::wstring{ &localeName[0] };
     }
 
+#ifdef VT7_ATLAS
+    _win7Fonts->Configure(_p.s->font->fontCollection.get(), _p.s->font->fontName,
+        _p.s->font->fontSize, static_cast<DWRITE_FONT_WEIGHT>(_p.s->font->fontWeight), _p.userLocaleName);
+#endif
     if (_p.s->font->fontAxisValues.empty())
     {
         for (auto& axes : _api.textFormatAxes)
@@ -875,12 +884,24 @@ void AtlasEngine::_flushBufferLine()
 void AtlasEngine::_mapRegularText(size_t offBeg, size_t offEnd)
 {
     auto& row = *_p.rows[_api.lastPaintBufferLineCoord.y];
+#ifdef VT7_ATLAS
+    const auto mappings = _win7Fonts->Map({_api.bufferLine.data() + offBeg, offEnd - offBeg},
+        {_api.bufferLineColumn.data() + offBeg, offEnd - offBeg + 1}, static_cast<size_t>(_api.attributes));
+    size_t mappingIndex = 0;
+#endif
 
     for (u32 idx = gsl::narrow_cast<u32>(offBeg), mappedEnd = 0; idx < offEnd; idx = mappedEnd)
     {
         u32 mappedLength = 0;
         wil::com_ptr<AtlasFontFace> mappedFontFace;
+#ifdef VT7_ATLAS
+        const auto& mapping = mappings.at(mappingIndex++);
+        THROW_HR_IF(E_UNEXPECTED, mapping.start + offBeg != idx || mapping.end <= mapping.start);
+        mappedLength = mapping.end - mapping.start;
+        mappedFontFace = mapping.face.Get();
+#else
         _mapCharacters(_api.bufferLine.data() + idx, gsl::narrow_cast<u32>(offEnd - idx), &mappedLength, mappedFontFace.addressof());
+#endif
         mappedEnd = idx + mappedLength;
 
         if (!mappedFontFace)
@@ -981,6 +1002,16 @@ void AtlasEngine::_mapBuiltinGlyphs(size_t offBeg, size_t offEnd)
 
 void AtlasEngine::_mapCharacters(const wchar_t* text, const u32 textLength, u32* mappedLength, AtlasFontFace** mappedFontFace) const
 {
+#ifdef VT7_ATLAS
+    // Used only for upstream's replacement-character lookup. The normal path
+    // maps a complete segment once and retains logical-order face ranges.
+    std::vector<UINT16> columns(textLength + 1);
+    for (u32 i = 0; i <= textLength; ++i) columns[i] = gsl::narrow<UINT16>(i);
+    const auto mappings = _win7Fonts->Map({text, textLength}, columns, static_cast<size_t>(_api.attributes));
+    const auto& first = mappings.front();
+    *mappedLength = first.end;
+    THROW_IF_FAILED(first.face.CopyTo(mappedFontFace));
+#else
     TextAnalysisSource analysisSource{ _p.userLocaleName.c_str(), text, textLength };
     const auto& textFormatAxis = _api.textFormatAxes[static_cast<size_t>(_api.attributes)];
 
@@ -1032,6 +1063,7 @@ void AtlasEngine::_mapCharacters(const wchar_t* text, const u32 textLength, u32*
     // Oh wow! You found a case where scale isn't 1! I tried every font and none
     // returned something besides 1. I just couldn't figure out why this exists.
     assert(scale == 1);
+#endif
 }
 
 void AtlasEngine::_mapComplex(AtlasFontFace* mappedFontFace, u32 idx, u32 length, ShapedRow& row)

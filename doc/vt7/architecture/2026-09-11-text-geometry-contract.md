@@ -1,5 +1,17 @@
 # Text geometry contract v0.2
 
+Current execution checkpoint, September 12: the supplied
+[0.3.0 Windows 7 run](../validation/2026-09-12-atlas-viewport.md) accepts the bounded
+C1/C2 font/core/Atlas integration. [0.3.1](../validation/2026-09-12-atlas-repaint.md)
+passes the supplied Windows 7 repaint/cursor checks. The
+[0.3.2 recovery slice](../validation/2026-09-12-atlas-recovery.md) also passes supplied target testing.
+The [0.3.4 scaling matrix](../validation/2026-09-12-atlas-scaling-correction.md)
+now passes all positive suites at actual Windows 7 96/120/144 DPI on the tested
+setup, resolving the recorded 0.3.3 failures. Scheduling/idle/resource/shutdown
+checks are next; theme and broader renderer qualification remain open.
+This status supersedes next-task wording in the dated
+assessment/plan below, without retroactively changing its original evidence.
+
 Date: 2026-09-11. Status: implementation contract for the next adapter work,
 not a claim that interactive consumers or the adapter are implemented.
 This follows the approved [research-driven plan](2026-09-11-research-driven-plan.md).

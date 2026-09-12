@@ -3,14 +3,14 @@
 #include <LibraryIncludes.h>
 #include "FontAnalysis.hpp"
 #include "../../cascadia/TerminalCore/Terminal.hpp"
-#include "../VT7.Core/ProofRenderer.hpp"
+#include "../../renderer/base/renderer.hpp"
 
 std::vector<VT7::FontProbe::CellSpan> VT7::FontProbe::CoreCells(const std::wstring& text)
 {
     if (text.empty() || text.size() > 200) throw std::runtime_error("Cell fixture length out of bounds");
-    Microsoft::Console::Render::Renderer renderer;
     Microsoft::Terminal::Core::Terminal core;
     const auto guard = core.LockForWriting();
+    Microsoft::Console::Render::Renderer renderer(core.GetRenderSettings(), &core);
     core.Create({512, 2}, 0, renderer);
     core.Write(text);
     const auto& row = core.GetTextBuffer().GetRowByOffset(0);

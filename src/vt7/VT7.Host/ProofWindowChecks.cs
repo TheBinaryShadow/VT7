@@ -14,6 +14,73 @@ namespace VT7.Host
     // They deliberately do not claim to replace screenshot or keyboard testing.
     internal static class ProofWindowChecks
     {
+        internal static async Task<string> CheckStatusLayout(MainWindow window, TerminalSurface viewport)
+        {
+            var width = window.Width;
+            var saved = window.SurfaceStatus.Text;
+            window.TestingStatusLayout = true;
+            try
+            {
+                window.Width = 760;
+                await Settle(window);
+                await viewport.PaintAndWaitAsync();
+                var before = viewport.ReadSettings();
+                var raster = viewport.ReadInfo();
+                const string longStatus = "TerminalCore | Atlas D3D11 hardware | 108 x 20 cells | 11 x 23 px | frames (snapshot) 123456, resizes 123456 | system DPI 144 | device 123456, failures 123456, WARP fallbacks 123456, last 0x887A0005";
+                window.SurfaceStatus.Text = longStatus + " | " + longStatus;
+                await Settle(window);
+                await viewport.PaintAndWaitAsync();
+                var after = viewport.ReadSettings();
+                var current = viewport.ReadInfo();
+                if (before.ClientWidth != after.ClientWidth || before.ClientHeight != after.ClientHeight ||
+                    raster.RasterWidth != current.RasterWidth || raster.RasterHeight != current.RasterHeight)
+                    throw new InvalidOperationException($"Status text changed viewport geometry: client {before.ClientWidth}x{before.ClientHeight} -> {after.ClientWidth}x{after.ClientHeight}, raster {raster.RasterWidth}x{raster.RasterHeight} -> {current.RasterWidth}x{current.RasterHeight}");
+                // Re-enable the old layout policy in this hidden test only. The
+                // control must reproduce a height change, not merely pass vacuously.
+                window.SurfaceStatus.TextWrapping = TextWrapping.Wrap;
+                window.SurfaceStatus.TextTrimming = TextTrimming.None;
+                await Settle(window);
+                var wrapped = viewport.ReadSettings();
+                if (wrapped.ClientHeight == after.ClientHeight)
+                    throw new InvalidOperationException("Old wrapping status control did not change viewport height.");
+                return $"PASS: long recovery status at 760 DIPs preserved client/raster dimensions; old-wrap control changed client height {after.ClientHeight} -> {wrapped.ClientHeight}";
+            }
+            finally
+            {
+                window.SurfaceStatus.TextWrapping = TextWrapping.NoWrap;
+                window.SurfaceStatus.TextTrimming = TextTrimming.CharacterEllipsis;
+                window.SurfaceStatus.Text = saved;
+                window.Width = width;
+                window.TestingStatusLayout = false;
+                await Settle(window);
+                await viewport.PaintAndWaitAsync();
+                window.RefreshSurfaceStatus();
+            }
+        }
+
+        internal static async Task<string> CheckBlankFirstRow(TerminalSurface viewport)
+        {
+            viewport.RepaintCheck(9, 0);
+            await viewport.WaitForRequestedFrameAsync();
+            var info = viewport.ReadInfo();
+            if (info.HeaderInkPixels != 0 || info.FrameInkPixels < 10)
+                throw new InvalidOperationException("Blank-first-row control did not isolate visible lower-row text.");
+            viewport.ResetDemo();
+            await viewport.PaintAndWaitAsync();
+            return "PASS: blank first row with visible lower-row text accepted; whole-frame pixels checked";
+        }
+
+        internal static async Task CheckFirstFrameStatus(MainWindow window)
+        {
+            for (var attempt = 0; attempt < 100; ++attempt)
+            {
+                var match = System.Text.RegularExpressions.Regex.Match(window.SurfaceStatus.Text, @"frames \(snapshot\) ([1-9]\d*)");
+                if (match.Success) return;
+                await Task.Delay(50);
+            }
+            throw new InvalidOperationException("The visible status did not refresh after the first completed frame.");
+        }
+
         internal static async Task<string> CheckTabRoundTrip(MainWindow window, TerminalSurface viewport)
         {
             var handle = viewport.Handle;
@@ -25,6 +92,10 @@ namespace VT7.Host
             await Settle(window);
             if (!NativeMethods.IsWindow(handle) || NativeMethods.IsWindowVisible(handle))
                 throw new InvalidOperationException("The terminal HWND must survive but be hidden on the Diagnostics tab.");
+            var hiddenFrames = viewport.ReadInfo().PaintCount;
+            await Task.Delay(100);
+            if (viewport.ReadInfo().PaintCount != hiddenFrames)
+                throw new InvalidOperationException("The hidden terminal continued presenting frames.");
 
             var diagnosticValues = new[]
             {
@@ -42,7 +113,7 @@ namespace VT7.Host
                 !NativeMethods.IsWindowVisible(handle))
                 throw new InvalidOperationException("Returning to the viewport did not restore the same visible child HWND.");
 
-            viewport.PaintNow();
+            await viewport.PaintAndWaitAsync();
             var after = viewport.ReadInfo();
             if (after.LastHResult < 0 || after.Columns != before.Columns || after.Rows != before.Rows ||
                 after.PaintCount <= before.PaintCount)

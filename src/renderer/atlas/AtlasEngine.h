@@ -8,6 +8,9 @@
 #include <dxgi1_3.h>
 
 #include "common.h"
+#ifdef VT7_ATLAS
+#include "../../vt7/VT7.Renderer/Win7FontFallback.hpp"
+#endif
 
 namespace Microsoft::Console::Render::Atlas
 {
@@ -125,6 +128,42 @@ namespace Microsoft::Console::Render::Atlas
 
         std::unique_ptr<IBackend> _b;
         RenderingPayload _p;
+#ifdef VT7_ATLAS
+        std::unique_ptr<VT7::Text::FontFallback> _win7Fonts;
+        std::atomic<uint32_t> _completedFrames{0};
+        uint32_t _requestedFrame = 0, _paintingFrame = 0;
+        std::atomic<uint32_t> _completedRequest{0};
+        std::function<void(const RenderingPayload&)> _frameCapture;
+        // Policy is configured before starting. Mutable policy state belongs to Present's thread.
+        bool _automaticWARP = false, _stickyWARP = false;
+        uint32_t _creationFault = 0, _deviceFailureStreak = 0;
+        bool _notifyRecovery = false;
+        std::atomic<uint32_t> _presentFaults{0};
+        std::atomic<uint32_t> _deviceGeneration{0}, _deviceAttempts{0}, _recoveryFailures{0}, _fallbacks{0};
+        std::atomic<uint32_t> _actualMode{6}, _injectedFailures{0}; // 6: no completed device/frame yet.
+        std::atomic<HRESULT> _lastRenderFailure{S_OK};
+        std::function<void()> _recoveryCallback;
+    public:
+        void ConfigureWin7Recovery(bool automatic, uint32_t creationFault, std::function<void()> callback)
+        {
+            _automaticWARP = automatic; _creationFault = creationFault;
+            _recoveryCallback = std::move(callback);
+        }
+        void InjectPresentFailures(uint32_t count) noexcept { _presentFaults.store(count); }
+        uint32_t DeviceGeneration() const noexcept { return _deviceGeneration.load(); }
+        uint32_t DeviceAttempts() const noexcept { return _deviceAttempts.load(); }
+        uint32_t RecoveryFailures() const noexcept { return _recoveryFailures.load(); }
+        uint32_t Fallbacks() const noexcept { return _fallbacks.load(); }
+        uint32_t ActualMode() const noexcept { return _actualMode.load(); }
+        uint32_t InjectedFailures() const noexcept { return _injectedFailures.load(); }
+        HRESULT LastRenderFailure() const noexcept { return _lastRenderFailure.load(); }
+        uint32_t CompletedFrames() const noexcept { return _completedFrames.load(); }
+        uint32_t RequestFrame() noexcept { return ++_requestedFrame; } // Core lock held.
+        uint32_t CompletedRequest() const noexcept { return _completedRequest.load(); }
+        // Configure before starting the controller. Diagnostic pre-Present pixels.
+        void SetFrameCapture(std::function<void(const RenderingPayload&)> callback) { _frameCapture = std::move(callback); }
+    private:
+#endif
 
         struct ApiState
         {

@@ -33,13 +33,21 @@ Copyright © 1998-2026 Roman Czyborra, Paul Hardy, Qianqian Fang, Andrew Miller,
 Johnnie Weaver, David Corbett, Ælla Chiana Moskopp, Rebecca Bettencourt,
 Ho-Seok Ee, et al.
 
-Scope: private fallback assets for the native renderer probe. Files load from
+Scope: private fallback assets for the native renderer probe and the 0.3 Atlas
+viewport integration. Files load from
 the executable's `fonts` subdirectory after SHA256 validation, without Windows
 font installation or system collection registration. Current fallback is limited
 to a missing standalone symbol/pictograph scalar in U+2190..U+2BFF or
 U+1F000..U+1FAFF occupying one complete core cluster/run. Complex
 script runs and multi-scalar sequences are not replaced by raw Unifont glyphs.
 The existing shaped system-font paths remain preferred and unchanged.
+
+The Atlas integration selects faces with baseline layout callbacks and leaves
+shaping/placement to Atlas. Its private symbol faces use DirectWrite bold/oblique
+simulations for styled text; the underlying font files remain unmodified.
+The supplied 0.3.0 Windows 7 run separately accepts the bounded Atlas path,
+including automatic Unifont Upper selection for U+1F600. Broader font coverage
+and appearance remain subject to renderer qualification.
 
 Unifont supplies monochrome coverage, not modern emoji composition or full
 complex-script shaping. Its glyph repertoire does not change TerminalCore's

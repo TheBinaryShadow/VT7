@@ -1,14 +1,14 @@
 # NOTICES AND INFORMATION
 Do Not Translate or Localize
 
-## GNU Unifont and Unifont Upper (VT7 font probe)
+## GNU Unifont and Unifont Upper (VT7 font probe and Atlas viewport)
 
 VT7 bundles unmodified GNU Unifont 17.0.05 and Unifont Upper 17.0.05 as
 application-private fallback font assets under the SIL Open Font License 1.1
 option of their upstream dual license. These fonts are not MIT licensed.
 Their original copyright notices remain embedded in both files. The full license,
 upstream licensing statement, and pinned provenance are in `oss/unifont/` in
-source distributions and `fonts/` in the renderer-probe package.
+source distributions and `fonts/` in the renderer-probe and Atlas viewport packages.
 
 Source: https://unifoundry.com/unifont/index.html
 
