@@ -11,11 +11,28 @@ slice, not Milestone 2 completion or interactive-session support.
 Current resumption guide: [HANDOFF.md](../HANDOFF.md). The latest Windows 7
 native comparison below completes both modes but grows with and without power
 subscriptions; it does not transfer the development machine's power-specific
-attribution or close the integrated gate. The next recreate/reuse diagnostic is
-proposed, not implemented. The [diagnostic appendix](../diagnostics/2026-09-13-resource-investigation.md)
+attribution or close the integrated gate. The separate
+[recreate/reuse diagnostic 0.2](../diagnostics/2026-09-13-resource-lifetime.md)
+is implemented and packaged. Both supplied Windows 7 measurements complete but
+grow, including one reused surface whose 38 baseline thread identities survive
+through the last live checkpoint. Existing identities first report successful
+input-queue queries as USER grows. Repeated surface creation is unnecessary for
+this observed growth. Ownership remains unresolved and the integrated gate open.
+The [diagnostic appendix](../diagnostics/2026-09-13-resource-investigation.md)
 preserves native source/header/launcher, trace setup and all three target logs
 for a fresh checkout; full older binaries, PDBs and raw traces remain separate
 artifacts.
+
+The latest bounded diagnostic is
+[resource retirement diagnostic 0.1](../diagnostics/2026-09-13-resource-retirement.md).
+Its new sampler and collector use the unchanged native 0.3.5 payload. The
+[supplied Windows 7 capture](../diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result)
+now completes and records mode 3 cleanup plus retirement of all 34 baseline
+pool workers by 90 seconds. USER returns to 4; handles remain 107, or 54 above
+pre-warmup, through 180 seconds. The next direction is a bounded repeated
+work/close/idle observation in the integrated WPF host within one process;
+the exact design is under review. This does not close its WARP resource failure
+or release the timed-soak hold.
 
 ## Implementation
 
@@ -550,23 +567,143 @@ Evidence SHA256:
 - `plain.log`: `254BB7F85480D56396C306888BCF3EB732FF33F9E786D683F577BBD3B2370C4B`.
 - `summary.txt`: `A7F36C87AB674C9F95CD451785772FB2996CB6D4209A8D46B73DBE64CED4357D`.
 
-### Next bounded investigation
+### Completed recreate/reuse control and next investigation
 
-No repeat of the unchanged 0.1 package or timed soak is requested. The next
-proposed diagnostic compares repeated surface lifetimes with reuse of one
-surface, without explicit power subscriptions. Keep the parent, warm-up,
-resize/hide/show workload, message pumping, sampling cadence and environment
-matched. Sample both cases with one live surface at equivalent checkpoints,
-then compare matched final samples after the last surface is destroyed.
+The separate [0.2 target comparison](../diagnostics/2026-09-13-resource-lifetime.md#supplied-windows-7-comparison)
+completes all nine checkpoints and exact workloads in both modes. From baseline
+to iteration 100 live, recreate gains 15 handles, 14 USER and 2,457,600 private
+bytes; reuse gains eight handles, eight USER and 925,696 private bytes. Both
+keep 38 sampled threads. Fourteen/eight existing baseline identities first
+report positive input-queue queries by iteration 25; none of these is a newly
+sampled ntdll identity. Prior unavailable queries do not establish queue absence.
 
-Add per-thread ID plus creation-time identity, start address and input-queue
-status so surviving threads acquiring queues can be distinguished from new
-threads, turnover and reused numeric IDs. Preserve pre-warm-up measurements.
-A flat reuse case would implicate repeated surface lifetimes, not alone prove
-harmless initialization: reuse also avoids repeated HWND, device, swap-chain
-and presentation-worker creation. Account for the integrated process before
-changing the acceptance model. This is a proposed control, not implemented or
-accepted evidence.
+After close plus ten seconds, both have 36 surviving sampled identities and
+140 handles, with USER 38 versus 37 and GDI nine. Reuse gains two handles during
+that final delay despite unchanged sampled identities and queue observations.
+Different baseline queue counts mean the larger recreate delta is not evidence
+of six additional lifecycle leaks. See the linked record for full checkpoints,
+hashes, query validation and metadata limitations.
+
+This resolves the control's question: repeated surface lifetimes are unnecessary
+for the observed early growth. The next task is Windows 7 ownership attribution
+in the reused-surface case, covering queue-related calls and retained handle
+types/allocation stacks. No repeat of unchanged 0.1/0.2 or timed soak is requested.
+The [focused trace 0.1](../diagnostics/2026-09-13-resource-trace.md) now implements
+that process-scoped collection using the exact 0.2 executable, matching private
+PDBs and the issued native 0.3.5 DLL. The SDK 8.1 classic debugger completes
+preflight and all six trace checkpoints locally; Windows 7 collection and
+allocation/queue-trigger attribution remain pending. This creates no new
+application build or stability pass. Preserve normal policies and unchanged
+integrated budgets; a short plateau does not establish harmless initialization
+or qualify the integrated process.
+
+The subsequently supplied trace 0.1 completes preflight on Windows 7 SP1 with
+PowerShell 5.1 and the updated SDK 8.1 debugger. The trace then stops at a
+first-chance `0xC0000008` debugger prompt before the application banner, native
+DLL load or first sampler checkpoint, and reaches its timeout. This is incomplete
+collection, not a WARP workload failure or allocation finding. Trace 0.2 adds
+bounded exception-context capture and normal first-chance dispatch, explicit
+second-chance failure, and capture/termination for an unexpected debugger prompt.
+The supplied 0.2 Windows 7 result captures the same invalid-handle exception
+reaching second chance 11 ms after normal first-chance dispatch. Both contexts
+are in NTDLL loader startup, before the application banner, native DLL load or
+any sampler checkpoint. Nearest-export stack labels are not exact function
+attribution. This supplies no WARP ownership data and does not establish that
+handle tracing caused the exception. Exact evidence and hashes are in the
+[trace record](../diagnostics/2026-09-13-resource-trace.md).
+
+Trace 0.3 keeps the bounded exception policy and adds a separate startup control
+without USER32 setup or NT handle tracing. It stops at the existing pre-warmup
+sample entry. The full trace retains the early setup hook but enables handle
+tracing at that checkpoint, after startup and before first surface creation.
+Earlier NT handle opening histories are outside this capture. Both stages
+preserve NTDLL CodeView metadata for later symbol lookup. The supplied target
+capture completes both stages without invalid handles and executes all six
+checkpoints. The issued validator falsely counts a nested Token Type field;
+the corrected parser accepts the unchanged capture offline. No target repeat
+or application rebuild is requested.
+
+From baseline to iteration 25, the capture identifies eleven additional unnamed
+Event handles, all opened through WARP/GetThreadDesktop on the same eleven
+baseline TID-plus-creation identities whose queue observations become positive.
+The matching USER32 setup events and open histories provide direct call-path
+evidence. All eleven Event values and worker identities remain listed after
+surface destruction and ten seconds; later diffs have no newly outstanding
+opens. Numeric handle reuse and incomplete lifetime histories remain limits.
+This identifies the bounded allocation path but does not prove a long-term
+bound, prescribe closing internal Windows handles, or change C3 acceptance.
+
+The subsequent [offline WARP pool inspection](../diagnostics/2026-09-13-warp-pool-lifetime.md)
+finds a default-pool branch, a separate private branch with minimum/maximum one
+worker, initialized wrapper fields, reusable task work, and callback drain/work
+close/wrapper free in device destruction. The trace did not capture the actual
+wrapper mode or cleanup calls. All 32 target factory handle records report the
+same pool address and a 67-second idle timeout, beyond the ten-second final
+observation. WARP is absent from the final loaded-module list, while all 34
+baseline Windows worker identities remain. This supports investigating retained
+worker state; it is not a new runtime result, accepted bound or identified fix.
+That offline inspection proposed a new diagnostic identity for actual
+mode/cleanup and normally pumping post-close samples at 10, 90 and 180 seconds.
+It supplied no additional runtime result; C3 and the timed-soak hold remained
+unchanged.
+
+### Resource retirement diagnostic 0.1 local qualification
+
+The subsequent [retirement diagnostic](../diagnostics/2026-09-13-resource-retirement.md)
+implements that bounded follow-up with a new exported sampler and the exact
+issued native 0.3.5 DLL and PDB. It retains two warm-up and 25 measured reuse
+iterations, guards private WARP hooks by PE/CodeView/instruction identity, and
+disables event hooks at final close before its three normal idle intervals.
+The eighth checkpoint collects the complete retained handle history, including
+CLOSE records, with an explicit rejection at the history capacity.
+
+The final Windows 10 collector completes its preflight, startup control and
+180-second trace under actual PowerShell 2 with all debugger exits zero, eight
+checkpoints, zero invalid handles and 4,308 parsed/dumped history records. Its
+WARP profile is unsupported, as expected for this machine, so no private WARP
+offsets are used and no target cleanup claim follows. The 181 synthetic
+validator fixtures plus the three actual stage logs pass offline under both
+PowerShell 2 and 5.1. Separate hook, failure and unexpected-stop controls are
+documented with exact package/source identities in the linked record.
+
+That local qualification preceded the supplied target result below. It changed
+no application code, acceptance budget, input/security policy or C3 status.
+
+### Supplied Windows 7 retirement result
+
+The [target retirement record](../diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result)
+reports complete preflight, startup and eight-checkpoint collection with a
+supported WARP profile and zero invalid handles. The actual path records mode 3,
+callback drain, work close and wrapper free. All 34 baseline pool-worker
+identities survive through final close plus ten seconds but are absent by the
+90-second sample; their factory reports zero workers. USER falls from 38 to its
+pre-warmup value of 4, GDI remains 9 and handles fall from 141 to 107. These
+values remain unchanged at 180 seconds. All 15 Events added during the
+baseline-to-25 interval have matching worker-exit CLOSE records on their
+opening TIDs and are absent by 90 seconds. This also holds for all 34 captured
+WARP/GetThreadDesktop Events. The complete bounded history checks earlier value
+reuse and contains no later reopen for those 15 measured-growth values.
+
+This establishes the bounded native worker-retirement observation. It does not
+return all resources to pre-warmup: 54 additional process handles remain, and
+the same 32 factory handle values still report one pool, now with zero workers.
+Next is designing a bounded repeated work/close/idle observation within the
+integrated WPF process to connect this result to its failure and test whether
+the retained baseline repeats. The proposed control runs two existing
+100-lifecycle batches in one process, with closed+10/90/180-second observations
+after each, one initial two-lifetime warm-up, the original fixed baseline and
+every immediate budget failure retained. It still needs implementation and
+local qualification; no new diagnostic is built or issued for this step, no unchanged ZIP repeat is needed,
+and no timed soak was run. C3 remains open with unchanged acceptance budgets.
+
+The user subsequently authorized archiving the complete target run. All 17
+files (7,310,791 bytes) are preserved at
+[`artifacts/vt7/evidence/resource-retirement-win7-0.1/resource-retirement-20260913-170928-9ad405a7/`](../../../artifacts/vt7/evidence/resource-retirement-win7-0.1/resource-retirement-20260913-170928-9ad405a7/),
+with every size and SHA256 verified against the original K: run. Source hashes
+were rechecked after the copy; the originals remain unchanged. The
+[archive verification record](../../../artifacts/vt7/evidence/resource-retirement-win7-0.1/ARCHIVE-VERIFICATION-20260913-152421-53a65b82.json)
+records the full inventory. These local ignored artifacts are not included in
+a fresh Git checkout.
 
 ### Native comparison reproduction
 

@@ -137,9 +137,12 @@ build the best terminal we can for the platform we love.
 ## Project status
 
 Current working source: **0.3.5, native ABI 8**, still a static viewport.
-The active task is C3 renderer resource-lifetime qualification. The latest
-native comparison completes on Windows 7 but does not close the integrated
-WARP failure. See the [handoff](doc/vt7/HANDOFF.md) for the exact next proposed
+The active task is C3 renderer resource-lifetime qualification. The completed
+[Windows 7 retirement diagnostic](doc/vt7/diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result)
+confirms WARP work cleanup and worker-associated Event release by 90 seconds;
+54 process handles remain above startup and the integrated WARP failure stays
+open. Its complete logs are archived locally with verified file hashes. See the
+[handoff](doc/vt7/HANDOFF.md) for the proposed two-round integrated lifecycle/idle
 control and the source-only versus issued-artifact boundary. The progression
 below preserves each earlier checkpoint's scope.
 
@@ -226,8 +229,10 @@ The [port-first plan](doc/vt7/architecture/2026-09-12-port-first-plan.md)
 sets the next acceptance step: the remaining C3 renderer gates. Build 0.3.5
 implements synchronized-output, idle CPU and shutdown checks after the accepted
 0.3.4 scaling matrix. Its WARP resource-lifetime investigation remains open.
-The proposed recreate-versus-reuse control is not implemented yet. Theme and broader
-environment coverage remain open. Before substantial session integration
+The recreate/reuse comparison, ownership trace and retirement diagnostic now
+have Windows 7 results. The next bounded control connects those findings to
+repeated work and idle in the integrated WPF host; it still needs implementation
+and qualification. Theme and broader environment coverage remain open. Before substantial session integration
 or daily-driver UI work, a new feasibility gate will test local-console fidelity,
 direct OpenSSH I/O and resize, and Windows 7 input behavior. Full SSH delivery
 remains a later milestone. These are approved plans, not new compatibility results.

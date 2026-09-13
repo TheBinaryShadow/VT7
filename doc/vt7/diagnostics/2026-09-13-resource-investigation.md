@@ -76,8 +76,13 @@ It defines no resource-growth acceptance budget. Exit 0 means measurements
 completed. Keep partial logs after a failure or interruption.
 
 This is a reproduction recipe, not a request to rerun the completed comparison.
-The next proposed recreate/reuse control is described in the handoff and is not
-implemented by these snapshots.
+These snapshots precede the completed recreate/reuse controls and
+[Windows 7 retirement result](2026-09-13-resource-retirement.md#supplied-windows-7-result),
+whose complete 17-file run now has a [verified local archive](../../../artifacts/vt7/evidence/resource-retirement-win7-0.1/ARCHIVE-VERIFICATION-20260913-152421-53a65b82.json).
+Native work cleanup and delayed worker retirement do not close integrated C3.
+The [current handoff](../HANDOFF.md) describes the proposed two-round integrated
+work/close/idle observation. It is not implemented by these snapshots or issued
+as a new package, and the timed soak remains on hold.
 
 ## Archived raw-atlas.cpp
 

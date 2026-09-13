@@ -1,0 +1,23 @@
+.echo VT7_STARTUP_BEGIN version=0.3
+version
+.symopt+ 0x80000
+.symopt+ 0x200
+.symopt+ 0x100
+r @$t0 = 0
+r @$t1 = 0
+.echo VT7_EXCEPTION_POLICY_BEGIN
+r @$t2 = 0
+sxd hc
+sxe -c "r @$t2 = @$t2 + 1; .printf \"VT7_INVALID_HANDLE event=%u checkpoint=%u pid=%u tid=%u\\n\", @$t2, @$t0, @$tpid, @$tid; .lastevent; .exr -1; r; k 0n24; lmv; .echo VT7_INVALID_HANDLE_END; .if (@$t2 >= 0n16) { .echo VT7_TRACE_ABORT_INVALID_HANDLE_LIMIT; q } .else { .echo VT7_INVALID_HANDLE_DISPATCH; gn; }" -c2 ".echo VT7_TRACE_ABORT_INVALID_HANDLE_SECOND; .lastevent; .exr -1; r; k 0n24; lmv; q" ch
+sx
+.echo VT7_EXCEPTION_POLICY_END
+.echo VT7_NTDLL_CODEVIEW_BEGIN
+!lmi ntdll
+.echo VT7_NTDLL_CODEVIEW_END
+lmv m VT7_ResourceLifetime
+x VT7_ResourceLifetime!*sample*
+u VT7_ResourceLifetime+1470 L8
+lmv m VT7_ResourceLifetime
+bp0 VT7_ResourceLifetime+1470 ".printf \"VT7_STARTUP_READY phase=%ma iteration=%u live=%u invalid_handles=%u\\n\", @rcx, @edx, @r8b, @$t2; lmv; .echo VT7_STARTUP_END; q"
+bl
+g

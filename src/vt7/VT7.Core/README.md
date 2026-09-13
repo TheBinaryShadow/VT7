@@ -109,10 +109,16 @@ and 100-cycle hardware runs pass locally and in the supplied Windows 7 evidence;
 the integrated WARP lifecycle profile exceeds its resource budget on both.
 The separate native comparison 0.1 reuses the issued Release 0.3.5 DLL and also
 grows on Windows 7 in both power and plain modes. WPF and the control's explicit
-power subscription are not required for that target reproduction. Allocation
-ownership and a long-term bound remain unproven; the timed soak stays on hold.
+power subscription are not required for that target reproduction. The subsequent
+recreate/reuse comparison reproduces growth with one reused surface. The
+[completed retirement diagnostic](../../../doc/vt7/diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result)
+then records WARP's default-pool work cleanup and matching Event closes as all
+34 baseline pool workers retire by 90 seconds. Its full logs are archived with
+verified hashes. The residual 54 process handles above startup and integrated
+host resource growth remain unresolved; the timed soak stays on hold.
 See the [stability record](../../../doc/vt7/validation/2026-09-13-atlas-stability.md).
-Its proposed recreate-versus-reuse control is not implemented evidence.
+The proposed next control repeats the integrated lifecycle workload and closed
+idle observations in one process; it is not yet implemented or qualified.
 
 0.3.1 adds an ordered diagnostic repaint command, normal-invalidation/full-redraw
 comparisons and cursor-cell bounds, plus a first-frame status-label regression.

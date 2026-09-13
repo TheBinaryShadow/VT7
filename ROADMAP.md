@@ -80,13 +80,48 @@ are separate evidence, not interchangeable passes.
 The development control still fails after the user-approved ESET inspection
 exclusion, with its in-process monitor absent from the module samples. The
 exclusion was removed. The native power/plain target comparison is now recorded.
-The next proposed diagnostic compares repeated surface recreation with reuse
-under a matched bounded workload and records individual thread lifetimes and
-input-queue observations. It is not implemented or packaged. It tests lifecycle
-dependence; reuse also changes HWND, device and presentation-worker churn, so
-it cannot alone establish harmless per-thread initialization. Ownership and the
-integrated-process explanation remain required before changing the acceptance
-model. Do not disable notifications, IME or WARP workers as a fix.
+The separate [resource lifetime comparison 0.2](doc/vt7/diagnostics/2026-09-13-resource-lifetime.md)
+now implements repeated surface recreation versus reuse under a matched bounded
+workload, with individual thread identities and input-queue observations.
+The supplied Windows 7 pair completes and both modes grow. Reuse retains all
+38 baseline thread identities through iteration 100 while eight existing
+identities first positively report queues and USER increases by eight.
+Repeated surface creation is not necessary for this growth. The subsequent
+Windows 7 trace identifies the bounded allocation/queue-call path. Subsequent
+[offline WARP inspection](doc/vt7/diagnostics/2026-09-13-warp-pool-lifetime.md)
+connects its default/private pool branches, reusable work and destruction path.
+The 32 target factory handles all report one pool address and a 67-second idle
+timeout, beyond the final ten-second observation. The new
+[resource retirement diagnostic 0.1](doc/vt7/diagnostics/2026-09-13-resource-retirement.md)
+uses a new sampler and unchanged native 0.3.5 payload. Its
+[supplied Windows 7 result](doc/vt7/diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result)
+completes with a supported profile and zero invalid handles, recording mode 3,
+callback drain/work close and wrapper free. All 34 baseline pool workers are
+absent by 90 seconds after close; USER falls 38 to 4 and handles 141 to 107,
+unchanged at 180 seconds. All 15 measured-growth Events have matching CLOSE
+records on their opening worker TIDs and disappear by 90 seconds; all 34
+captured WARP/GetThreadDesktop Events have the same closing-path evidence.
+The residual 54 process handles above pre-warmup and integrated
+WPF failure remain unresolved. Next is designing a bounded repeated work/close/
+idle observation in that host within one process, to test retained-baseline
+repeatability. The detailed result proposes two existing 100-lifecycle rounds,
+each followed by 10/90/180-second closed observations, retaining one initial
+warm-up, the original baseline and every immediate budget failure. It needs
+implementation and qualification; no new diagnostic is issued for this step.
+C3 stays open, with no unchanged rerun or timed soak requested.
+The [focused trace](doc/vt7/diagnostics/2026-09-13-resource-trace.md) supplies
+a process-scoped CDB launcher using the unchanged 0.2 executable and 0.3.5 DLL.
+The 0.1 Windows 7 preflight passes, but its trace stops at a first-chance
+invalid-handle prompt before the workload. Trace 0.2 captures that exception
+reaching unhandled second chance during startup, before native DLL load or WARP.
+Trace 0.3 adds a separate startup control and activates handle tracing at the
+pre-warmup checkpoint, before surface creation. Its supplied target capture
+completes and passes corrected offline validation after a nested Token Type
+parsing bug is fixed. It directly correlates eleven retained Event opens with
+WARP/GetThreadDesktop setup calls on eleven existing worker identities becoming
+queue-positive. No target repeat is needed. The long-term lifetime/bound and
+integrated explanation remain required before changing acceptance. Do not disable
+notifications, IME or WARP workers as a fix.
 This does not close Milestone 2 or start another optional typography experiment.
 
 Before substantial local-session integration or daily-driver UI construction,

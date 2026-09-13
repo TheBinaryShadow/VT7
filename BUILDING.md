@@ -64,6 +64,63 @@ This is not a soak and needs no security exclusions or system-setting changes.
 See the stability record for package identity, results and the next bounded
 thread-lifetime investigation. No repeat of this unchanged package is requested.
 
+The separate [resource lifetime comparison 0.2](doc/vt7/diagnostics/2026-09-13-resource-lifetime.md)
+implements the recreate/reuse follow-up as versioned native diagnostic source.
+It dynamically loads the exact issued 0.3.5 DLL; it does not rebuild the product.
+Build with `tools/Build-VT7ResourceLifetime.ps1`, then pass its `OutputDirectory`
+to `tools/Package-VT7ResourceLifetime.ps1 -BuildDirectory`. Each build uses a
+fresh directory; packaging refuses an existing 0.2 directory or ZIP. Developer
+verification uses `tools/Test-VT7ResourceLifetime.ps1 -BinaryDirectory` against
+an assembled diagnostic directory. These developer helpers require PowerShell
+5.1 or newer. The distributed `RUN-RESOURCE-LIFETIME.cmd` uses a PowerShell 2.0
+compatible runner with nine matched samples and a 600-second per-process timeout.
+The supplied Windows 7 comparison now completes both modes and records growth
+even with one reused surface. Its narrow question is answered; see the linked
+record for findings and the next ownership-attribution task. No repeat of the
+unchanged package is requested.
+
+The [focused resource trace 0.3](doc/vt7/diagnostics/2026-09-13-resource-trace.md)
+reuses those exact binaries and both matching private PDBs, without a rebuild.
+`tools/Package-VT7ResourceTrace.ps1` creates a fresh package and refuses an
+existing candidate. The target installs classic x64 Debugging Tools from the
+Windows 8.1 SDK, then runs `RUN-RESOURCE-TRACE.cmd`. Its PowerShell 2.0 runner
+checks hashes, debugger preflight and a separate startup control before a
+25-iteration reuse trace. The
+supplied 0.1 target preflight passed, but its trace waited at a first-chance
+invalid-handle debugger prompt before application work. Version 0.2 records
+and dispatches first chance, aborts on unhandled second chance or repeated
+exceptions, and captures unexpected interactive stops. Its supplied target
+capture records unhandled second chance during Windows startup, before native
+DLL load or WARP work. Version 0.3 preserves that policy, adds a control without
+the setup hook or handle tracing, and activates handle tracing at pre-warmup,
+before the first surface. Its supplied target workload completes, but the issued
+validator miscounts nested Token metadata. Corrected offline validation accepts
+the existing capture; no new package or target rerun is needed. The trace now
+links eleven additional Event handles to WARP/GetThreadDesktop and Windows
+thread setup on existing worker identities. Resource lifetime and C3 remain
+open. The [offline pool inspection](doc/vt7/diagnostics/2026-09-13-warp-pool-lifetime.md)
+records the cleanup path and a 67-second factory idle timeout, beyond this
+executable's fixed ten-second final wait. Keep the target's already working
+SDK 8.1 installation.
+
+The [resource retirement diagnostic 0.1](doc/vt7/diagnostics/2026-09-13-resource-retirement.md)
+implements the successor with a new standalone EXE and unchanged issued native
+DLL/runtime/fonts. Build using `tools/Build-VT7ResourceRetirement.ps1`, then
+pass its fresh output directory to
+`tools/Package-VT7ResourceRetirement.ps1 -BuildDirectory <directory>`.
+The packager refuses an existing 0.1 directory or ZIP. Do not rebuild over an
+issued candidate or change its runner pins without assigning a new identity.
+The PowerShell 2-compatible target launcher, `RUN-RESOURCE-RETIREMENT.cmd`,
+checks preflight and startup before 25 reuse iterations and post-close
+observations at 10, 90 and 180 seconds. Allow four to six minutes and return the
+entire new Logs folder. That target handoff now completes: WARP mode 3 work
+cleanup returns and all 34 baseline Windows workers retire by 90 seconds, with
+USER back to startup and 54 process handles still above startup at 180 seconds.
+See the linked result for handle histories and limits. No unchanged repeat or
+debugger reinstall is requested. Integrated C3 acceptance remains open; the
+next bounded control must bridge this result to the WPF host's actual lifecycle
+and post-close idle behavior. No successor is built by the log analysis.
+
 ## Pinned developer toolchain
 
 The proof build is intentionally narrow and reproducible:
@@ -74,6 +131,11 @@ The proof build is intentionally narrow and reproducible:
 - Windows SDK 10.0.26100.0.
 - .NET Framework 4.8 SDK and targeting pack.
 - PowerShell 5.1 or newer to run the build scripts.
+
+These are development-host requirements. VS 2022 17.7 and later cannot install
+on Windows 7; build with the pinned 17.14 on the modern development machine
+and test the resulting binaries on Windows 7. The trace debugger is a separate,
+older SDK component. See [Microsoft's host compatibility guidance](https://learn.microsoft.com/en-us/troubleshoot/developer/visualstudio/installation/visual-studio-2022-unsupported-operating-systems).
 
 The repository rejects another MSVC or Windows SDK version for VT7 projects.
 This keeps compiler and import changes visible while the Windows 7 floor is

@@ -1,0 +1,21 @@
+.echo VT7_TRACE_PREFLIGHT_BEGIN
+version
+.symopt+ 0x80000
+.symopt+ 0x200
+.symopt+ 0x100
+lmv m VT7_ResourceLifetime
+x VT7_ResourceLifetime!*sample*
+lmv m VT7_ResourceLifetime
+u VT7_ResourceLifetime+1470 L8
+x user32!ClientThreadSetup
+u user32!ClientThreadSetup L8
+.printf "VT7_TRACE_HOOK_ADDRESS=%p\n", user32!ClientThreadSetup
+.printf "VT7_TRACE_SAMPLE_ADDRESS=%p\n", VT7_ResourceLifetime+1470
+.echo VT7_TRACE_HTRACE_ENABLE_BEGIN
+!htrace -enable 0x10000
+!htrace -snapshot
+!htrace -diff
+!handle 0 0
+!htrace -disable
+.echo VT7_TRACE_PREFLIGHT_END
+q

@@ -83,8 +83,23 @@ worker exits; hidden workers park rather than terminate.
 Hardware lifecycle passes locally and on the supplied Windows 7 setup, while
 integrated WARP growth remains unresolved. The native-only comparison grows in
 both modes on Windows 7, unlike the development machine's power/plain contrast.
-The next proposed bounded diagnostic is recreate versus reuse with individual
-thread identities. It is not implemented or accepted; do not widen budgets,
+The recreate/reuse control now completes on Windows 7 and grows in both modes.
+The [focused reuse trace](doc/vt7/diagnostics/2026-09-13-resource-trace.md)
+now supplies target call-path evidence for eleven Event opens during WARP
+presentation-thread initialization. Its completed capture passes corrected
+offline validation; do not request an unchanged repeat. The
+[offline pool inspection](doc/vt7/diagnostics/2026-09-13-warp-pool-lifetime.md)
+now documents WARP's work cleanup and the target factory's 67-second idle
+timeout. The new [retirement diagnostic 0.1](doc/vt7/diagnostics/2026-09-13-resource-retirement.md)
+now has a [completed Windows 7 capture](doc/vt7/diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result)
+with supported mode 3, completed work/wrapper cleanup and all 34 baseline pool
+workers absent by 90 seconds. USER returns to 4, while handles remain 107,
+or 54 above pre-warmup, through 180 seconds. The native 0.3.5 payload is unchanged.
+Next is designing a bounded repeated work/close/idle observation in the same
+integrated WPF process to test retained-baseline repeatability and connect this
+result to its resource failure. No follow-up diagnostic is built or issued yet;
+no unchanged target rerun is requested. Integrated acceptance remains open;
+do not widen budgets,
 increase warm-up to hide growth, disable input/security features, or run the
 timed soak as a substitute for attribution.
 Retain negative controls and exact same-device

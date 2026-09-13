@@ -1,0 +1,37 @@
+$$ Verify CodeView identity and instruction bytes before any private breakpoint.
+r @$t6 = 1
+.if (dwo(@$t3+0x8e70) != 0x53445352) { r @$t6 = 0; }
+.if (dwo(@$t3+0x8e74) != 0x7394e810) { r @$t6 = 0; }
+.if (dwo(@$t3+0x8e78) != 0x487165da) { r @$t6 = 0; }
+.if (dwo(@$t3+0x8e7c) != 0x191f249c) { r @$t6 = 0; }
+.if (dwo(@$t3+0x8e80) != 0xdf4d1587) { r @$t6 = 0; }
+.if (dwo(@$t3+0x8e84) != 0x00000001) { r @$t6 = 0; }
+.if (dwo(@$t3+0x1649b0) != 0x245c8948) { r @$t6 = 0; }
+.if (dwo(@$t3+0x1649b4) != 0x7c894810) { r @$t6 = 0; }
+.if (dwo(@$t3+0xfbb7) != 0x4975c084) { r @$t6 = 0; }
+.if (dwo(@$t3+0xfbbb) != 0xc0bb8b48) { r @$t6 = 0; }
+.if (dwo(@$t3+0x164cd0) != 0x245c8948) { r @$t6 = 0; }
+.if (dwo(@$t3+0x164cd4) != 0x74894808) { r @$t6 = 0; }
+.if (dwo(@$t3+0x164cfd) != 0x384b8b48) { r @$t6 = 0; }
+.if (dwo(@$t3+0x164d01) != 0xd82915ff) { r @$t6 = 0; }
+.if (dwo(@$t3+0x164d07) != 0x38738948) { r @$t6 = 0; }
+.if (dwo(@$t3+0x164d0b) != 0x304b8b48) { r @$t6 = 0; }
+.if (dwo(@$t3+0x164d1a) != 0x30738948) { r @$t6 = 0; }
+.if (dwo(@$t3+0x164d1e) != 0x008b8b48) { r @$t6 = 0; }
+.if (dwo(@$t3+0x10878) != 0xc0878b4c) { r @$t6 = 0; }
+.if (dwo(@$t3+0x1087c) != 0x4d000007) { r @$t6 = 0; }
+.if (dwo(@$t3+0xfbd4) != 0xc0838b4c) { r @$t6 = 0; }
+.if (dwo(@$t3+0xfbd8) != 0x4d000007) { r @$t6 = 0; }
+.if (dwo(@$t3+0x10897) != 0xc09f8948) { r @$t6 = 0; }
+.if (dwo(@$t3+0x1089b) != 0x48000007) { r @$t6 = 0; }
+.if (dwo(@$t3+0x165170) != 0x245c8948) { r @$t6 = 0; }
+.if (dwo(@$t3+0x165174) != 0x7c894808) { r @$t6 = 0; }
+.if (dwo(@$t3+0x164b94) != 0x032c7b83) { r @$t6 = 0; }
+.if (dwo(@$t3+0x164b98) != 0x8d483575) { r @$t6 = 0; }
+.if (dwo(@$t3+0xfb85) != 0x3078894c) { r @$t6 = 0; }
+.if (dwo(@$t3+0xfb89) != 0x3878894c) { r @$t6 = 0; }
+.if (dwo(@$t3+0x165189) != 0xffda8b48) { r @$t6 = 0; }
+.if (dwo(@$t3+0x16518d) != 0x10d2f615) { r @$t6 = 0; }
+.if (dwo(@$t3+0x10853) != 0xc0b78b4c) { r @$t6 = 0; }
+.if (dwo(@$t3+0x10857) != 0x48000007) { r @$t6 = 0; }
+.if (@$t6 == 1) { .printf "VT7_WARP_PROFILE status=MATCHED profile=win7-6.2.9200.22592 base=%p\n", @$t3; $$><warp-hooks.cdb } .else { .echo VT7_TRACE_ABORT_WARP_CODE_MISMATCH; q }

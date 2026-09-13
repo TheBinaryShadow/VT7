@@ -44,11 +44,19 @@ implements bounded scheduling, idle and shutdown checks. Hardware passes the
 100-cycle integrated profile locally and in the supplied Windows 7 run, while
 WARP exceeds the resource budgets on both. The native power/plain comparison
 shows a power-only growth contrast on the Windows 10 development machine and
-growth in both modes on the supplied Windows 7 setup. More threads report input
-queues as USER counts rise; ownership and a safe lifetime/bound remain unresolved.
-A recreate/reuse diagnostic is proposed, not implemented or packaged. The timed
-soak remains on hold. These results do not select a security/input workaround,
-relax budgets or reopen optional typography work.
+growth in both modes on the supplied Windows 7 setup. Native recreate/reuse
+controls and the [retirement 0.1 target run](../diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result)
+are complete. The latter records mode-3 work cleanup and all 34 baseline workers
+retiring by 90 seconds. USER falls from 38 to 4. Retained native resources and
+the existing integrated WARP failure remain unresolved; C3 stays open. The
+complete 17-file run has a
+[verified local archive](../../../artifacts/vt7/evidence/resource-retirement-win7-0.1/ARCHIVE-VERIFICATION-20260913-152421-53a65b82.json).
+The next proposed observation is two integrated 100-lifecycle rounds in one WPF
+process, each followed by closed +10/+90/+180-second samples, with the original
+two warm-up lifetimes run once and the fixed baseline. It is not implemented or issued. Immediate
+budget failures remain failures and the timed soak stays on hold. These results
+do not select a security/input workaround, relax budgets or reopen optional
+typography work.
 
 Implementation follow-up: the [0.2 font/cell probe](../validation/2026-09-11-font-mapping-probe.md)
 has supplied Windows 7 evidence identifying U+1F600 as the missing cluster.

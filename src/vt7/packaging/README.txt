@@ -24,6 +24,18 @@ explicit power subscription are not required for that reproduction. Exit 0
 means measurement completion, not accepted resource growth or a proven bound.
 No repeat of the unchanged comparison or older accepted suites is requested.
 
+Native recreate/reuse controls and the separate retirement 0.1 diagnostic now
+have completed Windows 7 results. The retirement trace records mode-3 work
+cleanup and all 34 baseline workers retiring by 90 seconds; USER falls from
+38 to 4. Retained native resources and the existing integrated WARP failure
+remain unresolved; C3 stays open. The complete 17-file run is archived under
+artifacts/vt7/evidence/resource-retirement-win7-0.1/ in the local
+development workspace, with size/SHA256 verification recorded in
+ARCHIVE-VERIFICATION-20260913-152421-53a65b82.json in that directory.
+See doc/vt7/diagnostics/2026-09-13-resource-retirement.md, supplied Windows 7
+result, and doc/vt7/HANDOFF.md. No new application build or successor package
+is issued by this working-source update; the issued archives stay unchanged.
+
 Target: Windows 7 SP1 x64, Platform Update KB2670838, .NET Framework 4.8,
 UCRT KB2999226, required loader/SHA-2/servicing prerequisites, and D3D11 hardware
 or WARP. See the source ROADMAP.md for the complete target/test tiers.
@@ -82,8 +94,10 @@ failure are already recorded. Preserve the named reports and .progress.log files
 RUN-STABILITY-SOAK.cmd is a separate 30-minute active, 10-minute idle profile
 per backend after the lifecycle workload, approximately 90 minutes total.
 Do not start it while the resource gate is unresolved. Its presence in the
-package does not request another run. The next proposed control compares
-surface recreation with reuse and records per-thread identity; that control
+package does not request another run. The next proposed observation is two
+rounds of the existing integrated 100-lifecycle workload in one WPF process,
+each followed by closed +10/+90/+180-second samples. It runs the original two warm-up lifetimes once, keeping
+the original fixed baseline and all immediate budget failures. That follow-up
 is not implemented or packaged yet. No Windows settings are changed.
 Progress files are flushed as tests proceed, so retain them if a test hangs.
 The quick profile does not replace lifecycle/extended profiles or target acceptance.

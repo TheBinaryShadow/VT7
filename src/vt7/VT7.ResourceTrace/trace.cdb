@@ -1,0 +1,27 @@
+.echo VT7_TRACE_BEGIN version=0.3 cycles=25 offline_symbols=1
+version
+.symopt+ 0x80000
+.symopt+ 0x200
+.symopt+ 0x100
+r @$t0 = 0
+r @$t1 = 0
+.echo VT7_EXCEPTION_POLICY_BEGIN
+r @$t2 = 0
+sxd hc
+sxe -c "r @$t2 = @$t2 + 1; .printf \"VT7_INVALID_HANDLE event=%u checkpoint=%u pid=%u tid=%u\\n\", @$t2, @$t0, @$tpid, @$tid; .lastevent; .exr -1; r; k 0n24; lmv; .echo VT7_INVALID_HANDLE_END; .if (@$t2 >= 0n16) { .echo VT7_TRACE_ABORT_INVALID_HANDLE_LIMIT; q } .else { .echo VT7_INVALID_HANDLE_DISPATCH; gn; }" -c2 ".echo VT7_TRACE_ABORT_INVALID_HANDLE_SECOND; .lastevent; .exr -1; r; k 0n24; lmv; q" ch
+sx
+.echo VT7_EXCEPTION_POLICY_END
+.echo VT7_NTDLL_CODEVIEW_BEGIN
+!lmi ntdll
+.echo VT7_NTDLL_CODEVIEW_END
+lmv m VT7_ResourceLifetime
+u VT7_ResourceLifetime+1470 L8
+lmv m VT7_ResourceLifetime
+x user32!ClientThreadSetup
+u user32!ClientThreadSetup L8
+bp0 user32!ClientThreadSetup "r @$t1 = @$t1 + 1; .printf \"VT7_SETUP event=%u checkpoint=%u pid=%u tid=%u teb=%p ip=%p sp=%p return=%p\\n\", @$t1, @$t0, @$tpid, @$tid, @$teb, @rip, @rsp, poi(@rsp); k 0n24; .echo VT7_SETUP_END; .if (@$t1 >= 0n256) { .echo VT7_TRACE_TRUNCATED_SETUP; bd 0; }; gc"
+bp1 VT7_ResourceLifetime+1470 "r @$t0 = @$t0 + 1; .printf \"VT7_CHECKPOINT sample=%u phase=%ma iteration=%u live=%u\\n\", @$t0, @rcx, @edx, @r8b; .if (@$t0 == 1) { .echo VT7_HTRACE_ACTIVATE_BEGIN; !htrace -enable 0x10000; .echo VT7_HTRACE_ACTIVATE_END; }; .echo VT7_HANDLES_BEGIN; !handle 0 f; .echo VT7_HANDLES_END; .if (@$t0 == 3) { .echo VT7_HTRACE_BASELINE_BEGIN; lmv; !htrace -snapshot; .echo VT7_HTRACE_BASELINE_END; }; .if (@$t0 == 4) { .echo VT7_HTRACE_25_BEGIN; !htrace -diff; .echo VT7_HTRACE_25_END; !htrace -snapshot; .echo VT7_HTRACE_POST25_SNAPSHOT; }; .if (@$t0 == 5) { .echo VT7_HTRACE_CLOSED_BEGIN; !htrace -diff; .echo VT7_HTRACE_CLOSED_END; !htrace -snapshot; .echo VT7_HTRACE_POSTCLOSE_SNAPSHOT; }; .if (@$t0 == 6) { .echo VT7_HTRACE_CLOSED10_BEGIN; !htrace -diff; .echo VT7_HTRACE_CLOSED10_END; .echo VT7_MODULES_BEGIN; lmv; .echo VT7_MODULES_END; }; gc"
+bu2 ntdll!RtlExitUserProcess ".printf \"VT7_TRACE_EXIT status=%u checkpoints=%u setup_events=%u invalid_handles=%u\\n\", @ecx, @$t0, @$t1, @$t2; !htrace -disable; .echo VT7_TRACE_END; g"
+bl
+.echo VT7_TRACE_ARMED
+g

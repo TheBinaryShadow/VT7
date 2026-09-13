@@ -4,11 +4,18 @@ Current execution checkpoint, 2026-09-13: C1/C2 font/core/Atlas integration and
 [0.3.4 system-DPI acceptance](../validation/2026-09-12-atlas-scaling-correction.md)
 are recorded on the supplied Windows 7 setup. C3 remains open: the
 [0.3.5 integrated WARP lifecycle](../validation/2026-09-13-atlas-stability.md)
-fails its resource budgets locally and on Windows 7. The native power/plain
-comparison grows only with explicit power subscriptions on the Windows 10
-development machine, but grows in both modes on the supplied Windows 7 run.
-Ownership and boundedness remain unresolved. A recreate/reuse diagnostic is
-proposed, not implemented; the timed soak stays on hold.
+fails its resource budgets locally and on Windows 7. Native recreate/reuse
+controls and the [Windows 7 retirement result](../diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result)
+are complete. The retirement trace records mode-3 work cleanup and all 34
+baseline workers retiring by 90 seconds, while retained resources and the
+integrated WARP failure remain unresolved. The complete 17-file run now has a
+[verified local archive](../../../artifacts/vt7/evidence/resource-retirement-win7-0.1/ARCHIVE-VERIFICATION-20260913-152421-53a65b82.json).
+
+The next proposed observation is two rounds of the existing integrated
+100-lifecycle workload in one WPF process, each followed by closed
++10/+90/+180-second samples. Run the original two warm-up lifetimes once; keep the fixed baseline
+and all immediate budget failures. This follow-up is not implemented or issued;
+the timed soak stays on hold.
 
 Use the [current handoff](../HANDOFF.md), [documentation index](../README.md),
 [port-first plan](../architecture/2026-09-12-port-first-plan.md) and
@@ -88,9 +95,11 @@ table, establishes the accepted actual 96/120/144 system-DPI matrix and bounded
 G01/G02-related repaint/lifecycle/recovery coverage on the supplied setup.
 The 0.3.5 record adds T01 scheduling/idle/shutdown evidence, but integrated WARP
 resource failures keep C3 open locally and on Windows 7. The native comparison
-does not close G01/G02/T01 or justify a plateau. The proposed recreate/reuse
-control is not implemented; the timed soak remains on hold. No additional test
-or implementation is implied by updating this index.
+and completed recreate/reuse and [retirement controls](../diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result)
+do not close G01/G02/T01 or establish an integrated resource bound. The proposed
+two-round integrated work/close/idle observation above is not implemented or
+issued; the timed soak remains on hold. No additional test or implementation
+is implied by updating this index.
 
 ## Priority experiments
 

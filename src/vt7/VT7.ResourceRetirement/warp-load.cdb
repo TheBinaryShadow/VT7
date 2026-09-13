@@ -1,0 +1,11 @@
+$$ Read-only identity gate before setting private WARP breakpoints.
+r @$t3 = D3D10Warp
+r @$t6 = 0
+.echo VT7_WARP_MODULE_BEGIN
+.lastevent
+lmv m D3D10Warp
+!lmi D3D10Warp
+.echo VT7_WARP_MODULE_END
+r @$t8 = @$t3 + dwo(@$t3+3c)
+.if ((wo(@$t3) == 5a4d) and (dwo(@$t8) == 4550) and (wo(@$t8+4) == 8664) and (dwo(@$t8+8) == 5bb78029) and (wo(@$t8+18) == 20b) and (dwo(@$t8+50) == 279000) and (dwo(@$t8+58) == 281e7f)) { $$><warp-verify.cdb } .else { .printf "VT7_WARP_PROFILE status=UNSUPPORTED profile=none base=%p\n", @$t3; }
+g
