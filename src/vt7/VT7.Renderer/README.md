@@ -7,7 +7,20 @@ graphics resources before joining. See the [stability record](../../../doc/vt7/v
 for local evidence and the supplied Windows 7 quick/hardware-lifecycle passes.
 WARP exceeds the resource budget on both setups, and the timed soak remains
 unrun. This is a test candidate. Earlier results below retain
-their original build and scope.
+their original build and scope. Use the [documentation index](../../../doc/vt7/README.md)
+and [current handoff](../../../doc/vt7/HANDOFF.md) for the next bounded step.
+
+The separate native comparison 0.1 uses the issued Release 0.3.5 ABI 8 DLL.
+Both power and plain modes complete and grow on the supplied Windows 7 setup;
+explicit power subscriptions and WPF are not required for this reproduction.
+The development machine's power/plain contrast and traced allocation family
+do not establish ownership on Windows 7. A fixed initialized pool or harmless
+bound has not been proven. Recreate-versus-reuse with per-thread identity is
+the next proposed diagnostic design, not an implemented or accepted result.
+
+Current source retains version 0.3.5/ABI 8 and adds opt-in resource-isolation
+controls not present in the issued viewport archive. This source README and
+those controls do not alter the frozen packages or their provenance files.
 
 Build 0.3.0 implements the minimum Windows 7 font boundary and connects the real
 AtlasEngine/controller to TerminalCore and the host. Debug/Release local tests
@@ -63,7 +76,7 @@ engine. No universal recovery or real driver-loss claim follows from injection.
 
 The 0.3.3 font/settings matrix passes at measured Windows 7 96/120/144 DPI,
 but that build's higher-scale viewport/recovery failures prevented acceptance.
-Current 0.3.4 adds ABI 7 diagnostic frame dimensions/nonuniform pixels and host
+Corrective 0.3.4 added ABI 7 diagnostic frame dimensions/nonuniform pixels and host
 layout corrections, without changing Atlas shaping or presentation policy.
 All positive suites now pass at those three actual Windows 7 scales on the
 supplied setup. Same-device recovery retains identical dimensions and exact
@@ -182,8 +195,8 @@ with independent full-frame and negative comparisons. See
 The supplied 0.7 Windows 7 run passes. The geometry contract now selects
 upstream's fixed-grid/ordinary-text overlap policy with its clipping exceptions.
 
-`Win7TextMapper.hpp/.cpp` is a reusable candidate currently compiled only by
-RendererProbe 0.8, not by this Atlas library. It uses baseline layout callbacks
+`Win7TextMapper.hpp/.cpp` is a reusable candidate introduced in RendererProbe
+0.8 and still compiled only by the probe, not this Atlas library. It uses baseline layout callbacks
 for face selection, retains FontFace1, then shapes in logical source order using
 IDWriteTextAnalyzer. It owns source/cell/glyph data, uses upstream-default metrics
 and complex-path advance correction, and rejects invalid spans/stale keys.

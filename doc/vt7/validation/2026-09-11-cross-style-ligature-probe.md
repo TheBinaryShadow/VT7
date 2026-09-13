@@ -1,5 +1,9 @@
 # Probe 0.12: cross-style lam-alef policy comparison
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 Planning update, 2026-09-12: this comparison is retained under Milestone 7/POL03.
 Same-outline paint remains a research candidate and different-outline hybrids
 remain unaccepted, not baseline port requirements. The

@@ -1,6 +1,20 @@
 # Windows 7 API and behavior compatibility reference
 
+Status note, 2026-09-13: this file preserves dated research and proposals,
+not current implementation or acceptance claims. Source references and words
+such as "current", "next" and "latest" below retain their research-date scope.
+Use the [research status](README.md#planning-adoption), [current handoff](../HANDOFF.md)
+and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidence.
+
 Research date: 2026-09-11. This is a review aid for VT7's Windows 7 SP1 x64 target with its declared prerequisites, not an exhaustive import allowlist.
+
+Implementation follow-up: [0.3.0](../validation/2026-09-12-atlas-viewport.md)
+records the minimum font adapter, event-wait adaptation and GetCaretBlinkTime
+path. [0.3.5](../validation/2026-09-13-atlas-stability.md) records later scheduling
+and teardown corrections with an open WARP resource gate. The matrix's original
+"existing" source findings are historical; they do not state that these removed
+dependencies remain active in the VT7 path. Neither update closes the complete
+behavior audit or changes the pinned upstream baseline.
 
 ## How to read the matrix
 

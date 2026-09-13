@@ -6,9 +6,23 @@ This engineering build connects the real AtlasEngine and renderer controller
 to TerminalCore in the WPF/native HWND viewport. It is still a static terminal
 demonstration, not a usable shell or a public alpha release.
 
-TEST CANDIDATE, NOT STABILITY-ACCEPTED: the local Windows 10 WARP 100-lifecycle
-run still exceeds the resource-growth budget. Hardware passes that profile.
-Windows 7 comparison is pending; limits have not been relaxed to obtain a pass.
+TEST CANDIDATE, NOT STABILITY-ACCEPTED: WARP exceeds the 100-lifecycle resource
+budget locally and on the supplied Windows 7 setup. Quick hardware/WARP and
+100-cycle hardware runs pass on those setups. Limits remain unchanged and the
+timed soak stays on hold.
+
+Source handoff update, 2026-09-13: this README includes later findings; the
+issued 0.3.5 archive retains its original files and checksum. Current source
+also has opt-in resource-isolation controls absent from that archive, despite
+retaining version 0.3.5/ABI 8. See doc/vt7/README.md, doc/vt7/HANDOFF.md and the
+2026-09-13-atlas-stability.md validation record in the source repository for
+package identities, completed results and the next bounded investigation.
+
+The separate native comparison 0.1 uses the issued 0.3.5 Release DLL. Both
+power and plain modes complete and grow on Windows 7. WPF and the control's
+explicit power subscription are not required for that reproduction. Exit 0
+means measurement completion, not accepted resource growth or a proven bound.
+No repeat of the unchanged comparison or older accepted suites is requested.
 
 Target: Windows 7 SP1 x64, Platform Update KB2670838, .NET Framework 4.8,
 UCRT KB2999226, required loader/SHA-2/servicing prerequisites, and D3D11 hardware
@@ -19,8 +33,12 @@ Keep all DLLs and the entire fonts directory beside the EXE. The included
 Unifont files are checked against pinned SHA256 values before DirectWrite loads
 them. A missing or altered file is a diagnostic failure, not silent fallback.
 
-Windows 7 test procedure
-------------------------
+Windows 7 test procedure, reproduction reference
+----------------------------------------------
+
+These launchers remain references for a relevant regression or requested
+environment qualification. The current handoff is the resource investigation,
+not a request to repeat the complete viewport/scaling matrix.
 
 1. Extract the complete archive into a fresh writable folder. Do not overwrite
    the accepted 0.3.4 package/evidence or any earlier viewport/probe folders.
@@ -52,18 +70,21 @@ Windows 7 test procedure
    hardware and WARP. Include GPU/driver, actual display scale and Windows
    update tier. Report any hang, missing glyph, misplaced cell or stale pixels.
 
-New scheduling/stability slice
-------------------------------
+Scheduling/stability status and command reference
+------------------------------------------------
 
-Run RUN-STABILITY-TEST.cmd first. Hardware and WARP must both pass. This is a
-short hidden-window run with timer/wake, synchronized-output, hidden-output,
-idle and repeated-lifetime tests. Keep the named reports and .progress.log files.
-Then run RUN-STABILITY-LIFECYCLE.cmd for 100 lifecycles per backend, approximately
-5-10 minutes total. Return those results first, including any resource failure.
-Do not spend time on the soak if this profile fails. After lifecycle review,
-RUN-STABILITY-SOAK.cmd adds a 30-minute active, 10-minute idle run per backend,
-approximately 90 minutes total. Keep the machine
-awake and leave display settings unchanged. No Windows settings are changed.
+RUN-STABILITY-TEST.cmd selects the quick hidden-window profile: timer/wake,
+synchronized-output, hidden-output, idle and repeated-lifetime checks.
+RUN-STABILITY-LIFECYCLE.cmd selects 100 lifecycles per backend, approximately
+5-10 minutes total. Their supplied quick/hardware passes and WARP lifecycle
+failure are already recorded. Preserve the named reports and .progress.log files.
+
+RUN-STABILITY-SOAK.cmd is a separate 30-minute active, 10-minute idle profile
+per backend after the lifecycle workload, approximately 90 minutes total.
+Do not start it while the resource gate is unresolved. Its presence in the
+package does not request another run. The next proposed control compares
+surface recreation with reuse and records per-thread identity; that control
+is not implemented or packaged yet. No Windows settings are changed.
 Progress files are flushed as tests proceed, so retain them if a test hangs.
 The quick profile does not replace lifecycle/extended profiles or target acceptance.
 All four lifecycle resource checkpoints are retained even when a budget fails;
@@ -73,14 +94,15 @@ Opacity-zero hosts do not establish physical occlusion or theme acceptance.
 CPU is measured as a percentage of one logical CPU. Private memory/handles/GDI/
 USER counts are sampled after warm-up; GPU allocation accounting is unavailable.
 
-To reproduce the accepted system-DPI matrix, run ALL five test launchers at Windows 7
+For an explicitly needed reproduction of the accepted system-DPI matrix, run
+all five functional test launchers at Windows 7
 100/125/150 percent scaling. Change scaling yourself, save your work before any
 required sign-out, and start a new Windows session/application before testing.
 The launcher does not change scaling. Internal renderer overrides of 96/120/144
 DPI are simulations and do not count as three system-scaling runs. At each real
 scale, also capture the normal and WARP viewport and Diagnostics, inspect text,
 clipping, tabs and focus, then retain that scale's screenshots and Logs separately.
-You can send the current-scale results first and test the other scales afterward.
+Preserve the existing accepted evidence before any requested reproduction.
 At 150 percent especially, capture each visible window immediately after launch,
 before manually resizing. Its title bar and bottom buttons should fit the work
 area. Short viewports can scroll the sample's first lines out of view.
@@ -90,9 +112,12 @@ on the supplied SP1 x64, .NET Framework 4.8.4795.0, Radeon RX 6800 XT setup.
 This accepts the bounded corrective scaling checkpoint, not all of Milestone 2
 or a separate ESU/hardware matrix. AppData may record intentionally fatal test
 surfaces as Passed: False; match these to the passing named recovery reports.
-Only repaint-negative.log deliberately fails among the named packaged tests.
+Among the functional suites, only repaint-negative.log deliberately fails.
+The WARP lifecycle resource failure is a separate unresolved failure, not an
+expected negative control.
 That accepted 0.3.4 archive remains unchanged. Build 0.3.5 adds a separate
-scheduling/stability checkpoint; its Windows 7 results must be collected anew.
+scheduling/stability checkpoint with supplied Windows 7 quick/lifecycle results;
+the older scaling acceptance does not establish that checkpoint's stability.
 
 What changed and what did not
 -----------------------------

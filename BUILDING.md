@@ -14,20 +14,26 @@ run accepted the bounded full-engine C1/C2 path. The integrated 0.3.4 correction
 now passes the supplied actual 100%, 125% and 150% system-DPI matrix; broader
 renderer acceptance remains separate.
 
-For what to build next, use the [port-first checkpoints](doc/vt7/architecture/2026-09-12-port-first-plan.md)
-and [roadmap](ROADMAP.md). The commands below reproduce existing proofs; they
+Start with the [documentation index](doc/vt7/README.md) and
+[current handoff](doc/vt7/HANDOFF.md) for package identities, evidence and the
+next bounded investigation. The [port-first checkpoints](doc/vt7/architecture/2026-09-12-port-first-plan.md)
+and [roadmap](ROADMAP.md) retain the broader implementation order.
+The commands below are build and regression references, not requests to repeat
+the accepted suites or unchanged diagnostic package. They
 do not require extending every probe before application integration. The
 [0.3.0 validation record](doc/vt7/validation/2026-09-12-atlas-viewport.md) records
-the initial Windows 7 C1/C2 acceptance. The current
+the initial Windows 7 C1/C2 acceptance. The
 [0.3.4 validation record](doc/vt7/validation/2026-09-12-atlas-scaling-correction.md)
 separates local checks, accepted target scaling results and remaining C3 coverage.
 
 ## Scheduling and stability checks
 
 The [0.3.5 scheduling/stability record](doc/vt7/validation/2026-09-13-atlas-stability.md)
-defines the next test slice. Use `tools/Test-VT7AtlasStability.ps1` for quick
-hardware/WARP checks, add `-Lifecycle` for 100/1000/500 lifetime/resize/tab counts,
-or `-Soak` for that matrix plus the 30-minute active/10-minute idle run per backend.
+records the completed quick/lifecycle runs and the unresolved resource gate.
+`tools/Test-VT7AtlasStability.ps1` selects quick hardware/WARP checks by default;
+`-Lifecycle` selects 100/1000/500 lifetime/resize/tab counts. The separate `-Soak`
+option adds 30 minutes active and 10 minutes idle per backend to that matrix,
+but remains on hold. `-Lifecycle` and `-Soak` cannot be combined.
 All accept `-Configuration Debug|Release` and `-BinaryDirectory` like the other
 integrated tests. Progress logs survive a runner timeout. Quick passes do not
 replace the extended Windows 7 acceptance run.
@@ -36,7 +42,9 @@ The 0.3.5 package is an investigation candidate: hardware passes the 100-cycle
 profile locally and on the supplied Windows 7 setup, but WARP exceeds its
 resource budget on both. Package creation runs the quick regression gate, not
 full stability acceptance. Keep the timed soak on hold while this is isolated.
-`-Renderer atlas-d3d-hardware|atlas-d3d-warp` selects one backend for investigation.
+`-Renderer atlas-d3d-hardware` or `-Renderer atlas-d3d-warp` selects one backend
+for investigation; its default is `both`. The quick runner also executes the
+expected-failure idle control, even when one backend is selected.
 
 Current source also contains opt-in `--resource-isolation` controls, documented
 in the stability record. They are not present in the already-issued 0.3.5 zip
@@ -46,8 +54,8 @@ the retained controls. Preserve the issued archive when building diagnostics.
 The separate `VT7-resource-comparison-0.1-x64.zip` tests native Atlas WARP with
 and without matched Windows power-notification subscriptions. It reuses the
 issued 0.3.5 native DLL, runtimes and fonts; its `VT7.Host.exe` is a native-only
-diagnostic, not the WPF application. Extract it into a fresh folder and run
-`RUN-RESOURCE-COMPARISON.cmd`. Return the complete new
+diagnostic, not the WPF application. Its reproduction launcher is
+`RUN-RESOURCE-COMPARISON.cmd`, which creates a fresh
 `Logs/resource-comparison-<run-id>` folder. Exit 0 means both measurements
 completed, not that growth was accepted. Both supplied Windows 7 runs complete,
 but both grow, unlike the development machine's power/plain contrast. Preserve
@@ -83,10 +91,10 @@ From a PowerShell prompt in the repository root:
 .\tools\Build-VT7.ps1 -Configuration Debug
 ```
 
-For the portable proof package:
+For a Release source build:
 
 ```powershell
-.\tools\Package-VT7Proof.ps1
+.\tools\Build-VT7.ps1 -Configuration Release
 ```
 
 The build script restores pinned WIL, GSL, and fmt headers from GitHub and
@@ -95,12 +103,27 @@ Dependency revisions, licensing, and proof-only source changes are documented
 in [the core boundary notes](src/vt7/VT7.Core/README.md). After a verified restore,
 `-NoRestore` permits an offline build using the existing extracted sources.
 
-Build output is written under `artifacts\vt7\bin`. The packaging script creates
-`artifacts\atlas-viewport-0.3.5` and `artifacts\VT7-atlas-viewport-0.3.5-x64.zip`.
-Accepted 0.3.0 artifacts are preserved unchanged.
-It tests the assembled package before archiving it and includes runtime DLLs,
-symbols, notices, dependency licenses, and file checksums. Generated artifacts
-are ignored by Git. Older proof packages, including accepted 0.2.1, are not overwritten.
+Build output is written under `artifacts\vt7\bin\<configuration>`. Current source
+still reports 0.3.5/ABI 8 but contains later diagnostic additions; the version
+label alone does not identify the issued binaries. Use the issued archive hash
+and package manifest when referring to its evidence.
+
+The packaging scripts retain fixed output paths and delete/recreate those
+folders and ZIPs. `-SkipBuild` skips compilation only; it does not preserve an
+existing package. Do not run them over issued artifacts during this investigation.
+A future distribution needs distinct paths and an explicit package identity
+before packaging. None of these scripts currently exposes an output-path option.
+
+| Packaging script | Fixed package folder / ZIP stem under `artifacts` |
+| --- | --- |
+| `Package-VT7Proof.ps1` | `atlas-viewport-0.3.5` / `VT7-atlas-viewport-0.3.5-x64` |
+| `Package-VT7RendererProbe.ps1` | `renderer-probe-0.13` / `VT7-renderer-probe-0.13-x64` |
+| `Package-VT7AtlasProof.ps1` | `atlas-backend-proof-0.1` / `VT7-atlas-backend-proof-0.1-x64` |
+
+The integrated packager tests assembled Release files before archiving and
+includes runtime DLLs, symbols, notices, dependency licenses and file checksums.
+Its stability gate is the quick profile, not lifecycle or soak acceptance.
+Generated artifacts are ignored by Git. Preserve all issued archives and logs.
 
 ## Verify the binary boundary
 
@@ -110,17 +133,17 @@ with the real AtlasEngine/controller/font path and a selectable GDI reference.
 The older backend harness remains independently testable. See the
 [renderer boundary](src/vt7/VT7.Renderer/README.md).
 
-To test and package the independent graphics/font probe:
+For a focused source regression of the independent graphics/font probe:
 
 ```powershell
 .\tools\Test-VT7RendererProbe.ps1 -Configuration Debug
 .\tools\Build-VT7.ps1 -Configuration Release -NoRestore
 .\tools\Test-VT7RendererProbe.ps1 -Configuration Release
-.\tools\Package-VT7RendererProbe.ps1 -SkipBuild
 ```
 
-The current archive is `artifacts\VT7-renderer-probe-0.13-x64.zip`. Extract it on Windows 7,
-run `RUN-RENDERER-PROBE.cmd`, and retain `VT7-renderer-probe.log` and the companion
+The frozen archive is `artifacts\VT7-renderer-probe-0.13-x64.zip`. For an explicitly
+needed reproduction on Windows 7, its launcher is `RUN-RENDERER-PROBE.cmd`;
+retain `VT7-renderer-probe.log` and the companion
 `VT7-renderer-probe.log.bmp`. Version 0.5 preserves the original 0.1 sample and
 includes an independent U+1F600 coverage scan, explicit candidate rendering, thirteen
 real-core-cell fixtures, whole-ink fitting, and retained Arabic visual runs.
@@ -261,19 +284,22 @@ Complete `dumpbin` header and import reports are saved under
 `artifacts\vt7\reports`. Static import inspection is necessary, but it is not a
 substitute for testing on Windows 7.
 
-## Run the automated checks
+## Regression command reference
+
+Choose checks for the code being changed. The accepted probe and scaling
+matrices below are not the current handoff queue. Existing runners use fixed
+report paths even with `-BinaryDirectory`, so preserve earlier evidence first.
 
 ### Atlas backend experiment
 
 The solution also builds `VT7.AtlasProof.exe`, which links the real Atlas
 backends and shared Windows 7 presentation code. It deliberately bypasses the
 AtlasEngine font mapper and the TerminalCore/controller path.
-It does not replace the accepted GDI host.
+It is separate from the integrated Atlas/WPF viewport and retained GDI reference.
 
 ```powershell
 .\tools\Test-VT7AtlasProof.ps1 -Configuration Debug
 .\tools\Test-VT7AtlasProof.ps1 -Configuration Release
-.\tools\Package-VT7AtlasProof.ps1
 ```
 
 The test runner executes both backends on forced hardware and forced WARP,
@@ -320,7 +346,7 @@ Each process has a 45-second outer limit; the in-process asynchronous wait is
 
 0.3.2 now has supplied Windows 7 acceptance of that bounded recovery matrix.
 0.3.3 adds `tools/Test-VT7AtlasSettings.ps1 -Configuration Debug` (or Release).
-Current 0.3.4 retains that matrix and adds startup work-area, status-layout and
+Corrective 0.3.4 retained that matrix and added startup work-area, status-layout and
 blank-first-row controls to the viewport tests. Same-device recovery still
 requires exact RGB; before/after geometry is logged. The 0.3.3 higher-DPI failures
 are retained historically; 0.3.4 passes every positive suite at all three measured
@@ -394,7 +420,14 @@ keyboard focus behavior, and high-contrast configurations need visual testing:
 .\artifacts\vt7\bin\Debug\VT7.Host.exe --window-smoke-test
 ```
 
-## Windows 7 proof procedure
+## Windows 7 proof procedure, reproduction reference
+
+The 0.3.4 scaling matrix and bounded 0.3.5 quick/lifecycle handoff already have
+supplied results. Do not repeat them, repeat native comparison 0.1, or start the
+timed soak for this documentation handoff. The current task is the bounded
+resource investigation described in [HANDOFF.md](doc/vt7/HANDOFF.md).
+The procedure below remains a reference for a future relevant regression or
+explicitly requested environment qualification.
 
 The development machine can prove the build and binary boundary, but only a
 Tier A Windows 7 system can establish compatibility. Use a clean snapshot with:
@@ -450,7 +483,7 @@ diagnostic log, and outcome for each test.
 
 ## Recorded Windows 7 results
 
-The current 0.3.4 corrective matrix is accepted on the supplied Windows 7 SP1 x64
+The 0.3.4 corrective matrix is accepted on the supplied Windows 7 SP1 x64
 setup, .NET Framework 4.8.4795.0, AMD Radeon RX 6800 XT, at actual 96/120/144 DPI.
 At each scale, diagnostics, 6 viewport modes, 4 repaint modes, 16 injected
 recovery cases and 5 settings modes pass. Recovery dimensions remain stable;
@@ -512,8 +545,10 @@ native HWND destruction completes, then releases graphics and joins before the
 surface is deleted. The core is compiled without WinRT settings or ICU search/URL
 detection. See the core boundary notes for the exact limitations.
 
-AtlasEngine font mapping and controller/core integration now pass locally and
-on the supplied Windows 7 setup. C3 renderer qualification, local PTY sessions,
+The bounded AtlasEngine font mapping and controller/core integration checks pass
+locally and on the supplied Windows 7 setup. WARP lifecycle resource growth
+remains unresolved, including the native-only target reproduction with and
+without explicit power subscriptions. C3 renderer qualification, local PTY sessions,
 SSH and the final UI remain ahead.
 The separate Atlas backend proof is established on the tested Windows 7 setup.
 The Windows 7 host/core/viewport proof is now established on the tested

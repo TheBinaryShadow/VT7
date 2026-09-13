@@ -1,16 +1,20 @@
 # Diagnostics and Windows 7 acceptance experiments
 
-Current execution checkpoint, September 12: the supplied
-[0.3.0 Windows 7 run](../validation/2026-09-12-atlas-viewport.md) accepts the bounded
-C1/C2 font/core/Atlas integration. [0.3.1](../validation/2026-09-12-atlas-repaint.md)
-passes the supplied Windows 7 repaint/cursor checks. The
-[0.3.2 recovery slice](../validation/2026-09-12-atlas-recovery.md) also passes supplied target testing.
-The [0.3.4 scaling matrix](../validation/2026-09-12-atlas-scaling-correction.md)
-now passes all positive suites at actual Windows 7 96/120/144 DPI on the tested
-setup, resolving the recorded 0.3.3 failures. Scheduling/idle/resource/shutdown
-checks are next; theme and broader renderer qualification remain open.
-This status supersedes next-task wording in the dated
-assessment/plan below, without retroactively changing its original evidence.
+Current execution checkpoint, 2026-09-13: C1/C2 font/core/Atlas integration and
+[0.3.4 system-DPI acceptance](../validation/2026-09-12-atlas-scaling-correction.md)
+are recorded on the supplied Windows 7 setup. C3 remains open: the
+[0.3.5 integrated WARP lifecycle](../validation/2026-09-13-atlas-stability.md)
+fails its resource budgets locally and on Windows 7. The native power/plain
+comparison grows only with explicit power subscriptions on the Windows 10
+development machine, but grows in both modes on the supplied Windows 7 run.
+Ownership and boundedness remain unresolved. A recreate/reuse diagnostic is
+proposed, not implemented; the timed soak stays on hold.
+
+Use the [current handoff](../HANDOFF.md), [documentation index](../README.md),
+[port-first plan](../architecture/2026-09-12-port-first-plan.md) and
+[roadmap](../../../ROADMAP.md) for present work and completion state. Dated
+findings and proposed experiments below retain their original scope; they do
+not restart C1/C2 or make optional typography a current port gate.
 
 Research date: 2026-09-11. This is a proposed experiment backlog, not an execution report. No application builds, installations or runtime tests were performed for this research.
 
@@ -49,8 +53,9 @@ Record unavailable data explicitly. Never turn an unexecuted optional test into 
 ## Adopted execution mapping
 
 The [September 12 port-first decision](../architecture/2026-09-12-port-first-plan.md)
-narrows current F02 work to the Windows 7 adapter and inherited shaping/cell
-behavior, followed by real Atlas integration. The broad original experiment
+narrowed F02 integration to the Windows 7 adapter and inherited shaping/cell
+behavior. C1/C2 now accept that minimum integration on the supplied setup;
+remaining F02 qualification follows the roadmap. The broad original experiment
 targets below are research scope, not a demand to solve enhanced typography or
 visual bidi before proceeding. Reuse existing evidence; investigate a named
 blocker with a bounded test and an explicit next action. Non-blocking observations
@@ -62,14 +67,14 @@ below indicate risk, not a requirement to run the entire backlog before 2C.
 
 | Milestone | Required experiments and timing |
 | --- | --- |
-| 2C | Reuse F01 missing-glyph evidence; finish the minimum production F02 font/cell adapter with inherited policies. |
+| 2C | F01 is identified and the minimum F02 adapter is integrated and accepted as C1; retain remaining bounded qualification without reopening optional typography. |
 | Remaining renderer gates | G01/G02/T01, extending the recorded fixed-glyph results to the integrated controller and real text. |
 | 3A, before substantial local/UI integration | P01/I01/S00 plus written session, input/IME, accessibility-range, and output-security contracts. |
 | 3B/3C | U01/P02/I01/I02; initial paste and output-policy checks accompany first real sessions. |
 | 4 | A01/C01/D01 and U01 selection/search range coverage. |
 | 5 | S01 plus direct-SSH U01/I01/I02/C01 revalidation; S00 alone is not SSH acceptance. |
 | Runtime additions and 6 | L01 dependency checks throughout, followed by clean-minimum full-package qualification and extended soak coverage. |
-| 7 | Triage POL01-POL06 and new optional findings; validate selected polish and explicitly defer remaining ideas. |
+| 7 | Triage the roadmap's POL register and optional findings; validate selected polish and explicitly defer remaining ideas. |
 
 Link implementing changes and run manifests to each applicable ID. A partial
 pass names the exact subcases completed and the remaining work. G01/G02 are not
@@ -81,8 +86,11 @@ the experiments; the mapping adds no test results.
 Execution follow-up: the linked 0.3.4 validation record, not the original research
 table, establishes the accepted actual 96/120/144 system-DPI matrix and bounded
 G01/G02-related repaint/lifecycle/recovery coverage on the supplied setup.
-Remaining G01/G02 transitions and T01 scheduling/idle/resource/shutdown stress
-are still open. No additional test or implementation is implied by updating this index.
+The 0.3.5 record adds T01 scheduling/idle/shutdown evidence, but integrated WARP
+resource failures keep C3 open locally and on Windows 7. The native comparison
+does not close G01/G02/T01 or justify a plateau. The proposed recreate/reuse
+control is not implemented; the timed soak remains on hold. No additional test
+or implementation is implied by updating this index.
 
 ## Priority experiments
 

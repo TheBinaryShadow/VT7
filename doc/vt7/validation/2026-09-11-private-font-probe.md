@@ -1,5 +1,9 @@
 # Milestone 2C: private fallback font probe 0.5
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 Date: 2026-09-11. Branch: `initial-implementation-and-assessment`.
 Source base: `bf196fdb22c1b347f448543ebb715d395ccf163a` plus uncommitted 2C changes.
 Release stamp: `Sep 11 2026 08:55:04`, compiler `194435228`.

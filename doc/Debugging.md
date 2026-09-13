@@ -1,5 +1,10 @@
 # Debugging Miscellanea
 
+> Retained Microsoft Terminal debugging reference. For VT7's current source,
+> diagnostics and evidence, use the [handoff](vt7/HANDOFF.md). Packaged-app and
+> global postmortem-debugger setup below are not required for the current
+> process-only resource investigation.
+
 This file contains notes about debugging various items in the repository.
 
 ## Setting breakpoints in Visual Studio for Cascadia (packaged) application

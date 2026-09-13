@@ -1,5 +1,11 @@
 # Process creation, console ownership, jobs and asynchronous pipes
 
+Status note, 2026-09-13: this file preserves dated research and proposals,
+not current implementation or acceptance claims. Source references and words
+such as "current", "next" and "latest" below retain their research-date scope.
+Use the [research status](README.md#planning-adoption), [current handoff](../HANDOFF.md)
+and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidence.
+
 Research date: 2026-09-11. Priority: P0 for sessions. All lifecycle sequences below are proposed VT7 designs, not existing session code.
 
 ## Process creation contract
@@ -41,6 +47,10 @@ WinPTY provides separate named pipes for the input and output directions. [3] Pi
 CancelIoEx requests cancellation of outstanding I/O issued by any thread in the process for the handle. It does not wait for completion. An operation can still complete successfully; ERROR_NOT_FOUND may mean there was no outstanding request. OVERLAPPED structures and buffers must remain valid until completion has been collected. [6]
 
 **Proposed ownership rules:**
+
+These are session/IPC proposals. They are not the renderer's current teardown
+recipe: the later [0.3.5 ordering clarification](09-threading-and-renderer-lifecycle.md#teardown-protocol)
+keeps the paused presentation worker alive through native-window destruction.
 
 1. One session owner controls launch, resize, close and error transitions.
 2. Every pending read/write owns its buffer, OVERLAPPED, and completion bookkeeping.

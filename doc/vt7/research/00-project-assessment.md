@@ -1,10 +1,15 @@
 # Project assessment and research priorities
 
-Current execution note, 2026-09-12: this is a historical assessment, not the
-current task queue. The [port-first plan](../architecture/2026-09-12-port-first-plan.md)
-prioritizes minimal Windows 7 adaptation and application integration. The roadmap's
-Milestone 7 retains non-blocking improvements for polish triage or post-release
-work. Original findings and evidence limitations below remain unchanged.
+Status note, 2026-09-13: this file preserves dated research and proposals,
+not current implementation or acceptance claims. Source references and words
+such as "current", "next" and "latest" below retain their research-date scope.
+Use the [research status](README.md#planning-adoption), [current handoff](../HANDOFF.md)
+and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidence.
+
+The [port-first plan](../architecture/2026-09-12-port-first-plan.md) governs
+sequencing. C1/C2 integration is accepted on the supplied Windows 7 setup;
+C3 WARP resource qualification remains open. Milestone 7 retains non-blocking
+improvements for release triage. Original findings and evidence limits remain.
 
 Assessed 2026-09-11. Repository HEAD: **28cb8bf7d023e270989b37d038c35364cf87540b**. Assessment includes the existing uncommitted working files, including VT7.Renderer, VT7.RendererProbe, Win7Presentation, Atlas changes, and updated build/validation documents. Their presence is not evidence that they have been committed, packaged, or accepted.
 

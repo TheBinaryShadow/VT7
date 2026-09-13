@@ -1,6 +1,11 @@
 
 # How to build OpenConsole
 
+> Historical Microsoft Terminal/OpenConsole build reference, not the current
+> VT7 workflow. Use [BUILDING.md](../BUILDING.md), `VT7.sln` and the
+> [development handoff](vt7/HANDOFF.md). The MSIX/Store and original-toolchain
+> instructions below are not VT7's Windows 7 prerequisites.
+
 This repository uses [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) for some of its dependencies. To make sure submodules are restored or updated, be sure to run the following prior to building:
 
 ```shell

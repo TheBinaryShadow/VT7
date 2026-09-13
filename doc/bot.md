@@ -1,5 +1,11 @@
 # Issue/PR Management Bot Information
 
+> Historical Microsoft Terminal bot/label reference, not the independent VT7
+> repository's active automation policy. Use [CONTRIBUTING.md](../CONTRIBUTING.md)
+> and the [repository workflow notes](../.github/README.md). Do not enable
+> inherited automation or apply its closure policies merely because they are
+> described below.
+
 ## Overview
 
 The goal here is to help us automate, manage, and narrow down what we actually need to focus on in this repository.

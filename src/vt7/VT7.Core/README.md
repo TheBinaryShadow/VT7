@@ -5,6 +5,13 @@ text buffer, and supporting types into `VT7.Core.lib`, then links that library
 into `VT7.Native.dll`. The static library is not a separate runtime dependency.
 This is a static viewport proof, not an interactive terminal release.
 
+Current status and evidence navigation are in the
+[documentation index](../../../doc/vt7/README.md) and
+[handoff](../../../doc/vt7/HANDOFF.md). Issued 0.3.5 and current source both use
+ABI 8, but source includes later resource-isolation diagnostics absent from the
+issued archive. Package hashes, not the version label alone, identify tested
+binaries. This source document does not replace frozen package provenance.
+
 The [port-first plan](../../../doc/vt7/architecture/2026-09-12-port-first-plan.md)
 keeps this inherited core and its cell semantics as the integration foundation.
 Adapt incompatible platform boundaries and restore required workflows without
@@ -67,7 +74,8 @@ upstream project files are not redirected to this proof configuration.
 
 ## Native viewport
 
-The WPF `HwndHost` owns a native child window through C ABI version 4 (0.3.0 used ABI 3). That
+The WPF `HwndHost` owns a native child window through C ABI version 8 in 0.3.5
+(0.3.4 used ABI 7, 0.3.3 ABI 6, 0.3.2 ABI 5, 0.3.1 ABI 4 and 0.3.0 ABI 3). That
 window writes a fixed VT demonstration through `Terminal::Write`, reads actual
 buffer rows and attributes, and calls `Terminal::UserResize` as its client size
 changes. Resizing does not replace the content with a fresh demonstration.
@@ -75,8 +83,9 @@ The reset button is the only action that explicitly recreates the demo buffer.
 
 Atlas is now the default renderer, using the actual controller/IRenderData path,
 primary-font metrics and inherited cell fitting. Direct3D11 and Direct2D each
-have explicit hardware/WARP modes. Hide/show stops and restarts the worker;
-teardown stops it before destroying native resources. Default automatic mode
+have explicit hardware/WARP modes. Hide/show parks and resumes the existing
+worker. Final close pauses rendering, destroys the native HWND, then releases
+graphics on the worker and joins it before deleting the surface. Default automatic mode
 can fall back from Direct3D11 hardware to WARP; forced modes remain strict.
 See the [renderer boundary](../VT7.Renderer/README.md).
 
@@ -94,6 +103,16 @@ display. Some corresponding upstream machinery is compiled because it belongs
 to the parser/core dependency graph, but it is not an advertised proof feature.
 
 ## Checks and acceptance
+
+0.3.5 adds scheduling, idle CPU and resource-growth checks. Quick hardware/WARP
+and 100-cycle hardware runs pass locally and in the supplied Windows 7 evidence;
+the integrated WARP lifecycle profile exceeds its resource budget on both.
+The separate native comparison 0.1 reuses the issued Release 0.3.5 DLL and also
+grows on Windows 7 in both power and plain modes. WPF and the control's explicit
+power subscription are not required for that target reproduction. Allocation
+ownership and a long-term bound remain unproven; the timed soak stays on hold.
+See the [stability record](../../../doc/vt7/validation/2026-09-13-atlas-stability.md).
+Its proposed recreate-versus-reuse control is not implemented evidence.
 
 0.3.1 adds an ordered diagnostic repaint command, normal-invalidation/full-redraw
 comparisons and cursor-cell bounds, plus a first-frame status-label regression.

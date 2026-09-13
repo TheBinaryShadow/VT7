@@ -6,6 +6,11 @@ and geometry experiments. The [roadmap](../../../ROADMAP.md) owns milestone
 completion and the deferred-work register. No application behavior, upstream
 baseline, package, license, or test result changes with this decision.
 
+For current implementation state and the active C3 blocker, read the
+[handoff](../HANDOFF.md) and [documentation index](../README.md). This document
+remains the execution-direction decision; its dated implementation follow-ups
+do not replace the roadmap checklist or the linked validation evidence.
+
 ## Short-term goal
 
 Finish the Windows 7 application port. Reuse the pinned upstream terminal core,
@@ -14,8 +19,8 @@ Adapt the host, graphics/font interfaces, synchronization, and session boundarie
 that cannot run unchanged on Windows 7. Upstream-first does not mean merging
 new upstream commits or reproducing every modern Windows Terminal feature.
 
-The next deliverable is the real AtlasEngine rendering TerminalCore content in
-the VT7 viewport on Windows 7, followed by renderer acceptance and interactive
+The next deliverable at this decision date was the real AtlasEngine rendering
+TerminalCore content in the VT7 viewport on Windows 7, followed by renderer acceptance and interactive
 sessions. It is not another optional typography probe. The fixed-glyph Atlas
 harness and the separate 0.13 font probe do not yet establish that integration.
 
@@ -32,8 +37,9 @@ The [0.3.3 settings/DPI](../validation/2026-09-12-atlas-settings.md) tests pass 
 all three actual scales. Its higher-scale viewport/recovery failures are now
 resolved in the [accepted 0.3.4 matrix](../validation/2026-09-12-atlas-scaling-correction.md).
 The bounded actual system-DPI gate is closed on the tested Windows 7 setup.
-Next are synchronized-output/wait-notify, idle CPU, resource-growth and shutdown
-stress. Theme/high-contrast, broader device transitions and milestone-level ESU
+The next C3 slice at that checkpoint was synchronized-output/wait-notify, idle
+CPU, resource-growth and shutdown stress, now recorded in 0.3.5 below.
+Theme/high-contrast, broader device transitions and milestone-level ESU
 qualification remain open. Simulated DPI is still distinct from actual-system evidence.
 
 Implementation follow-up, 2026-09-13: [0.3.5](../validation/2026-09-13-atlas-stability.md)
@@ -48,9 +54,12 @@ subscriptions but not without them on the development machine. The supplied
 Windows 7 control grows in both modes, so neither WPF nor its explicit power
 subscription is required for that target reproduction. USER growth tracks
 more native threads reporting input queues; ownership and a safe lifetime/bound
-remain unverified. The next bounded investigation separates thread initialization
-from per-surface retention before revisiting integrated acceptance. This stays
-in C3, with the timed soak on hold, not deferred as polish.
+remain unverified. A bounded recreate/reuse comparison with individual thread
+lifetime and input-queue observations is the proposed next diagnostic, not an
+implemented control or a new package. It can test dependence on repeated surface
+lifetimes; by itself it cannot identify which changed HWND/device/worker lifetime
+owns the growth. Integrated acceptance still requires a justified explanation
+or correction. This stays in C3, with the timed soak on hold, not deferred as polish.
 
 ## Long-term goal
 

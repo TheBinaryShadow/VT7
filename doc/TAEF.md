@@ -1,5 +1,10 @@
 ### TAEF Overview ###
 
+> This describes the inherited Console test framework. Current VT7 tests and
+> acceptance results are documented in [BUILDING.md](../BUILDING.md) and the
+> [handoff](vt7/HANDOFF.md); retaining this guide does not claim that the
+> upstream/internal test suite has run for the port.
+
 TAEF, the Test Authoring and Execution Framework, is used extensively within the Windows organization to test the operating system code in a unified manner for system, driver, and application code. As the console is a Windows OS Component, we strive to continue using the same system such that tests can be ran in a unified manner both externally to Microsoft as well as inside the official OS Build/Test system.
 
 The [official documentation](https://docs.microsoft.com/en-us/windows-hardware/drivers/taef/) for TAEF describes the basic architecture, usage, and functionality of the test system. It is similar to Visual Studio test, but a bit more comprehensive and flexible.

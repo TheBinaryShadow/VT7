@@ -1,5 +1,9 @@
 # Probe 0.11: joined Arabic spans inside a terminal allocation
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 Planning update, 2026-09-12: shared-span fitting/centering and its interaction
 questions are deferred under Milestone 7/POL01-POL02. They must be resolved before
 adopting this enhanced layout, not before integrating upstream-style Atlas.

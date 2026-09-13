@@ -7,7 +7,7 @@ the person sitting in front of the computer. For many of us it was more than an
 operating system. It was the soul of where we learned, built, repaired, played,
 and got work done.
 
-It's terminal experience never received the same care.
+Its terminal experience never received the same care.
 
 VT7 exists to finish that story.
 
@@ -25,6 +25,10 @@ application for Windows 7.
 > VT7 is currently in pre-alpha development. The repository does not yet
 > produce a usable Windows 7 terminal. Features described here are project
 > goals until they are implemented and verified on Windows 7 hardware.
+
+Picking up development? Start with the [development handoff](doc/vt7/HANDOFF.md)
+and [documentation index](doc/vt7/README.md). They distinguish current source,
+issued test packages, accepted checkpoints and the next unresolved task.
 
 ## What we are building
 
@@ -52,7 +56,7 @@ The first complete release is intended to provide:
 
 Rich color and Unicode are core/renderer goals and end-to-end direct SSH goals.
 Local Windows console sessions travel through a different path, whose usability
-and compatiblity must be assessed. We will publish tested backend capabilities
+and compatibility must be assessed. We will publish tested backend capabilities
 rather than promise that every application can deliver everything the renderer
 can draw. Missing font coverage must not corrupt the original text. Color emoji,
 variable font axes, and full bidirectional terminal behavior need separate scope
@@ -132,6 +136,13 @@ build the best terminal we can for the platform we love.
 
 ## Project status
 
+Current working source: **0.3.5, native ABI 8**, still a static viewport.
+The active task is C3 renderer resource-lifetime qualification. The latest
+native comparison completes on Windows 7 but does not close the integrated
+WARP failure. See the [handoff](doc/vt7/HANDOFF.md) for the exact next proposed
+control and the source-only versus issued-artifact boundary. The progression
+below preserves each earlier checkpoint's scope.
+
 Engineering build **0.3.0** now connects TerminalCore to the real AtlasEngine and
 renderer controller, with a minimum Windows 7 font adapter. Debug and Release
 tests pass locally through Direct3D11 and Direct2D, on hardware and forced WARP;
@@ -168,8 +179,7 @@ a paired native-only control implicate Windows power-notification/message
 delivery paths on the development machine. The supplied Windows 7 control grows
 with and without those subscriptions, so that specific explanation does not
 transfer unchanged. Thread/input-queue attribution and resource boundedness
-remain open.
-See the
+remain open. See the
 [stability investigation](doc/vt7/validation/2026-09-13-atlas-stability.md).
 
 VT7 already has its first real terminal viewport running on Windows 7. Engineering
@@ -213,9 +223,10 @@ cursor/selection mapping are deferred research, not prerequisites to the port.
 These probe results are not a completed Atlas terminal renderer.
 
 The [port-first plan](doc/vt7/architecture/2026-09-12-port-first-plan.md)
-sets the next acceptance step: the remaining C3 renderer gates. After the accepted
-0.3.4 Windows 7 scaling matrix, the next bounded slice covers synchronized-output
-timeouts, idle CPU, resource growth and shutdown stress. Theme and broader
+sets the next acceptance step: the remaining C3 renderer gates. Build 0.3.5
+implements synchronized-output, idle CPU and shutdown checks after the accepted
+0.3.4 scaling matrix. Its WARP resource-lifetime investigation remains open.
+The proposed recreate-versus-reuse control is not implemented yet. Theme and broader
 environment coverage remain open. Before substantial session integration
 or daily-driver UI work, a new feasibility gate will test local-console fidelity,
 direct OpenSSH I/O and resize, and Windows 7 input behavior. Full SSH delivery
@@ -227,8 +238,10 @@ remains a later milestone. These are approved plans, not new compatibility resul
 - [x] Produce a reproducible developer build for the first VT7 executable.
 - [x] Open a static terminal viewport on Windows 7 SP1 x64.
 - [x] Prove the isolated Atlas backends on Windows 7 hardware and forced WARP.
-- [ ] Integrate complete terminal rendering, font fallback, and automatic
-  graphics fallback with TerminalCore.
+- [x] Integrate Atlas rendering, minimum font fallback and automatic graphics
+  fallback with TerminalCore on the tested Windows 7 setup.
+- [ ] Complete the remaining C3 renderer qualification, including WARP
+  resource lifetime, broader environment checks and subsequent timed stability.
 - [ ] Run an interactive local shell through the Windows 7 PTY backend.
 - [ ] Complete the first direct SSH session.
 - [ ] Add the daily-driver interface, including tabs, panes, profiles, and
@@ -240,6 +253,10 @@ are not alpha releases. Please be careful with downloads that claim otherwise.
 
 ## Project documents
 
+- [Development handoff](doc/vt7/HANDOFF.md) - current state, code map, evidence,
+  unresolved questions, exact next task and safe resumption checklist.
+- [Documentation index](doc/vt7/README.md) - current guidance, historical
+  validation and research, with inherited upstream material clearly separated.
 - [Roadmap](ROADMAP.md) - milestones, requirements, acceptance criteria, and
   non-goals.
 - [Research and planning decision](doc/vt7/architecture/2026-09-11-research-driven-plan.md)

@@ -1,5 +1,9 @@
 # Milestone 2C: font coverage and whole-ink fitting probe 0.3
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 Date: 2026-09-11. Branch: `initial-implementation-and-assessment`.
 Source base: `bf196fdb22c1b347f448543ebb715d395ccf163a`, plus the uncommitted
 2C probe changes. This follows the user's approval of all three follow-up points

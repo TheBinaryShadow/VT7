@@ -1,5 +1,9 @@
 # Universal Testing for Console
 
+> Retained upstream test-infrastructure reference. This is not VT7's current
+> build/test workflow or a requirement to access Microsoft internal systems.
+> Start with [BUILDING.md](../BUILDING.md) and the [handoff](vt7/HANDOFF.md).
+
 ## Overview
 
 Universal Testing is the Microsoft framework for creating and deploying test packages onto just about any device through just about any process. We use it for packaging up all sorts of test resources and sending it into our automated test labs no matter what the source of the content or the engineering system involved.

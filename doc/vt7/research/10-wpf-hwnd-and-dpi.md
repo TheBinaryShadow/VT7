@@ -1,5 +1,11 @@
 # WPF, native HWND hosting, DPI and desktop composition
 
+Status note, 2026-09-13: this file preserves dated research and proposals,
+not current implementation or acceptance claims. Source references and words
+such as "current", "next" and "latest" below retain their research-date scope.
+Use the [research status](README.md#planning-adoption), [current handoff](../HANDOFF.md)
+and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidence.
+
 Research date: 2026-09-11. Priority: P1; affects renderer and interface design.
 
 Implementation status, 2026-09-12: the [0.3.4 scaling matrix](../validation/2026-09-12-atlas-scaling-correction.md)

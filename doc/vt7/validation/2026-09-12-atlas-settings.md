@@ -1,5 +1,9 @@
 # Integrated Atlas font/settings and DPI checks 0.3.3
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 Date: 2026-09-12. Status: Debug, assembled Release and the supplied Windows 7
 font/settings matrix pass at measured 96/120/144 DPI. The full 0.3.3 scaling gate
 is NOT accepted: viewport and recovery suites fail at both higher scales.
@@ -138,8 +142,11 @@ the complete Logs folder, diagnostic report, display scale and driver/update tie
 Current-scale results can be reviewed before the other scales are available.
 Batch launchers have no outer hang timeout; report hangs with partial output.
 
-Following 0.3.4's accepted target DPI matrix, the next work is bounded synchronized-output,
-wait/notify, idle CPU, resource-growth and shutdown stress. Theme/high-contrast,
-broader device-loss and other C3 qualification remain open. Non-blocking typography
+Following 0.3.4's accepted target DPI matrix, bounded synchronized-output,
+wait/notify, idle CPU, resource-growth and shutdown checks were implemented in
+the [0.3.5 stability investigation](2026-09-13-atlas-stability.md), which records
+their results and open acceptance issues. See the [handoff](../HANDOFF.md) for
+current C3 priorities. Theme/high-contrast, broader device-loss and other C3
+qualification remained open at the 0.3.4 checkpoint. Non-blocking typography
 and visual improvements remain Milestone 7 work. MIT code and existing separate
 font/runtime licenses are unchanged; no new assets or third-party code are added.

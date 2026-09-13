@@ -2,7 +2,17 @@
 
 Research date: **2026-09-11**. Scope: implementation decisions for VT7's Windows 7 SP1 x64 target. This directory contains research only; it does not change the product baseline or certify an implementation.
 
-VT7 aims to combine the inherited TerminalCore/parser/buffer with a .NET Framework 4.8 WPF host, a native terminal HWND, a downleveled Atlas renderer, WinPTY local sessions, and direct SSH. The accepted product so far is a static viewport proof; the renderer and session boundaries need further engineering. [1][2]
+Start with the [documentation index](../README.md) and [current handoff](../HANDOFF.md)
+for implementation state, the active blocker and preserved evidence. Source
+quotes, availability statements, candidate versions and original priorities in
+this collection retain their research-date scope. They were not re-researched
+or turned into production requirements by this documentation update.
+
+At the research date, VT7 aimed to combine the inherited TerminalCore/parser/buffer
+with a .NET Framework 4.8 WPF host, a native terminal HWND, a downleveled Atlas
+renderer, WinPTY local sessions, and direct SSH. The accepted product at that
+point was a static viewport proof; the renderer and session boundaries needed
+further engineering. [1][2]
 
 ## Planning adoption
 
@@ -15,7 +25,7 @@ post-release work; required correctness, security and workflows remain gates.
 
 The new [Atlas viewport 0.3.0](../validation/2026-09-12-atlas-viewport.md) implements
 the minimum face-selection adapter and real AtlasEngine/controller/core path.
-Local results and supplied Windows 7 C1/C2 acceptance pass on the tested setup. The current
+Local results and supplied Windows 7 C1/C2 acceptance pass on the tested setup. The first
 [0.3.1 C3 slice](../validation/2026-09-12-atlas-repaint.md) tests actual Atlas
 invalidation and cursor pixels and passes the supplied Windows 7 run. The
 [0.3.2 slice](../validation/2026-09-12-atlas-recovery.md) adds controlled recovery
@@ -23,10 +33,22 @@ and passes supplied target testing. The
 [0.3.3 settings/DPI slice](../validation/2026-09-12-atlas-settings.md) passes its
 font matrix at actual 96/120/144 DPI. Its viewport/recovery failures are resolved
 in the [accepted 0.3.4 scaling matrix](../validation/2026-09-12-atlas-scaling-correction.md).
-Scheduling/idle/resource/shutdown checks are next; full renderer qualification
-remains open. This acceptance is limited to the supplied Windows 7 configuration.
+These accepted slices are limited to the supplied Windows 7 configuration;
+full renderer qualification remains open.
 Simulated and actual-system DPI stay distinct. The independent mapper,
 fitter and enhanced Arabic experiments below remain separate research.
+
+Current C3 status, 2026-09-13: the
+[0.3.5 scheduling/stability slice](../validation/2026-09-13-atlas-stability.md)
+implements bounded scheduling, idle and shutdown checks. Hardware passes the
+100-cycle integrated profile locally and in the supplied Windows 7 run, while
+WARP exceeds the resource budgets on both. The native power/plain comparison
+shows a power-only growth contrast on the Windows 10 development machine and
+growth in both modes on the supplied Windows 7 setup. More threads report input
+queues as USER counts rise; ownership and a safe lifetime/bound remain unresolved.
+A recreate/reuse diagnostic is proposed, not implemented or packaged. The timed
+soak remains on hold. These results do not select a security/input workaround,
+relax budgets or reopen optional typography work.
 
 Implementation follow-up: the [0.2 font/cell probe](../validation/2026-09-11-font-mapping-probe.md)
 has supplied Windows 7 evidence identifying U+1F600 as the missing cluster.
@@ -74,13 +96,14 @@ selection. Visible-position/source/core interaction mapping is now deferred
 under Milestone 7/POL02, not the next implementation task.
 The [geometry contract](../architecture/2026-09-11-text-geometry-contract.md)
 defines core authority and consumer boundaries. The missing-glyph cause has been
-identified; production F02/adapter integration remains open. Enhanced visual
-layout/interaction policy is separate deferred work, not its acceptance gate.
+identified and the minimum production adapter is integrated in 0.3.0. Remaining
+F02 qualification has the scope recorded in the roadmap; enhanced visual
+layout/interaction policy remains separate deferred work.
 
 The [approved September 11 plan](../architecture/2026-09-11-research-driven-plan.md)
 adopted the reviewed findings. The September 12 revision and roadmap now own the
-execution order: minimal 2C adaptation, then renderer integration; run the
-3A WinPTY/OpenSSH/input feasibility gate before substantial local integration
+execution order. C1/C2 adaptation and integration are accepted, C3 is current,
+and the 3A WinPTY/OpenSSH/input feasibility gate precedes substantial local integration
 or daily-driver UI work. Text geometry, session ownership, input, accessibility,
 and output-security contracts move ahead of their dependent UI features.
 
@@ -95,9 +118,10 @@ private-font dependency and its separate license are documented above.
 Implementation follow-up: the later
 [Atlas backend validation](../validation/2026-09-11-atlas-backend-proof.md)
 records Windows 7 automated passes for both Atlas backends on hardware/WARP,
-visible Direct3D11 output, and repeated R-key recreation. The original research
-snapshots remain research, not execution reports. This new evidence is limited
-to fixed glyphs; font mapping, controller integration, and session work remain.
+visible Direct3D11 output, and repeated R-key recreation. Its fixed-glyph scope
+does not establish later font/controller integration; that evidence belongs to
+0.3.0 and its successors above. The original research snapshots remain research,
+not execution reports. Interactive local sessions and direct SSH remain future work.
 
 Start with the [project assessment](00-project-assessment.md), [API availability matrix](21-api-availability.md), and [experiment plan](20-validation-and-experiments.md). The subsystem files contain platform behavior, relevant APIs, implementation consequences, and targeted tests.
 

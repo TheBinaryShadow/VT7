@@ -1,5 +1,9 @@
 # Windows 7 viewport proof results, 2026-09-10
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 ## Result and scope
 
 VT7 proof 0.2.0 runs its real TerminalCore-backed native viewport on Windows 7

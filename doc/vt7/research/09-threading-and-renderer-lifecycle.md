@@ -1,5 +1,11 @@
 # Synchronization, timers, COM and renderer lifetime
 
+Status note, 2026-09-13: this file preserves dated research and proposals,
+not current implementation or acceptance claims. Source references and words
+such as "current", "next" and "latest" below retain their research-date scope.
+Use the [research status](README.md#planning-adoption), [current handoff](../HANDOFF.md)
+and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidence.
+
 Research date: 2026-09-11. Priority: P0.
 
 ## Two different wait adaptations
@@ -47,6 +53,16 @@ QueryPerformanceCounter is the appropriate high-resolution interval measurement 
 timeBeginPeriod affects the global timer setting on Windows 7 and must be paired with timeEndPeriod. Increased resolution has scheduling/power costs. [9] Avoid enabling 1 ms timers for the entire application lifetime as an initial pacing solution.
 
 ## Teardown protocol
+
+Later implementation clarification, 2026-09-13: the sequence below is the
+original proposal, not the current VT7 surface teardown order. The
+[0.3.5 lifetime correction](../validation/2026-09-13-atlas-stability.md)
+pauses/acknowledges rendering, destroys the HWND on its owner while the worker
+remains alive, then releases graphics on the worker and joins before deleting
+the surface. Worker exit before HWND destruction reproduced retained DXGI
+events on the development setup. This correction does not resolve the separate
+WARP resource-growth gate. Preserve the old proposal as history, not a template
+for reversing the corrected order.
 
 Proposed order:
 

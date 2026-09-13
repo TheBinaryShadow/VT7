@@ -1,5 +1,9 @@
 # Milestone 2C: differential repaint probe 0.7
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 Date: 2026-09-11. Branch: `initial-implementation-and-assessment`.
 Source base: `42de4b631716e98ef5e231f170f167d671c97939` plus uncommitted 0.6/0.7 work.
 Release stamp: `Sep 11 2026 14:04:26`, compiler `194435228`.

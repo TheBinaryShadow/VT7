@@ -10,12 +10,19 @@ sessions also passed, including 8 hardware and 6 WARP R-key recreations.
 See doc/vt7/validation/2026-09-11-atlas-backend-proof.md in the source repository.
 The tested archive is preserved; this source-document update does not rebuild it.
 
+Current handoff, 2026-09-13: VT7's integrated Atlas viewport is at 0.3.5/ABI 8.
+Its WARP lifecycle resource gate remains open. The separate native comparison
+0.1 grows on Windows 7 with and without explicit power subscriptions; this
+fixed-glyph backend harness does not replace that integrated/native evidence.
+See doc/vt7/README.md and doc/vt7/HANDOFF.md in the source repository. No repeat
+of this unchanged accepted backend proof is requested for the current handoff.
+
 Requires Windows 7 SP1 x64 with the VT7 prerequisites, including Platform
 Update KB2670838 and the Universal CRT. App-local Visual C++ runtime DLLs
 are included. No .NET, Power Automate, administrator access, or installation.
 Extract everything into a writable local folder. Keep the old GDI proof.
 
-Start here:
+Reproduction reference for a relevant regression or requested target check:
 1. Run RUN-ATLAS-TESTS.cmd. It tests four modes and produces logs and PNGs
    under Logs. Each mode renders 19 frames through an actual Atlas backend.
 2. Run RUN-ATLAS-HARDWARE.cmd. A native window should show cyan and white text.
@@ -45,15 +52,16 @@ What this exercises:
 - An event-driven visible window, with no periodic animation/idle timer.
 
 What it does not establish:
-- AtlasEngine font fallback/shaping, Unicode coverage, or the known missing
-  glyph in the earlier capability probe. That remains tracked for Milestone 2C.
+- AtlasEngine font fallback/shaping or general Unicode coverage. The integrated
+  viewport has separate bounded font-boundary acceptance from 0.3.0 onward.
 - TerminalCore/controller/WPF integration, terminal input, shells, or sessions.
 - Automatic hardware fallback, recovery from real device loss, DPI/theme
   acceptance, or long-running lifecycle/stability acceptance.
 
 The harness intentionally leaves newer DirectWrite factory/fallback and color
-font paths unused even on the development OS. AtlasEngine itself still has
-unported mandatory newer font dependencies; it is not constructed here.
+font paths unused even on the development OS. AtlasEngine is not constructed
+here. Its integrated Windows 7 font boundary is implemented separately in the
+viewport, while this frozen proof remains a test of pre-mapped glyph backends.
 The renderer library is linked only for the backend implementation and shared
 presentation routines. The accepted VT7 0.2.1 GDI host is not changed.
 

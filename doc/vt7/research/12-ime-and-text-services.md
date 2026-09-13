@@ -1,5 +1,11 @@
 # IME composition and Text Services Framework
 
+Status note, 2026-09-13: this file preserves dated research and proposals,
+not current implementation or acceptance claims. Source references and words
+such as "current", "next" and "latest" below retain their research-date scope.
+Use the [research status](README.md#planning-adoption), [current handoff](../HANDOFF.md)
+and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidence.
+
 Research date: 2026-09-11. Priority: P1; important for Chinese, Japanese, Korean and other composed input.
 
 ## Why a terminal needs an explicit design

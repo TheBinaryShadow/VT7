@@ -1,5 +1,9 @@
 # Milestone 2C: owned logical-order mapper candidate, probe 0.8
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 Planning update, 2026-09-12: reuse this candidate's applicable ownership/fallback
 work for the minimum upstream-aligned font port. Its bounded tests are not full
 Atlas acceptance. Enhanced Arabic and alternative fitting are deferred under

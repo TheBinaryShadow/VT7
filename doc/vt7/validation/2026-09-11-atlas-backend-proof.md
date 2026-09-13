@@ -1,5 +1,9 @@
 # Atlas backend proof 0.1
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 ## Outcome and scope
 
 Partial Milestone 2A/2B progress. The real Atlas Direct3D11 and Direct2D

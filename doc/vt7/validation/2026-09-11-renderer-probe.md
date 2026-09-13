@@ -1,5 +1,9 @@
 # Milestone 2A: isolated build and capability probe
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 ## Outcome
 
 Partial 2A progress, not completion of Milestone 2 or the 2A runtime gate.
@@ -9,8 +13,9 @@ renderer capability probe passes on the development machine. The accepted
 
 The first Windows 7 run passed. The probe is deliberately separate
 from Atlas. The subsequent backend proof now passes on Windows 7, while the
-full AtlasEngine still needs font/runtime adaptation, a full link/dependency
-audit, and controller integration before it can be loaded by the host.
+full AtlasEngine at this checkpoint still needed font/runtime adaptation, a full
+link/dependency audit, and controller integration before host loading. The later
+[0.3.0 viewport record](2026-09-12-atlas-viewport.md) covers that integration.
 
 ## Build evidence
 

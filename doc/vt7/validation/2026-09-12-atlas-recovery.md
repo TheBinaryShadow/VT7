@@ -1,5 +1,9 @@
 # Integrated Atlas recovery checks 0.3.2
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 Date: 2026-09-12. Status: Debug and assembled Release tests pass;
 the supplied Windows 7 run accepts this bounded recovery slice.
 This follows the accepted [0.3.1 repaint/cursor slice](2026-09-12-atlas-repaint.md).
@@ -155,5 +159,7 @@ The follow-up was the [0.3.3 settings/DPI slice](2026-09-12-atlas-settings.md),
 whose higher-scale integration failures required correction. The subsequent
 [0.3.4 matrix](2026-09-12-atlas-scaling-correction.md) now passes all 16 injected
 recovery cases and companion suites at actual Windows 7 96/120/144 DPI.
-Scheduling/idle/resource/shutdown stress is next. This later acceptance does not
-retroactively broaden the original 0.3.2 evidence or certify real driver loss.
+The subsequent [0.3.5 stability investigation](2026-09-13-atlas-stability.md)
+records scheduling/idle/resource/shutdown stress and its open acceptance issues.
+These later records do not retroactively broaden the original 0.3.2 evidence or
+certify real driver loss.

@@ -1,5 +1,9 @@
 # Milestone 2C: retained font runs and core-cell experiment
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 Date: 2026-09-11. Package: renderer/font probe 0.2. Source branch:
 `initial-implementation-and-assessment`. Implemented after the approved
 [research-driven plan](../architecture/2026-09-11-research-driven-plan.md).

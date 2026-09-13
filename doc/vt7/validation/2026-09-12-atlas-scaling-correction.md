@@ -1,5 +1,9 @@
 # Atlas scaling correction 0.3.4
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 Date: 2026-09-12. Accepted for the tested Windows 7 SP1 x64 configuration at
 actual 100%, 125% and 150% system scaling. Debug and assembled Release also pass.
 This is a bounded C3 integration correction, not a new typography experiment or
@@ -186,9 +190,12 @@ their Diagnostics tabs. Verify the title bar and bottom buttons fit the screen,
 long status remains readable through its tooltip/log, and resize/tab/focus still
 work. Missing sample rows in a short viewport are not themselves missing glyphs.
 
-The next implementation is bounded synchronized-output timeout/wait-notify,
-idle CPU, resource-growth and shutdown stress validation. No implementation of
-that slice is included in this documentation update. Theme/high-contrast and
-broader renderer qualification remain open; nonblocking typography stays in
-Milestone 7. The issued archive and assembled package are not rewritten for a
-documentation-only acceptance update, preserving their recorded hashes.
+At this checkpoint, the next implementation was bounded synchronized-output
+timeout/wait-notify, idle CPU, resource-growth and shutdown stress validation.
+The subsequent [0.3.5 stability investigation](2026-09-13-atlas-stability.md)
+records that implementation and its open acceptance issues; the
+[handoff](../HANDOFF.md) owns current priorities. Theme/high-contrast and broader
+renderer qualification remained open at this checkpoint; nonblocking typography
+stays in Milestone 7. The issued 0.3.4 archive and assembled package are not
+rewritten for documentation updates,
+preserving their recorded hashes.

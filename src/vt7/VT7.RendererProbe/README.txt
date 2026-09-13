@@ -4,15 +4,22 @@ VT7 renderer capability and font probe 0.13
 This is a Milestone 2 engineering probe, not an Atlas terminal build.
 It does not replace or modify the accepted VT7 0.2.1 GDI proof.
 
-Development direction, 2026-09-12: finish the application port first. This probe
-and its frozen evidence remain regression/research tools. The next deliverable
-is minimal Windows 7 font adaptation and an integrated Atlas viewport, not a
-new optional typography test. See ROADMAP.md Milestone 7 and
-doc/vt7/architecture/2026-09-12-port-first-plan.md in the source repository.
+Handoff update, 2026-09-13: the integrated Atlas viewport and its minimal Windows
+7 font boundary are implemented. The application is at 0.3.5/ABI 8, with WARP
+lifecycle resource growth unresolved. Native comparison 0.1 also grows on Windows
+7 in both power and plain modes; this probe does not investigate that workload.
+Its accepted 0.13 evidence remains a regression/research checkpoint. Optional
+typography and interaction experiments stay in ROADMAP.md Milestone 7.
+Start at doc/vt7/README.md and doc/vt7/HANDOFF.md in the source repository for
+current evidence and the next bounded diagnostic design.
 
 Requires Windows 7 SP1 x64 with the documented VT7 graphics/loader/UCRT
 prerequisites, including Platform Update KB2670838. This native probe does
 not require .NET or Power Automate. Pinned Visual C++ runtime DLLs are bundled.
+
+Reproduction reference: no repeat of this unchanged accepted probe is requested.
+Use the following only for a relevant regression or requested reproduction.
+The issued archive and its original README/checksum remain unchanged.
 
 1. Extract every file to a writable local folder.
 2. Run RUN-RENDERER-PROBE.cmd, without elevation.
@@ -214,7 +221,8 @@ Box/DEC special clipping is not exercised by this bitmap mapper.
 The mapper uses baseline DirectWrite layout only to select faces, then destroys
 the layout and shapes owned source with IDWriteTextAnalyzer. Mapped faces must
 provide real FontFace1. No Factory2, FontFallback, or FontFace2+ is requested by
-this candidate. This does not yet remove those dependencies from AtlasEngine.
+this candidate. The probe does not construct AtlasEngine; the integrated
+viewport uses its separate Win7FontFallback boundary for the baseline platform.
 
 All 192 fixtures check source/core/glyph coverage, cell advances, retained-data
 lifetime, fresh-remap pixels and seven stale-key variants. Eight invalid-input

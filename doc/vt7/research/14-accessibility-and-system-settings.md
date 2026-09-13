@@ -1,5 +1,11 @@
 # Accessibility, high contrast, caret and system settings
 
+Status note, 2026-09-13: this file preserves dated research and proposals,
+not current implementation or acceptance claims. Source references and words
+such as "current", "next" and "latest" below retain their research-date scope.
+Use the [research status](README.md#planning-adoption), [current handoff](../HANDOFF.md)
+and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidence.
+
 Research date: 2026-09-11. Priority: P1.
 
 ## A drawn terminal needs a text provider
@@ -44,6 +50,12 @@ Refresh relevant state on theme/system-color/settings changes and on focus/activ
 The 0.2.1 proof fixes a real host contrast defect and validates effective brushes, but the record explicitly excludes full accessibility and pixel-level acceptance. [6]
 
 ## Caret behavior and a hidden compatibility assumption
+
+Later implementation: the [0.3.0 VT7 caret path](../validation/2026-09-12-atlas-viewport.md)
+uses GetCaretBlinkTime without the newer system metric. The observed inherited
+assumption below is retained as a behavior-audit example; it is not an instruction
+to reintroduce that metric or a claim that full accessibility/theme acceptance
+is complete.
 
 GetCaretBlinkTime returns milliseconds; INFINITE indicates no blink and zero indicates failure. [7]
 

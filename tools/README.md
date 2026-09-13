@@ -1,4 +1,49 @@
-# OpenConsole Tools
+# VT7 and inherited OpenConsole tools
+
+For the Windows 7 port, start with [BUILDING.md](../BUILDING.md), the
+[documentation index](../doc/vt7/README.md) and [current handoff](../doc/vt7/HANDOFF.md).
+The `*-VT7*.ps1` scripts operate on `VT7.sln` and its separate artifact tree.
+The inherited OpenConsole tools documented afterward are not the VT7 build or
+Windows 7 acceptance workflow.
+
+## VT7 command reference
+
+Run these PowerShell scripts from the repository root. Build and test defaults
+use `Debug`; test/verification runners accept `-Configuration Release` and
+`-BinaryDirectory <folder>` where indicated. A binary-directory override does
+not redirect their fixed report paths under `artifacts/vt7/reports`, so preserve
+existing evidence before a relevant regression run.
+
+| Script | Purpose and relevant options |
+| --- | --- |
+| `Build-VT7.ps1` | Builds `VT7.sln` for x64; `-Configuration` selects `Debug` or `Release`; `-NoRestore` uses a verified dependency restore. |
+| `Restore-VT7Dependencies.ps1` | Verifies pinned WIL/GSL/fmt archive hashes and re-extracts their headers. |
+| `Verify-VT7.ps1` | x64 PE/version/import audit; `-Configuration`, `-BinaryDirectory`, and mutually exclusive `-RendererProbeOnly` / `-AtlasProofOnly`. |
+| `Verify-VT7Fonts.ps1` | Verifies pinned fonts/licenses; `-FontDirectory` selects the asset folder. |
+| `Test-VT7.ps1` | Native/core diagnostics and viewport checks; `-Configuration`, `-BinaryDirectory`, `-Renderers`, `-SkipNegative`. |
+| `Test-VT7AtlasRepaint.ps1` | Exact repaint/cursor checks; `-Configuration`, `-BinaryDirectory`, `-Renderers`; retains its expected-failure control. |
+| `Test-VT7AtlasRecovery.ps1` | Controlled recovery scenarios; `-Configuration`, `-BinaryDirectory`. |
+| `Test-VT7AtlasSettings.ps1` | Font/settings checks; `-Configuration`, `-BinaryDirectory`, `-ExpectedSystemDpi` accepts `0`, `96`, `120` or `144`. Zero leaves the actual DPI unasserted. |
+| `Test-VT7AtlasStability.ps1` | Quick by default; `-Lifecycle` and `-Soak` are mutually exclusive; `-Renderer` accepts `both`, `atlas-d3d-hardware` or `atlas-d3d-warp`; `-Configuration`, `-BinaryDirectory`. |
+| `Test-VT7RendererProbe.ps1` / `Test-VT7AtlasProof.ps1` | Independent historical harness regressions; `-Configuration`, `-BinaryDirectory`. |
+
+The current application source reports 0.3.5/ABI 8 and includes resource-isolation
+diagnostics absent from the issued 0.3.5 archive. These opt-in host CLI controls
+are documented in the [stability record](../doc/vt7/validation/2026-09-13-atlas-stability.md);
+the stability runner does not expose a resource-isolation parameter. The separate
+native comparison 0.1 has its own packaged launcher and reuses the issued native
+DLL. Both modes grow on Windows 7; exit 0 means measurement completion. The
+integrated WARP lifecycle gate remains open. No unchanged-suite repeat or timed
+soak is requested; the next recreate-versus-reuse control is a proposed design.
+
+`Package-VT7Proof.ps1`, `Package-VT7RendererProbe.ps1` and
+`Package-VT7AtlasProof.ps1` delete/recreate fixed package folders and archives
+for viewport 0.3.5, probe 0.13 and backend proof 0.1 respectively. They expose
+only `-SkipBuild`, not a destination override. Do not run them over issued
+artifacts during this investigation. Future packaging needs distinct paths and
+identity first. Packaging success and quick gates are not full target acceptance.
+
+## Inherited OpenConsole workflow
 
 These are a collection of tools and scripts to make your life building the
 OpenConsole project easier. Many of them are designed to be functional clones of

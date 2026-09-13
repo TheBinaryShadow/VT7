@@ -1,5 +1,9 @@
 # Windows Test Passes for Console
 
+> Historical Microsoft internal test-system reference, not active VT7 CI or
+> evidence that these tests ran for VT7. Use [BUILDING.md](../BUILDING.md) and
+> the [current handoff](vt7/HANDOFF.md) for actual test coverage and open gates.
+
 ## Overview
 
 Every night, we run a set of automated test passes in the Windows engineering system for the console host code. This process is orchestrated on our working branch, which at the time of this writing is `RS_ONECORE_DEP_ACIDEV` (and will soon switch back to `RS_ONECORE_DEP_ACIOSS` or something of that ilk).

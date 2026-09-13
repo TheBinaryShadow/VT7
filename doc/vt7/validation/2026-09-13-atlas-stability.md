@@ -8,6 +8,15 @@ also fails the resource budget on Windows 7. No soak was run. The
 remains accepted and its issued artifact is preserved. This is a bounded C3
 slice, not Milestone 2 completion or interactive-session support.
 
+Current resumption guide: [HANDOFF.md](../HANDOFF.md). The latest Windows 7
+native comparison below completes both modes but grows with and without power
+subscriptions; it does not transfer the development machine's power-specific
+attribution or close the integrated gate. The next recreate/reuse diagnostic is
+proposed, not implemented. The [diagnostic appendix](../diagnostics/2026-09-13-resource-investigation.md)
+preserves native source/header/launcher, trace setup and all three target logs
+for a fresh checkout; full older binaries, PDBs and raw traces remain separate
+artifacts.
+
 ## Implementation
 
 - Read renderer timer deadlines under the same core lock used for timer changes

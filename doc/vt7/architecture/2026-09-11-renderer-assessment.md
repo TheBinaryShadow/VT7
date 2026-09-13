@@ -1,16 +1,20 @@
 # Milestone 2 renderer assessment
 
-Current execution checkpoint, September 12: the supplied
-[0.3.0 Windows 7 run](../validation/2026-09-12-atlas-viewport.md) accepts the bounded
-C1/C2 font/core/Atlas integration. [0.3.1](../validation/2026-09-12-atlas-repaint.md)
-passes the supplied Windows 7 repaint/cursor checks. The
-[0.3.2 recovery slice](../validation/2026-09-12-atlas-recovery.md) also passes supplied target testing.
-The [0.3.4 scaling matrix](../validation/2026-09-12-atlas-scaling-correction.md)
-now passes all positive suites at actual Windows 7 96/120/144 DPI on the tested
-setup, resolving the recorded 0.3.3 failures. Scheduling/idle/resource/shutdown
-checks are next; theme and broader renderer qualification remain open.
-This status supersedes next-task wording in the dated
-assessment/plan below, without retroactively changing its original evidence.
+Current execution checkpoint, 2026-09-13: C1/C2 font/core/Atlas integration and
+[0.3.4 system-DPI acceptance](../validation/2026-09-12-atlas-scaling-correction.md)
+are recorded on the supplied Windows 7 setup. C3 remains open: the
+[0.3.5 integrated WARP lifecycle](../validation/2026-09-13-atlas-stability.md)
+fails its resource budgets locally and on Windows 7. The native power/plain
+comparison grows only with explicit power subscriptions on the Windows 10
+development machine, but grows in both modes on the supplied Windows 7 run.
+Ownership and boundedness remain unresolved. A recreate/reuse diagnostic is
+proposed, not implemented; the timed soak stays on hold.
+
+Use the [current handoff](../HANDOFF.md), [documentation index](../README.md),
+[port-first plan](../architecture/2026-09-12-port-first-plan.md) and
+[roadmap](../../../ROADMAP.md) for present work and completion state. Dated
+findings and proposed experiments below retain their original scope; they do
+not restart C1/C2 or make optional typography a current port gate.
 
 Reviewed September 11, 2026, at VT7 commit
 `4ffd050cc08eeaa01e25aa40734416ccabcdb13e` on
@@ -29,11 +33,12 @@ controller integration, and full runtime acceptance remain open. The source
 findings below describe the original reviewed commit; the validation records
 track later implementation and tests without rewriting that historical snapshot.
 
-## Research-driven planning follow-up
+## September 12 planning follow-up, historical
 
-Current sequencing is governed by the [September 12 port-first decision](2026-09-12-port-first-plan.md).
-The source review and acceptance evidence below remain dated records. Minimal
-font adaptation and the first integrated Atlas viewport come next; optional
+Sequencing is governed by the [September 12 port-first decision](2026-09-12-port-first-plan.md).
+The source review and acceptance evidence below remain dated records. At that
+decision, minimal font adaptation and the first integrated Atlas viewport came
+next; optional
 joined-word layout, glyph-quality refinements and enhanced hit testing belong
 to Milestone 7. Validate inherited policies and our compatibility changes,
 without requiring a typography redesign. Scheduling, source/cell correctness,
@@ -151,6 +156,10 @@ These are platform facts, not new VT7 runtime results:
 ## Proposed implementation decisions
 
 These are starting designs to validate, not claims of completed implementation.
+In particular, the original worker-before-HWND teardown wording in item 5 is
+superseded by the [0.3.5 lifetime correction](../validation/2026-09-13-atlas-stability.md):
+rendering pauses, the HWND is destroyed while the worker remains alive, then
+graphics cleanup and worker join complete before surface deletion.
 
 1. **Isolate, then integrate.** Add a VT7 renderer static-library project or
    equivalent isolated target under `src/vt7`, sharing the pinned dependencies.
@@ -201,7 +210,7 @@ layer is selected by this plan. Revisit the design if an experiment requires
 one of those changes. Modern color/variable-font features are not a first-pixel
 gate, but unsupported behavior must be reported and the product bar retained.
 
-## First implementation slice
+## Original first implementation slice
 
 Start with 2A and narrowly scoped experiments for 2B/2C:
 
@@ -263,3 +272,8 @@ as untested, not passed. The product's release floor remains unchanged.
 
 Update this assessment as those questions are answered. No amount of additional
 source inspection can replace these experiments or real Windows 7 acceptance.
+
+Current answers and unresolved work belong to the dated validation records,
+[handoff](../HANDOFF.md) and [roadmap](../../../ROADMAP.md). Preserve the source
+review above as the September 11 snapshot instead of treating every original
+question or procedure as a new prerequisite.

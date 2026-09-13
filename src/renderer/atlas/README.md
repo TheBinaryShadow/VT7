@@ -1,5 +1,10 @@
 # AtlasEngine
 
+> This is the inherited Atlas architecture reference. VT7's downlevel interfaces,
+> font boundary, presentation and current qualification limits are documented
+> in the [VT7 renderer notes](../../vt7/VT7.Renderer/README.md) and
+> [development handoff](../../../doc/vt7/HANDOFF.md).
+
 ## General architecture overview
 
 ```mermaid

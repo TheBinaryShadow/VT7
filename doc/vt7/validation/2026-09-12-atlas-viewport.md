@@ -1,5 +1,9 @@
 # Atlas viewport 0.3.0: first full-engine integration
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 Date: 2026-09-12. Status: C1/C2 accepted on the supplied Windows 7 SP1 x64
 configuration. This is not completion of Milestone 2 or a separate ESU result.
 The [port-first plan](../architecture/2026-09-12-port-first-plan.md) governs scope.
@@ -168,8 +172,11 @@ idle/hidden/minimized CPU and bounded scheduling/teardown stress. The smoke test
 do not prove lost-wake freedom, resource-growth budgets or long-running stability.
 Do not restart optional typography research unless a named port blocker needs it.
 
-Current follow-up: the [0.3.4 matrix](2026-09-12-atlas-scaling-correction.md) now
+Later follow-up: the [0.3.4 matrix](2026-09-12-atlas-scaling-correction.md)
 accepts bounded viewport, repaint, injected recovery and font/settings checks at
 actual Windows 7 96/120/144 DPI. It resolves the intervening 0.3.3 scaling failures.
-Scheduling/idle/resource/shutdown checks are next; theme and broader milestone
-qualification remain open. Earlier evidence above retains its original scope.
+Theme and broader milestone qualification remained open at that checkpoint.
+The subsequent [0.3.5 stability investigation](2026-09-13-atlas-stability.md)
+records scheduling, idle, resource and shutdown checks and their open acceptance
+issues. Use the [handoff](../HANDOFF.md) for current priorities. Earlier evidence
+above retains its original scope.

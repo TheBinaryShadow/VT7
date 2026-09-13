@@ -1,5 +1,9 @@
 # Milestone 1 cleanup, proof 0.2.1
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 ## Outcome
 
 Milestone 1 is complete on the tested Windows 7 SP1 x64 configurations. The

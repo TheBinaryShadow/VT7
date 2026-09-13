@@ -1,5 +1,11 @@
 # SSH connection architecture and remote PTY behavior
 
+Status note, 2026-09-13: this file preserves dated research and proposals,
+not current implementation or acceptance claims. Source references and words
+such as "current", "next" and "latest" below retain their research-date scope.
+Use the [research status](README.md#planning-adoption), [current handoff](../HANDOFF.md)
+and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidence.
+
 Research date: 2026-09-11. Priority: P1. No SSH implementation has been selected or integrated by this research.
 
 **Reassessment:** Microsoft's Win32-OpenSSH installation instructions explicitly include Windows 7. Its current listed release brings a modern OpenSSH/LibreSSL stack. Evaluate that maintained client first as an external-process backend; modern SSH cryptography is substantially less uncertain than the original shortlist implied. Raw terminal I/O, authentication prompts and remote resize still require a proven integration boundary. See the [OpenSSH reassessment](22-win32-openssh-reassessment.md). [12][13]

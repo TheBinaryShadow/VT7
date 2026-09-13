@@ -1,19 +1,23 @@
 # Research-driven development plan
 
-Current execution checkpoint, September 12: the supplied
-[0.3.0 Windows 7 run](../validation/2026-09-12-atlas-viewport.md) accepts the bounded
-C1/C2 font/core/Atlas integration. [0.3.1](../validation/2026-09-12-atlas-repaint.md)
-passes the supplied Windows 7 repaint/cursor checks. The
-[0.3.2 recovery slice](../validation/2026-09-12-atlas-recovery.md) also passes supplied target testing.
-The [0.3.4 scaling matrix](../validation/2026-09-12-atlas-scaling-correction.md)
-now passes all positive suites at actual Windows 7 96/120/144 DPI on the tested
-setup, resolving the recorded 0.3.3 failures. Scheduling/idle/resource/shutdown
-checks are next; theme and broader renderer qualification remain open.
-This status supersedes next-task wording in the dated
-assessment/plan below, without retroactively changing its original evidence.
+Current execution checkpoint, 2026-09-13: C1/C2 font/core/Atlas integration and
+[0.3.4 system-DPI acceptance](../validation/2026-09-12-atlas-scaling-correction.md)
+are recorded on the supplied Windows 7 setup. C3 remains open: the
+[0.3.5 integrated WARP lifecycle](../validation/2026-09-13-atlas-stability.md)
+fails its resource budgets locally and on Windows 7. The native power/plain
+comparison grows only with explicit power subscriptions on the Windows 10
+development machine, but grows in both modes on the supplied Windows 7 run.
+Ownership and boundedness remain unresolved. A recreate/reuse diagnostic is
+proposed, not implemented; the timed soak stays on hold.
 
-Decision date: 2026-09-11. Status: approved planning direction, implementation
-pending. This records the accepted review of the [research collection](../research/README.md).
+Use the [current handoff](../HANDOFF.md), [documentation index](../README.md),
+[port-first plan](../architecture/2026-09-12-port-first-plan.md) and
+[roadmap](../../../ROADMAP.md) for present work and completion state. Dated
+findings and proposed experiments below retain their original scope; they do
+not restart C1/C2 or make optional typography a current port gate.
+
+Decision date: 2026-09-11. Status at that date: approved planning direction,
+implementation pending. This records the accepted review of the [research collection](../research/README.md).
 The [roadmap](../../../ROADMAP.md) owns the execution checklist and completion
 state. Research documents explain the evidence and alternatives; validation
 records own runtime results. This planning change ran no application tests.
@@ -135,7 +139,7 @@ Experiment definitions and evidence requirements remain in the
 | 4 | A01, C01, D01; U01 range checks | Usable panes/profiles/settings, native accessible text, cluster-safe copy/search and persistence. |
 | 5 | S01 and direct-SSH U01/I01/I02/C01 coverage | Selected SSH implementation passes trust, authentication, terminal fidelity, resize, and failure acceptance. |
 | Every runtime addition and 6 | L01 and extended regression/soak matrix | Dependency closure, privacy, exact package evidence, and complete-product qualification. |
-| 7 | Deferred POL01-POL06 and new observations | Bounded polish selection, explicit disposition of optional work, and release readiness. |
+| 7 | The roadmap's deferred POL register and new observations | Bounded polish selection, explicit disposition of optional work, and release readiness. |
 
 Priority labels in original research are not a global instruction to execute
 everything immediately. In particular, SSH selection moves forward to 3A,
@@ -143,7 +147,7 @@ accessibility contracts precede their UI implementation, and security is not
 deferred to final hardening. 3A experiments need only a bounded harness, not a
 finished interface. Milestone 2 remains independent of live transports.
 
-## Next handoff
+## Original next handoff, superseded by the current checkpoint
 
 The next implementation slice is C1/2C: adapt the real AtlasEngine font boundary
 using the existing evidence and upstream-aligned cell/shaping policy. Then C2/2D

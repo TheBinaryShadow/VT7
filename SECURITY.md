@@ -37,7 +37,7 @@ VT7 has not published a supported release.
 
 | Version | Security status |
 | --- | --- |
-| `main` | Active development, no stability or support guarantee |
+| Development branches and engineering candidates | Active development, no stability or support guarantee |
 | Unofficial builds | Not supported by the VT7 project |
 
 This table will be updated before the first public alpha release.

@@ -1,5 +1,9 @@
 # Integrated Atlas repaint checks 0.3.1
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 Date: 2026-09-12. Status: local Debug/Release checks pass; supplied Windows 7
 evidence accepts this bounded repaint/cursor slice on the tested configuration.
 
@@ -135,4 +139,5 @@ The follow-up was the [0.3.2 controlled recovery slice](2026-09-12-atlas-recover
 The later [0.3.4 corrective matrix](2026-09-12-atlas-scaling-correction.md) accepts
 the same bounded repaint corpus and companion suites at actual Windows 7
 96/120/144 DPI. This is still not completion of C3 or Milestone 2; bounded
-scheduling/idle/resource/shutdown checks are next.
+scheduling/idle/resource/shutdown checks and their open acceptance issues are
+recorded in the subsequent [0.3.5 stability investigation](2026-09-13-atlas-stability.md).

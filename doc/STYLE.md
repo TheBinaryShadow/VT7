@@ -1,5 +1,10 @@
 # Coding Style
 
+> Retained upstream style guidance. Reuse applicable subsystem conventions, but
+> TerminalApp/WinRT-specific advice is not a VT7 platform requirement. Follow
+> [CONTRIBUTING.md](../CONTRIBUTING.md) for the Windows 7 floor, no-em-dash rule,
+> current scope and provenance expectations.
+
 ## Philosophy
 1. If it's inserting something into the existing classes/functions, try to follow the existing style as closely as possible.
 1. If it's brand new code or refactoring a complete class or area of the code, please follow as Modern C++ of a style as you can and reference the [C++ Core Guidelines](https://github.com/isocpp/CppCoreGuidelines) as much as you possibly can.

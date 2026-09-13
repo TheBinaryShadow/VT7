@@ -1,5 +1,9 @@
 # VT7 Support
 
+For a new developer or resumed task, start with the
+[development handoff](doc/vt7/HANDOFF.md). Historical test instructions below
+are reproduction guidance, not requests to repeat already supplied evidence.
+
 The separate `VT7-resource-comparison-0.1-x64.zip` has supplied Windows 7
 results: both native-only measurements complete, but both gain resources.
 The development machine's notification-specific contrast does not reproduce
@@ -15,7 +19,7 @@ protections and system settings unchanged. Retain incomplete logs if either
 measurement fails. See the target results and remaining attribution limits in the
 [stability record](doc/vt7/validation/2026-09-13-atlas-stability.md).
 
-For the 0.3.5 scheduling/stability candidate, run `RUN-STABILITY-TEST.cmd` first
+To reproduce the 0.3.5 scheduling/stability candidate's earlier profile, run `RUN-STABILITY-TEST.cmd` first
 and retain both named reports and `.progress.log` files. Next use
 `RUN-STABILITY-LIFECYCLE.cmd` for the bounded 100-cycle comparison and return
 its results first. Hardware passes locally and on the supplied Windows 7 setup,
@@ -76,6 +80,15 @@ failures. At 150%, a shorter viewport may show only the sample's lower rows;
 the title bar and bottom controls should still fit the monitor work area.
 
 ## Questions and help
+
+For the current resource investigation, include the exact package filename and
+SHA256 if available, configuration/native ABI, command or launcher, all named
+reports and progress files, exit code, interruptions and the actual environment.
+The standalone resource comparison's `VT7.Host.exe` is native-only, not the WPF
+application. Its exit 0 means measurements completed, not growth accepted.
+Do not label a static-viewport report as WinPTY or SSH testing; those session
+backends are not integrated. Keep security settings unchanged unless a separately
+agreed, narrowly scoped investigation requires user action.
 
 The 0.3.0 Atlas viewport passes local engineering tests and supplied Windows 7
 C1/C2 checks on the tested configuration. It adds the real font/controller/core path, not sessions.

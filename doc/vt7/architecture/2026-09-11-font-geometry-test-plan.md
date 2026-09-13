@@ -1,22 +1,28 @@
 # Milestone 2C: geometry and repaint experiment history
 
-Current execution checkpoint, September 12: the supplied
-[0.3.0 Windows 7 run](../validation/2026-09-12-atlas-viewport.md) accepts the bounded
-C1/C2 font/core/Atlas integration. [0.3.1](../validation/2026-09-12-atlas-repaint.md)
-passes the supplied Windows 7 repaint/cursor checks. The
-[0.3.2 recovery slice](../validation/2026-09-12-atlas-recovery.md) also passes supplied target testing.
-The [0.3.4 scaling matrix](../validation/2026-09-12-atlas-scaling-correction.md)
-now passes all positive suites at actual Windows 7 96/120/144 DPI on the tested
-setup, resolving the recorded 0.3.3 failures. Scheduling/idle/resource/shutdown
-checks are next; theme and broader renderer qualification remain open.
-This status supersedes next-task wording in the dated
-assessment/plan below, without retroactively changing its original evidence.
+Current execution checkpoint, 2026-09-13: C1/C2 font/core/Atlas integration and
+[0.3.4 system-DPI acceptance](../validation/2026-09-12-atlas-scaling-correction.md)
+are recorded on the supplied Windows 7 setup. C3 remains open: the
+[0.3.5 integrated WARP lifecycle](../validation/2026-09-13-atlas-stability.md)
+fails its resource budgets locally and on Windows 7. The native power/plain
+comparison grows only with explicit power subscriptions on the Windows 10
+development machine, but grows in both modes on the supplied Windows 7 run.
+Ownership and boundedness remain unresolved. A recreate/reuse diagnostic is
+proposed, not implemented; the timed soak stays on hold.
+
+Use the [current handoff](../HANDOFF.md), [documentation index](../README.md),
+[port-first plan](../architecture/2026-09-12-port-first-plan.md) and
+[roadmap](../../../ROADMAP.md) for present work and completion state. Dated
+findings and proposed experiments below retain their original scope; they do
+not restart C1/C2 or make optional typography a current port gate.
 
 Sequencing update, 2026-09-12: the [port-first plan](2026-09-12-port-first-plan.md)
 and [roadmap](../../../ROADMAP.md) supersede the historical next-slice instructions
 below. Probes 0.6-0.13 and their acceptance evidence are retained. Continue with
 minimal Windows 7 font adaptation and real Atlas integration, not an additional
-optional typography probe. POL01-POL04 track enhanced layout/paint/quality work.
+optional typography probe. That minimum integration is now accepted as C1/C2;
+the current C3 work is identified above. POL01-POL04 track enhanced layout,
+paint and quality work.
 
 Date: 2026-09-11. Status: first slice implemented in
 [probe 0.6](../validation/2026-09-11-geometry-probe.md) with supplied Windows 7

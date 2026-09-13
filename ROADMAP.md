@@ -1,5 +1,11 @@
 # VT7 Roadmap
 
+This file owns milestone completion and deferred-work triage. Start with the
+[current handoff](doc/vt7/HANDOFF.md) for the active C3 investigation and the
+[documentation index](doc/vt7/README.md) for the code, build and evidence map.
+The [port-first decision](doc/vt7/architecture/2026-09-12-port-first-plan.md)
+owns execution direction; dated research remains supporting evidence and proposals.
+
 This roadmap defines what VT7 is trying to achieve and how we will know when it
 has arrived. It is intentionally ambitious. Windows 7 users have waited long
 enough for a terminal that treats the platform as a first-class home.
@@ -36,9 +42,10 @@ It keeps the platform floor, upstream baseline, required product workflows, and
 recorded test results. Milestones 0 through 6 retain their numbers; Milestone 7
 adds final polish and release readiness, not a requirement to implement every idea.
 
-Short term: complete the application port, starting with the minimum 2C font
-adaptation and a real TerminalCore-backed Atlas viewport in 2D. Then close the
-integrated renderer gates and proceed to sessions and the daily-driver interface.
+Short term: complete the application port. The minimum 2C font adaptation and
+TerminalCore-backed Atlas viewport in 2D are implemented and accepted as C1/C2
+on the supplied Windows 7 setup. Continue C3 renderer qualification, then the
+session choices and daily-driver interface in their existing milestone order.
 Long term: improve the finished port deliberately, using retained research and
 user feedback without making optional enhancements an indefinite release barrier.
 
@@ -55,7 +62,8 @@ The 0.3.2 automatic fallback/recovery slice also passes the supplied Windows 7
 run at its tested scale. The 0.3.3 higher-scale viewport/recovery failures are
 resolved in the accepted 0.3.4 matrix: all positive suites pass at measured
 Windows 7 96/120/144 system DPI. The bounded scaling gate is closed on this setup.
-Next are synchronized-output/wait-notify, idle/resource and shutdown stress checks.
+The following C3 slice adds synchronized-output/wait-notify, idle/resource and
+shutdown stress checks.
 The [0.3.5 scheduling/stability slice](doc/vt7/validation/2026-09-13-atlas-stability.md)
 now implements those bounded diagnostics. Hardware passes 100 lifecycles locally
 and on the supplied Windows 7 setup. WARP completes the operations but fails its
@@ -72,9 +80,13 @@ are separate evidence, not interchangeable passes.
 The development control still fails after the user-approved ESET inspection
 exclusion, with its in-process monitor absent from the module samples. The
 exclusion was removed. The native power/plain target comparison is now recorded.
-Next distinguish per-thread initialization/retention from per-surface growth in
-a bounded control and account for the integrated process before changing the
-acceptance model. Do not disable notifications, IME or WARP workers as a fix.
+The next proposed diagnostic compares repeated surface recreation with reuse
+under a matched bounded workload and records individual thread lifetimes and
+input-queue observations. It is not implemented or packaged. It tests lifecycle
+dependence; reuse also changes HWND, device and presentation-worker churn, so
+it cannot alone establish harmless per-thread initialization. Ownership and the
+integrated-process explanation remain required before changing the acceptance
+model. Do not disable notifications, IME or WARP workers as a fix.
 This does not close Milestone 2 or start another optional typography experiment.
 
 Before substantial local-session integration or daily-driver UI construction,
@@ -269,7 +281,8 @@ yet recorded; Milestone 1's ESU results do not substitute for it.
   COM interface requests in Debug, Release, and the assembled package.
 - [ ] Audit behavior as well as imports: flags, enum/metric values, interface
   methods, and resource ownership must work on the declared Windows 7 floor.
-  Resolve the caret-blink metric assumption before cursor acceptance.
+  The 0.3.0 VT7 caret path uses GetCaretBlinkTime instead of the newer metric;
+  that implementation does not close the complete behavior audit.
 - [x] Add capability diagnostics for the actual graphics and font paths, with
   distinct required failures and optional-interface observations. The standalone
   probe passes on the development system and the tested Windows 7 setup.
@@ -302,6 +315,8 @@ machine. Full controller scheduling and wider lifecycle acceptance remain open.
   buffer count, and flags. Exclude the DirectComposition surface path.
 - [ ] Remove mandatory frame-latency waitable objects and implement bounded,
   interruptible scheduling without busy-spinning while hidden or minimized.
+  The VT7 path has removed the newer waitable-object dependency and implements
+  event-based waits. Its wider qualification remains open under C3/0.3.5.
 - [x] Start with a correctly redrawn full frame and conservative presentation.
   Enable dirty-rectangle/scroll optimizations only after separate validation.
 - [x] Exercise both an explicit hardware device and explicit WARP device in
@@ -323,12 +338,14 @@ are in place. The 48-case local font check and missing/altered-asset controls pa
 Windows 7 font identities and the bounded mixed-script sample now pass;
 C3 qualification still needs testing. No experimental Arabic/fitter pipeline has been adopted.
 
-Current gate: the minimum Windows 7 font adaptation needed by the real AtlasEngine,
+Accepted C1 scope: the minimum Windows 7 font adaptation needed by the real AtlasEngine,
 preserving inherited shaping direction, cluster-to-cell advance fitting and primary
 grid behavior. Reuse the 0.8 mapper's applicable ownership/fallback work, not the
 entire experimental rendering stack. Enhanced Arabic layout and fitting/paint
 alternatives are retained below as completed research and tracked in Milestone 7;
-they are not prerequisites to the first Atlas viewport.
+they are not prerequisites to the accepted first Atlas viewport. The retained
+checklist below also records historical experiments, conditional adoption gates
+and broader consumer/renderer qualification; it does not reopen C1/C2.
 
 The supplied Windows 7 probe 0.2 passes 51 required checks and maps nine fixtures.
 It identifies the original missing glyph as U+1F600, selected as Consolas glyph
@@ -357,9 +374,9 @@ These partial F01/F02 results do not close the unchecked gates below.
 
 The completed experiment sequence is described in the
 [geometry and repaint test plan](doc/vt7/architecture/2026-09-11-font-geometry-test-plan.md):
-geometry/size/DPI and differential repaint preceded adapter work. The current
-next step is the bounded C3 scheduling and stability slice after the accepted
-0.3.4 scaling correction, not another typography probe.
+geometry/size/DPI and differential repaint preceded adapter work. The 0.3.5
+scheduling/stability harness now exists; the current C3 task is the unresolved
+WARP resource investigation described above, not another typography probe.
 [Probe 0.6](doc/vt7/validation/2026-09-11-geometry-probe.md)
 implements the offscreen geometry matrix and passes on the supplied Windows 7 setup.
 Vertical overflow observations are covered by the approved upstream-aligned
@@ -397,7 +414,8 @@ are deferred under POL02 in Milestone 7, not prerequisites to upstream-style Atl
   the supplied target: 575 faces, zero supporting U+1F600, zero scan errors.
   KB2729094 is user-confirmed installed. This is a tested-machine observation,
   not a universal font inventory or a reason to reinstall that update.
-- [ ] Accept whole-ink fitting visually on Windows 7, including emoji neighbors,
+- [ ] If adopting the optional whole-ink fitter (POL04), accept it visually on
+  Windows 7, including emoji neighbors,
   italic overhang, and compression quality. Extend vertical/DPI/size coverage
   before adopting the fitting policy in Atlas.
 - [x] Bundle unmodified, pinned static Unifont/Unifont Upper 17.0.05 in the
@@ -495,7 +513,7 @@ are deferred under POL02 in Milestone 7, not prerequisites to upstream-style Atl
 - [ ] Reuse the existing layout-callback/analyzer evidence for the production
   adapter. Compare another approach only if a named integration blocker requires
   it. Record correctness, font identity/lifetime, caching and cost (remaining F02).
-- [x] Document [text geometry contract v0.1](doc/vt7/architecture/2026-09-11-text-geometry-contract.md):
+- [x] Document the [text geometry contract](doc/vt7/architecture/2026-09-11-text-geometry-contract.md):
   core authority, snapshot ownership, coordinate spaces, natural ink/damage,
   and consumer rules. Diagnostic visual bidi is not the production default.
 - [ ] Implement and verify the authoritative core-cell model and mappings among UTF-16,
@@ -528,9 +546,12 @@ setup; C3 still owns the broader renderer checks below.
   Keep the core/test fixtures consistent with the selected renderer type.
 - [x] Replace address-based waits in redraw/timers and synchronized output with
   Windows 7 kernel events and interruptible stop paths. Local tests pass;
-  deadline/lost-wake stress and target scheduling acceptance remain open in 2B/2E.
+  the 0.3.5 deadline/wake/shutdown tests have local and supplied target evidence,
+  while WARP resource qualification remains open in 2B/2E.
 - [x] Define device/thread ownership, core locking, tab hide/show, and teardown.
-  Stop rendering before releasing the HWND, core, engine, or device resources.
+  Pause rendering before HWND destruction, keep the worker alive through that
+  destruction, then release graphics on the worker and join before surface deletion.
+  The 0.3.5 ordering supersedes the earlier worker-exit-first proposal.
 - [x] Propagate actual font metrics, viewport size, invalidation, and settings
   through the native boundary; version any ABI changes in both native and host.
 - [x] Render the existing TerminalCore sample through Atlas locally and package the
@@ -569,8 +590,9 @@ and a first-row-only blank-frame assumption. Its supplied Windows 7 matrix now
 passes all 6 viewport modes, 4 repaint modes, 16 recovery cases and 5 settings
 modes at each actual scale. Strict same-device image comparison is retained.
 This accepts the bounded system-DPI checkpoint on the tested configuration.
-Next, prioritize synchronized-output/wait-notify, idle/resource and shutdown checks;
-defer non-blocking typography and visual refinements to Milestone 7.
+The subsequent 0.3.5 slice supplies bounded synchronized-output/wait-notify,
+idle/resource and shutdown checks. Its integrated WARP resource failure keeps
+C3 open; non-blocking typography and visual refinements remain in Milestone 7.
 
 - [x] Add forced hardware/WARP modes and test automatic hardware-failure
   fallback. A GDI fallback must be reported and cannot pass an Atlas test.

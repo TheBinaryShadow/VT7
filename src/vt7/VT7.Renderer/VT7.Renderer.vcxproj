@@ -49,7 +49,7 @@
       <AdditionalOptions>/O3 %(AdditionalOptions)</AdditionalOptions>
     </FxCompile>
   </ItemDefinitionGroup>
-  <!-- Backend harness boundary. The full engine/font mapper is not yet ported. -->
+  <!-- Full Atlas engine and Windows 7 font/presentation boundary. See README.md for qualification scope. -->
   <ItemGroup>
     <ClCompile Include="Win7Presentation.cpp" />
     <ClCompile Include="Win7FontFallback.cpp" />

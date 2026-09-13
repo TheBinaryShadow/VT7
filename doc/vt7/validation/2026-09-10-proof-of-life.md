@@ -1,5 +1,9 @@
 # Windows 7 proof-of-life observations, 2026-09-10
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 The user supplied a screenshot and three diagnostic logs from proof 0.1.0:
 `proof-20260910-111631.log`, `proof-20260910-111639.log`, and
 `proof-20260910-111640.log`. This record summarizes the observations without

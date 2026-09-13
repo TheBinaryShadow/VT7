@@ -1,5 +1,9 @@
 # Probe 0.10: Arabic context, ordering and cursive spacing
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 Planning update, 2026-09-12: enhanced context repair and joined-word layout are
 retained research under Milestone 7/POL01, not requirements for the baseline port.
 The [port-first plan](../architecture/2026-09-12-port-first-plan.md) supersedes

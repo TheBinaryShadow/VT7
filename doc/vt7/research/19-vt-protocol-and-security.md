@@ -1,5 +1,11 @@
 # VT protocol integration and terminal trust boundaries
 
+Status note, 2026-09-13: this file preserves dated research and proposals,
+not current implementation or acceptance claims. Source references and words
+such as "current", "next" and "latest" below retain their research-date scope.
+Use the [research status](README.md#planning-adoption), [current handoff](../HANDOFF.md)
+and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidence.
+
 Research date: 2026-09-11. Priority: P0 when connecting the first real session. This file concerns application behavior; it does not claim that Windows 7's system console implements modern VT.
 
 ## The inherited parser is only part of the terminal

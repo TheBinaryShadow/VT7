@@ -1,5 +1,9 @@
 # Creating a New Project
 
+> Historical upstream WinRT/project guidance. Do not infer a WinRT dependency
+> or a new-project requirement for VT7 from this page. Follow the current
+> [build guide](../BUILDING.md), [handoff](vt7/HANDOFF.md) and existing VT7 targets.
+
 ## Creating a new WinRT Component DLL and referencing it in another project
 
 When creating a new DLL, it was really helpful to reference an existing DLL's `.vcxproj` like `TerminalControl.vcxproj`. While you should mostly try to copy what the existing `.vcxproj` has, here's a handful of things to double check for as you go along.

@@ -1,26 +1,32 @@
 # Text geometry contract v0.2
 
-Current execution checkpoint, September 12: the supplied
-[0.3.0 Windows 7 run](../validation/2026-09-12-atlas-viewport.md) accepts the bounded
-C1/C2 font/core/Atlas integration. [0.3.1](../validation/2026-09-12-atlas-repaint.md)
-passes the supplied Windows 7 repaint/cursor checks. The
-[0.3.2 recovery slice](../validation/2026-09-12-atlas-recovery.md) also passes supplied target testing.
-The [0.3.4 scaling matrix](../validation/2026-09-12-atlas-scaling-correction.md)
-now passes all positive suites at actual Windows 7 96/120/144 DPI on the tested
-setup, resolving the recorded 0.3.3 failures. Scheduling/idle/resource/shutdown
-checks are next; theme and broader renderer qualification remain open.
-This status supersedes next-task wording in the dated
-assessment/plan below, without retroactively changing its original evidence.
+Current execution checkpoint, 2026-09-13: C1/C2 font/core/Atlas integration and
+[0.3.4 system-DPI acceptance](../validation/2026-09-12-atlas-scaling-correction.md)
+are recorded on the supplied Windows 7 setup. C3 remains open: the
+[0.3.5 integrated WARP lifecycle](../validation/2026-09-13-atlas-stability.md)
+fails its resource budgets locally and on Windows 7. The native power/plain
+comparison grows only with explicit power subscriptions on the Windows 10
+development machine, but grows in both modes on the supplied Windows 7 run.
+Ownership and boundedness remain unresolved. A recreate/reuse diagnostic is
+proposed, not implemented; the timed soak stays on hold.
 
-Date: 2026-09-11. Status: implementation contract for the next adapter work,
-not a claim that interactive consumers or the adapter are implemented.
+Use the [current handoff](../HANDOFF.md), [documentation index](../README.md),
+[port-first plan](../architecture/2026-09-12-port-first-plan.md) and
+[roadmap](../../../ROADMAP.md) for present work and completion state. Dated
+findings and proposed experiments below retain their original scope; they do
+not restart C1/C2 or make optional typography a current port gate.
+
+Date: 2026-09-11. Status at that date: implementation contract for the next
+adapter work, not a claim that interactive consumers or the adapter are implemented.
 This follows the approved [research-driven plan](2026-09-11-research-driven-plan.md).
 
 Sequencing clarification, 2026-09-12: the [port-first decision](2026-09-12-port-first-plan.md)
 preserves this contract's core authority, upstream grid and safety rules.
 Descriptions of experimental fitting, joining and paint below are not production
 requirements. Their adoption conditions move to Milestone 7/POL01-POL04; the
-minimum upstream-aligned adapter and real Atlas viewport are the current goal.
+minimum upstream-aligned adapter and real Atlas viewport were the next goal,
+subsequently accepted as C1/C2. This contract does not imply that its deferred
+interactive or experimental consumers have been implemented.
 
 ## Authority and coordinate spaces
 
@@ -208,7 +214,11 @@ shaping cluster; a paint seam is not a character-owned glyph boundary. Same-
 outline color slices and different-outline hybrids are distinct experiments.
 No cluster-wide font override, caret position or production hybrid is selected.
 
-## Before baseline Atlas integration can be accepted
+## Original baseline Atlas integration gates
+
+The current checkpoint and roadmap distinguish the completed minimum adapter
+from wider qualification and deferred adoption conditions. Retain this original
+list as the contract's history, not a fresh instruction to repeat C1/C2.
 
 - Preserve the accepted 0.4/0.5 Windows 7 fixed-geometry comparison as a regression
   reference. Expand it through the [geometry/repaint plan](2026-09-11-font-geometry-test-plan.md).

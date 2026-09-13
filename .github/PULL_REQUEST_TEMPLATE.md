@@ -27,6 +27,8 @@ List automated tests and manual checks. For Windows 7 testing, include:
 - Physical machine or virtual machine.
 - Windows edition, architecture, and update tier.
 - GPU, driver, hardware D3D or WARP, and DPI where relevant.
+- Exact build configuration/native ABI, artifact filename and SHA256 where available.
+- Test profile, process exit status, complete/partial/not-run evidence, and retained failures.
 - Shell or remote application and exact version.
 - Session backend.
 
@@ -41,6 +43,7 @@ of modifications. Write `None` if the change contains no adapted code.
 - [ ] The change is focused and matches the VT7 roadmap.
 - [ ] Tests were added or updated where practical.
 - [ ] Documentation was updated where behavior or requirements changed.
+- [ ] The development handoff and relevant validation record distinguish implemented work, verified results, open failures and the next task.
 - [ ] Windows 7 compatibility was tested or the missing test coverage is stated.
 - [ ] New dependencies and imported APIs were reviewed for the Windows 7 floor.
 - [ ] Third-party provenance and notices are complete.

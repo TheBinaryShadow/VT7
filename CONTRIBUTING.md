@@ -9,8 +9,8 @@ rewrite that assumes the destination is already settled.
 
 ## Before starting
 
-1. Read the [README](README.md), [roadmap](ROADMAP.md), and
-   [upstream policy](UPSTREAM.md).
+1. Read the [README](README.md), [development handoff](doc/vt7/HANDOFF.md),
+   [roadmap](ROADMAP.md), and [upstream policy](UPSTREAM.md).
 2. Search the [issue tracker](https://github.com/TheBinaryShadow/VT7/issues) for
    an existing discussion.
 3. Open an issue before beginning a large feature, architectural change,
@@ -35,10 +35,11 @@ optimizations should not interrupt the port. Release triage may defer them to
 post-release work. Source loss, unsafe input, security, stability and failures
 of required workflows remain immediate concerns, not optional polish.
 
-The 0.2 host/core/static-viewport proof now runs on tested Windows 7 non-ESU and
-ESU setups. Start with [BUILDING.md](BUILDING.md) and the
-[validation record](doc/vt7/validation/2026-09-10-viewport-proof.md) to understand
-what already works and what the proof does not cover.
+Start with [BUILDING.md](BUILDING.md) and the current
+[stability record](doc/vt7/validation/2026-09-13-atlas-stability.md).
+The working source is 0.3.5/ABI 8, with a static Atlas viewport, not sessions.
+The earlier 0.2 host/core proof ran on tested Windows 7 non-ESU and ESU setups;
+that historical result does not qualify every later build or update tier.
 
 The isolated Atlas backend proof now also has Windows 7 hardware/WARP results,
 including visible Direct3D11 and repeated device recreation. Read the
@@ -74,12 +75,18 @@ injected failures distinct from real driver failures and forced renderer modes s
 0.3.3 font/settings tests passed at actual Windows 7 96/120/144 DPI but exposed
 higher-scale viewport/recovery failures. Current 0.3.4 passes all positive suites
 at those scales on the supplied setup, accepting the bounded scaling checkpoint.
-Next are scheduling/idle/resource/shutdown checks, not optional typography.
-Build 0.3.5 implements that bounded slice, with distinct quick, full-lifecycle
+Build 0.3.5 implements scheduling/idle/resource/shutdown checks, with distinct quick, full-lifecycle
 and extended-soak profiles. Follow the [stability record](doc/vt7/validation/2026-09-13-atlas-stability.md),
 keep resource-growth failures visible and do not equate a quick pass with target
 soak acceptance. Native HWND destruction must finish before its presentation
 worker exits; hidden workers park rather than terminate.
+Hardware lifecycle passes locally and on the supplied Windows 7 setup, while
+integrated WARP growth remains unresolved. The native-only comparison grows in
+both modes on Windows 7, unlike the development machine's power/plain contrast.
+The next proposed bounded diagnostic is recreate versus reuse with individual
+thread identities. It is not implemented or accepted; do not widen budgets,
+increase warm-up to hide growth, disable input/security features, or run the
+timed soak as a substitute for attribution.
 Retain negative controls and exact same-device
 comparisons; see the [correction record](doc/vt7/validation/2026-09-12-atlas-scaling-correction.md).
 The 3A feasibility gate applies before substantial local
@@ -166,6 +173,23 @@ implementation.
 Write short, descriptive commit subjects. Keep imported upstream changes
 traceable to their source commit. Do not rewrite Microsoft Terminal history or
 remove existing attribution to make the fork look independent of its roots.
+
+## Keeping the project resumable
+
+For a development or test checkpoint, update the [handoff](doc/vt7/HANDOFF.md),
+the relevant validation record and any affected roadmap/build/component notes.
+Record source version/ABI, configuration, exact artifact identity, target
+environment, complete versus partial execution, expected negative controls,
+unresolved failures, and the next bounded decision. Keep dated results intact;
+add a follow-up instead of converting old evidence into a new pass.
+
+`artifacts/` is ignored. A local archive, diagnostic source, screenshot or log is
+not available to a fresh clone merely because a document links to its path.
+Preserve useful source/commands or reviewable transcripts in versioned
+documentation, or arrange a separately identified artifact handoff. The
+[native investigation appendix](doc/vt7/diagnostics/2026-09-13-resource-investigation.md)
+records the current control for that reason. Never claim a rebuild is the
+byte-identical issued artifact without a matching hash.
 
 ## License of contributions
 

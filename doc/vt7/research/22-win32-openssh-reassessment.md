@@ -1,5 +1,11 @@
 # Win32-OpenSSH: a stronger SSH baseline for VT7
 
+Status note, 2026-09-13: this file preserves dated research and proposals,
+not current implementation or acceptance claims. Source references and words
+such as "current", "next" and "latest" below retain their research-date scope.
+Use the [research status](README.md#planning-adoption), [current handoff](../HANDOFF.md)
+and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidence.
+
 Research date: 2026-09-11. Added after the user pointed out that current Microsoft Win32-OpenSSH runs successfully on Windows 7. This corrects an omission in the initial dependency shortlist. No binary was downloaded or executed during this reassessment.
 
 ## Planning adoption

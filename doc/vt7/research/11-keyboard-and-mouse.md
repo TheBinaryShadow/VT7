@@ -1,5 +1,11 @@
 # Keyboard layouts, terminal key encoding, mouse and focus
 
+Status note, 2026-09-13: this file preserves dated research and proposals,
+not current implementation or acceptance claims. Source references and words
+such as "current", "next" and "latest" below retain their research-date scope.
+Use the [research status](README.md#planning-adoption), [current handoff](../HANDOFF.md)
+and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidence.
+
 Research date: 2026-09-11. Priority: P0 before interactive sessions.
 
 ## Newly identified downlevel hazard

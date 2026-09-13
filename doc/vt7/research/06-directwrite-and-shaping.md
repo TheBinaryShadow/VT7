@@ -1,6 +1,20 @@
 # DirectWrite fallback, shaping and Atlas adaptation
 
+Status note, 2026-09-13: this file preserves dated research and proposals,
+not current implementation or acceptance claims. Source references and words
+such as "current", "next" and "latest" below retain their research-date scope.
+Use the [research status](README.md#planning-adoption), [current handoff](../HANDOFF.md)
+and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidence.
+
 Research date: 2026-09-11. Priority: P0; this is a design blocker for the real renderer.
+
+Later implementation: [0.3.0](../validation/2026-09-12-atlas-viewport.md)
+integrates the minimum face-selection adapter and removes mandatory newer
+font-fallback interfaces from the VT7 path, with bounded supplied Windows 7
+C1/C2 acceptance. U+1F600 and the tested machine's missing system coverage are
+identified in the [research index](README.md#planning-adoption). The original
+missing-glyph experiment and adapter alternatives below are historical inputs,
+not the current C3 task or a requirement to replace the integrated adapter.
 
 ## Supported boundary
 

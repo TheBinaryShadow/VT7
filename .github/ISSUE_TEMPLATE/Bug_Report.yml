@@ -15,8 +15,8 @@ body:
     id: vt7_version
     attributes:
       label: VT7 version or commit
-      description: Enter the release version, full commit hash, or branch name.
-      placeholder: c7572cde0c69733e4511787dc963eb336f17adbf
+      description: Include version, configuration, native ABI and full commit/dirty state where known. For an engineering package, include its filename and SHA256 if available.
+      placeholder: VT7 0.3.5 Release x64, ABI 8, exact package filename and hash
     validations:
       required: true
 
@@ -68,7 +68,7 @@ body:
     id: shell
     attributes:
       label: Shell or remote application
-      description: Include the exact version where possible.
+      description: Include the exact version where possible. For current static viewport or native comparison tests, enter not applicable; local shells and SSH are not integrated yet.
       placeholder: PowerShell 7.2.24 x64 with PSReadLine 2.1.0
     validations:
       required: false
@@ -77,8 +77,8 @@ body:
     id: backend
     attributes:
       label: Session backend
-      description: State whether this used WinPTY, SSH, a test connection, or another backend.
-      placeholder: WinPTY local session
+      description: State the actual test/renderer mode. Distinguish the WPF viewport from the separate native-only resource control. Do not label a static proof as WinPTY or SSH testing.
+      placeholder: Static WPF viewport, atlas-d3d-warp, lifecycle profile
     validations:
       required: false
 
@@ -88,9 +88,9 @@ body:
       label: Steps to reproduce
       description: Give the smallest reliable sequence that triggers the problem.
       placeholder: |
-        1. Start VT7 with the PowerShell 7.2.24 profile.
-        2. Run the following command...
-        3. Resize the window from 120x30 to 80x24.
+        1. Extract the exact engineering package into a fresh folder.
+        2. Run the named launcher or command with these arguments...
+        3. Describe the failure, exit code, interruption and complete or partial logs.
     validations:
       required: true
 
@@ -105,7 +105,7 @@ body:
     id: actual
     attributes:
       label: Actual behavior
-      description: Include screenshots, logs, or a short recording if they make the failure clearer. Review diagnostic files for personal information first.
+      description: Include complete named logs and progress files, including failures, exit status and which profiles were not run. Measurement completion is not stability acceptance. Review files for personal information first.
     validations:
       required: true
 

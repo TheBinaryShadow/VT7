@@ -1,5 +1,9 @@
 # Milestone 2C: horizontal fitting and neighbor protection, probe 0.9
 
+> Historical validation record. Status and next steps below describe this checkpoint.
+> For current work, see the [handoff](../HANDOFF.md) and
+> [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
+
 Planning update, 2026-09-12: this fitter is an optional candidate, not a required
 replacement for upstream Atlas placement. Preserve its evidence under POL04 in
 Milestone 7. Actual source/cell errors or lasting repaint corruption remain

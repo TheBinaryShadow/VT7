@@ -4,6 +4,12 @@ VT7 is an independent fork and adaptation of Microsoft's open-source Terminal
 repository. Preserving that history is both technically useful and the right
 way to respect the people whose work makes VT7 possible.
 
+For the current implementation and next task, use the
+[development handoff](doc/vt7/HANDOFF.md). This file owns source provenance and
+merge policy, not milestone acceptance. Historical Microsoft Terminal documents
+under `doc/`, its samples and original build helpers remain upstream references;
+use [BUILDING.md](BUILDING.md) and the [VT7 index](doc/vt7/README.md) for this port.
+
 ## Primary upstream
 
 - Project: [Microsoft Terminal](https://github.com/microsoft/terminal)
@@ -106,6 +112,10 @@ ABI 8 diagnostics. It retains the pinned parser and synchronized-output timeout
 policy. These changes are not an upstream merge or a new shaping policy.
 The supplied Windows 7 quick profiles and hardware lifecycle profile pass;
 WARP resource growth and the unrun timed soak keep full stability acceptance open.
+Subsequent source-only diagnostics and the separate native resource comparison
+do not change the upstream baseline or parser/shaping policies. Windows 7 grows
+in both native power/plain modes, so local Windows 10 allocation traces are not
+target attribution. The current handoff records the next proposed control.
 
 Microsoft Terminal continues to evolve. VT7 should benefit from upstream parser,
 TerminalCore, security, correctness, and performance improvements without

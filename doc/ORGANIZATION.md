@@ -1,5 +1,9 @@
 # Code Organization
 
+> This describes the inherited Microsoft Terminal/Console tree. For VT7's
+> `src/vt7` boundary, build/test files and active task, use the
+> [development handoff](vt7/HANDOFF.md#code-map-for-that-task).
+
 ## Rules
 
 - **Follow the pattern of what you already see in the code**
