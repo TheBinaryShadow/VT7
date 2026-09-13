@@ -1,5 +1,9 @@
 # VT7 repository workflow notes
 
+This file deliberately is not named `README.md`: GitHub gives a README in
+`.github/` precedence over the repository-root README. Keep VT7's project
+introduction in the root file. See [GitHub's README selection rules](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes).
+
 This is an independent fork. Use [CONTRIBUTING.md](../CONTRIBUTING.md),
 [UPSTREAM.md](../UPSTREAM.md) and the [development handoff](../doc/vt7/HANDOFF.md)
 for current work, rather than inherited Microsoft Terminal bot/build policies.

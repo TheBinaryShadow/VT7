@@ -2,7 +2,7 @@
 
 > Historical Microsoft Terminal bot/label reference, not the independent VT7
 > repository's active automation policy. Use [CONTRIBUTING.md](../CONTRIBUTING.md)
-> and the [repository workflow notes](../.github/README.md). Do not enable
+> and the [repository workflow notes](../.github/WORKFLOW_NOTES.md). Do not enable
 > inherited automation or apply its closure policies merely because they are
 > described below.
 
