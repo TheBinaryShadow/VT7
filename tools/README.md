@@ -26,6 +26,11 @@ existing evidence before a relevant regression run.
 | `Test-VT7AtlasSettings.ps1` | Font/settings checks; `-Configuration`, `-BinaryDirectory`, `-ExpectedSystemDpi` accepts `0`, `96`, `120` or `144`. Zero leaves the actual DPI unasserted. |
 | `Test-VT7AtlasStability.ps1` | Quick by default; `-Lifecycle` and `-Soak` are mutually exclusive; `-Renderer` accepts `both`, `atlas-d3d-hardware` or `atlas-d3d-warp`; `-Configuration`, `-BinaryDirectory`. |
 | `Test-VT7RendererProbe.ps1` / `Test-VT7AtlasProof.ps1` | Independent historical harness regressions; `-Configuration`, `-BinaryDirectory`. |
+| `Build-VT7ResourceRetirement.ps1` | Builds only the standalone retirement sampler into a fresh diagnostic directory, using pinned tools. |
+| `Package-VT7ResourceRetirement.ps1` | Requires `-BuildDirectory`; combines the new sampler with unchanged issued native assets, verifies provenance and ZIP contents, and refuses existing candidate outputs. |
+| `Test-VT7ResourceRetirement.ps1` | PowerShell 2-compatible validator fixtures and optional supplied-log checks; `-CompleteLog`, `-PreflightLog`, `-StartupLog`. |
+| `Test-VT7ResourceRetirementSampler.ps1` / `Test-VT7RetirementDebuggerHooks.ps1` | Standalone sampler rejection/cleanup controls and guarded debugger-command fixtures. See the [retirement protocol](../doc/vt7/diagnostics/2026-09-13-resource-retirement.md) for exact scope. |
+| `Test-VT7RetirementExceptionPolicy.ps1` / `Test-VT7RetirementFallback.ps1` | SDK 8.1 debugger controls for exception dispatch/caps, immediate idle abort and unexpected-stop capture/termination. |
 
 The current application source reports 0.3.5/ABI 8 and includes resource-isolation
 diagnostics absent from the issued 0.3.5 archive. These opt-in host CLI controls
@@ -34,7 +39,14 @@ the stability runner does not expose a resource-isolation parameter. The separat
 native comparison 0.1 has its own packaged launcher and reuses the issued native
 DLL. Both modes grow on Windows 7; exit 0 means measurement completion. The
 integrated WARP lifecycle gate remains open. No unchanged-suite repeat or timed
-soak is requested; the next recreate-versus-reuse control is a proposed design.
+soak is requested. The completed recreate/reuse comparison and trace 0.3 identify
+the target WARP call path. The locally qualified
+[retirement diagnostic 0.1](../doc/vt7/diagnostics/2026-09-13-resource-retirement.md)
+now has a completed Windows 7 capture: actual mode 3 work cleanup, retirement
+of all 34 baseline Windows workers by 90 seconds and USER back to startup.
+Process handles retain a 54-handle startup delta through 180 seconds. Integrated
+host lifecycle/idle behavior and residual repeatability remain the next bounded
+questions; the existing C3 verdict and timed-soak hold are unchanged.
 
 `Package-VT7Proof.ps1`, `Package-VT7RendererProbe.ps1` and
 `Package-VT7AtlasProof.ps1` delete/recreate fixed package folders and archives
