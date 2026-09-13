@@ -6,7 +6,81 @@ namespace VT7.Host
 {
     internal static class NativeMethods
     {
-        internal const uint ExpectedAbiVersion = 7;
+        internal const uint ExpectedAbiVersion = 8;
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct SchedulingInfo
+        {
+            internal uint StructSize, Waits, Frames, SyncWaits, SyncTimeouts, Waiting, Synchronizing, SyncMode, TimerFires, ThreadStarts;
+        }
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_GetSchedulingInfo(IntPtr window, ref SchedulingInfo info);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_SchedulingCommand(IntPtr window, uint operation, uint step);
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern uint GetGuiResources(IntPtr process, uint flags);
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern bool MoveWindow(IntPtr window, int x, int y, int width, int height, bool repaint);
+        [DllImport("user32.dll")]
+        internal static extern bool ShowWindow(IntPtr window, int command);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        internal static extern IntPtr CreateWindowEx(uint extendedStyle, string className, string title, uint style,
+            int x, int y, int width, int height, IntPtr parent, IntPtr menu, IntPtr instance, IntPtr parameter);
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern bool SetLayeredWindowAttributes(IntPtr window, uint color, byte alpha, uint flags);
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern bool DestroyWindow(IntPtr window);
+        private delegate bool EnumWindowCallback(IntPtr window, IntPtr parameter);
+        [DllImport("user32.dll")]
+        private static extern bool EnumThreadWindows(uint thread, EnumWindowCallback callback, IntPtr parameter);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetClassName(IntPtr window, StringBuilder name, int capacity);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern IntPtr FindWindowEx(IntPtr parent, IntPtr after, string? name, string? title);
+        [DllImport("user32.dll")]
+        private static extern uint GetWindowThreadProcessId(IntPtr window, out uint process);
+        internal static string ReadHelperWindows()
+        {
+            var classes = new System.Collections.Generic.SortedDictionary<string, int>();
+            EnumWindowCallback callback = (window, _) =>
+            {
+                var name = new StringBuilder(256);
+                if (GetClassName(window, name, name.Capacity) == 0) return true;
+                var value = name.ToString();
+                if (value.StartsWith("HwndWrapper[", StringComparison.Ordinal)) value = "HwndWrapper";
+                classes.TryGetValue(value, out var count); classes[value] = count + 1;
+                return true;
+            };
+            using (var process = System.Diagnostics.Process.GetCurrentProcess())
+            {
+                foreach (System.Diagnostics.ProcessThread thread in process.Threads)
+                    using (thread) EnumThreadWindows((uint)thread.Id, callback, IntPtr.Zero);
+                var after = IntPtr.Zero;
+                while ((after = FindWindowEx(new IntPtr(-3), after, null, null)) != IntPtr.Zero)
+                {
+                    GetWindowThreadProcessId(after, out var owner);
+                    if (owner == process.Id) callback(after, IntPtr.Zero);
+                }
+            }
+            var result = new StringBuilder();
+            foreach (var pair in classes) result.Append($"{pair.Key}={pair.Value}; ");
+            return result.ToString();
+        }
+        [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")]
+        private static extern IntPtr GetWindowLongPtr(IntPtr window, int index);
+        internal static string ReadWindowStyles(IntPtr window) =>
+            $"style=0x{GetWindowLongPtr(window, -16).ToInt64():x}, extended=0x{GetWindowLongPtr(window, -20).ToInt64():x}";
+        [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW")]
+        private static extern IntPtr SetWindowLongPtr(IntPtr window, int index, IntPtr value);
+        internal static void MakeTestWindowNonInteractive(IntPtr window)
+        {
+            // Transparent/no-activate test hosts must not intercept the user's
+            // real desktop input or create hover/IME UI during resource sampling.
+            var style = GetWindowLongPtr(window, -20).ToInt64();
+            SetWindowLongPtr(window, -20, new IntPtr(style | 0x20L | 0x08000000L));
+            if ((GetWindowLongPtr(window, -20).ToInt64() & 0x08000020L) != 0x08000020L)
+                throw new InvalidOperationException("Could not make the stability test window non-interactive.");
+        }
 
         [StructLayout(LayoutKind.Sequential)]
         internal struct SurfaceSettings

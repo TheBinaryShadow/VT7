@@ -5,6 +5,7 @@
 #include "../../cascadia/TerminalCore/Terminal.hpp"
 #include "../../renderer/base/renderer.hpp"
 #include "../../renderer/atlas/AtlasEngine.h"
+#include <thread>
 
 namespace
 {
@@ -36,6 +37,9 @@ namespace
         uint64_t rasterHash = 0;
         bool ownedByWindow = false;
         bool initialized = false;
+        bool closing = false;
+        std::optional<Microsoft::Console::Render::TimerHandle> diagnosticTimer;
+        uint32_t diagnosticTimerFires = 0;
 
         explicit Surface(uint32_t rendererMode) : renderer([this]() -> auto& {
             const auto guard = terminal.LockForWriting();
@@ -108,9 +112,22 @@ namespace
 
         void Stop() noexcept
         {
-            // Never join while holding the core lock needed by the worker.
-            renderer.TriggerTeardown();
+            // Never wait while holding the core lock needed by the worker.
+            // Hidden HWNDs retain their presentation worker, parked without CPU.
+            renderer.SuspendPainting();
             running = false;
+        }
+
+        void CloseRenderer() noexcept
+        {
+            if (closing) return;
+            closing = true;
+            renderer.TriggerTeardown();
+            if (atlas)
+            {
+                renderer.RemoveRenderEngine(atlas.get());
+                atlas.reset();
+            }
         }
 
         void Start()
@@ -132,7 +149,7 @@ namespace
 
         ~Surface()
         {
-            Stop();
+            CloseRenderer();
             if (font) DeleteObject(font);
             if (boldFont) DeleteObject(boldFont);
         }
@@ -157,6 +174,7 @@ namespace
                     PostMessageW(window, WM_APP + 1, 0, 0);
                 });
                 renderer.AddRenderEngine(atlas.get());
+                renderer.SetThreadExitCallback([this] { atlas->ReleaseWin7DeviceResources(); });
                 const auto guard = terminal.LockForWriting();
                 renderer.AllowCursorVisibility(Microsoft::Console::Render::InhibitionSource::Host, true);
                 renderer.AllowCursorBlinking(Microsoft::Console::Render::InhibitionSource::User, !capture);
@@ -330,6 +348,7 @@ namespace
                     surface->Stop();
                     break;
                 case WM_SIZE:
+                    if (surface->closing) return 0;
                     surface->Resize();
                     return 0;
                 case WM_ERASEBKGND:
@@ -339,6 +358,7 @@ namespace
                     PAINTSTRUCT paint{};
                     const auto dc = BeginPaint(window, &paint);
                     const auto finish = wil::scope_exit([&] { EndPaint(window, &paint); });
+                    if (surface->closing) return 0;
                     if (surface->atlas)
                     {
                         surface->RequestPaint();
@@ -352,9 +372,12 @@ namespace
                     return 0;
                 }
                 case WM_NCDESTROY:
+                {
                     SetWindowLongPtrW(window, GWLP_USERDATA, 0);
+                    const auto result = DefWindowProcW(window, message, wparam, lparam);
                     if (surface->ownedByWindow) delete surface;
-                    return DefWindowProcW(window, message, wparam, lparam);
+                    return result;
+                }
                 }
             }
             catch (...)
@@ -419,8 +442,16 @@ CATCH_RETURN()
 int32_t __cdecl VT7_DestroySurface(void* window)
 try
 {
-    Lookup(window);
-    THROW_IF_WIN32_BOOL_FALSE(DestroyWindow(static_cast<HWND>(window)));
+    const auto surface = Lookup(window);
+    surface->Stop();
+    // The presentation worker must outlive complete native HWND cleanup.
+    surface->ownedByWindow = false;
+    if (!DestroyWindow(static_cast<HWND>(window)))
+    {
+        surface->ownedByWindow = true;
+        THROW_LAST_ERROR();
+    }
+    delete surface;
     return S_OK;
 }
 CATCH_RETURN()
@@ -528,3 +559,76 @@ int32_t __cdecl VT7_SurfaceRepaintCheck(void* window, uint32_t operation, uint32
     }
     catch (...) { return wil::ResultFromCaughtException(); }
 }
+
+int32_t __cdecl VT7_GetSchedulingInfo(void* window, VT7_SCHEDULING_INFO* info)
+try
+{
+    if (!info || info->struct_size != sizeof(*info)) return E_INVALIDARG;
+    const auto surface = Lookup(window);
+    const auto guard = surface->terminal.LockForWriting();
+    const auto stats = surface->renderer.GetSchedulingSnapshot();
+    const auto mode = surface->terminal.GetRenderSettings().GetRenderMode(
+        Microsoft::Console::Render::RenderSettings::Mode::SynchronizedOutput);
+    *info = { sizeof(*info), stats.waits, stats.frames, stats.syncWaits, stats.syncTimeouts,
+        stats.waiting, stats.synchronizing, static_cast<uint32_t>(mode), surface->diagnosticTimerFires, stats.threadStarts };
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_SchedulingCommand(void* window, uint32_t operation, uint32_t step)
+try
+{
+    const auto surface = Lookup(window);
+    THROW_HR_IF(E_INVALIDARG, !surface->atlas || !surface->capture || operation > 7 || step > 999999);
+    const auto guard = surface->terminal.LockForWriting();
+    auto& terminal = surface->terminal;
+    if (operation >= 6)
+    {
+        THROW_HR_IF(E_INVALIDARG, operation == 6 && (step < 1 || step > 1000));
+        if (!surface->diagnosticTimer)
+            surface->diagnosticTimer = surface->renderer.RegisterTimer("VT7 diagnostic one-shot", [surface](auto&, auto) {
+                ++surface->diagnosticTimerFires;
+            });
+        if (operation == 6) surface->renderer.StartTimer(*surface->diagnosticTimer, std::chrono::milliseconds(step));
+        else surface->renderer.StopTimer(*surface->diagnosticTimer);
+        return S_OK;
+    }
+    if (operation == 0)
+    {
+        terminal.Write(L"\x1b[?1049l\x1b[?2026l\x1b[0m\x1b[2J\x1b[H\x1b[?25l");
+    }
+    if (operation == 1) terminal.Write(L"\x1b[?2026h");
+    if (operation == 5)
+    {
+        terminal.Write(L"\x1b[?20");
+        terminal.Write(L"26h");
+    }
+    if (operation == 2) terminal.Write(L"\x1b[?2026l");
+    else
+    {
+        const auto marker = fmt::format(L"VT7 scheduling {:06}", step);
+        if (operation == 4)
+        {
+            const auto& row = terminal.GetTextBuffer().GetRowByOffset(terminal.GetViewport().Top());
+            for (size_t x = 0; x < marker.size(); ++x)
+                THROW_HR_IF(E_UNEXPECTED, row.GlyphAt(gsl::narrow<til::CoordType>(x)) != std::wstring_view(marker).substr(x, 1));
+            return S_OK;
+        }
+        terminal.Write(L"\x1b[H");
+        terminal.Write(marker);
+    }
+    surface->requested = surface->atlas->RequestFrame();
+    surface->renderer.NotifyPaintFrame();
+    if (operation == 3)
+    {
+        // Only NotifyPaintFrame is called off-thread. Both producers are joined
+        // before this UI-owned command returns, so no callback can outlive HWND.
+        const auto wake = [&] { for (int i = 0; i < 64; ++i) surface->renderer.NotifyPaintFrame(); };
+        std::thread first(wake);
+        const auto join = wil::scope_exit([&] { first.join(); });
+        std::thread second(wake);
+        second.join();
+    }
+    return S_OK;
+}
+CATCH_RETURN()

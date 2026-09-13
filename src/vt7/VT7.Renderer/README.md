@@ -1,5 +1,14 @@
 # VT7 Atlas renderer boundary
 
+Build 0.3.5, ABI 8, adds scheduling/stability diagnostics and corrects timer-read
+locking and HWND/worker teardown order. Hidden workers park rather than exit;
+the presentation worker outlives native HWND destruction, then releases its
+graphics resources before joining. See the [stability record](../../../doc/vt7/validation/2026-09-13-atlas-stability.md)
+for local evidence and the supplied Windows 7 quick/hardware-lifecycle passes.
+WARP exceeds the resource budget on both setups, and the timed soak remains
+unrun. This is a test candidate. Earlier results below retain
+their original build and scope.
+
 Build 0.3.0 implements the minimum Windows 7 font boundary and connects the real
 AtlasEngine/controller to TerminalCore and the host. Debug/Release local tests
 pass for both backends on hardware/WARP. Supplied Windows 7 tests now accept
@@ -94,9 +103,9 @@ releases backend references before resize, target destruction, and teardown.
 The harness is single-threaded and event-driven while visible, with no idle
 timer. Its R key explicitly recreates resources. This is not automatic
 device-loss recovery. The integrated controller now uses Windows 7 kernel events
-for redraw, synchronization and interruptible waits, and stops before HWND teardown.
-Local hide/show/lifetime tests pass. Full target lifecycle/recovery acceptance
-remains outstanding.
+for redraw, synchronization and interruptible waits. In 0.3.5 it pauses before
+HWND teardown and exits only after that teardown finishes. Full target
+scheduling/stability acceptance remains outstanding.
 
 ## Minimum font adaptation in 0.3.0
 

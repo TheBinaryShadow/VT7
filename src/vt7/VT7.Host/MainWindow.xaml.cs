@@ -20,6 +20,7 @@ namespace VT7.Host
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
+            if (App.StabilityTest) NativeMethods.MakeTestWindowNonInteractive(new System.Windows.Interop.WindowInteropHelper(this).Handle);
             if (FitStartupToWorkArea) StartupPlacement.Apply(this);
         }
 

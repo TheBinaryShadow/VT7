@@ -20,6 +20,10 @@ namespace Microsoft::Console::Render::Atlas
     {
     public:
         explicit AtlasEngine();
+#ifdef VT7_ATLAS
+        ~AtlasEngine() override;
+        void ReleaseWin7DeviceResources() noexcept;
+#endif
 
         AtlasEngine(const AtlasEngine&) = delete;
         AtlasEngine& operator=(const AtlasEngine&) = delete;

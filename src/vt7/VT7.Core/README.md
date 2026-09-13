@@ -1,6 +1,6 @@
 # VT7 Core and renderer boundary
 
-Engineering version 0.3.4 builds the real Microsoft Terminal core, parser, dispatch,
+Engineering version 0.3.5 builds the real Microsoft Terminal core, parser, dispatch,
 text buffer, and supporting types into `VT7.Core.lib`, then links that library
 into `VT7.Native.dll`. The static library is not a separate runtime dependency.
 This is a static viewport proof, not an interactive terminal release.

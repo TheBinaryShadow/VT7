@@ -10,6 +10,8 @@ EXPORTS
     VT7_RunCoreTests
     VT7_SaveSurfaceCapture
     VT7_SurfaceRepaintCheck
+    VT7_GetSchedulingInfo
+    VT7_SchedulingCommand
     VT7_InjectSurfaceFailure
     VT7_GetSurfaceSettings
     VT7_SetSurfaceFont

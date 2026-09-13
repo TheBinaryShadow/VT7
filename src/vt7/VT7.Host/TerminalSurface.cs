@@ -50,6 +50,15 @@ namespace VT7.Host
             Marshal.ThrowExceptionForHR(NativeMethods.VT7_ResetSurface(Handle));
         }
 
+        internal NativeMethods.SchedulingInfo ReadScheduling()
+        {
+            var info = new NativeMethods.SchedulingInfo { StructSize = (uint)Marshal.SizeOf(typeof(NativeMethods.SchedulingInfo)) };
+            Marshal.ThrowExceptionForHR(NativeMethods.VT7_GetSchedulingInfo(Handle, ref info));
+            return info;
+        }
+        internal void SchedulingCommand(uint operation, uint step = 0) =>
+            Marshal.ThrowExceptionForHR(NativeMethods.VT7_SchedulingCommand(Handle, operation, step));
+
         internal NativeMethods.SurfaceSettings ReadSettings()
         {
             var settings = new NativeMethods.SurfaceSettings { StructSize = (uint)Marshal.SizeOf(typeof(NativeMethods.SurfaceSettings)) };

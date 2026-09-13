@@ -158,6 +158,20 @@ scaling checkpoint on the tested setup, not Milestone 2. Scheduling, idle/resour
 stress, themes and broader qualification remain ahead. See the
 [scaling correction record](doc/vt7/validation/2026-09-12-atlas-scaling-correction.md).
 
+Engineering **0.3.5** adds renderer scheduling tests and corrects timer locking
+and window/worker teardown order. It is a test candidate, not a completed
+stability checkpoint: hardware passes 100 lifecycles locally and on the supplied
+Windows 7 setup, while WARP exceeds the resource-growth budget on both.
+Quick checks pass on both backends, but no timed soak has been run. The remaining
+growth is under investigation, not deferred as polish. Local handle tracing and
+a paired native-only control implicate Windows power-notification/message
+delivery paths on the development machine. The supplied Windows 7 control grows
+with and without those subscriptions, so that specific explanation does not
+transfer unchanged. Thread/input-queue attribution and resource boundedness
+remain open.
+See the
+[stability investigation](doc/vt7/validation/2026-09-13-atlas-stability.md).
+
 VT7 already has its first real terminal viewport running on Windows 7. Engineering
 build 0.2.0 brings together the WPF host, a native HWND surface, TerminalCore,
 and the VT parser, with a temporary GDI renderer and working buffer reflow.

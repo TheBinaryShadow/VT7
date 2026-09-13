@@ -34,6 +34,7 @@ Renderer::Renderer(RenderSettings& renderSettings, IRenderData* pData) :
     _wake.create();
     _outputReady.create(wil::EventOptions::ManualReset);
     _stop.create(wil::EventOptions::ManualReset);
+    _paused.create(wil::EventOptions::ManualReset);
 #endif
     _cursorBlinker = RegisterTimer("cursor blink", [](Renderer& renderer, TimerHandle) {
         renderer._cursorBlinkerOn = !renderer._cursorBlinkerOn;
@@ -77,6 +78,12 @@ void Renderer::EnablePainting()
     // match before the next cursor move is painted.
     _forceUpdateViewport = true;
 
+#ifdef VT7_CORE
+    _suspendRequested.store(false);
+    _stop.ResetEvent();
+    if (_isSynchronizingOutput) _outputReady.ResetEvent();
+    else _outputReady.SetEvent();
+#endif
     _enable.SetEvent();
 
     if (const auto guard = _threadMutex.lock_exclusive(); !_thread)
@@ -107,6 +114,21 @@ void Renderer::_disablePainting() noexcept
 {
     _enable.ResetEvent();
 }
+
+#ifdef VT7_CORE
+void Renderer::SuspendPainting() noexcept
+{
+    const auto guard = _threadMutex.lock_exclusive();
+    if (!_thread) return;
+    _paused.ResetEvent();
+    _suspendRequested.store(true);
+    _stop.SetEvent();
+    _outputReady.SetEvent();
+    NotifyPaintFrame();
+    _enable.SetEvent();
+    _paused.wait();
+}
+#endif
 
 // Method Description:
 // - Called when the host is about to die, to give the renderer one last chance
@@ -154,12 +176,22 @@ DWORD WINAPI Renderer::s_renderThread(void* param) noexcept
 DWORD Renderer::_renderThread() noexcept
 {
 #ifdef VT7_CORE
+    _diagnosticThreadStarts.fetch_add(1);
     const auto com = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
     const auto uninit = wil::scope_exit([&] { if (SUCCEEDED(com)) CoUninitialize(); });
 #endif
     while (_threadKeepRunning.load(std::memory_order_relaxed))
     {
         _enable.wait();
+#ifdef VT7_CORE
+        if (!_threadKeepRunning.load()) break;
+        if (_suspendRequested.load())
+        {
+            _enable.ResetEvent();
+            _paused.SetEvent();
+            continue;
+        }
+#endif
         _waitUntilCanRender();
         _waitUntilTimerOrRedraw();
 
@@ -171,9 +203,24 @@ DWORD Renderer::_renderThread() noexcept
             break;
         }
 
+#ifdef VT7_CORE
+        if (_suspendRequested.load())
+        {
+            _enable.ResetEvent();
+            _paused.SetEvent();
+            continue;
+        }
+#endif
         LOG_IF_FAILED(PaintFrame());
     }
 
+#ifdef VT7_CORE
+    if (_threadExitCallback)
+    {
+        try { _threadExitCallback(); }
+        CATCH_LOG()
+    }
+#endif
     return S_OK;
 }
 
@@ -258,6 +305,12 @@ void Renderer::StopTimer(TimerHandle handle)
 
 DWORD Renderer::_calculateTimerMaxWait() noexcept
 {
+#ifdef VT7_CORE
+    // Timer changes/ticks use the core lock. Read the vector and deadlines under
+    // that same lock, but release it before waiting on the remembered wake event.
+    _pData->LockConsole();
+    const auto unlock = wil::scope_exit([&] { _pData->UnlockConsole(); });
+#endif
     if (_timers.empty())
     {
         return INFINITE;
@@ -292,7 +345,11 @@ void Renderer::_waitUntilTimerOrRedraw() noexcept
 
         // and wait until the timer expires, or we potentially got a rendering request.
 #ifdef VT7_CORE
-        if (!_wake.wait(wait)) break;
+        _diagnosticWaits.fetch_add(1, std::memory_order_relaxed);
+        _diagnosticWaiting.store(1, std::memory_order_relaxed);
+        const auto signaled = _wake.wait(wait);
+        _diagnosticWaiting.store(0, std::memory_order_relaxed);
+        if (!signaled) break;
 #else
         constexpr auto bad = false;
         if (!til::atomic_wait(_redraw, bad, wait))
@@ -376,6 +433,9 @@ DWORD Renderer::_timerToMillis(TimerRepr t) noexcept
 // - HRESULT S_OK, GDI error, Safe Math error, or state/argument errors.
 [[nodiscard]] HRESULT Renderer::PaintFrame()
 {
+#ifdef VT7_CORE
+    _diagnosticFrames.fetch_add(1, std::memory_order_relaxed);
+#endif
     HRESULT hr{ S_FALSE };
     // Attempt zero doesn't count as a retry. We should try maxRetries + 1 times.
     for (unsigned int attempt = 0u; attempt <= maxRetriesForRenderEngine; ++attempt)
@@ -598,6 +658,11 @@ void Renderer::SynchronizedOutputChanged() noexcept
 void Renderer::_synchronizeWithOutput() noexcept
 {
     constexpr DWORD timeout = 100;
+#ifdef VT7_CORE
+    _diagnosticSyncWaits.fetch_add(1, std::memory_order_relaxed);
+    _diagnosticSynchronizing.store(1, std::memory_order_relaxed);
+    const auto diagnosticDone = wil::scope_exit([&] { _diagnosticSynchronizing.store(0, std::memory_order_relaxed); });
+#endif
 
     UINT64 start = 0;
     DWORD elapsed = 0;
@@ -620,7 +685,7 @@ void Renderer::_synchronizeWithOutput() noexcept
         _pData->LockConsole();
 
 #ifdef VT7_CORE
-        if (!_threadKeepRunning.load(std::memory_order_relaxed)) break;
+        if (!_threadKeepRunning.load(std::memory_order_relaxed) || _suspendRequested.load()) break;
 #endif
         if (!ok || !_isSynchronizingOutput)
         {
@@ -637,10 +702,22 @@ void Renderer::_synchronizeWithOutput() noexcept
     }
 
     // If a timeout occurred, `_isSynchronizingOutput` may still be true.
+#ifdef VT7_CORE
+    if (_isSynchronizingOutput && _threadKeepRunning.load(std::memory_order_relaxed) && !_suspendRequested.load())
+        _diagnosticSyncTimeouts.fetch_add(1, std::memory_order_relaxed);
+#endif
     // Set it to false now to skip calling `_synchronizeWithOutput()` on the next frame.
     _isSynchronizingOutput = false;
     _renderSettings.SetRenderMode(RenderSettings::Mode::SynchronizedOutput, false);
 }
+
+#ifdef VT7_CORE
+Renderer::SchedulingSnapshot Renderer::GetSchedulingSnapshot() const noexcept
+{
+    return { _diagnosticWaits.load(), _diagnosticFrames.load(), _diagnosticSyncWaits.load(),
+        _diagnosticSyncTimeouts.load(), _diagnosticWaiting.load(), _diagnosticSynchronizing.load(), _diagnosticThreadStarts.load() };
+}
+#endif
 
 void Renderer::AllowCursorVisibility(InhibitionSource source, bool enable) noexcept
 {

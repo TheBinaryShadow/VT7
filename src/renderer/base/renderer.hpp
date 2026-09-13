@@ -66,6 +66,25 @@ namespace Microsoft::Console::Render
 
         void EnablePainting();
 
+#ifdef VT7_CORE
+        struct SchedulingSnapshot
+        {
+            uint32_t waits, frames, syncWaits, syncTimeouts, waiting, synchronizing, threadStarts;
+        };
+        SchedulingSnapshot GetSchedulingSnapshot() const noexcept;
+        void SuspendPainting() noexcept;
+        // Configure before the first EnablePainting call, while no worker exists.
+        void SetThreadExitCallback(std::function<void()> callback) { _threadExitCallback = std::move(callback); }
+    private:
+        std::atomic<uint32_t> _diagnosticWaits{0}, _diagnosticFrames{0};
+        std::atomic<uint32_t> _diagnosticSyncWaits{0}, _diagnosticSyncTimeouts{0};
+        std::atomic<uint32_t> _diagnosticWaiting{0}, _diagnosticSynchronizing{0};
+        std::atomic<uint32_t> _diagnosticThreadStarts{0};
+        std::atomic<bool> _suspendRequested{false};
+        std::function<void()> _threadExitCallback;
+    public:
+#endif
+
         void AddRenderEngine(_In_ IRenderEngine* const pEngine);
         void RemoveRenderEngine(_In_ IRenderEngine* const pEngine);
 
@@ -150,6 +169,7 @@ namespace Microsoft::Console::Render
         wil::unique_event _wake;
         wil::unique_event _outputReady;
         wil::unique_event _stop;
+        wil::unique_event _paused;
 #else
         wil::slim_event_manual_reset _enable;
 #endif

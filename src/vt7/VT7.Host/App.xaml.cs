@@ -9,6 +9,11 @@ namespace VT7.Host
     {
         internal static uint RendererMode { get; private set; } = 5;
         internal static bool SettingsTest { get; private set; }
+        internal static bool StabilityTest { get; private set; }
+        internal static bool StabilitySoak { get; private set; }
+        internal static bool StabilityLifecycle { get; private set; }
+        internal static string? ResourceIsolation { get; private set; }
+        internal static bool InjectStabilityFailure { get; private set; }
         internal static bool InjectSettingsFailure { get; private set; }
         internal static uint ExpectedSystemDpi { get; private set; }
         internal static string? RecoveryScenario { get; private set; }
@@ -40,6 +45,25 @@ namespace VT7.Host
             RepaintTest = HasArgument(e.Args, "--repaint-test");
             InjectRepaintFailure = HasArgument(e.Args, "--inject-repaint-failure");
             SettingsTest = HasArgument(e.Args, "--settings-test");
+            StabilityTest = HasArgument(e.Args, "--stability-test");
+            StabilitySoak = HasArgument(e.Args, "--stability-soak");
+            StabilityLifecycle = HasArgument(e.Args, "--stability-lifecycle");
+            InjectStabilityFailure = HasArgument(e.Args, "--inject-stability-failure");
+            var isolationIndex = Array.IndexOf(e.Args, "--resource-isolation");
+            if (isolationIndex >= 0)
+            {
+                ResourceIsolation = isolationIndex + 1 < e.Args.Length ? e.Args[isolationIndex + 1] : "";
+                if (!StabilityTest || (RendererMode != 1 && RendererMode != 2) || StabilitySoak || StabilityLifecycle || InjectStabilityFailure ||
+                    Array.IndexOf(new[] { "wpf", "native-child", "hwndhost", "native-child-software", "native-child-plateau", "native-parent", "native-child-layered" }, ResourceIsolation) < 0)
+                { Shutdown(2); return; }
+                if (ResourceIsolation == "native-child-software")
+                    System.Windows.Media.RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
+            }
+            if ((StabilityTest && (RendererMode == 0 || smokeTest || diagnostics || RepaintTest || SettingsTest || RecoveryScenario != null)) ||
+                ((StabilitySoak || StabilityLifecycle || InjectStabilityFailure) && !StabilityTest) ||
+                (StabilitySoak && StabilityLifecycle) ||
+                ((StabilitySoak || StabilityLifecycle) && InjectStabilityFailure))
+            { Shutdown(2); return; }
             InjectSettingsFailure = HasArgument(e.Args, "--inject-settings-failure");
             var dpiIndex = Array.IndexOf(e.Args, "--expected-system-dpi");
             if (dpiIndex >= 0)
@@ -52,13 +76,13 @@ namespace VT7.Host
                 (InjectSettingsFailure && !SettingsTest)) { Shutdown(2); return; }
             if ((RepaintTest && (RendererMode == 0 || smokeTest || diagnostics || RecoveryScenario != null)) ||
                 (InjectRepaintFailure && !RepaintTest)) { Shutdown(2); return; }
-            CaptureFrames = smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest;
+            CaptureFrames = smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest || StabilityTest;
             var injectBlank = HasArgument(e.Args, "--inject-blank-frame");
             if (injectBlank && (!smokeTest || RendererMode == 0)) { Shutdown(2); return; }
             SurfaceOptions = RendererMode | (CaptureFrames ? 0x100u : 0u) | (injectBlank ? 0x200u : 0u);
             if (RecoveryScenario == "startup-hardware") SurfaceOptions |= 0x400u;
             if (RecoveryScenario == "startup-both") SurfaceOptions |= 0x800u;
-            if (diagnostics || smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest)
+            if (diagnostics || smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest || StabilityTest)
             {
                 ShutdownMode = ShutdownMode.OnExplicitShutdown;
                 RunChecks(e.Args, smokeTest);
@@ -76,6 +100,16 @@ namespace VT7.Host
             var report = new StringBuilder();
             try
             {
+                if (StabilityTest)
+                {
+                    if (!snapshot.Passed) throw new InvalidOperationException("Core/platform checks failed before stability testing.");
+                    await StabilityWindowChecks.Run(args, report);
+                    snapshot.SurfaceDisplay = report.ToString();
+                    snapshot.Summary = ResourceIsolation != null ? "Bounded resource-isolation control passed. Not a scheduling/stability acceptance run." :
+                        App.StabilitySoak ? "Atlas scheduling and extended stability checks passed." :
+                        App.StabilityLifecycle ? "Atlas scheduling and full lifecycle checks passed. Timed soak remains separate." :
+                        "Atlas scheduling and quick stability checks passed. Extended soak remains separate.";
+                }
                 if (SettingsTest)
                 {
                     if (!snapshot.Passed) throw new InvalidOperationException("Core or platform checks failed before settings testing.");

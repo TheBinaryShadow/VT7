@@ -1,6 +1,6 @@
 # Building VT7
 
-VT7 currently builds a static Atlas viewport proof (0.3.4): a WPF desktop
+VT7 currently builds a static Atlas viewport proof (0.3.5): a WPF desktop
 host, native HWND surface, the real Microsoft Terminal core/VT parser, AtlasEngine
 and renderer controller with a minimum Windows 7 font adapter.
 It displays a fixed demonstration and resizes the actual text buffer. It does
@@ -21,6 +21,40 @@ do not require extending every probe before application integration. The
 the initial Windows 7 C1/C2 acceptance. The current
 [0.3.4 validation record](doc/vt7/validation/2026-09-12-atlas-scaling-correction.md)
 separates local checks, accepted target scaling results and remaining C3 coverage.
+
+## Scheduling and stability checks
+
+The [0.3.5 scheduling/stability record](doc/vt7/validation/2026-09-13-atlas-stability.md)
+defines the next test slice. Use `tools/Test-VT7AtlasStability.ps1` for quick
+hardware/WARP checks, add `-Lifecycle` for 100/1000/500 lifetime/resize/tab counts,
+or `-Soak` for that matrix plus the 30-minute active/10-minute idle run per backend.
+All accept `-Configuration Debug|Release` and `-BinaryDirectory` like the other
+integrated tests. Progress logs survive a runner timeout. Quick passes do not
+replace the extended Windows 7 acceptance run.
+
+The 0.3.5 package is an investigation candidate: hardware passes the 100-cycle
+profile locally and on the supplied Windows 7 setup, but WARP exceeds its
+resource budget on both. Package creation runs the quick regression gate, not
+full stability acceptance. Keep the timed soak on hold while this is isolated.
+`-Renderer atlas-d3d-hardware|atlas-d3d-warp` selects one backend for investigation.
+
+Current source also contains opt-in `--resource-isolation` controls, documented
+in the stability record. They are not present in the already-issued 0.3.5 zip
+and are not acceptance profiles. No input or security feature is disabled by
+the retained controls. Preserve the issued archive when building diagnostics.
+
+The separate `VT7-resource-comparison-0.1-x64.zip` tests native Atlas WARP with
+and without matched Windows power-notification subscriptions. It reuses the
+issued 0.3.5 native DLL, runtimes and fonts; its `VT7.Host.exe` is a native-only
+diagnostic, not the WPF application. Extract it into a fresh folder and run
+`RUN-RESOURCE-COMPARISON.cmd`. Return the complete new
+`Logs/resource-comparison-<run-id>` folder. Exit 0 means both measurements
+completed, not that growth was accepted. Both supplied Windows 7 runs complete,
+but both grow, unlike the development machine's power/plain contrast. Preserve
+this result without treating the notification explanation as target-proven.
+This is not a soak and needs no security exclusions or system-setting changes.
+See the stability record for package identity, results and the next bounded
+thread-lifetime investigation. No repeat of this unchanged package is requested.
 
 ## Pinned developer toolchain
 
@@ -62,7 +96,7 @@ in [the core boundary notes](src/vt7/VT7.Core/README.md). After a verified resto
 `-NoRestore` permits an offline build using the existing extracted sources.
 
 Build output is written under `artifacts\vt7\bin`. The packaging script creates
-`artifacts\atlas-viewport-0.3.4` and `artifacts\VT7-atlas-viewport-0.3.4-x64.zip`.
+`artifacts\atlas-viewport-0.3.5` and `artifacts\VT7-atlas-viewport-0.3.5-x64.zip`.
 Accepted 0.3.0 artifacts are preserved unchanged.
 It tests the assembled package before archiving it and includes runtime DLLs,
 symbols, notices, dependency licenses, and file checksums. Generated artifacts
@@ -370,7 +404,7 @@ Tier A Windows 7 system can establish compatibility. Use a clean snapshot with:
 - .NET Framework 4.8.
 - The remaining prerequisites listed in [ROADMAP.md](ROADMAP.md).
 
-Copy and extract the entire 0.3.4 zip, including `fonts/`, on that machine.
+Copy and extract the entire 0.3.5 zip, including `fonts/`, on that machine.
 Run `RUN-DIAGNOSTICS.cmd` and `RUN-VIEWPORT-TEST.cmd`, retaining
 `VT7-diagnostics.log` and the complete `Logs` folder. The latter runs GDI and
 all four forced Atlas backend/device modes plus automatic mode, with separate logs and Atlas PNG captures.
@@ -472,8 +506,10 @@ Windows export.
 
 `VT7.Core.lib` now links the inherited parser and terminal state implementation
 into the bridge. A WPF `HwndHost` embeds the selectable Atlas/GDI surface through
-ABI 7 (0.3.3 used ABI 6, 0.3.2 used ABI 5, 0.3.1 used ABI 4). The real renderer worker uses Windows 7 events and stops before HWND
-destruction. The core is compiled without WinRT settings or ICU search/URL
+ABI 8 (0.3.4 used ABI 7, 0.3.3 used ABI 6, 0.3.2 used ABI 5, 0.3.1 used ABI 4).
+The renderer uses Windows 7 events. It parks while hidden and stays alive until
+native HWND destruction completes, then releases graphics and joins before the
+surface is deleted. The core is compiled without WinRT settings or ICU search/URL
 detection. See the core boundary notes for the exact limitations.
 
 AtlasEngine font mapping and controller/core integration now pass locally and

@@ -1,5 +1,34 @@
 # VT7 Support
 
+The separate `VT7-resource-comparison-0.1-x64.zip` has supplied Windows 7
+results: both native-only measurements complete, but both gain resources.
+The development machine's notification-specific contrast does not reproduce
+on this target. The integrated stability gate remains open; no repeat of this
+unchanged package or timed soak is currently requested. For reproduction,
+extract it into a fresh folder, run
+`RUN-RESOURCE-COMPARISON.cmd`, and return its entire new
+`Logs/resource-comparison-<run-id>` folder, including `power.log`, `plain.log`
+and `summary.txt`. It compares two native-only WARP processes, with and without
+power-notification subscriptions. It is not the WPF application or a soak;
+successful completion is not a resource-growth pass. Keep normal security
+protections and system settings unchanged. Retain incomplete logs if either
+measurement fails. See the target results and remaining attribution limits in the
+[stability record](doc/vt7/validation/2026-09-13-atlas-stability.md).
+
+For the 0.3.5 scheduling/stability candidate, run `RUN-STABILITY-TEST.cmd` first
+and retain both named reports and `.progress.log` files. Next use
+`RUN-STABILITY-LIFECYCLE.cmd` for the bounded 100-cycle comparison and return
+its results first. Hardware passes locally and on the supplied Windows 7 setup,
+but WARP exceeds the resource budget on both. Neither setup has a timed-soak
+result. This candidate is not accepted
+as stable. Do not proceed to the timed soak after a lifecycle failure.
+The extended launcher
+`RUN-STABILITY-SOAK.cmd` runs hardware and WARP for roughly 90 minutes total.
+Keep the machine awake and display settings unchanged. A quick pass is not a
+soak pass; interrupted runs retain progress but are not accepted. See the
+[stability record](doc/vt7/validation/2026-09-13-atlas-stability.md). Earlier build
+acceptance below does not automatically qualify 0.3.5.
+
 VT7 is currently a pre-alpha development project. There is no supported public
 release and no finished application to install yet.
 

@@ -56,6 +56,25 @@ run at its tested scale. The 0.3.3 higher-scale viewport/recovery failures are
 resolved in the accepted 0.3.4 matrix: all positive suites pass at measured
 Windows 7 96/120/144 system DPI. The bounded scaling gate is closed on this setup.
 Next are synchronized-output/wait-notify, idle/resource and shutdown stress checks.
+The [0.3.5 scheduling/stability slice](doc/vt7/validation/2026-09-13-atlas-stability.md)
+now implements those bounded diagnostics. Hardware passes 100 lifecycles locally
+and on the supplied Windows 7 setup. WARP completes the operations but fails its
+resource-growth budget on both. Local handle traces identify Windows power-
+notification and message-posting paths. On the development machine, a native-only
+control reproduces growth with matched power registrations/unregistrations,
+while its no-notification counterpart stays flat. The supplied Windows 7 native
+control instead grows in both modes, with USER growth tracking more native
+threads reporting input queues. Neither WPF nor the control's explicit power
+subscription is required for the target reproduction. Attribution and boundedness
+remain open. Keep the gate open and the timed soak on hold. Quick,
+full-lifecycle and timed-soak profiles
+are separate evidence, not interchangeable passes.
+The development control still fails after the user-approved ESET inspection
+exclusion, with its in-process monitor absent from the module samples. The
+exclusion was removed. The native power/plain target comparison is now recorded.
+Next distinguish per-thread initialization/retention from per-surface growth in
+a bounded control and account for the integrated process before changing the
+acceptance model. Do not disable notifications, IME or WARP workers as a fix.
 This does not close Milestone 2 or start another optional typography experiment.
 
 Before substantial local-session integration or daily-driver UI construction,
@@ -571,6 +590,10 @@ defer non-blocking typography and visual refinements to Milestone 7.
   failure sites or real driver-loss/suspend/remote-session behavior.
 - [ ] Test wait/notify races, synchronized-output timeout, and teardown while
   rendering is idle, active, hidden, or recovering.
+  The 0.3.5 harness exercises parked wake bursts, one-shot timer arm/cancel,
+  explicit/missing sync end, hidden pending output and repeated disposal.
+  Local and supplied Windows 7 WARP resource growth remains an open stability investigation,
+  not optional polish. Keep this gate open until the required profiles pass.
 
 Gate: automated lifecycle/recovery suites pass with the requested backend;
 fault injection is recorded separately from real driver/device-loss evidence.

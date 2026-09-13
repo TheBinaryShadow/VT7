@@ -10,6 +10,9 @@
 #include "BuiltinGlyphs.h"
 #include "DWriteTextAnalysis.h"
 #include "../../interactivity/win32/CustomWindowMessages.h"
+#ifdef VT7_ATLAS
+#include "../../vt7/VT7.Renderer/Win7Presentation.hpp"
+#endif
 
 #include "../types/inc/ColorFix.hpp"
 
@@ -57,6 +60,25 @@ AtlasEngine::AtlasEngine()
 }
 
 #pragma region IRenderEngine
+
+#ifdef VT7_ATLAS
+AtlasEngine::~AtlasEngine()
+{
+    // The host has joined the render thread. Release backend views before the
+    // payload's context/device, then clear bindings and flush deferred releases.
+    // Member destruction alone destroys _p before _b, reversing that ownership.
+    ReleaseWin7DeviceResources();
+}
+
+void AtlasEngine::ReleaseWin7DeviceResources() noexcept
+{
+    _b.reset();
+    Win7::DestroySwapChain(_p);
+    _p.deviceContext.reset();
+    _p.device.reset();
+    _p.dxgi = {};
+}
+#endif
 
 // StartPaint() is called while the console buffer lock is being held.
 // --> Put as little in here as possible.

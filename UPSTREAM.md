@@ -100,6 +100,13 @@ All positive 0.3.4 suites now pass on the supplied Windows 7 setup at measured
 96/120/144 system DPI. This is bounded integration acceptance, not evidence of
 new upstream merges, universal compatibility or completion of Milestone 2.
 
+The 0.3.5 [scheduling/stability slice](doc/vt7/validation/2026-09-13-atlas-stability.md)
+changes VT7-only timer locking, pause/resume and final HWND/worker lifetime, with
+ABI 8 diagnostics. It retains the pinned parser and synchronized-output timeout
+policy. These changes are not an upstream merge or a new shaping policy.
+The supplied Windows 7 quick profiles and hardware lifecycle profile pass;
+WARP resource growth and the unrun timed soak keep full stability acceptance open.
+
 Microsoft Terminal continues to evolve. VT7 should benefit from upstream parser,
 TerminalCore, security, correctness, and performance improvements without
 blindly importing new platform dependencies.

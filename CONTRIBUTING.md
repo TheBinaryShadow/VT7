@@ -75,6 +75,11 @@ injected failures distinct from real driver failures and forced renderer modes s
 higher-scale viewport/recovery failures. Current 0.3.4 passes all positive suites
 at those scales on the supplied setup, accepting the bounded scaling checkpoint.
 Next are scheduling/idle/resource/shutdown checks, not optional typography.
+Build 0.3.5 implements that bounded slice, with distinct quick, full-lifecycle
+and extended-soak profiles. Follow the [stability record](doc/vt7/validation/2026-09-13-atlas-stability.md),
+keep resource-growth failures visible and do not equate a quick pass with target
+soak acceptance. Native HWND destruction must finish before its presentation
+worker exits; hidden workers park rather than terminate.
 Retain negative controls and exact same-device
 comparisons; see the [correction record](doc/vt7/validation/2026-09-12-atlas-scaling-correction.md).
 The 3A feasibility gate applies before substantial local

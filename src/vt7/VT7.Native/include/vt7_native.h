@@ -9,7 +9,7 @@ extern "C"
 
     enum : uint32_t
     {
-        VT7_NATIVE_ABI_VERSION = 7,
+        VT7_NATIVE_ABI_VERSION = 8,
         VT7_TEXT_SHORT = 32,
         VT7_TEXT_MEDIUM = 64,
         VT7_TEXT_LONG = 128,
@@ -102,6 +102,16 @@ extern "C"
     } VT7_SURFACE_SETTINGS;
 
     int32_t __cdecl VT7_GetSurfaceSettings(void* window, VT7_SURFACE_SETTINGS* settings);
+    typedef struct VT7_SCHEDULING_INFO
+    {
+        uint32_t struct_size, waits, frames, sync_waits, sync_timeouts;
+        uint32_t waiting, synchronizing, sync_mode, timer_fires, thread_starts;
+    } VT7_SCHEDULING_INFO;
+    int32_t __cdecl VT7_GetSchedulingInfo(void* window, VT7_SCHEDULING_INFO* info);
+    // Diagnostic/capture-only commands: 0 fixture, 1 sync begin+edit, 2 end,
+    // 3 edit+concurrent wake burst, 4 verify authored marker, 5 split sync begin,
+    // 6 arm one-shot timer, 7 cancel it. step is delay in ms for operation 6.
+    int32_t __cdecl VT7_SchedulingCommand(void* window, uint32_t operation, uint32_t step);
     int32_t __cdecl VT7_SetSurfaceFont(void* window, uint32_t family, uint32_t points, uint32_t weight, uint32_t diagnostic_dpi);
 
     // HWND values are opaque at the ABI boundary. Calls belong to the creating UI thread.

@@ -36,6 +36,22 @@ Next are synchronized-output/wait-notify, idle CPU, resource-growth and shutdown
 stress. Theme/high-contrast, broader device transitions and milestone-level ESU
 qualification remain open. Simulated DPI is still distinct from actual-system evidence.
 
+Implementation follow-up, 2026-09-13: [0.3.5](../validation/2026-09-13-atlas-stability.md)
+adds the bounded scheduling/lifecycle harness and corrects timer-read locking
+and HWND/worker shutdown order. Local verification and Windows 7 acceptance
+are recorded separately there. The short quick profile cannot close the extended
+stability gate, and this does not advance optional typography work. WARP resource
+growth fails the 100-cycle budget locally and in the supplied Windows 7 run.
+Hardware passes both. Local traces identify Windows power-notification/message
+paths, and a native-only paired control reproduces growth with matched power
+subscriptions but not without them on the development machine. The supplied
+Windows 7 control grows in both modes, so neither WPF nor its explicit power
+subscription is required for that target reproduction. USER growth tracks
+more native threads reporting input queues; ownership and a safe lifetime/bound
+remain unverified. The next bounded investigation separates thread initialization
+from per-surface retention before revisiting integrated acceptance. This stays
+in C3, with the timed soak on hold, not deferred as polish.
+
 ## Long-term goal
 
 Deliver a dependable, welcoming terminal that makes Windows 7 users' everyday
