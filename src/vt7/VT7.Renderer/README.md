@@ -15,11 +15,21 @@ Both power and plain modes complete and grow on the supplied Windows 7 setup;
 explicit power subscriptions and WPF are not required for this reproduction.
 The development machine's power/plain contrast and traced allocation family
 do not establish ownership on Windows 7. A fixed initialized pool or harmless
-bound has not been proven. Recreate-versus-reuse with per-thread identity is
-the next proposed diagnostic design, not an implemented or accepted result.
+bound has not been proven. The later recreate/reuse comparison, focused trace
+and retirement capture now have Windows 7 results; see the current handoff.
+The separate [WPF reactivation diagnostic 0.1](../../../doc/vt7/diagnostics/2026-09-14-resource-reactivation.md)
+now completes two integrated work/close/idle rounds locally and on Windows 7
+against one fixed baseline. The target retains three immediate failures, while
+the two +180s handle/thread/GDI/USER counts match and private memory rises by
+220 KiB. This does not identify retained handles or establish C3 acceptance.
+The native renderer bytes remain unchanged.
+The [owner-approved REL01 decision](../../../doc/vt7/architecture/2026-09-14-warp-development-deferral.md)
+stops further dedicated tracing and accepts this risk for continued development.
+C4/3A session work proceeds now. Milestone 7 reviews reliability evidence and
+reopens investigation only if needed; recorded failures are not changed to passes.
 
-Current source retains version 0.3.5/ABI 8 and adds opt-in resource-isolation
-controls not present in the issued viewport archive. This source README and
+Current source is version 0.3.7/ABI 10 with the session-stream and native-HWND
+outbound boundaries and opt-in resource-isolation controls not present in the issued viewport archive. This source README and
 those controls do not alter the frozen packages or their provenance files.
 
 Build 0.3.0 implements the minimum Windows 7 font boundary and connects the real

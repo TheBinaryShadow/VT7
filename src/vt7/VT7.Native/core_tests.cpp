@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 #include <LibraryIncludes.h>
 #include "include/vt7_native.h"
+#include "utf8_terminal_stream.hpp"
 #include "../../cascadia/TerminalCore/Terminal.hpp"
 #include "../../renderer/base/renderer.hpp"
 #include "../VT7.Renderer/Win7FontFallback.hpp"
@@ -103,6 +104,50 @@ int32_t __cdecl VT7_RunCoreTests(wchar_t* report, uint32_t reportCharacters)
             const auto& row = f.core.GetTextBuffer().GetRowByOffset(0);
             Check(row.GlyphAt(0) == L"S", "split sequence was printed literally");
             Check(f.core.GetAttributeColors(row.GetAttrByColumn(0)).first == RGB(10,20,30), "split SGR lost state");
+        });
+        run(L"Session UTF-8 and VT stream split at every byte boundary", [](Fixture&) {
+            const std::string bytes = "\x1b[1;38;2;10;20;30mHR: \xC4\x8D\xC4\x87\xC5\xBE\xC5\xA1\xC4\x91 | split VT";
+            const std::wstring expected = L"HR: \u010d\u0107\u017e\u0161\u0111 | split VT";
+            for (size_t split = 0; split <= bytes.size(); ++split)
+            {
+                Fixture f;
+                const auto guard = f.core.LockForWriting();
+                VT7::Utf8TerminalStream stream;
+                stream.Begin();
+                THROW_IF_FAILED(stream.Write(std::string_view{ bytes }.substr(0, split), [&](const auto text) { f.core.Write(text); }));
+                THROW_IF_FAILED(stream.Write(std::string_view{ bytes }.substr(split), [&](const auto text) { f.core.Write(text); }));
+                THROW_IF_FAILED(stream.End());
+                Check(f.Row(0).substr(0, expected.size()) == expected, "split stream changed decoded text");
+                const auto& row = f.core.GetTextBuffer().GetRowByOffset(0);
+                Check(f.core.GetAttributeColors(row.GetAttrByColumn(0)).first == RGB(10,20,30), "split stream changed VT state");
+                const auto snapshot = stream.Snapshot();
+                Check(snapshot.bytes == bytes.size() && snapshot.pendingBytes == 0 && snapshot.ended && SUCCEEDED(snapshot.lastError),
+                    "split stream counters or completion state differ");
+            }
+        });
+        run(L"Session malformed and incomplete UTF-8 policy", [](Fixture& f) {
+            VT7::Utf8TerminalStream stream;
+            stream.Begin();
+            const char malformed[]{ 'A', static_cast<char>(0xff), 'B' };
+            THROW_IF_FAILED(stream.Write(std::string_view{ malformed, _countof(malformed) }, [&](const auto text) { f.core.Write(text); }));
+            THROW_IF_FAILED(stream.End());
+            Check(f.Row(0).substr(0, 3) == L"A\ufffdB", "malformed UTF-8 was not replaced consistently");
+
+            stream.Begin();
+            const char partial[]{ static_cast<char>(0xc4) };
+            THROW_IF_FAILED(stream.Write(std::string_view{ partial, _countof(partial) }, [&](const auto text) { f.core.Write(text); }));
+            Check(stream.Snapshot().pendingBytes == 1, "incomplete UTF-8 was not retained");
+            Check(stream.End() == HRESULT_FROM_WIN32(ERROR_NO_UNICODE_TRANSLATION), "incomplete UTF-8 EOF was accepted");
+            Check(stream.Snapshot().ended && stream.Snapshot().pendingBytes == 0, "incomplete UTF-8 EOF state differs");
+            Check(stream.Write("x", [&](const auto text) { f.core.Write(text); }) == HRESULT_FROM_WIN32(ERROR_INVALID_STATE),
+                "write after EOF was accepted");
+
+            stream.Begin();
+            const char recovered[]{ static_cast<char>(0xc4), static_cast<char>(0x8d) };
+            THROW_IF_FAILED(stream.Write(std::string_view{ recovered, _countof(recovered) }, [&](const auto text) { f.core.Write(text); }));
+            THROW_IF_FAILED(stream.End());
+            Check(stream.Snapshot().generation == 3 && stream.Snapshot().bytes == 2 && SUCCEEDED(stream.Snapshot().lastError),
+                "stream did not recover through a new generation");
         });
         run(L"Windows 7 core lock contention", [](Fixture&) {
             til::recursive_ticket_lock lock;

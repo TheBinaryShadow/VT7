@@ -8,6 +8,22 @@ and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidenc
 
 Research date: 2026-09-11. Added after the user pointed out that current Microsoft Win32-OpenSSH runs successfully on Windows 7. This corrects an omission in the initial dependency shortlist. No binary was downloaded or executed during this reassessment.
 
+## Later S00 result
+
+The [2026-09-14 S00 evaluation](../validation/2026-09-14-openssh-s00.md)
+completed this proposed experiment against the owner's Debian 12 server. The
+exact Microsoft 10.0p2 x64 client passes strict trust, key authentication,
+modern negotiation, lossless non-PTY channels, exit drain and cancellation on
+Windows 7. Forced PTY allocates but reports 0 by 0.
+
+Exact source tag `v10.0.0.0` explains the failure: Windows
+`w32_ioctl(TIOCGWINSZ)` queries only the stdout console buffer, zero dimensions
+are sent when that fails, and live resize is triggered by console input window
+events. VT7's redirected raw pipes provide neither console path. S00 therefore
+accepts external OpenSSH for non-PTY command transport and rejects it as VT7's
+interactive SSH backend. The historical questions and recommendation below are
+preserved as the path that led to this decision, not current unfinished work.
+
 ## Planning adoption
 
 The [approved plan](../architecture/2026-09-11-research-driven-plan.md) now places

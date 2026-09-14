@@ -8,6 +8,16 @@ and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidenc
 
 Research date: 2026-09-11. Priority: P1. No SSH implementation has been selected or integrated by this research.
 
+**Result, 2026-09-14:** [S00](../validation/2026-09-14-openssh-s00.md)
+accepts the exact Microsoft 10.0p2 x64 client for non-PTY command transport and
+rejects it for interactive VT7 SSH. Windows 7 testing preserves exact bytes,
+trust, authentication, negotiation, drain and cancellation, but forced PTY
+starts at 0 by 0. Exact source confirms that initial and live geometry require
+Windows console handles/events absent from redirected VT7 pipes. SSH.NET
+2026.0.0 is the approved S01 candidate under the owner's standing permissive
+dependency policy. Nothing is incorporated yet; the exact-notice Windows 7
+diagnostic is next.
+
 **Reassessment:** Microsoft's Win32-OpenSSH installation instructions explicitly include Windows 7. Its current listed release brings a modern OpenSSH/LibreSSL stack. Evaluate that maintained client first as an external-process backend; modern SSH cryptography is substantially less uncertain than the original shortlist implied. Raw terminal I/O, authentication prompts and remote resize still require a proven integration boundary. See the [OpenSSH reassessment](22-win32-openssh-reassessment.md). [12][13]
 
 ## Direct channel architecture
@@ -34,9 +44,9 @@ Choose a terminal type matching tested behavior and the remote terminfo environm
 
 | Candidate | Why investigate | What remains unproven |
 | --- | --- | --- |
-| Microsoft Win32-OpenSSH | Official project documentation includes Windows 7; available client with modern SSH and LibreSSL. [12][13] | Direct byte transport, initial/live PTY sizing, prompt handling and lifecycle integration without legacy screen reconstruction |
+| Microsoft Win32-OpenSSH | Official project documentation includes Windows 7; available client with modern SSH and LibreSSL. [12][13] | S00 accepts non-PTY command transport and rejects redirected interactive PTY sizing. |
 | libssh2 | Native C library; explicit PTY/resize APIs, host-key helpers and nonblocking control; selectable crypto backends. [3] | Exact Windows 7 build, algorithm coverage, runtime closure and update process |
-| SSH.NET | Managed SSH library with its own implementation and package surface. [4] | Exact release's target frameworks, transitive/native dependencies, PTY resize, cancellation and Windows 7 execution |
+| SSH.NET 2026.0.0 | Managed SSH library with explicit PTY resize and structured trust/authentication. [4] | Approved for S01; exact Windows 7 dependency load, cancellation and behavior remain unproven. |
 
 A README saying “Windows” or a compatible managed target framework is not a Windows 7 runtime test. Select a concrete release only after reviewing its security advisories, crypto backend, build artifacts and licensing. This table is an evaluation shortlist, not a recommendation to ship current master.
 

@@ -10,8 +10,12 @@ namespace VT7.Host
         {
             try
             {
+#if VT7_RESOURCE_REACTIVATION
+                var folder = App.ReactivationLogDirectory;
+#else
                 var root = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                 var folder = Path.Combine(root, "VT7", "Logs");
+#endif
                 Directory.CreateDirectory(folder);
 
                 var path = Path.Combine(folder, $"proof-{snapshot.CapturedAt:yyyyMMdd-HHmmss}.log");

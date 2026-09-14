@@ -1,10 +1,11 @@
 # Building VT7
 
-VT7 currently builds a static Atlas viewport proof (0.3.5): a WPF desktop
+VT7 currently builds a session I/O Atlas viewport (0.3.7): a WPF desktop
 host, native HWND surface, the real Microsoft Terminal core/VT parser, AtlasEngine
 and renderer controller with a minimum Windows 7 font adapter.
-It displays a fixed demonstration and resizes the actual text buffer. It does
-not yet run shells or SSH sessions.
+Normal startup streams a deterministic UTF-8/VT fixture and attaches the
+generation-checked bounded outbound/native-HWND input boundary; the reset action retains the earlier fixed demonstration.
+It does not yet run shells or SSH sessions.
 
 The solution also builds an independent capability probe and an Atlas backend
 proof (0.1). The latter renders fixed glyphs through real Atlas backends and
@@ -16,7 +17,9 @@ renderer acceptance remains separate.
 
 Start with the [documentation index](doc/vt7/README.md) and
 [current handoff](doc/vt7/HANDOFF.md) for package identities, evidence and the
-next bounded investigation. The [port-first checkpoints](doc/vt7/architecture/2026-09-12-port-first-plan.md)
+current C4/3A development checkpoint. The [session stream contract](doc/vt7/architecture/2026-09-14-session-stream-foundation.md)
+records ABI 9 ingress. The [session outbound contract](doc/vt7/architecture/2026-09-14-session-outbound-foundation.md)
+records ABI 10 input/resize ordering and its focused test. The [port-first checkpoints](doc/vt7/architecture/2026-09-12-port-first-plan.md)
 and [roadmap](ROADMAP.md) retain the broader implementation order.
 The commands below are build and regression references, not requests to repeat
 the accepted suites or unchanged diagnostic package. They
@@ -41,7 +44,11 @@ replace the extended Windows 7 acceptance run.
 The 0.3.5 package is an investigation candidate: hardware passes the 100-cycle
 profile locally and on the supplied Windows 7 setup, but WARP exceeds its
 resource budget on both. Package creation runs the quick regression gate, not
-full stability acceptance. Keep the timed soak on hold while this is isolated.
+full stability acceptance. The
+[REL01 decision](doc/vt7/architecture/2026-09-14-warp-development-deferral.md)
+accepts this uncertainty for continued development and stops dedicated tracing.
+No soak is requested now; later product qualification need not wait for complete
+handle attribution. Existing runner verdicts and issued packages stay unchanged.
 `-Renderer atlas-d3d-hardware` or `-Renderer atlas-d3d-warp` selects one backend
 for investigation; its default is `both`. The quick runner also executes the
 expected-failure idle control, even when one backend is selected.
@@ -61,8 +68,8 @@ completed, not that growth was accepted. Both supplied Windows 7 runs complete,
 but both grow, unlike the development machine's power/plain contrast. Preserve
 this result without treating the notification explanation as target-proven.
 This is not a soak and needs no security exclusions or system-setting changes.
-See the stability record for package identity, results and the next bounded
-thread-lifetime investigation. No repeat of this unchanged package is requested.
+See the stability record for package identity and the completed thread-lifetime
+investigation history. No repeat of this unchanged package is requested.
 
 The separate [resource lifetime comparison 0.2](doc/vt7/diagnostics/2026-09-13-resource-lifetime.md)
 implements the recreate/reuse follow-up as versioned native diagnostic source.
@@ -76,7 +83,7 @@ an assembled diagnostic directory. These developer helpers require PowerShell
 compatible runner with nine matched samples and a 600-second per-process timeout.
 The supplied Windows 7 comparison now completes both modes and records growth
 even with one reused surface. Its narrow question is answered; see the linked
-record for findings and the next ownership-attribution task. No repeat of the
+record for findings and completed ownership-attribution history. No repeat of the
 unchanged package is requested.
 
 The [focused resource trace 0.3](doc/vt7/diagnostics/2026-09-13-resource-trace.md)
@@ -118,8 +125,37 @@ cleanup returns and all 34 baseline Windows workers retire by 90 seconds, with
 USER back to startup and 54 process handles still above startup at 180 seconds.
 See the linked result for handle histories and limits. No unchanged repeat or
 debugger reinstall is requested. Integrated C3 acceptance remains open; the
-next bounded control must bridge this result to the WPF host's actual lifecycle
-and post-close idle behavior. No successor is built by the log analysis.
+new WPF reactivation control below bridges this result to the actual host.
+
+The [WPF resource reactivation diagnostic 0.1](doc/vt7/diagnostics/2026-09-14-resource-reactivation.md)
+is now built and locally qualified. `tools/Build-VT7ResourceReactivation.ps1`
+builds only the separate net48/x64 managed diagnostic from fresh source snapshots,
+with .NET SDK 9.0.318 pinned for SDK resolution and the VS 2022/.NET Framework
+4.8 tools. It does not build the native project or overwrite existing artifacts.
+Before developer execution, stage the issued 0.3.5 native DLL, three VC runtime
+DLLs and fonts alongside the new EXE and verify their issued manifest hashes.
+`tools/Test-VT7ResourceReactivation.ps1 -BinaryDirectory <directory>` runs the
+full fixed protocol; `-Case work-negative` or `-Case idle-negative` runs its
+expected failure controls. Full collection takes about 16 minutes on the local
+machine and has a 40-minute limit. The validator, runner controls, exact build
+inputs and qualification evidence are linked from the diagnostic record.
+`tools/Package-VT7ResourceReactivation.ps1 -BuildDirectory <directory>
+-QualificationDirectory <directory>` verifies the completed qualification,
+assembles the new package and refuses existing 0.1 outputs.
+
+The supplied Windows 7 run completes in 655.156 seconds with 16 validated
+samples and three immediate budget failures. Its two +180s states have identical
+handle/thread/GDI/USER counts and a +220 KiB private-byte difference. See the
+diagnostic record for identity histories, evidence hashes and limits. No unchanged
+rerun is requested. For reproduction, extract
+`VT7-resource-reactivation-0.1-x64.zip` into a new folder, run
+`RUN-RESOURCE-REACTIVATION.cmd` and preserve the complete new Logs subfolder. The launcher selects 64-bit Windows PowerShell; its scripts were
+qualified under actual PowerShell 2.0 and 5.1. No new runtime, SDK, debugger or
+Visual Studio installation is needed on the user's configured target. The
+package retains all eight immediate budget verdicts across both work/idle
+rounds. Exit 3 means complete collection with resource failures, not an incomplete
+trace; exit 0 means the immediate budgets also passed. Final C3 qualification
+remains incomplete. Neither exit is a prerequisite to C4/3A under REL01.
 
 ## Pinned developer toolchain
 
@@ -166,21 +202,151 @@ in [the core boundary notes](src/vt7/VT7.Core/README.md). After a verified resto
 `-NoRestore` permits an offline build using the existing extracted sources.
 
 Build output is written under `artifacts\vt7\bin\<configuration>`. Current source
-still reports 0.3.5/ABI 8 but contains later diagnostic additions; the version
-label alone does not identify the issued binaries. Use the issued archive hash
-and package manifest when referring to its evidence.
+reports 0.3.7/ABI 10. The latest issued viewport archive remains 0.3.5/ABI 8 and
+the later standalone diagnostics intentionally retain that exact payload. Use
+the issued archive hash and package manifest when referring to its evidence.
 
-The packaging scripts retain fixed output paths and delete/recreate those
+Run the focused session-stream regression after either configuration:
+
+```powershell
+.\tools\Test-VT7SessionStream.ps1 -Configuration Debug
+```
+
+It requires an Atlas hardware device for deterministic capture. The test checks
+single-write versus byte-at-a-time raster identity, every native UTF-8/VT split,
+incomplete EOF, recovery and surface disposal. See the
+[session stream contract](doc/vt7/architecture/2026-09-14-session-stream-foundation.md).
+
+Run the focused generation/outbound/native-HWND regression after either
+configuration:
+
+```powershell
+.\tools\Test-VT7SessionOutbound.ps1 -Configuration Debug
+.\tools\Test-VT7SessionOutbound.ps1 -Configuration Release
+```
+
+It checks bounded admission, stale generations, FIFO drain, resize coalescing,
+Croatian and AltGr committed input, handled character suppression, distinct
+Ctrl+C/Break operations, TerminalCore non-text encoding and focus cleanup. See
+the [session outbound contract](doc/vt7/architecture/2026-09-14-session-outbound-foundation.md).
+
+Create the distinct non-overwriting Windows 7 candidate with:
+
+```powershell
+.\tools\Package-VT7SessionOutbound.ps1
+```
+
+Run `RUN-SESSION-OUTBOUND.cmd` after extracting the ZIP into a fresh writable
+folder. It verifies every packaged hash using a Windows PowerShell 5.1-compatible
+in-process SHA-256 implementation and creates a new folder beneath `Logs`.
+
+Run the endpoint-independent S00 OpenSSH preflight against an installed client:
+
+```powershell
+.\tools\Test-VT7OpenSsh.ps1 -SshPath 'C:\Program Files\OpenSSH\ssh.exe'
+```
+
+It captures raw stdout and stderr separately, records exact client identity,
+signature availability, algorithms and effective configuration, and verifies
+bounded cancellation against a disposable stalled loopback peer. It does not
+read credentials, connect to an SSH server, change machine configuration or
+close S00's network requirements. Create the MIT-only target package with:
+
+```powershell
+.\tools\Package-VT7OpenSsh.ps1
+```
+
+After extracting the issued ZIP into a fresh writable directory,
+`RUN-OPENSSH-S00-PREFLIGHT.cmd` creates a complete `Logs` child. The package does
+not contain or redistribute OpenSSH; it discovers the existing Program Files
+installation or `ssh.exe` on `PATH`. Its two Windows 7 runs are accepted, so no
+unchanged rerun is requested. See the
+[S00 record](doc/vt7/validation/2026-09-14-openssh-s00.md).
+
+Create the controlled Debian-server diagnostic with:
+
+```powershell
+.\tools\Package-VT7OpenSshNetwork.ps1
+```
+
+Issued `VT7-OpenSSH-S00-Network-0.1-x64.zip` requires the accepted 10.0p2 client
+hash. Its Windows 7 run is complete and needs no unchanged rerun. Strict trust,
+key-only authentication, exact non-PTY bytes, negotiated algorithms, active
+cancellation and final drain pass; forced PTY allocation reports 0 by 0 initial
+dimensions. Package 0.1 retained the public host-key fingerprint and temporary
+profile path in its changed-host diagnostic, contrary to its privacy claim.
+Restricted raw and sanitized evidence are archived separately. Current source
+retains only diagnostic classifications and defaults to package identity 0.2 if
+the network runner is reissued. Exact 10.0p2 source proves that redirected
+`ssh.exe` cannot obtain VT7's PTY size or observe VT7 resize events through its
+Windows console path. S00 is complete and requests no further external-client
+run. The owner approved SSH.NET 2026.0.0 and its permissive supplier notices for
+S01. The next step is a separately versioned diagnostic with an exact dependency
+and license inventory; product integration still requires Windows 7 acceptance.
+
+Run the P01 local-console characterization after building either configuration:
+
+```powershell
+.\tools\Test-VT7WinPty.ps1 -Configuration Debug
+.\tools\Test-VT7WinPty.ps1 -Configuration Release
+```
+
+The restore step verifies the official WinPTY 0.4.3 MSVC release archive and
+each staged x64 library, agent, header and license. The eighteen-case runner retains
+child console cells, exact backend bytes and final TerminalCore state. Reported
+text/cursor differences are evidence; dependency drift, invalid/incomplete UTF-8,
+timeouts, child failures or incomplete reports fail. See the
+[P01 record](doc/vt7/validation/2026-09-14-winpty-p01.md).
+
+Create a distinct Windows 7 test package with:
+
+```powershell
+.\tools\Package-VT7WinPty.ps1
+```
+
+The P01 packager refuses an existing destination, includes the exact WinPTY
+native runtime and MIT license, includes the pinned app-local Visual C++ runtime,
+and statically audits every native image before writing the ZIP. Its packaged
+launcher supports Windows PowerShell 5.1. A code page that the target console
+cannot select is recorded with `IsValidCodePage`, the set result, exact error and
+actual code page; the runner then continues without sending bytes under the wrong
+mapping.
+
+The older integrated packaging scripts retain fixed output paths and delete/recreate those
 folders and ZIPs. `-SkipBuild` skips compilation only; it does not preserve an
-existing package. Do not run them over issued artifacts during this investigation.
-A future distribution needs distinct paths and an explicit package identity
-before packaging. None of these scripts currently exposes an output-path option.
+existing package. Do not run them over issued artifacts. `Package-VT7Proof.ps1`
+is still pinned to 0.3.5 and intentionally rejects the 0.3.7 build.
+A future application distribution needs distinct paths and an explicit package
+identity before packaging. The separate P01 diagnostic uses a new non-overwriting
+package path.
+
+Run the I01 input characterization locally after building either configuration:
+
+```powershell
+.\tools\Test-VT7Input.ps1 -Configuration Debug -NonInteractive
+.\tools\Test-VT7Input.ps1 -Configuration Release -NonInteractive
+```
+
+`-NonInteractive` is a smoke test only. The completed target run omitted that
+switch and used the seven-step WPF/native-HWND recorder for Croatian HR Latin,
+AltGr, dead-key, Ctrl, focus and resize evidence. The non-overwriting package
+0.2 is preserved; do not rebuild or rerun it without a new question and
+identity. See the [I01 record](doc/vt7/validation/2026-09-14-input-i01.md).
 
 | Packaging script | Fixed package folder / ZIP stem under `artifacts` |
 | --- | --- |
 | `Package-VT7Proof.ps1` | `atlas-viewport-0.3.5` / `VT7-atlas-viewport-0.3.5-x64` |
 | `Package-VT7RendererProbe.ps1` | `renderer-probe-0.13` / `VT7-renderer-probe-0.13-x64` |
 | `Package-VT7AtlasProof.ps1` | `atlas-backend-proof-0.1` / `VT7-atlas-backend-proof-0.1-x64` |
+| `Package-VT7WinPty.ps1` | Next identity `vt7/packages/VT7-WinPTY-P01-0.4-x64` / matching ZIP; refuses replacement. Issued target evidence remains package 0.3. |
+| `Package-VT7Input.ps1` | `vt7/packages/VT7-Input-I01-0.2-x64` / matching ZIP; refuses replacement. Package 0.2 completed on the target and is preserved. |
+| `Package-VT7OpenSsh.ps1` | `vt7/packages/VT7-OpenSSH-S00-Preflight-0.2-x64` / matching ZIP; refuses replacement and contains no OpenSSH binary. |
+| `Package-VT7OpenSshNetwork.ps1` | Next identity `vt7/packages/VT7-OpenSSH-S00-Network-0.2-x64` / matching ZIP; refuses replacement and contains no OpenSSH binary or secret. Issued target evidence remains package 0.1. |
+
+Issued P01 package 0.3 used a culture-sensitive PowerShell row comparison that
+ignored embedded NULs in the two Windows 7 raw-VT cases. The retained strings
+were independently compared ordinally and source is corrected. Preserve package
+0.3 and its evidence; no target rerun or package 0.4 build is requested.
 
 The integrated packager tests assembled Release files before archiving and
 includes runtime DLLs, symbols, notices, dependency licenses and file checksums.
@@ -449,8 +615,8 @@ a window:
 
 Exit code 0 means all required proof probes passed. The report records the
 native ABI, detected Windows version, .NET runtime, graphics adapter, hardware
-Direct3D 11 result, WARP result, DXGI 1.2 availability, seven TerminalCore
-regression results and the new 48-case font-boundary check. A copy is also
+Direct3D 11 result, WARP result, DXGI 1.2 availability, nine TerminalCore
+regression results and the 48-case font-boundary check. A copy is also
 written to `%LOCALAPPDATA%\VT7\Logs` when that directory is writable.
 
 Normal startup opens the visual proof window:
@@ -486,8 +652,8 @@ keyboard focus behavior, and high-contrast configurations need visual testing:
 
 The 0.3.4 scaling matrix and bounded 0.3.5 quick/lifecycle handoff already have
 supplied results. Do not repeat them, repeat native comparison 0.1, or start the
-timed soak for this documentation handoff. The current task is the bounded
-resource investigation described in [HANDOFF.md](doc/vt7/HANDOFF.md).
+timed soak for this documentation handoff. Current development is C4/3A session
+feasibility, with WARP follow-up deferred as REL01 in [HANDOFF.md](doc/vt7/HANDOFF.md).
 The procedure below remains a reference for a future relevant regression or
 explicitly requested environment qualification.
 
@@ -601,7 +767,7 @@ Windows export.
 
 `VT7.Core.lib` now links the inherited parser and terminal state implementation
 into the bridge. A WPF `HwndHost` embeds the selectable Atlas/GDI surface through
-ABI 8 (0.3.4 used ABI 7, 0.3.3 used ABI 6, 0.3.2 used ABI 5, 0.3.1 used ABI 4).
+ABI 10 (0.3.6 used ABI 9, 0.3.5 used ABI 8, 0.3.4 used ABI 7, 0.3.3 used ABI 6, 0.3.2 used ABI 5, 0.3.1 used ABI 4).
 The renderer uses Windows 7 events. It parks while hidden and stays alive until
 native HWND destruction completes, then releases graphics and joins before the
 surface is deleted. The core is compiled without WinRT settings or ICU search/URL

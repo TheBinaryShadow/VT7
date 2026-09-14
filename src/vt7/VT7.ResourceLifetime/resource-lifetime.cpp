@@ -394,7 +394,9 @@ int wmain(int argc, wchar_t** argv)
         LOAD(VT7_GetBuildInfo, build);
         LOAD(VT7_GetPlatformInfo, platform);
 #undef LOAD
-        if (api.abi() != 8 || VT7_NATIVE_ABI_VERSION != 8) throw Failure{ "native-ABI-8", E_NOINTERFACE };
+        // This provenance harness intentionally targets the issued ABI 8 DLL,
+        // even when compiled from a newer application source tree.
+        if (api.abi() != 8) throw Failure{ "native-ABI-8", E_NOINTERFACE };
         VT7_BUILD_INFO build{ sizeof(build) };
         VT7_PLATFORM_INFO platform{ sizeof(platform) };
         check(api.build(&build), "native-build-info");

@@ -1,0 +1,65 @@
+<Window x:Class="VT7.InputFocusProbe.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="VT7 I01 Input and Focus Probe" Width="1040" Height="760"
+        MinWidth="820" MinHeight="620" Background="#101821" Foreground="#F3F7FA"
+        FontFamily="Segoe UI" FontSize="14" WindowStartupLocation="CenterScreen">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" FontSize="22" FontWeight="SemiBold" Foreground="#65B8FF"
+                       Text="VT7 I01: Croatian input, focus and resize" />
+            <TextBlock Grid.Row="1" x:Name="EnvironmentText" Margin="0,8,0,14" Foreground="#B8C9D9" TextWrapping="Wrap" />
+
+            <Border Grid.Row="2" Background="#182533" BorderBrush="#35516D" BorderThickness="1" Padding="14">
+                <StackPanel>
+                    <TextBlock FontWeight="SemiBold" Foreground="#65B8FF" Text="Controlled steps" />
+                    <TextBlock Margin="0,7,0,0" TextWrapping="Wrap">
+                        <Run Text="1. Select Croatian HR Latin in Windows. 2. Click Focus native and type these three lines: "/>
+                        <LineBreak/><Run FontFamily="Consolas" Text="čćžšđ ČĆŽŠĐ"/>
+                        <LineBreak/><Run FontFamily="Consolas" Text="@\|[]{}€"/>
+                        <LineBreak/><Run Text="A dead-key composition of your choice, followed by holding A for repeats."/>
+                        <LineBreak/><Run Text="3. In the native field press Ctrl+C and Ctrl+Break. 4. Repeat the three text lines in the WPF field. 5. Use both resize buttons. 6. Switch focus while holding and releasing Ctrl. 7. Click Complete and save."/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Grid Grid.Row="3" Margin="0,14,0,0">
+                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="18"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock FontWeight="SemiBold" Text="Native child HWND input" />
+                    <Border Height="150" Margin="0,7,0,0" Background="White" BorderBrush="#65B8FF" BorderThickness="1">
+                        <ContentControl x:Name="NativeHostContainer" />
+                    </Border>
+                    <Button x:Name="FocusNativeButton" Margin="0,8,0,0" HorizontalAlignment="Left" Padding="14,6" Click="FocusNativeClick">Focus native</Button>
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock FontWeight="SemiBold" Text="WPF TextBox input" />
+                    <TextBox x:Name="WpfInput" Height="150" Margin="0,7,0,0" AcceptsReturn="True" AcceptsTab="True"
+                             VerticalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="16"
+                             PreviewTextInput="WpfTextInput" TextChanged="WpfTextChanged" />
+                    <Button Margin="0,8,0,0" HorizontalAlignment="Left" Padding="14,6" Click="FocusWpfClick">Focus WPF</Button>
+                </StackPanel>
+            </Grid>
+
+            <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,16,0,0">
+                <Button Padding="14,6" Click="ResizeSmallerClick">Resize smaller</Button>
+                <Button Margin="10,0,0,0" Padding="14,6" Click="ResizeLargerClick">Resize larger</Button>
+                <Button Margin="24,0,0,0" Padding="18,6" Background="#2675B8" Click="CompleteClick">Complete and save</Button>
+            </StackPanel>
+
+            <TextBlock Grid.Row="5" x:Name="StatusText" Margin="0,14,0,0" Foreground="#B8C9D9" TextWrapping="Wrap" />
+            <TextBlock Grid.Row="6" Margin="0,10,0,0" Foreground="#91A4B5" FontSize="12" TextWrapping="Wrap"
+                       Text="This diagnostic records the controlled text and input metadata shown above. Do not type passwords or private terminal content into either field." />
+        </Grid>
+    </ScrollViewer>
+</Window>

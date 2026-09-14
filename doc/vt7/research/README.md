@@ -3,7 +3,7 @@
 Research date: **2026-09-11**. Scope: implementation decisions for VT7's Windows 7 SP1 x64 target. This directory contains research only; it does not change the product baseline or certify an implementation.
 
 Start with the [documentation index](../README.md) and [current handoff](../HANDOFF.md)
-for implementation state, the active blocker and preserved evidence. Source
+for implementation state, C4/3A work, the deferred REL01 concern and evidence. Source
 quotes, availability statements, candidate versions and original priorities in
 this collection retain their research-date scope. They were not re-researched
 or turned into production requirements by this documentation update.
@@ -38,7 +38,7 @@ full renderer qualification remains open.
 Simulated and actual-system DPI stay distinct. The independent mapper,
 fitter and enhanced Arabic experiments below remain separate research.
 
-Current C3 status, 2026-09-13: the
+Current C3 status, 2026-09-14: the
 [0.3.5 scheduling/stability slice](../validation/2026-09-13-atlas-stability.md)
 implements bounded scheduling, idle and shutdown checks. Hardware passes the
 100-cycle integrated profile locally and in the supplied Windows 7 run, while
@@ -51,10 +51,15 @@ retiring by 90 seconds. USER falls from 38 to 4. Retained native resources and
 the existing integrated WARP failure remain unresolved; C3 stays open. The
 complete 17-file run has a
 [verified local archive](../../../artifacts/vt7/evidence/resource-retirement-win7-0.1/ARCHIVE-VERIFICATION-20260913-152421-53a65b82.json).
-The next proposed observation is two integrated 100-lifecycle rounds in one WPF
-process, each followed by closed +10/+90/+180-second samples, with the original
-two warm-up lifetimes run once and the fixed baseline. It is not implemented or issued. Immediate
-budget failures remain failures and the timed soak stays on hold. These results
+The [WPF reactivation diagnostic 0.1](../diagnostics/2026-09-14-resource-reactivation.md)
+now completes two integrated 100-lifecycle rounds on Windows 7 with one fixed
+baseline. The two +180s handle/thread/GDI/USER counts match; private bytes rise
+by 220 KiB. Three immediate checkpoints still fail. Retained handle ownership
+and a permanent bound remain unproven. The owner-approved
+[REL01 decision](../architecture/2026-09-14-warp-development-deferral.md) now
+stops dedicated tracing and permits C4/3A session development. Milestone 7 reviews
+ordinary product reliability evidence and reopens attribution only when needed.
+The original failures and unrun soak stay recorded. These results
 do not select a security/input workaround, relax budgets or reopen optional
 typography work.
 
@@ -110,10 +115,16 @@ layout/interaction policy remains separate deferred work.
 
 The [approved September 11 plan](../architecture/2026-09-11-research-driven-plan.md)
 adopted the reviewed findings. The September 12 revision and roadmap now own the
-execution order. C1/C2 adaptation and integration are accepted, C3 is current,
-and the 3A WinPTY/OpenSSH/input feasibility gate precedes substantial local integration
-or daily-driver UI work. Text geometry, session ownership, input, accessibility,
-and output-security contracts move ahead of their dependent UI features.
+execution order. C1/C2 adaptation and integration are accepted; the C3 WARP
+concern is deferred under REL01. P01 selects WinPTY for bounded Windows 7 local
+legacy-console sessions. I01 now selects the Windows 7 Croatian native-HWND
+input boundary. Its outbound queue implementation is accepted. S00 completes
+the external OpenSSH evaluation and rejects redirected interactive PTY use; the
+SSH.NET 2026.0.0 and its permissive closure are approved for the next S01
+diagnostic. Session ownership remains
+in 3A before substantial local integration or daily-driver UI work. Text geometry, session
+ownership, input, accessibility, and output-security contracts move ahead of
+their dependent UI features.
 
 The original research is planning input, not runtime acceptance. The
 original subsystem recommendations remain research, and historical priority
@@ -129,7 +140,7 @@ records Windows 7 automated passes for both Atlas backends on hardware/WARP,
 visible Direct3D11 output, and repeated R-key recreation. Its fixed-glyph scope
 does not establish later font/controller integration; that evidence belongs to
 0.3.0 and its successors above. The original research snapshots remain research,
-not execution reports. Interactive local sessions and direct SSH remain future work.
+not execution reports. Interactive local sessions and S01 SSH remain future work.
 
 Start with the [project assessment](00-project-assessment.md), [API availability matrix](21-api-availability.md), and [experiment plan](20-validation-and-experiments.md). The subsystem files contain platform behavior, relevant APIs, implementation consequences, and targeted tests.
 

@@ -94,6 +94,7 @@
 
   <ItemGroup>
     <ClInclude Include="include\vt7_native.h" />
+    <ClInclude Include="utf8_terminal_stream.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="native.cpp" />

@@ -37,7 +37,17 @@ of required workflows remain immediate concerns, not optional polish.
 
 Start with [BUILDING.md](BUILDING.md) and the current
 [stability record](doc/vt7/validation/2026-09-13-atlas-stability.md).
-The working source is 0.3.5/ABI 8, with a static Atlas viewport, not sessions.
+The working source is 0.3.7/ABI 10. It combines the 0.3.6 bounded inbound stream
+and persistent UTF-8 decoder with a generation-checked outbound queue and the
+native child-HWND input/resize adapter. The exact 0.3.7 package passes its
+Windows 7 SP1 x64 target run. It still has no process backend; the normal host
+drains outbound operations to an audit sink. Start with the
+[session stream contract](doc/vt7/architecture/2026-09-14-session-stream-foundation.md)
+and [session outbound contract](doc/vt7/architecture/2026-09-14-session-outbound-foundation.md).
+The completed [I01 record](doc/vt7/validation/2026-09-14-input-i01.md) defines
+the Windows 7 Croatian native-HWND committed-text/key/resize boundary for the
+implemented outbound adapter. Its bounded target checks are accepted; live
+backend, broader layout, printable-repeat and IME acceptance remain later work.
 The earlier 0.2 host/core proof ran on tested Windows 7 non-ESU and ESU setups;
 that historical result does not qualify every later build or update tier.
 
@@ -54,9 +64,9 @@ automatic recovery, and session acceptance.
 - Windows 7 Atlas, DXGI, Direct3D 11, and WARP work.
 - WPF styling/contrast fixes, visual regression coverage, and native HWND
   lifetime and resize hardening.
-- Local PTY fidelity experiments and subsequent WinPTY candidate integration.
-- Microsoft Win32-OpenSSH direct-I/O/control-path experiments before selecting
-  the SSH implementation.
+- Production WinPTY session integration under the completed P01 fidelity limits.
+- S01 Windows 7 validation of the approved SSH.NET 2026.0.0 candidate. S00 has
+  rejected unmodified redirected OpenSSH for interactive PTY sessions.
 - Dependency, imported-API, and behavior-level compatibility audits.
 - Automated tests that protect Windows 7-specific behavior.
 - Physical Windows 7 testing with precise system and driver information.
@@ -64,7 +74,8 @@ automatic recovery, and session acceptance.
 Follow the [port-first checkpoints](doc/vt7/architecture/2026-09-12-port-first-plan.md)
 and link relevant changes to the [experiment IDs](doc/vt7/research/20-validation-and-experiments.md).
 The minimum font boundary and integrated Atlas viewport now have local and
-supplied Windows 7 C1/C2 acceptance in 0.3.0. C3 renderer gates are next; see the
+supplied Windows 7 C1/C2 acceptance in 0.3.0. C3 work followed that checkpoint;
+the current REL01 decision below permits C4/3A development. See the
 [integration record](doc/vt7/validation/2026-09-12-atlas-viewport.md).
 0.3.1 C3 repaint/cursor and status checks have local and supplied Windows 7
 acceptance recorded in the
@@ -95,18 +106,24 @@ now has a [completed Windows 7 capture](doc/vt7/diagnostics/2026-09-13-resource-
 with supported mode 3, completed work/wrapper cleanup and all 34 baseline pool
 workers absent by 90 seconds. USER returns to 4, while handles remain 107,
 or 54 above pre-warmup, through 180 seconds. The native 0.3.5 payload is unchanged.
-Next is designing a bounded repeated work/close/idle observation in the same
-integrated WPF process to test retained-baseline repeatability and connect this
-result to its resource failure. No follow-up diagnostic is built or issued yet;
-no unchanged target rerun is requested. Integrated acceptance remains open;
-do not widen budgets,
-increase warm-up to hide growth, disable input/security features, or run the
-timed soak as a substitute for attribution.
+The separate [WPF reactivation diagnostic 0.1](doc/vt7/diagnostics/2026-09-14-resource-reactivation.md)
+now completes two full lifecycle/idle rounds on the supplied Windows 7 setup,
+with the issued native DLL unchanged. Both +180s states have the same handle,
+thread, GDI and USER counts; private memory rises by 220 KiB. Three of the eight
+immediate checkpoints still fail. Preserve the initial baseline and all verdicts;
+matching late counts do not prove matching handles or a permanent safe bound.
+The [owner-approved development deferral](doc/vt7/architecture/2026-09-14-warp-development-deferral.md)
+stops further tracing and tracks conditional follow-up as REL01 in Milestone 7
+release readiness. Proceed to C4/3A and feature development. Preserve original
+budgets, warm-up, baseline and failed exits; no input/security workaround is
+adopted. Future sustained-use qualification does not require complete handle
+attribution first. Reopen tracing only for a named evidence or release question.
 Retain negative controls and exact same-device
 comparisons; see the [correction record](doc/vt7/validation/2026-09-12-atlas-scaling-correction.md).
 The 3A feasibility gate applies before substantial local
 integration or daily-driver UI work. Research priority labels are not new test
-results or permission to skip an open acceptance gate.
+results. The explicit REL01 development-risk decision changes sequencing,
+while retaining the failed tests and unresolved release qualification.
 
 ## Windows 7 compatibility rules
 
@@ -159,13 +176,42 @@ Also:
 Do not copy code from another project without checking its license or obtaining
 clear permission.
 
+Keep new VT7-authored code MIT licensed wherever possible. The project owner's
+standing 2026-09-14 decision allows compatible permissive dependencies and
+assets, including Apache-2.0, ISC-style, BSD-style and supplier-specific notice
+sets, when they help deliver the port. Record the concrete need, exact source and
+version, license audit and distribution obligations before incorporation.
+Preserve every required copyright, license and notice file. Licenses with
+source-sharing, network-use, proprietary redistribution or other material
+distribution conditions require a separate compatibility review. Existing
+Microsoft Terminal material, WinPTY, Unifont and future approved dependencies
+retain their own terms as recorded in `NOTICE.md`.
+The [standing third-party policy](doc/vt7/architecture/2026-09-14-third-party-licensing-policy.md)
+defines the audit, packaging and acknowledgement requirements.
+
 When adapting third-party code:
 
-1. Name the source project, file, and commit in the pull request.
+1. Name the source project, exact URL, file or function, and commit/tag in the
+   pull request.
 2. Preserve copyright and authorship information.
-3. Explain what was changed.
-4. Update the appropriate notice when the code is actually included.
+3. Record the applicable license and explain what was changed.
+4. Update `NOTICE.md` and packaged license files when code or binaries are
+   actually included. Design study or black-box behavioral comparison belongs
+   in an architecture/research record and does not by itself add a legal notice.
+5. Add a short, human acknowledgement and upstream reference for every included
+   project. Legal compliance and gratitude are both part of accepting a dependency.
 5. Keep separately licensed code identifiable when its license requires that.
+   Do not copy or translate copyleft implementation into VT7's MIT application
+   without an explicitly reviewed licensing boundary.
+
+P01 restores the unmodified official WinPTY 0.4.3 MSVC bundle into the ignored
+`artifacts/vt7/deps` cache. Keep its archive/component hashes in
+`Restore-VT7Dependencies.ps1` synchronized with the P01 validation record and
+copy the exact MIT license beside every staged WinPTY runtime. Do not replace
+the pinned binary silently or commit the dependency cache.
+
+The current external-project roles and license links are recorded in the
+[session ownership and source review](doc/vt7/architecture/2026-09-14-session-ownership-and-source-review.md).
 
 ## Pull requests
 

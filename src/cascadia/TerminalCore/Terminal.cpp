@@ -631,6 +631,23 @@ TerminalInput::OutputType Terminal::SendKeyEvent(const WORD vkey,
                                                  const ControlKeyStates states,
                                                  const bool keyDown)
 {
+    return _SendKeyEvent(vkey, scanCode, states, keyDown, true);
+}
+
+TerminalInput::OutputType Terminal::SendKeyEventWithoutLayoutTranslation(const WORD vkey,
+                                                                          const WORD scanCode,
+                                                                          const ControlKeyStates states,
+                                                                          const bool keyDown)
+{
+    return _SendKeyEvent(vkey, scanCode, states, keyDown, false);
+}
+
+TerminalInput::OutputType Terminal::_SendKeyEvent(const WORD vkey,
+                                                  const WORD scanCode,
+                                                  const ControlKeyStates states,
+                                                  const bool keyDown,
+                                                  const bool translateLayout)
+{
     // GH#6423 - don't snap on this key if the key that was pressed was a
     // modifier key. We'll wait for a real keystroke to snap to the bottom.
     // GH#6481 - Additionally, make sure the key was actually pressed. This
@@ -673,7 +690,7 @@ TerminalInput::OutputType Terminal::SendKeyEvent(const WORD vkey,
     // is the underlying ASCII character (e.g. A-Z) on the keyboard in our case.
     // See GH#5525/GH#6211 for more details
     const auto isSuppressedAltGrAlias = !_altGrAliasing && states.IsAltPressed() && states.IsCtrlPressed() && !states.IsAltGrPressed();
-    const auto ch = isSuppressedAltGrAlias ? UNICODE_NULL : _CharacterFromKeyEvent(vkey, sc, states);
+    const auto ch = !translateLayout || isSuppressedAltGrAlias ? UNICODE_NULL : _CharacterFromKeyEvent(vkey, sc, states);
 
     // Delegate it to the character event handler if this is a key down event that
     // can be mapped to one (see method description above). For Alt+key combinations

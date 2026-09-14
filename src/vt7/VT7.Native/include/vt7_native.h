@@ -9,7 +9,7 @@ extern "C"
 
     enum : uint32_t
     {
-        VT7_NATIVE_ABI_VERSION = 8,
+        VT7_NATIVE_ABI_VERSION = 10,
         VT7_TEXT_SHORT = 32,
         VT7_TEXT_MEDIUM = 64,
         VT7_TEXT_LONG = 128,
@@ -101,6 +101,32 @@ extern "C"
         uint32_t client_height;
     } VT7_SURFACE_SETTINGS;
 
+    typedef struct VT7_SURFACE_STREAM_INFO
+    {
+        uint32_t struct_size;
+        uint32_t generation;
+        uint64_t received_bytes;
+        uint64_t decoded_utf16_units;
+        uint32_t write_count;
+        uint32_t pending_utf8_bytes;
+        uint32_t ended;
+        int32_t last_hresult;
+    } VT7_SURFACE_STREAM_INFO;
+
+    enum : uint32_t
+    {
+        VT7_INPUT_RESULT_BYTES = 256,
+    };
+
+    typedef struct VT7_INPUT_RESULT
+    {
+        uint32_t struct_size;
+        uint32_t handled;
+        uint32_t byte_count;
+        uint32_t reserved;
+        uint8_t bytes[VT7_INPUT_RESULT_BYTES];
+    } VT7_INPUT_RESULT;
+
     int32_t __cdecl VT7_GetSurfaceSettings(void* window, VT7_SURFACE_SETTINGS* settings);
     typedef struct VT7_SCHEDULING_INFO
     {
@@ -119,6 +145,21 @@ extern "C"
     int32_t __cdecl VT7_DestroySurface(void* window);
     int32_t __cdecl VT7_GetSurfaceInfo(void* window, VT7_SURFACE_INFO* info);
     int32_t __cdecl VT7_ResetSurface(void* window);
+    // Starts an empty UTF-8 output stream. Write and end calls are ordered and
+    // must run on the surface's creating UI thread.
+    int32_t __cdecl VT7_BeginSurfaceStream(void* window);
+    int32_t __cdecl VT7_WriteSurfaceUtf8(void* window, const uint8_t* bytes, uint32_t length);
+    // Returns ERROR_NO_UNICODE_TRANSLATION when EOF leaves an incomplete code point.
+    int32_t __cdecl VT7_EndSurfaceStream(void* window);
+    int32_t __cdecl VT7_GetSurfaceStreamInfo(void* window, VT7_SURFACE_STREAM_INFO* info);
+    // These calls encode input against the same TerminalCore modes as output.
+    // Key input deliberately skips keyboard-layout translation. Committed text
+    // arrives separately through the HWND character path.
+    int32_t __cdecl VT7_EncodeSurfaceKey(void* window, uint32_t virtual_key, uint32_t scan_code,
+        uint32_t control_key_state, uint32_t key_down, uint32_t repeat_count, VT7_INPUT_RESULT* result);
+    int32_t __cdecl VT7_EncodeSurfaceChar(void* window, uint32_t character, uint32_t scan_code,
+        uint32_t control_key_state, uint32_t repeat_count, VT7_INPUT_RESULT* result);
+    int32_t __cdecl VT7_EncodeSurfaceFocus(void* window, uint32_t focused, VT7_INPUT_RESULT* result);
     int32_t __cdecl VT7_SaveSurfaceCapture(void* window, const wchar_t* path);
     // Diagnostic sequence: apply(0), retain(1), full redraw(2), compare(3).
     // Operation 4 retains an intentionally altered CPU reference for negative tests.

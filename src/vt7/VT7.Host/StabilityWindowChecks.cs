@@ -11,7 +11,7 @@ using System.Windows.Threading;
 
 namespace VT7.Host
 {
-    internal static class StabilityWindowChecks
+    internal static partial class StabilityWindowChecks
     {
         private sealed class Resources
         {
@@ -125,107 +125,7 @@ namespace VT7.Host
                 var resourceFailures = 0;
                 for (int cycle = -2; cycle < count; ++cycle)
                 {
-                    var window = new MainWindow { Opacity = 0, ShowActivated = false, ShowInTaskbar = false, IsHitTestVisible = false };
-                    IntPtr handle = IntPtr.Zero;
-                    try
-                    {
-                        window.Show(); await Settle(window);
-                        var surface = window.Viewport ?? throw new InvalidOperationException("No stability viewport.");
-                        handle = surface.Handle;
-                        surface.SchedulingCommand(0);
-                        await surface.PaintAndWaitAsync();
-                        if (cycle == 0)
-                        {
-                            Log($"Measured system DPI {surface.ReadSettings().SystemDpi}; warm-up completed.");
-                            await Park(surface);
-                            await Idle(surface, 2000, "visible", Log, App.InjectStabilityFailure);
-                            var fired = surface.ReadScheduling().TimerFires;
-                            surface.SchedulingCommand(6, 40);
-                            await Until(() => surface.ReadScheduling().TimerFires == fired + 1, "One-shot timer did not wake the parked renderer.");
-                            for (var timerStep = 0; timerStep < 64; ++timerStep)
-                            {
-                                surface.SchedulingCommand(6, 1000);
-                                surface.SchedulingCommand(7);
-                            }
-                            await Park(surface);
-                            await Task.Delay(1100);
-                            Require(surface.ReadScheduling().TimerFires == fired + 1, "Canceled timer fired.");
-                            Log("PASS: parked one-shot timer wake and 64 timer arm/cancel pairs, no canceled callbacks.");
-                            var before = surface.ReadScheduling();
-                            var beforeFrame = surface.ReadInfo().PaintCount;
-                            var clock = Stopwatch.StartNew();
-                            surface.SchedulingCommand(1, 1);
-                            await Until(() => surface.ReadScheduling().Synchronizing != 0, "Sync begin never entered renderer wait.");
-                            Require(surface.ReadInfo().PaintCount == beforeFrame && surface.ReadScheduling().SyncMode == 1,
-                                "Synchronized frame was presented before end.");
-                            surface.SchedulingCommand(2);
-                            await surface.WaitForRequestedFrameAsync();
-                            Require(surface.ReadScheduling().SyncTimeouts == before.SyncTimeouts && surface.ReadScheduling().SyncMode == 0,
-                                "Explicit sync end did not release the wait before timeout.");
-                            surface.SchedulingCommand(4, 1); await Exact(surface);
-                            Log($"PASS: explicit synchronized-output end, {clock.ElapsedMilliseconds} ms including validation; exact redraw matches.");
-                            await Park(surface);
-                            before = surface.ReadScheduling(); clock.Restart();
-                            surface.SchedulingCommand(5, 2);
-                            await surface.WaitForRequestedFrameAsync();
-                            var elapsed = clock.ElapsedMilliseconds;
-                            var after = surface.ReadScheduling();
-                            Require(after.SyncWaits == before.SyncWaits + 1 && after.SyncTimeouts == before.SyncTimeouts + 1 &&
-                                after.SyncMode == 0 && elapsed >= 80 && elapsed < 3000, "Missing-end timeout was not bounded or did not reset mode.");
-                            surface.SchedulingCommand(4, 2); await Exact(surface);
-                            Log($"PASS: split DECSET 2026 missing-end timeout, {elapsed} ms; mode reset and exact redraw matches.");
-                            for (uint wake = 0; wake < 64; ++wake)
-                            {
-                                await Until(() => surface.ReadScheduling().Waiting != 0, "Wake test did not park.");
-                                surface.SchedulingCommand(3, wake);
-                                await surface.WaitForRequestedFrameAsync();
-                                surface.SchedulingCommand(4, wake);
-                            }
-                            await Exact(surface);
-                            Log("PASS: 64 parked wake generations, two joined producers with 64 notifications each; final source and exact redraw verified.");
-                            window.ProofTabs.SelectedIndex = 1; await Settle(window);
-                            Require(!NativeMethods.IsWindowVisible(handle), "Tab did not hide native HWND.");
-                            surface.SchedulingCommand(3, 123);
-                            await Idle(surface, 2000, "hidden with pending output", Log);
-                            window.ProofTabs.SelectedIndex = 0; await Settle(window);
-                            await surface.PaintAndWaitAsync(); surface.SchedulingCommand(4, 123); await Exact(surface);
-                            Require(surface.ReadScheduling().ThreadStarts == 1, "Tab return restarted the presentation worker.");
-                            Log("PASS: hidden output consumed without frames, restored source and exact pixels.");
-                        }
-                        for (var step = 0; step < 10; ++step)
-                        {
-                            window.Width = 760 + (step % 5) * 45;
-                            window.Height = 640 + (step % 3) * 30;
-                            await Settle(window);
-                            surface.SchedulingCommand(3, (uint)(step + 100));
-                            var clock = Stopwatch.StartNew();
-                            await surface.PaintAndWaitAsync();
-                            if (cycle >= 0) latency.Add(clock.Elapsed.TotalMilliseconds);
-                            surface.SchedulingCommand(4, (uint)(step + 100));
-                            if (step % 2 == 0) await ProofWindowChecks.CheckTabRoundTrip(window, surface);
-                        }
-                        await Exact(surface);
-                        Require(surface.ReadScheduling().ThreadStarts == 1, "Lifecycle tab transitions restarted the presentation worker.");
-                        // Rotate close from parked, active, hidden and sync-waiting states.
-                        switch ((cycle + 4) % 4)
-                        {
-                            case 0: await Park(surface); break;
-                            case 1: surface.SchedulingCommand(3, 900); break;
-                            case 2: window.ProofTabs.SelectedIndex = 1; await Settle(window); surface.SchedulingCommand(3, 901); break;
-                            case 3:
-                                surface.SchedulingCommand(1, 902);
-                                await Until(() => surface.ReadScheduling().Synchronizing != 0, "Close test never entered sync wait.");
-                                break;
-                        }
-                    }
-                    finally
-                    {
-                        var close = Stopwatch.StartNew(); window.Close();
-                        worstClose = Math.Max(worstClose, close.ElapsedMilliseconds);
-                        Require(close.ElapsedMilliseconds <= 2000, "Shutdown exceeded two seconds.");
-                    }
-                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
-                    Require(!NativeMethods.IsWindow(handle), "Stability HWND survived disposal.");
+                    worstClose = Math.Max(worstClose, await RunLifecycleCycle(cycle, latency, Log));
                     if (cycle == -1) { baseline = await Resources.Read(); Log("RESOURCE warm-up: " + baseline); }
                     if (cycle >= 0 && ((cycle + 1) % Math.Max(1, count / 4) == 0))
                     {
@@ -247,6 +147,113 @@ namespace VT7.Host
                 else Log("NOT RUN: 30-minute active/10-minute idle soak. Lifecycle counts above identify this profile's coverage.");
                 Log("PASS: stability profile completed");
             }
+        }
+
+        private static async Task<long> RunLifecycleCycle(int cycle, List<double> latency, Action<string> Log)
+        {
+            long worstClose = 0;
+            var window = new MainWindow { Opacity = 0, ShowActivated = false, ShowInTaskbar = false, IsHitTestVisible = false };
+            IntPtr handle = IntPtr.Zero;
+            try
+            {
+                window.Show(); await Settle(window);
+                var surface = window.Viewport ?? throw new InvalidOperationException("No stability viewport.");
+                handle = surface.Handle;
+                surface.SchedulingCommand(0);
+                await surface.PaintAndWaitAsync();
+                if (cycle == 0)
+                {
+                    Log($"Measured system DPI {surface.ReadSettings().SystemDpi}; warm-up completed.");
+                    await Park(surface);
+                    await Idle(surface, 2000, "visible", Log, App.InjectStabilityFailure);
+                    var fired = surface.ReadScheduling().TimerFires;
+                    surface.SchedulingCommand(6, 40);
+                    await Until(() => surface.ReadScheduling().TimerFires == fired + 1, "One-shot timer did not wake the parked renderer.");
+                    for (var timerStep = 0; timerStep < 64; ++timerStep)
+                    {
+                        surface.SchedulingCommand(6, 1000);
+                        surface.SchedulingCommand(7);
+                    }
+                    await Park(surface);
+                    await Task.Delay(1100);
+                    Require(surface.ReadScheduling().TimerFires == fired + 1, "Canceled timer fired.");
+                    Log("PASS: parked one-shot timer wake and 64 timer arm/cancel pairs, no canceled callbacks.");
+                    var before = surface.ReadScheduling();
+                    var beforeFrame = surface.ReadInfo().PaintCount;
+                    var clock = Stopwatch.StartNew();
+                    surface.SchedulingCommand(1, 1);
+                    await Until(() => surface.ReadScheduling().Synchronizing != 0, "Sync begin never entered renderer wait.");
+                    Require(surface.ReadInfo().PaintCount == beforeFrame && surface.ReadScheduling().SyncMode == 1,
+                        "Synchronized frame was presented before end.");
+                    surface.SchedulingCommand(2);
+                    await surface.WaitForRequestedFrameAsync();
+                    Require(surface.ReadScheduling().SyncTimeouts == before.SyncTimeouts && surface.ReadScheduling().SyncMode == 0,
+                        "Explicit sync end did not release the wait before timeout.");
+                    surface.SchedulingCommand(4, 1); await Exact(surface);
+                    Log($"PASS: explicit synchronized-output end, {clock.ElapsedMilliseconds} ms including validation; exact redraw matches.");
+                    await Park(surface);
+                    before = surface.ReadScheduling(); clock.Restart();
+                    surface.SchedulingCommand(5, 2);
+                    await surface.WaitForRequestedFrameAsync();
+                    var elapsed = clock.ElapsedMilliseconds;
+                    var after = surface.ReadScheduling();
+                    Require(after.SyncWaits == before.SyncWaits + 1 && after.SyncTimeouts == before.SyncTimeouts + 1 &&
+                        after.SyncMode == 0 && elapsed >= 80 && elapsed < 3000, "Missing-end timeout was not bounded or did not reset mode.");
+                    surface.SchedulingCommand(4, 2); await Exact(surface);
+                    Log($"PASS: split DECSET 2026 missing-end timeout, {elapsed} ms; mode reset and exact redraw matches.");
+                    for (uint wake = 0; wake < 64; ++wake)
+                    {
+                        await Until(() => surface.ReadScheduling().Waiting != 0, "Wake test did not park.");
+                        surface.SchedulingCommand(3, wake);
+                        await surface.WaitForRequestedFrameAsync();
+                        surface.SchedulingCommand(4, wake);
+                    }
+                    await Exact(surface);
+                    Log("PASS: 64 parked wake generations, two joined producers with 64 notifications each; final source and exact redraw verified.");
+                    window.ProofTabs.SelectedIndex = 1; await Settle(window);
+                    Require(!NativeMethods.IsWindowVisible(handle), "Tab did not hide native HWND.");
+                    surface.SchedulingCommand(3, 123);
+                    await Idle(surface, 2000, "hidden with pending output", Log);
+                    window.ProofTabs.SelectedIndex = 0; await Settle(window);
+                    await surface.PaintAndWaitAsync(); surface.SchedulingCommand(4, 123); await Exact(surface);
+                    Require(surface.ReadScheduling().ThreadStarts == 1, "Tab return restarted the presentation worker.");
+                    Log("PASS: hidden output consumed without frames, restored source and exact pixels.");
+                }
+                for (var step = 0; step < 10; ++step)
+                {
+                    window.Width = 760 + (step % 5) * 45;
+                    window.Height = 640 + (step % 3) * 30;
+                    await Settle(window);
+                    surface.SchedulingCommand(3, (uint)(step + 100));
+                    var clock = Stopwatch.StartNew();
+                    await surface.PaintAndWaitAsync();
+                    if (cycle >= 0) latency.Add(clock.Elapsed.TotalMilliseconds);
+                    surface.SchedulingCommand(4, (uint)(step + 100));
+                    if (step % 2 == 0) await ProofWindowChecks.CheckTabRoundTrip(window, surface);
+                }
+                await Exact(surface);
+                Require(surface.ReadScheduling().ThreadStarts == 1, "Lifecycle tab transitions restarted the presentation worker.");
+                // Rotate close from parked, active, hidden and sync-waiting states.
+                switch ((cycle + 4) % 4)
+                {
+                    case 0: await Park(surface); break;
+                    case 1: surface.SchedulingCommand(3, 900); break;
+                    case 2: window.ProofTabs.SelectedIndex = 1; await Settle(window); surface.SchedulingCommand(3, 901); break;
+                    case 3:
+                        surface.SchedulingCommand(1, 902);
+                        await Until(() => surface.ReadScheduling().Synchronizing != 0, "Close test never entered sync wait.");
+                        break;
+                }
+            }
+            finally
+            {
+                var close = Stopwatch.StartNew(); window.Close();
+                worstClose = Math.Max(worstClose, close.ElapsedMilliseconds);
+                Require(close.ElapsedMilliseconds <= 2000, "Shutdown exceeded two seconds.");
+            }
+            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
+            Require(!NativeMethods.IsWindow(handle), "Stability HWND survived disposal.");
+            return worstClose;
         }
 
         private static async Task RunIsolation(Action<string> log)

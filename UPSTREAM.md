@@ -159,6 +159,31 @@ VT7 research:
 These references are snapshots. Their ideas must be reconciled with the chosen
 VT7 baseline instead of being merged wholesale.
 
+## Secondary source and behavior references
+
+The [2026-09-14 architecture review](doc/vt7/architecture/2026-09-14-session-ownership-and-source-review.md)
+records why several outside terminal projects may be useful during session work.
+Microsoft Terminal remains the primary upstream. WinPTY 0.4.3 is the only newly
+selected runtime among these references; PuTTY and WezTerm are research sources,
+and Mintty is a black-box behavioral oracle. No PuTTY, WezTerm or Mintty code or
+binary is currently incorporated into VT7.
+
+MIT-licensed source may be considered when it fills an evidenced gap, but every
+adoption must retain required copyright and license text and record the exact
+upstream revision and local modifications. Do not add a project to `NOTICE.md`
+solely because its design was studied. Mintty is GPL version 3 or later; do not
+copy or translate its implementation into the MIT application without a
+separately reviewed licensing boundary.
+
+For every future upstream or third-party import, record the concrete need, exact
+revision, license, obligations, alternatives and distribution effect. The
+project owner's standing 2026-09-14 decision permits compatible permissive
+licenses and supplier notice sets when they help deliver the port. Preserve all
+required notices and acknowledge the upstream project. Licenses with
+source-sharing, network-use, proprietary redistribution or other material
+distribution conditions require a separate compatibility review before use.
+See the [standing third-party policy](doc/vt7/architecture/2026-09-14-third-party-licensing-policy.md).
+
 ## Local remotes
 
 A normal VT7 checkout should use:

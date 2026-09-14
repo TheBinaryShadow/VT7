@@ -15,6 +15,9 @@ namespace VT7.Host
         internal static string? ResourceIsolation { get; private set; }
         internal static bool InjectStabilityFailure { get; private set; }
         internal static bool InjectSettingsFailure { get; private set; }
+        internal static bool SessionStreamTest { get; private set; }
+        internal static bool SessionOutboundTest { get; private set; }
+        internal static bool ShowSessionFixture { get; private set; }
         internal static uint ExpectedSystemDpi { get; private set; }
         internal static string? RecoveryScenario { get; private set; }
         internal static bool CaptureFrames { get; private set; }
@@ -24,6 +27,9 @@ namespace VT7.Host
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+#if VT7_RESOURCE_REACTIVATION
+            StartReactivation(e.Args);
+#else
             var rendererIndex = Array.IndexOf(e.Args, "--renderer");
             if (rendererIndex >= 0)
             {
@@ -34,6 +40,8 @@ namespace VT7.Host
             }
             var diagnostics = HasArgument(e.Args, "--diagnostics");
             var smokeTest = HasArgument(e.Args, "--window-smoke-test");
+            SessionStreamTest = HasArgument(e.Args, "--session-stream-test");
+            SessionOutboundTest = HasArgument(e.Args, "--session-outbound-test");
             var recoveryIndex = Array.IndexOf(e.Args, "--recovery-test");
             if (recoveryIndex >= 0)
             {
@@ -76,19 +84,24 @@ namespace VT7.Host
                 (InjectSettingsFailure && !SettingsTest)) { Shutdown(2); return; }
             if ((RepaintTest && (RendererMode == 0 || smokeTest || diagnostics || RecoveryScenario != null)) ||
                 (InjectRepaintFailure && !RepaintTest)) { Shutdown(2); return; }
-            CaptureFrames = smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest || StabilityTest;
+            if ((SessionStreamTest || SessionOutboundTest) && (RendererMode == 0 || diagnostics || smokeTest || RepaintTest ||
+                RecoveryScenario != null || SettingsTest || StabilityTest || (SessionStreamTest && SessionOutboundTest)))
+            { Shutdown(2); return; }
+            CaptureFrames = smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest || StabilityTest || SessionStreamTest || SessionOutboundTest;
             var injectBlank = HasArgument(e.Args, "--inject-blank-frame");
             if (injectBlank && (!smokeTest || RendererMode == 0)) { Shutdown(2); return; }
             SurfaceOptions = RendererMode | (CaptureFrames ? 0x100u : 0u) | (injectBlank ? 0x200u : 0u);
             if (RecoveryScenario == "startup-hardware") SurfaceOptions |= 0x400u;
             if (RecoveryScenario == "startup-both") SurfaceOptions |= 0x800u;
-            if (diagnostics || smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest || StabilityTest)
+            ShowSessionFixture = !(diagnostics || smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest || StabilityTest || SessionStreamTest || SessionOutboundTest);
+            if (diagnostics || smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest || StabilityTest || SessionStreamTest || SessionOutboundTest)
             {
                 ShutdownMode = ShutdownMode.OnExplicitShutdown;
                 RunChecks(e.Args, smokeTest);
                 return;
             }
             new MainWindow().Show();
+#endif
         }
 
         private static bool HasArgument(string[] args, string value) =>
@@ -109,6 +122,20 @@ namespace VT7.Host
                         App.StabilitySoak ? "Atlas scheduling and extended stability checks passed." :
                         App.StabilityLifecycle ? "Atlas scheduling and full lifecycle checks passed. Timed soak remains separate." :
                         "Atlas scheduling and quick stability checks passed. Extended soak remains separate.";
+                }
+                if (SessionStreamTest)
+                {
+                    if (!snapshot.Passed) throw new InvalidOperationException("Core or platform checks failed before session-stream testing.");
+                    await SessionStreamWindowChecks.Run(report);
+                    snapshot.SurfaceDisplay = report.ToString();
+                    snapshot.Summary = "Ordered, bounded UTF-8 session output reached TerminalCore and the rendered viewport.";
+                }
+                if (SessionOutboundTest)
+                {
+                    if (!snapshot.Passed) throw new InvalidOperationException("Core or platform checks failed before session-outbound testing.");
+                    await SessionOutboundWindowChecks.Run(report);
+                    snapshot.SurfaceDisplay = report.ToString();
+                    snapshot.Summary = "Generation-checked outbound ordering and the native HWND input boundary passed.";
                 }
                 if (SettingsTest)
                 {

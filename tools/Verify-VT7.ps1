@@ -4,7 +4,9 @@ param(
     [string]$Configuration = "Debug",
     [string]$BinaryDirectory,
     [switch]$RendererProbeOnly,
-    [switch]$AtlasProofOnly
+    [switch]$AtlasProofOnly,
+    [switch]$WinPtyProbeOnly,
+    [switch]$InputProbeOnly
 )
 
 $ErrorActionPreference = "Stop"
@@ -17,10 +19,17 @@ $hostPath = Join-Path $binaryRoot "VT7.Host.exe"
 $nativePath = Join-Path $binaryRoot "VT7.Native.dll"
 $rendererProbePath = Join-Path $binaryRoot "VT7.RendererProbe.exe"
 $atlasProofPath = Join-Path $binaryRoot "VT7.AtlasProof.exe"
+$winPtyProbePath = Join-Path $binaryRoot "VT7.WinPtyProbe.exe"
+$winPtyFixturePath = Join-Path $binaryRoot "VT7.WinPtyFixture.exe"
+$winPtyDllPath = Join-Path $binaryRoot "winpty.dll"
+$winPtyAgentPath = Join-Path $binaryRoot "winpty-agent.exe"
+$inputProbePath = Join-Path $binaryRoot "VT7.InputProbe.exe"
+$inputFocusProbePath = Join-Path $binaryRoot "VT7.InputFocusProbe.exe"
 $vswherePath = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
 
-if ($RendererProbeOnly -and $AtlasProofOnly) { throw 'Select only one standalone verification target.' }
-$requiredImages = if ($AtlasProofOnly) { @($atlasProofPath) } elseif ($RendererProbeOnly) { @($rendererProbePath) } else { @($hostPath, $nativePath) }
+$standaloneSelections = @(@($RendererProbeOnly, $AtlasProofOnly, $WinPtyProbeOnly, $InputProbeOnly) | Where-Object { $_ }).Count
+if ($standaloneSelections -gt 1) { throw 'Select only one standalone verification target.' }
+$requiredImages = if ($InputProbeOnly) { @($inputProbePath, $inputFocusProbePath) } elseif ($WinPtyProbeOnly) { @($winPtyProbePath, $winPtyFixturePath, $winPtyDllPath, $winPtyAgentPath) } elseif ($AtlasProofOnly) { @($atlasProofPath) } elseif ($RendererProbeOnly) { @($rendererProbePath) } else { @($hostPath, $nativePath) }
 foreach ($binaryPath in $requiredImages) {
     if (-not (Test-Path -LiteralPath $binaryPath -PathType Leaf)) {
         throw "VT7 binary was not found: $binaryPath. Run tools\Build-VT7.ps1 first."
@@ -140,10 +149,10 @@ function Assert-VT7Binary {
 }
 
 foreach ($binaryPath in $requiredImages) { Assert-VT7Binary -Path $binaryPath }
-if (-not $RendererProbeOnly -and -not $AtlasProofOnly -and (Test-Path -LiteralPath $rendererProbePath)) {
+if (-not $RendererProbeOnly -and -not $AtlasProofOnly -and -not $WinPtyProbeOnly -and -not $InputProbeOnly -and (Test-Path -LiteralPath $rendererProbePath)) {
     Assert-VT7Binary -Path $rendererProbePath
 }
-if (-not $RendererProbeOnly -and -not $AtlasProofOnly -and (Test-Path -LiteralPath $atlasProofPath)) {
+if (-not $RendererProbeOnly -and -not $AtlasProofOnly -and -not $WinPtyProbeOnly -and -not $InputProbeOnly -and (Test-Path -LiteralPath $atlasProofPath)) {
     Assert-VT7Binary -Path $atlasProofPath
 }
 

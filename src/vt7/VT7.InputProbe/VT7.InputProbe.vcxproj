@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64"><Configuration>Debug</Configuration><Platform>x64</Platform></ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64"><Configuration>Release</Configuration><Platform>x64</Platform></ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{A4E9CD10-37C2-46FC-A1E1-D6489239D06A}</ProjectGuid>
+    <ProjectName>VT7.InputProbe</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <VCToolsVersion>14.44.35207</VCToolsVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseDebugLibraries Condition="'$(Configuration)' == 'Debug'">true</UseDebugLibraries>
+    <UseDebugLibraries Condition="'$(Configuration)' != 'Debug'">false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="..\VT7.Core\Core.props" />
+  <PropertyGroup>
+    <OutDir>$(VT7BinaryRoot)</OutDir>
+    <IntDir>$(VT7IntermediateRoot)</IntDir>
+    <TargetName>VT7.InputProbe</TargetName>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <RuntimeLibrary Condition="'$(Configuration)' == 'Debug'">MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary Condition="'$(Configuration)' != 'Debug'">MultiThreadedDLL</RuntimeLibrary>
+      <ForcedIncludeFiles>$(MSBuildThisFileDirectory)..\VT7.Renderer\RendererFeatures.hpp;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <PreprocessorDefinitions Condition="'$(Configuration)' != 'Debug'">NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <MinimumRequiredVersion>6.01</MinimumRequiredVersion>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>version.lib;dwrite.lib;d2d1.lib;d3d11.lib;dxgi.lib;d3dcompiler.lib;windowscodecs.lib;bcrypt.lib;gdi32.lib;user32.lib;advapi32.lib;shlwapi.lib;ole32.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup><ClCompile Include="main.cpp" /></ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VT7.Core\VT7.Core.vcxproj"><Project>{54CBEAA0-46F4-4B91-BC5D-B2387719EB24}</Project></ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

@@ -8,31 +8,21 @@ also fails the resource budget on Windows 7. No soak was run. The
 remains accepted and its issued artifact is preserved. This is a bounded C3
 slice, not Milestone 2 completion or interactive-session support.
 
-Current resumption guide: [HANDOFF.md](../HANDOFF.md). The latest Windows 7
-native comparison below completes both modes but grows with and without power
-subscriptions; it does not transfer the development machine's power-specific
-attribution or close the integrated gate. The separate
-[recreate/reuse diagnostic 0.2](../diagnostics/2026-09-13-resource-lifetime.md)
-is implemented and packaged. Both supplied Windows 7 measurements complete but
-grow, including one reused surface whose 38 baseline thread identities survive
-through the last live checkpoint. Existing identities first report successful
-input-queue queries as USER grows. Repeated surface creation is unnecessary for
-this observed growth. Ownership remains unresolved and the integrated gate open.
-The [diagnostic appendix](../diagnostics/2026-09-13-resource-investigation.md)
-preserves native source/header/launcher, trace setup and all three target logs
-for a fresh checkout; full older binaries, PDBs and raw traces remain separate
-artifacts.
+Current resumption guide: [HANDOFF.md](../HANDOFF.md). The completed native
+recreate/reuse, trace and retirement records below retain their evidence and
+limits. The latest [WPF reactivation result](../diagnostics/2026-09-14-resource-reactivation.md#supplied-windows-7-result)
+completes two rounds on Windows 7 with identical late handle/thread/GDI/USER
+counts and +220 KiB private bytes, retaining three immediate budget failures.
 
-The latest bounded diagnostic is
-[resource retirement diagnostic 0.1](../diagnostics/2026-09-13-resource-retirement.md).
-Its new sampler and collector use the unchanged native 0.3.5 payload. The
-[supplied Windows 7 capture](../diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result)
-now completes and records mode 3 cleanup plus retirement of all 34 baseline
-pool workers by 90 seconds. USER returns to 4; handles remain 107, or 54 above
-pre-warmup, through 180 seconds. The next direction is a bounded repeated
-work/close/idle observation in the integrated WPF host within one process;
-the exact design is under review. This does not close its WARP resource failure
-or release the timed-soak hold.
+Development decision, 2026-09-14: the owner approved continuing the application
+and deferring further WARP tracing under
+[REL01](../architecture/2026-09-14-warp-development-deferral.md). C4/3A session
+feasibility is next; complete attribution is no longer a prerequisite. Final C3
+qualification remains incomplete, all original failures/limits stay recorded,
+and no timed soak is requested now. Milestone 7 reviews ordinary product
+reliability evidence and reopens investigation only if needed. This supersedes
+mandatory next-trace and attribution-before-development instructions in the
+historical sections below without rewriting their results.
 
 ## Implementation
 
@@ -695,6 +685,34 @@ after each, one initial two-lifetime warm-up, the original fixed baseline and
 every immediate budget failure retained. It still needs implementation and
 local qualification; no new diagnostic is built or issued for this step, no unchanged ZIP repeat is needed,
 and no timed soak was run. C3 remains open with unchanged acceptance budgets.
+
+Implementation follow-up, 2026-09-14: that design is now implemented and locally
+qualified as [WPF resource reactivation 0.1](../diagnostics/2026-09-14-resource-reactivation.md).
+The full same-process run completes both 100-lifecycle batches and all six late
+observations, with one initial two-lifetime warm-up, 16 checkpoints and all eight
+immediate budget failures retained. The shared lifecycle body is an exact
+extraction of this runner's existing workload. The separately built managed EXE
+uses the unchanged issued native DLL. This supersedes the implementation-pending
+status in the preceding analysis without revising the native retirement evidence.
+
+Supplied target follow-up, 2026-09-14: the
+[Windows 7 WPF reactivation run](../diagnostics/2026-09-14-resource-reactivation.md#supplied-windows-7-result)
+now completes in 655.156 seconds with all 16 samples valid and three immediate
+failures retained. Both +180s states have 1,314 handles, 13 threads, GDI 18 and
+USER 10; private bytes rise from 136,495,104 to 136,720,384 (+220 KiB). Nine
+late thread identities are common and four differ. None of the 40/42 positive
+queue identities in the `ntdll.dll+F8DE0` group at each batch's end appears at
+that round's +180s sample. This supports idle retirement; the snapshots do not
+prove exit events, matching handle identities or a permanent bound.
+
+The exact failed checks are round 1 / 100 (+36 handles, limit +32), round 2 / 75
+(+9 threads, limit +8) and round 2 / 100 (+34 handles and +9 threads). The other
+five immediate checkpoints pass. All 202 companion WPF reports pass, and worst
+close is 8 ms. The complete 207-file target run is archived and verified; the
+diagnostic record owns hashes, identity analysis and provenance. The initial
+proposal for more retained-handle attribution was subsequently deferred by the
+owner under REL01. C4/3A proceeds; original budgets/failures remain and no new
+diagnostic is issued by the deferral decision.
 
 The user subsequently authorized archiving the complete target run. All 17
 files (7,310,791 bytes) are preserved at

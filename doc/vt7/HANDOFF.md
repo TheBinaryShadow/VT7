@@ -1,6 +1,7 @@
 # VT7 development handoff
 
-Updated: 2026-09-13, after the supplied Windows 7 resource retirement 0.1 result and verified log archival.
+Updated: 2026-09-14, after completing S00 and approving the project-wide
+permissive dependency policy and SSH.NET S01 evaluation.
 This is the current resumption guide. Start with the [documentation index](README.md)
 if unfamiliar with the repository. The [roadmap](../../ROADMAP.md) owns gates;
 dated validation records own test claims.
@@ -8,7 +9,17 @@ dated validation records own test claims.
 ## Where we are
 
 VT7 is an independent MIT-licensed Windows 7 SP1 x64 terminal application port.
-The current application is a static TerminalCore-backed Atlas viewport inside
+Keep new VT7-authored code MIT licensed where possible. The owner's standing
+2026-09-14 decision permits compatible permissive dependencies and assets,
+including Apache-2.0, ISC-style, BSD-style and broader supplier notices, when
+they help deliver the port. Record exact provenance and retain every required
+notice. A materially restrictive, source-sharing, network-use or proprietary
+term still requires a separate compatibility review. The
+[standing licensing policy](architecture/2026-09-14-third-party-licensing-policy.md)
+owns this decision. `NOTICE.md` now combines legal disclosure, upstream
+references and human thanks.
+The current application streams a deterministic UTF-8/VT fixture through a
+bounded session output queue into the TerminalCore-backed Atlas viewport inside
 a .NET Framework 4.8 WPF host. It has no interactive local shell, SSH session,
 production tabs/panes/profiles, selection or session-input implementation yet.
 The visible viewport/Diagnostics tabs belong to the proof host, not the finished
@@ -18,23 +29,41 @@ VT7 session claim.
 Port first. Preserve pinned upstream behavior wherever possible and adapt the
 Windows 7 boundaries. Required correctness, security, accessibility and resource
 lifetime are blockers when affected; optional typography and refinements belong
-in Milestone 7. Do not resume the earlier Arabic/geometry experiment chain as
-the default next task.
+in Milestone 7. The owner-approved
+[WARP development deferral](architecture/2026-09-14-warp-development-deferral.md)
+moves the known resource concern to REL01 release-readiness review and stops
+the dedicated tracing campaign. C4/3A is active; its first shared output
+boundary is implemented and S00 has rejected redirected external OpenSSH for
+interactive PTY sessions.
+Neither WARP attribution nor
+the earlier Arabic/geometry experiment chain is the default next task.
 
 | Item | Current state |
 | --- | --- |
-| Working application version | 0.3.5, native ABI 8, x64. Version alone does not distinguish issued binaries from later source diagnostics. |
+| Working application version | 0.3.7, native ABI 10, x64. The latest issued full viewport artifact remains 0.3.5/ABI 8; the focused 0.3.7 target candidate has a distinct identity. |
 | Milestone 1 | Complete on the tested configurations, with the evidence limits in its record. |
 | C1 minimum font boundary and C2 Atlas integration | Accepted on the supplied Windows 7 setup in 0.3.0. |
 | C3 repaint, controlled recovery, scaling | Bounded 0.3.1/0.3.2 results and actual 0.3.4 96/120/144 DPI matrix accepted. |
-| C3 scheduling/resource lifetime | Active. Quick hardware/WARP and hardware 100-cycle lifecycle pass locally and on the supplied Windows 7 setup; integrated WARP fails resource budgets on both. |
-| Timed soak | Not run on either setup and currently on hold. |
-| Latest target diagnostic | Retirement 0.1 completes all eight checkpoints with a supported WARP profile and zero invalid handles. Actual mode 3, callback drain, work close and wrapper free are recorded. All 34 baseline pool-worker identities are absent by the 90-second sample; USER returns from 38 to 4 and process handles fall from 141 to 107, unchanged at 180 seconds. |
-| Remaining lifetime question | The target retains 54 process handles above pre-warmup after workers retire, including the same 32 factory handle values reporting one pool with zero workers. The native result does not yet explain the integrated WPF failure or establish a repeatable retained baseline. |
-| Latest local diagnostic | Resource retirement 0.1 has a new exported sampler and the unchanged native 0.3.5 payload. The final Windows 10 collector completes eight checkpoints and full handle history under PowerShell 2; its unsupported WARP profile correctly supplies no target ownership claim. |
-| Next bounded task | Design a bounded repeated work/close/idle observation in the integrated WPF host, within one process, to connect the native result to the integrated failure and test whether its retained baseline repeats. Exact design remains under review; no new diagnostic is built or issued for this step. No unchanged target rerun or timed soak is requested. |
+| C3 scheduling/resource lifetime | Test failures preserved; further WARP tracing stopped and deferred as REL01. Quick hardware/WARP and hardware 100-cycle lifecycle pass on both setups. This concern no longer blocks feature development; final qualification is incomplete. |
+| Timed soak | Not run on either setup. No immediate request; sustained-use qualification belongs with the assembled product and REL01 review, without requiring complete attribution first. |
+| Latest resource target diagnostic | WPF reactivation 0.1 completes both 100-lifecycle rounds and all 16 checkpoints in 655.156 seconds, retaining three immediate budget failures. Both +180s states have 1,314 handles, 13 threads, GDI 18 and USER 10; private bytes rise by 220 KiB. |
+| Remaining lifetime question | The two late integrated counts repeat, but individual handle identities/owners and a permanent bound are unproven. Final WPF handles remain 1,090 above pre-warm-up; this includes initialization and diagnostic effects. The previous native-only residual is 54 and is not directly comparable. |
+| Latest local diagnostic | WPF resource reactivation 0.1 completes two 100-lifecycle batches and closed +10/+90/+180s observations after each, in one process. All 16 checkpoints validate and all eight immediate budget failures remain. The native 0.3.5 DLL is unchanged. |
+| Session stream foundation | Implemented and locally validated in Debug and Release. Ordered transport-thread output reaches a per-surface decoder and TerminalCore through a bounded dispatcher queue; incomplete EOF and recovery are explicit. |
+| Session ownership review | The supplied pushed-commit analysis was reconciled with the current tree. UTF-8 streaming and P01 are already complete; the remaining architecture requirement is to separate production session/TerminalCore identity from HWND/WPF presentation identity, with generation-safe callbacks and two-sided core/backend resize. |
+| P01 WinPTY characterization | Complete. The official 0.4.3 native x64 artifacts are pinned. Debug, Release and all eighteen Windows 7 package 0.3 cases complete with verified evidence. WinPTY is selected for Windows 7 local legacy-console sessions behind the replaceable session boundary; raw VT, code-page, cursor-width and intermediate-state limits are explicit. |
+| P01 target package | `VT7-WinPTY-P01-0.3-x64.zip`, SHA256 `6DD8560EDE4B4FEE9CCA3BC972F0437DAD216D9D0FE168E29989D96012CFDBCF`, 959,977 bytes, 15 verified files. Same-hash copy at `K:\VT7_work\VT7-WinPTY-P01-0.3-x64.zip`. Its complete target run has 109 files and 1,062,782 bytes. |
+| I01 input characterization | Complete for the Windows 7 Croatian HR Latin 3A decision. Both controls receive required Croatian/AltGr text. Flags 1 and 5 both mutate `ToUnicodeEx` dead state. Native key/character, focus and resize ordering define the input adapter contract; broader layouts, printable repeat and IME remain in 3C. |
+| I01 target package | `VT7-Input-I01-0.2-x64.zip`, SHA256 `45E730BDB00A27D3A42B6A61AB9A302E42CA118C18359B3364022B0CA75FF7E8`, 355,069 bytes, 13 verified files. Same-hash copy at `K:\VT7_work\VT7-Input-I01-0.2-x64.zip`. Its completed target run has 4 files and 354,713 bytes. Package 0.1 is a rejected local runner candidate and was not issued. |
+| Session outbound 0.3.7 | Implemented and validated in Debug/Release and on the exact Windows 7 SP1 x64 candidate. ABI 10 encodes native-HWND committed/non-text input through TerminalInput without live-thread layout translation. One bounded generation queue orders bytes, Interrupt/Break, focus and the native authoritative resize. |
+| Session outbound target package | `VT7-Session-Outbound-0.3.7-x64.zip`, SHA256 `1762520CD18A63E5A7BD30C7708658DA92B195830A3D68282A83FB21A4360CFC`, 10,560,527 bytes, 26 verified files. The accepted run has 2 files and 2,807 bytes; its host/native hashes match the package. |
+| S00 OpenSSH evaluation | Complete. Preflight and controlled Debian cases accept exact Microsoft 10.0p2 x64 `ssh.exe` command bytes, strict trust, key authentication, negotiation, drain and cancellation. Forced PTY reports 0 by 0. Exact source proves its Windows geometry path requires console output and input events that VT7's redirected pipes cannot supply. External OpenSSH is accepted for non-PTY command transport and rejected for interactive VT7 SSH. |
+| S00 preflight package | `VT7-OpenSSH-S00-Preflight-0.2-x64.zip`, SHA256 `1F8FE67D0E388D82248B6383035BE03E848D8FB3E71F85EE27C297ADF4149395`, 12,248 bytes, 8 verified files. It contains no OpenSSH binary. Both complete target runs are archived byte-identically as 44 files and 35,558 bytes. |
+| S00 network package | Issued 0.1 is `VT7-OpenSSH-S00-Network-0.1-x64.zip`, SHA256 `8029CC9CF48F9BAEA839F16F3E104A552F848AB17A4A12636C966145B421B7FA`, 16,203 bytes, 8 verified top-level files. Its complete target run has 16 files and 149,987 bytes. The changed-host diagnostic retained a public host fingerprint and temporary profile path despite its privacy claim; raw evidence is restricted and a safe copy is archived. Corrected source advances any reissue to 0.2. |
+| S01 candidate | [SSH.NET 2026.0.0](research/2026-09-14-sshnet-license-audit.md) is approved for evaluation. It exposes explicit PTY resize and structured trust/authentication and fits net48 through its net462 target. Its exact 13-package closure carries MIT metadata plus permissive Apache-2.0, ISC-style and broader supplier notices. No copyleft was found. Product incorporation has not started. |
+| Next bounded task | Build a narrow S01 probe for exact dependency loading and modern negotiation, host trust, password/encrypted-key prompts, initial/live resize, raw bytes, drain and cancellation on Windows 7. No S00 rerun or WARP attribution test is a prerequisite. |
 | Milestone 2 | Open. Theme/high-contrast, broader device/environment and milestone-level ESU coverage also remain. |
-| After renderer qualification | C4/Milestone 3A session feasibility: local-console fidelity, OpenSSH byte/control paths, input and ownership/security contracts. Then application/session delivery. |
+| Development sequence | Run the approved S01 candidate evaluation and complete the session-identity split before 3B, followed by the existing local-session/application milestones. Remaining C3/Milestone 2 qualification stays recorded without a blanket serial dependency. |
 
 ## Resume safely
 
@@ -53,9 +82,151 @@ the default next task.
    Use hashes below; never infer a match from the filename or version alone.
 5. Review build scripts before packaging. The current package helper replaces
    its fixed 0.3.5 directory and ZIP. Do not run it over retained evidence.
-   A later candidate needs an intentional new artifact identity and paths that
-   preserve old evidence. An isolated workspace protects existing files but does
-   not replace assigning that new identity. This update creates no application build.
+   The 0.3.7 source has a focused issued target candidate, not a complete application package. A later full candidate
+   needs a new artifact identity and paths that preserve old evidence.
+
+## What 0.3.7 changed
+
+- ABI 10 adds key, committed-character and focus encoding calls against the same
+  TerminalInput state updated by output parsing. Non-text key metadata uses a
+  no-layout entry point and cannot mutate Windows 7 dead-key state.
+- `SessionOutboundQueue` admits at most 256 pending operations, assigns one
+  generation and monotonic sequence, rejects stale/closed/full admission,
+  drains accepted work on completion and coalesces only consecutive resizes.
+- `NativeHwndInputAdapter` owns terminal input only at the child HWND. It emits
+  OS-committed UTF-16 once, keeps Interrupt and Break distinct, suppresses paired
+  ETX/Enter/Tab/Backspace characters, and reconciles tracked modifiers on focus
+  loss.
+- Native resize publishes the exact post-`UserResize` grid; the host coalesces
+  it once. WPF dimension events never become PTY resize operations.
+- `Test-VT7SessionOutbound.ps1` passes locally in Debug and Release, as do the
+  existing session-stream regressions and static PE/import checks. The exact
+  target package passes its hash-verifying `cmd.exe`/Windows PowerShell 5.1
+  launcher from a path with spaces. Its returned Windows 7 SP1 x64 run also
+  passes the bounded queue, native input/resize, TerminalCore, stream and font
+  checks with exact package host/native hashes.
+
+See the [session outbound foundation](architecture/2026-09-14-session-outbound-foundation.md).
+The backend remains an audit sink. TerminalCore/session identity is not yet
+separate from the HWND-backed surface, and no shell or SSH transport is wired.
+
+## What 0.3.6 changed
+
+- ABI 9 adds begin/write/end/status calls for a per-surface UTF-8 byte stream.
+  The native decoder uses inherited `til::u8u16` state and feeds the existing
+  TerminalCore parser without joining or rewriting transport chunks.
+- `SessionOutputPump` copies ordered chunks from any producer thread into a
+  16-slot queue with a 64 KiB chunk limit, giving 1 MiB maximum queued output
+  at full chunk size. Native HWND calls remain on the surface dispatcher.
+- Completion stops admission, drains accepted output and then delivers EOF.
+  Incomplete UTF-8 at EOF returns `ERROR_NO_UNICODE_TRANSLATION`; writes after
+  EOF fail; a new generation clears decoder/terminal state and recovers.
+- Normal startup now shows a streamed Croatian HR Latin and VT fixture. Existing
+  renderer regressions still use the deterministic static demo through reset.
+- `Test-VT7SessionStream.ps1` compares the exact rendered raster for one chunk,
+  388 one-byte writes and irregular chunks, then verifies incomplete EOF,
+  recovery and HWND destruction. Debug and Release pass locally. Release static
+  verification and the established Debug six-renderer viewport matrix pass.
+
+The detailed contract, evidence and remaining limits are in the
+[session stream foundation](architecture/2026-09-14-session-stream-foundation.md).
+The application source does not yet instantiate the selected WinPTY backend or
+implement OpenSSH or terminal replies. Input and resize now have the 0.3.7
+backend-neutral queue boundary.
+
+## P01 WinPTY diagnostic
+
+P01 pins the official WinPTY 0.4.3 MSVC 2015 bundle, source tag commit
+`3e1ab962d5262dd76159870c6dc0724927ca6a9d`. The archive SHA256 is
+`35A48ECE2FF4ACDCBC8299D4920DE53EB86B1FB41E64D2FE5AE7898931BCEE89`.
+The exact x64 DLL and agent hashes, license, architecture/import audit and test
+design are in the [P01 validation record](validation/2026-09-14-winpty-p01.md).
+
+`VT7.WinPtyFixture.exe` writes through WriteConsoleW, WriteConsoleOutputW,
+WriteConsoleA, WriteFile, raw VT, rapid rewrites, alternate buffers, resize and
+an exit-drain workload. It records actual console cells through a side file.
+`VT7.WinPtyProbe.exe` retains WinPTY bytes and feeds each read through the ABI 9
+decoder class into TerminalCore. `Test-VT7WinPty.ps1` normalizes console
+lead/trail duplication for semantic comparison while preserving exact cells.
+
+Debug and Release pass locally. All reconstructed streams are valid UTF-8 and
+fully drained; dimensions and legacy attributes match in every case. The local
+Windows 10 baseline records two narrow fidelity limits: unprocessed ESC cells
+reconstruct as literal question marks, and a supplementary console glyph becomes
+U+FFFD with a cursor-width difference. Only one of 200 fast rewrite states is
+observed, but the final state matches. Both alternate/primary markers, the 100 by
+30 resize and all 500 exit-drain lines survive.
+
+The first Windows 7 attempt used package 0.1 and failed in its batch launcher
+before creating `Logs`: quoted `%~dp0` ended in a backslash, causing Windows
+PowerShell 5.1 to receive an illegal trailing quote in `BinaryDirectory`.
+Package 0.2 changed only the launcher path form to `%~dp0.` and added a test-only
+no-pause environment switch. Its Windows 7 run passed five cases, then
+`SetConsoleOutputCP(932)` returned `ERROR_INVALID_PARAMETER` (87). The harness
+incorrectly treated that target capability result as a fixture failure and
+stopped. The 33 returned files are verified under
+`artifacts/vt7/evidence/winpty-p01-win7-0.2/`.
+
+Package 0.3 records requested/actual output code pages, `IsValidCodePage`, the
+set result and exact error. An unavailable page sends no incorrectly mapped
+bytes and the matrix continues. Both Debug and Release pass locally, as does an
+invalid-code-page negative control. The exact shipped ZIP passes all eighteen
+cases and the negative control from a path with spaces through `cmd.exe` plus
+Windows PowerShell 5.1.
+
+The complete target run is
+`artifacts/vt7/evidence/winpty-p01-win7-0.3/winpty-p01-20260914-060948-29e797c8/`:
+109 files and 1,062,782 bytes on Windows 7 SP1 x64 with `hr-HR` culture. All
+children exit zero, all agents signal, all streams drain with valid UTF-8, and
+all dimensions and legacy attributes match. Sixteen cases have ordinally equal
+text. Both raw-VT cases differ because the legacy console stores ESC as NUL and
+Windows 7 rejects `ENABLE_VIRTUAL_TERMINAL_PROCESSING` with error 87. CP932 is
+valid but the console rejects `SetConsoleOutputCP(932)` with error 87. Five
+cases have bounded cursor differences; resize, alternate-buffer and 500-line
+exit-drain behavior pass.
+
+The package's PowerShell `-cne` comparison ignored embedded NUL, so its two raw
+`textEqual` fields are overly optimistic. `INDEPENDENT-ANALYSIS.json`, SHA256
+`3E71AD551C519D93B461EEE4D21DEFC4768CE59021F04069391FF055F2D7156E`,
+recomputes ordinal equality. Source now uses `StringComparison.Ordinal`; the
+retained strings make another target run unnecessary.
+
+P01 selects WinPTY 0.4.3 for Windows 7 local legacy-console applications behind
+the replaceable session boundary. Do not describe it as lossless raw-VT
+transport. Direct SSH remains a separate byte path.
+
+## I01 input diagnostic
+
+I01 package 0.2 combines an automatic native layout/encoder probe with a guided
+.NET Framework 4.8 WPF and child-HWND focus recorder. The native side compares
+Croatian HR Latin `ToUnicodeEx` flags 1 and 5 on separate threads, then exercises
+the inherited `TerminalInput` encoder. The interactive side records controlled
+Croatian, AltGr, dead-key, repeat, Ctrl+C, Ctrl+Break, focus and resize events
+at both WPF and native boundaries. It does not launch a process backend or send
+input outside its own window.
+
+Debug and Release smoke runs pass locally. Release records 158 mappings, 30
+AltGr mappings, a layout dead key and 25 encoder cases. The exact package ZIP
+passes its batch entry point after extraction beneath a path with spaces under
+Windows PowerShell 5.1. Package 0.1 exposed a result-hashing command-discovery
+failure in that exact launcher test and is rejected; 0.2 uses an in-process
+SHA-256 implementation.
+
+The Windows 7 interactive run completes with zero validator issues, 772 event
+records, 158 Croatian mappings and 30 AltGr mappings. Both controls contain the
+required Croatian and AltGr text. `ToUnicodeEx` flags 1 and 5 both leave the dead
+key active, so the documented Windows 10 bit-2 behavior is unavailable. Ctrl+C
+and Ctrl+Break each arrive as a distinct native keydown followed by U+0003;
+there are 32 focus events and three native sizes. No native printable-A repeat
+was recorded, so that ordinary behavior remains in 3C rather than forcing an
+unchanged compatibility rerun.
+
+The native child HWND now owns terminal focus input. Its OS-generated committed
+text path supplies printable/composed UTF-16 once; native key metadata supplies
+non-text and control distinctions. The adapter correlates handled control keys
+with their following character, reconciles modifiers on focus loss and sends
+one coalesced native-grid resize. The exact identity, evidence and decision are in the
+[I01 validation record](validation/2026-09-14-input-i01.md).
 
 ## What 0.3.5 changed
 
@@ -135,6 +306,13 @@ the [upstream baseline or merge policy](../../UPSTREAM.md).
     +90s; this holds for all 34 captured WARP/GetThreadDesktop Events. Process
     handles remain 107, or 54 above
     pre-warmup, so this is bounded retirement evidence, not integrated C3 acceptance.
+12. The [Windows 7 WPF reactivation result](diagnostics/2026-09-14-resource-reactivation.md#supplied-windows-7-result)
+    completes both rounds with three immediate failures preserved. Its +180s
+    handle/thread/GDI/USER counts match exactly, with +220 KiB private bytes.
+    Nine of the 13 late thread identities are common and four differ. None of
+    the 40/42 queue-positive `ntdll.dll+F8DE0` identities at the ends of the two
+    batches appears at its corresponding +180s sample. Missing identities are
+    not exit events; equal handle totals do not prove the same handles remain.
 
 Earlier comparison 0.1 Windows 7 deltas from post-warm-up through the ten-second final
 closed-surface sample (one persistent native parent still exists):
@@ -154,17 +332,82 @@ measurements, not resource acceptance. The complete target transcript is in the
 
 ## Next bounded task
 
-The [supplied Windows 7 retirement capture](diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result)
-completes the current native diagnostic. No unchanged ZIP rerun is needed.
-The next direction is a bounded repeated work/close/idle observation in the
-integrated WPF host, within one process, to connect the native retirement result
-to the integrated WARP resource failure and test retained-baseline repeatability.
-The proposed control runs two existing 100-lifecycle batches, each followed by
-closed+10/90/180-second observations. Keep one initial two-lifetime warm-up,
-the original fixed baseline and every immediate budget failure. It needs
-implementation and qualification; no follow-up diagnostic is built or issued
-at this checkpoint. Keep the timed soak on hold and budgets unchanged.
-The detailed record owns the capture hashes, verified archive and source location.
+The owner has decided to continue development and return to the WARP concern
+only when evidence or release review requires it. Follow the
+[September 14 decision](architecture/2026-09-14-warp-development-deferral.md)
+and [REL01](../../ROADMAP.md#deferred-reliability-review). Do not resume the
+dedicated tracing campaign or request another diagnostic/soak as a prerequisite.
+
+The exact 0.3.7 Windows 7 run is accepted and archived. The
+[S00 evaluation](validation/2026-09-14-openssh-s00.md) is complete on Windows 7
+in two complete, repeatable runs. It freezes the exact official Microsoft
+10.0p2 x64 client and shows that redirected input produces a PTY-allocation
+diagnostic on stderr. No unchanged preflight rerun is requested. The
+controlled-server package 0.1 completes on the owner's Debian 12 server and
+dedicated `sshtest` account. Strict trust, key-only authentication, exact
+non-PTY bytes, negotiation, final drain and active cancellation pass. Forced PTY
+allocation reports 0 columns by 0 rows. Exact 10.0p2 source shows that its
+Windows size query reads the stdout console buffer and its resize notification
+comes from console input events. VT7's redirected pipes provide neither path,
+so another resize run would not add evidence. S00 rejects this interactive
+architecture while retaining the client as a command-only option.
+
+SSH.NET 2026.0.0 is the approved S01 candidate because it exposes explicit PTY
+resize and structured trust/authentication. The owner accepted its audited
+permissive Apache-2.0, ISC-style and supplier terms as a standing project-wide
+policy. The next package is a bounded Windows 7 S01 probe, not product
+integration. Then complete the session ownership and security contracts. Apply the
+[session ownership and external source review](architecture/2026-09-14-session-ownership-and-source-review.md):
+do not let a real transport grow into the current HWND-owned `Surface`, and keep
+TerminalCore/session identity separate from presentation identity before 3B.
+Reuse the
+existing renderer and accepted evidence; preserve native HWND destruction before
+presentation-worker cleanup/join. Full local sessions and the daily-driver UI
+follow the 3A choices and contracts, not another renderer research campaign.
+
+The two S00 preflight runs are preserved byte-identically under
+`artifacts/vt7/evidence/openssh-s00-win7-preflight-0.2/`. They contain 44 raw
+files and 35,558 bytes. The archive verification and independent analysis record
+the per-file comparisons, exact package identity, official archive-entry match,
+algorithm/default distinction, raw channel behavior and 807/808 ms cancellation.
+
+The controlled-server run is archived under
+`artifacts/vt7/evidence/openssh-s00-network-win7-0.1/`. Its private raw copy is
+byte-identical but contains a public host fingerprint and temporary Windows
+profile path, so it is not publication-safe. The sanitized copy and independent
+analysis retain every behavioral result without those identifiers. Package 0.1
+has SHA256 `8029CC9CF48F9BAEA839F16F3E104A552F848AB17A4A12636C966145B421B7FA`;
+the original manifest has SHA256
+`A3F4EE75A4379ACEA05498D41F1CB743B2F4EE99069A33CA78629C0CFA17C1DE`.
+
+The [completed Windows 7 reactivation run](diagnostics/2026-09-14-resource-reactivation.md#supplied-windows-7-result)
+has 16 valid samples, 200 measured lifecycles, 2,000 resizes and 1,000 tab trips
+in 655.156 seconds. Worst close is 8 ms; all 202 companion WPF reports pass.
+Both +180s states have 1,314 handles, 13 threads, GDI 18 and USER 10. Private
+bytes differ by 220 KiB. Three original immediate checks still fail. Nine late
+thread identities are common and four differ; handle identities are unproven.
+
+All 207 files (883,594 bytes) are verified and archived under
+`artifacts/vt7/evidence/resource-reactivation-win7-0.1/resource-reactivation-20260914-032308-629f4198/`.
+The report SHA256 is
+`168C44C2C17BFAA9B1360669D76136BD742DF8926F3ED7247E3D3507BB923C35`.
+The diagnostic record links inventory/supplement, validator, independent analysis
+and package provenance. The separate Windows 10 result retains eight immediate
+failures and late deltas of +2 handles, +1 thread, +1 USER and +3,846,144 bytes.
+
+Keep the original budgets, warm-up, baseline, reports and failed exits. This is
+development-risk acceptance, not a declaration of a fix or C3/Milestone 2
+completion. REL01 uses ordinary product qualification at release review and
+reopens earlier for continuing accumulation, exhaustion, crashes/hangs, shutdown
+failure or a concrete relevant lifetime defect. Another trace is conditional,
+not inevitable; identifying every internal Windows handle is not a prerequisite
+to acceptance. No new application code or diagnostic is issued by this decision.
+
+## Retained diagnostic context
+
+The following history and dated next-step reasoning preserve how the evidence
+was obtained. The approved REL01 decision above supersedes any instruction here
+to continue tracing or complete attribution before developing sessions.
 
 The [resource lifetime comparison 0.2](diagnostics/2026-09-13-resource-lifetime.md#supplied-windows-7-comparison)
 has answered its narrow question: growth also occurs with one reused surface.
@@ -308,9 +551,11 @@ Windows 7 setup rather than requesting a hardware matrix now.
 | Build/version | [VT7.sln](../../VT7.sln), [Directory.Build.props](../../src/vt7/Directory.Build.props), [Build-VT7.ps1](../../tools/Build-VT7.ps1). |
 | CLI and diagnostic dispatch | [App.xaml.cs](../../src/vt7/VT7.Host/App.xaml.cs). |
 | Managed lifecycle workload | [StabilityWindowChecks.cs](../../src/vt7/VT7.Host/StabilityWindowChecks.cs). |
+| Integrated reactivation diagnostic | [Protocol and qualification](diagnostics/2026-09-14-resource-reactivation.md), [two-round controller](../../src/vt7/VT7.ResourceReactivation/ReactivationChecks.cs), [thread identities](../../src/vt7/VT7.ResourceReactivation/ReactivationThreads.cs), [validator](../../src/vt7/VT7.ResourceReactivation/Validate-ResourceReactivation.ps1), [launcher](../../src/vt7/VT7.ResourceReactivation/Run-ResourceReactivation.ps1). Separate managed project, shared actual host workload, unchanged native payload. |
 | Process/thread samples | [ResourceDiagnostics.cs](../../src/vt7/VT7.Host/ResourceDiagnostics.cs). |
 | WPF/native lifetime | [TerminalSurface.cs](../../src/vt7/VT7.Host/TerminalSurface.cs), [surface.cpp](../../src/vt7/VT7.Native/surface.cpp). |
 | C ABI agreement | [vt7_native.h](../../src/vt7/VT7.Native/include/vt7_native.h), [exports.def](../../src/vt7/VT7.Native/exports.def), [NativeMethods.cs](../../src/vt7/VT7.Host/NativeMethods.cs). |
+| Session byte path | [native decoder](../../src/vt7/VT7.Native/utf8_terminal_stream.hpp), [bounded managed pump](../../src/vt7/VT7.Host/SessionOutputPump.cs), [visible fixture](../../src/vt7/VT7.Host/SessionStreamFixture.cs), [focused integration check](../../src/vt7/VT7.Host/SessionStreamWindowChecks.cs), [runner](../../tools/Test-VT7SessionStream.ps1). |
 | Renderer worker/timers | [renderer.cpp](../../src/renderer/base/renderer.cpp), [renderer.hpp](../../src/renderer/base/renderer.hpp), VT7 compatibility branches. |
 | Atlas/presentation | [AtlasEngine.cpp](../../src/renderer/atlas/AtlasEngine.cpp), [Win7Presentation.cpp](../../src/vt7/VT7.Renderer/Win7Presentation.cpp). |
 | Font boundary, not current task | [Renderer README](../../src/vt7/VT7.Renderer/README.md), Win7TextMapper and private font fallback. Experimental fitters are not automatic production policy. |
@@ -452,6 +697,17 @@ rewritten when the working documentation advances.
   records hashes, numerical findings and evidence limits.
 - Earlier native power/plain evidence:
   `artifacts/vt7/evidence/resource-comparison-win7-0.1/resource-comparison-18452-32699/`.
+- Supplied I01 Windows 7 evidence:
+  `artifacts/vt7/evidence/input-i01-win7-0.2/input-i01-20260914-052832-f87c2fc7/`.
+  The four original files total 354,713 bytes and are copied unchanged.
+  `ARCHIVE-VERIFICATION.json` records every source size/hash and
+  `INDEPENDENT-ANALYSIS.json` records the accepted input/resize decision.
+- Supplied session-outbound 0.3.7 Windows 7 evidence:
+  `artifacts/vt7/evidence/session-outbound-win7-0.3.7/session-outbound-20260914-063714-74969eea/`.
+  The two original files total 2,807 bytes and are copied unchanged.
+  `ARCHIVE-VERIFICATION.json` records both source size/hash pairs and
+  `INDEPENDENT-ANALYSIS.json` records the exact package identity and accepted
+  queue/input/resize decision.
 - Local managed/native controls and CDB traces: `artifacts/vt7/diagnostics/`.
 - Local integrated reports: `artifacts/vt7/reports/Debug/` and `Release/`.
 - Versioned findings, hashes and limitations:

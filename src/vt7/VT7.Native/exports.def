@@ -7,6 +7,13 @@ EXPORTS
     VT7_DestroySurface
     VT7_GetSurfaceInfo
     VT7_ResetSurface
+    VT7_BeginSurfaceStream
+    VT7_WriteSurfaceUtf8
+    VT7_EndSurfaceStream
+    VT7_GetSurfaceStreamInfo
+    VT7_EncodeSurfaceKey
+    VT7_EncodeSurfaceChar
+    VT7_EncodeSurfaceFocus
     VT7_RunCoreTests
     VT7_SaveSurfaceCapture
     VT7_SurfaceRepaintCheck

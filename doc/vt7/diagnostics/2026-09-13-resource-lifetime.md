@@ -1,5 +1,13 @@
 # Native resource lifetime comparison 0.2
 
+Current execution decision, 2026-09-14: the owner approved
+[REL01](../architecture/2026-09-14-warp-development-deferral.md), stopping further
+dedicated WARP tracing and proceeding to C4/3A session development. This record
+preserves historical findings and reproduction instructions; its proposed next
+diagnostics are not active tasks. Original failures and release-qualification
+limits remain recorded. Further investigation is conditional on relevant evidence
+or Milestone 7 release review.
+
 Status: implemented, locally exercised and packaged as a separate candidate.
 The supplied Windows 7 comparison completed both modes. Growth also occurs
 while one surface is reused; allocation ownership remains unresolved.

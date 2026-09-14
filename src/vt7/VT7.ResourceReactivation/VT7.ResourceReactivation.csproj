@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>VT7.ResourceReactivation</AssemblyName>
+    <RootNamespace>VT7.Host</RootNamespace>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>..\VT7.Host\app.manifest</ApplicationManifest>
+    <EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
+    <EnableDefaultPageItems>false</EnableDefaultPageItems>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <OutputPath>$(ReactivationOutputRoot)\bin\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <Version>0.1.0</Version>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+    <InformationalVersion>0.1-resource-reactivation</InformationalVersion>
+    <Product>VT7 resource reactivation diagnostic</Product>
+    <DefineConstants>$(DefineConstants);VT7_RESOURCE_REACTIVATION</DefineConstants>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <!-- Reuse the real host sources and XAML, with no native project reference. -->
+  <ItemGroup>
+    <ApplicationDefinition Include="..\VT7.Host\App.xaml" Link="App.xaml" />
+    <Page Include="..\VT7.Host\MainWindow.xaml" Link="MainWindow.xaml" />
+    <Compile Include="..\VT7.Host\*.cs" Link="Host\%(Filename)%(Extension)" />
+    <Compile Include="*.cs" />
+  </ItemGroup>
+  <Target Name="RequireIsolatedReactivationOutput" BeforeTargets="PrepareForBuild">
+    <Error Condition="'$(ReactivationOutputRoot)' == ''" Text="Build through Build-VT7ResourceReactivation.ps1 with a fresh output directory." />
+  </Target>
+</Project>

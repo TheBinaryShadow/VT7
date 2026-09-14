@@ -6,7 +6,7 @@ and geometry experiments. The [roadmap](../../../ROADMAP.md) owns milestone
 completion and the deferred-work register. No application behavior, upstream
 baseline, package, license, or test result changes with this decision.
 
-For current implementation state and the active C3 blocker, read the
+For current implementation state and C4/3A session work, read the
 [handoff](../HANDOFF.md) and [documentation index](../README.md). This document
 remains the execution-direction decision; its dated implementation follow-ups
 do not replace the roadmap checklist or the linked validation evidence.
@@ -26,7 +26,8 @@ harness and the separate 0.13 font probe do not yet establish that integration.
 
 Implementation follow-up: [viewport 0.3.0](../validation/2026-09-12-atlas-viewport.md)
 now implements C1/C2 and passes the supplied Windows 7 acceptance run on the
-tested configuration. C3 renderer qualification is next. This is a separate implementation result, not a change
+tested configuration. C3 renderer qualification followed at that checkpoint.
+This is a separate implementation result, not a change
 to the dated planning decision or acceptance of the optional research paths.
 
 The first C3 implementation is [0.3.1](../validation/2026-09-12-atlas-repaint.md):
@@ -54,12 +55,32 @@ subscriptions but not without them on the development machine. The supplied
 Windows 7 control grows in both modes, so neither WPF nor its explicit power
 subscription is required for that target reproduction. USER growth tracks
 more native threads reporting input queues; ownership and a safe lifetime/bound
-remain unverified. A bounded recreate/reuse comparison with individual thread
-lifetime and input-queue observations is the proposed next diagnostic, not an
-implemented control or a new package. It can test dependence on repeated surface
-lifetimes; by itself it cannot identify which changed HWND/device/worker lifetime
-owns the growth. Integrated acceptance still requires a justified explanation
-or correction. This stays in C3, with the timed soak on hold, not deferred as polish.
+remain unverified at that checkpoint. Subsequent recreate/reuse, focused trace
+and retirement controls have Windows 7 results, linked from the current handoff.
+Implementation follow-up, 2026-09-14: the separate
+[WPF reactivation diagnostic 0.1](../diagnostics/2026-09-14-resource-reactivation.md)
+now completes two integrated lifecycle/idle rounds on Windows 7. Both +180s
+handle/thread/GDI/USER counts match, with +220 KiB private bytes in the second.
+Three immediate checkpoints still fail against the original fixed baseline.
+The subsequent owner-approved
+[September 14 development deferral](2026-09-14-warp-development-deferral.md)
+stops dedicated WARP tracing and accepts the uncertainty for continued feature
+development. REL01 belongs to Milestone 7 release-readiness reliability review,
+with further investigation conditional on evidence. Proceed to C4/3A now.
+Original failures and remaining C3/Milestone 2 coverage stay recorded; no code
+fix or release acceptance is claimed and no immediate soak is requested.
+
+Implementation follow-up, 2026-09-14: [0.3.6 session stream](2026-09-14-session-stream-foundation.md)
+implements C4's shared inbound byte boundary. ABI 9 adds per-surface incremental
+UTF-8 generations and explicit EOF state. A bounded managed dispatcher queue
+preserves transport-thread ordering, and the rendered fixture proves Croatian
+UTF-8 and VT state across every byte boundary. Debug/Release focused tests and
+Release static verification passes locally. P01 now selects WinPTY 0.4.3 for
+Windows 7 local legacy-console sessions with bounded fidelity limits. I01 is
+complete, and the 0.3.7/ABI 10 outbound queue/native-HWND adapter passes its exact
+Windows 7 target run. S00 is complete and rejects redirected external OpenSSH
+for interactive PTY use; the approved SSH.NET 2026.0.0 S01 diagnostic is next.
+Process transport, terminal replies and assembled session acceptance remain open.
 
 ## Long-term goal
 
@@ -81,6 +102,10 @@ on future quality, and not a promise of exact current-upstream parity.
 - **Uncertain:** run the smallest comparison needed to identify the affected
   workflow and whether the defect comes from our adaptation, inherited behavior,
   or an experimental departure. Record the result, then integrate or defer.
+- **Accepted development risk:** an explicit owner decision may remove an
+  uncertain concern from the development dependency while preserving its tests
+  and release disposition. REL01 is this case. Do not automatically turn each
+  unexplained observation into a new required experiment.
 
 Reusing upstream is not permission to ship a security defect or waive a required
 workflow. Equally, an inherited typography limitation is not automatically a
@@ -99,7 +124,7 @@ Get an explicit scope decision before changing a promised workflow or platform f
 | --- | --- | --- |
 | C1: Minimal font boundary (2C) | Remove mandatory newer font interfaces; choose and integrate Windows 7 face selection while retaining upstream shaping direction, primary grid, and cluster advance fitting. Prove owned data, fallback and missing-asset behavior, source/cell integrity, and representative mixed-script output. | Reuse the 0.8 candidate where it fits; do not require joined-span or visual-bidi experiments. Audit the actual full-engine paths, not only the standalone mapper. |
 | C2: First Atlas viewport (2D plus required 2B work) | Connect real AtlasEngine, renderer controller and IRenderData to TerminalCore/native HWND, with Windows 7-safe waits, metrics, redraw and teardown. Package a visible Windows 7 build. | Run full-engine load/import checks and hardware/WARP smoke tests. This is integration evidence, not Milestone 2 completion. |
-| C3: Renderer acceptance (2E/2F and remaining 2A/2B gates) | Integrated repaint, cursor/grid alignment, fallback, recovery, resize, DPI/theme, and bounded idle/stress checks on the declared test setups. | Compare against inherited policies; triage optional appearance differences into Milestone 7. No correctness or lifecycle gate is waived. |
+| C3: Renderer acceptance (2E/2F and remaining 2A/2B gates) | Integrated repaint, cursor/grid alignment, fallback, recovery, resize, DPI/theme, and bounded idle/stress checks on the declared test setups. | Compare against inherited policies; triage optional appearance differences into Milestone 7. Required behavior and recorded test verdicts stay intact. The September 14 REL01 decision permits C4/3A and feature work while remaining qualification is incomplete. |
 | C4: Session choices (3A) | Bounded local-console, OpenSSH byte/control path and input experiments plus ownership/security contracts. | Reuse existing implementations; choose the integration from evidence, not a complete new backend research program. |
 | C5: Usable application (3B/3C, 4, 5) | Required local shells, input, daily-driver interface and direct SSH, tested end to end. | Keep renderer and transport fidelity separate. Hardening accompanies each change. |
 

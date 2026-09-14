@@ -1,7 +1,7 @@
 # VT7 Roadmap
 
 This file owns milestone completion and deferred-work triage. Start with the
-[current handoff](doc/vt7/HANDOFF.md) for the active C3 investigation and the
+[current handoff](doc/vt7/HANDOFF.md) for current C4/3A session work and the
 [documentation index](doc/vt7/README.md) for the code, build and evidence map.
 The [port-first decision](doc/vt7/architecture/2026-09-12-port-first-plan.md)
 owns execution direction; dated research remains supporting evidence and proposals.
@@ -44,8 +44,12 @@ adds final polish and release readiness, not a requirement to implement every id
 
 Short term: complete the application port. The minimum 2C font adaptation and
 TerminalCore-backed Atlas viewport in 2D are implemented and accepted as C1/C2
-on the supplied Windows 7 setup. Continue C3 renderer qualification, then the
-session choices and daily-driver interface in their existing milestone order.
+on the supplied Windows 7 setup. The
+[September 14 development decision](doc/vt7/architecture/2026-09-14-warp-development-deferral.md)
+now moves active work to C4 / Milestone 3A session feasibility, followed by the
+existing session/application milestones. WARP resource follow-up is deferred
+under REL01 in Milestone 7; it no longer blocks feature development. C3 and
+Milestone 2 retain their unpassed results and remaining qualification gaps.
 Long term: improve the finished port deliberately, using retained research and
 user feedback without making optional enhancements an indefinite release barrier.
 
@@ -74,8 +78,9 @@ while its no-notification counterpart stays flat. The supplied Windows 7 native
 control instead grows in both modes, with USER growth tracking more native
 threads reporting input queues. Neither WPF nor the control's explicit power
 subscription is required for the target reproduction. Attribution and boundedness
-remain open. Keep the gate open and the timed soak on hold. Quick,
-full-lifecycle and timed-soak profiles
+remained open at that checkpoint, when the timed soak was put on hold. The
+later REL01 decision below changes development sequencing, not those results.
+Quick, full-lifecycle and timed-soak profiles
 are separate evidence, not interchangeable passes.
 The development control still fails after the user-approved ESET inspection
 exclusion, with its in-process monitor absent from the module samples. The
@@ -102,13 +107,23 @@ unchanged at 180 seconds. All 15 measured-growth Events have matching CLOSE
 records on their opening worker TIDs and disappear by 90 seconds; all 34
 captured WARP/GetThreadDesktop Events have the same closing-path evidence.
 The residual 54 process handles above pre-warmup and integrated
-WPF failure remain unresolved. Next is designing a bounded repeated work/close/
-idle observation in that host within one process, to test retained-baseline
-repeatability. The detailed result proposes two existing 100-lifecycle rounds,
-each followed by 10/90/180-second closed observations, retaining one initial
-warm-up, the original baseline and every immediate budget failure. It needs
-implementation and qualification; no new diagnostic is issued for this step.
-C3 stays open, with no unchanged rerun or timed soak requested.
+WPF failure remain unresolved. The locally qualified
+[WPF reactivation diagnostic 0.1](doc/vt7/diagnostics/2026-09-14-resource-reactivation.md)
+now implements two existing 100-lifecycle rounds in one process, each followed
+by 10/90/180-second closed observations. It retains one initial two-lifetime
+warm-up, the fixed baseline and every immediate budget failure. The full local
+run completes with eight failures retained; its second +180s sample is two
+handles, one USER object, one thread and 3,846,144 private bytes above the first.
+This is bounded local evidence, not a proven bound or Windows 7 acceptance.
+The supplied Windows 7 run now completes in 655.156 seconds with three immediate
+failures retained. Its two +180s states match at 1,314 handles, 13 threads, GDI 18
+and USER 10; private bytes increase by 220 KiB. Nine late thread identities are
+common and four differ. This answers the two-round count comparison on that
+target, without proving handle identity, ownership or a permanent bound.
+The project owner has accepted this uncertainty for continued development and
+stopped the dedicated tracing campaign. Further attribution is conditional
+REL01 work, not the next task. No soak has run or is requested now; later
+whole-product qualification does not require complete handle attribution first.
 The [focused trace](doc/vt7/diagnostics/2026-09-13-resource-trace.md) supplies
 a process-scoped CDB launcher using the unchanged 0.2 executable and 0.3.5 DLL.
 The 0.1 Windows 7 preflight passes, but its trace stops at a first-chance
@@ -119,14 +134,20 @@ pre-warmup checkpoint, before surface creation. Its supplied target capture
 completes and passes corrected offline validation after a nested Token Type
 parsing bug is fixed. It directly correlates eleven retained Event opens with
 WARP/GetThreadDesktop setup calls on eleven existing worker identities becoming
-queue-positive. No target repeat is needed. The long-term lifetime/bound and
-integrated explanation remain required before changing acceptance. Do not disable
+queue-positive. No target repeat is needed. Long-term behavior and retained ownership remain
+uncertain and are recorded for REL01 release review. Original test failures
+remain failures under the development deferral. Do not disable
 notifications, IME or WARP workers as a fix.
 This does not close Milestone 2 or start another optional typography experiment.
 
 Before substantial local-session integration or daily-driver UI construction,
-3A must resolve WinPTY fidelity, the OpenSSH integration choice, and input/session
-contracts. This brings SSH feasibility forward, not full Milestone 5 delivery.
+3A must resolve local-console fidelity, the SSH integration choice, and
+input/session contracts. P01 selects WinPTY for Windows 7 legacy-console
+sessions within explicit limits; I01 closes the Windows 7 Croatian input
+boundary; and S00 rejects unmodified redirected Windows OpenSSH for interactive
+SSH after accepting its command transport, trust and lifecycle behavior. The
+owner approved SSH.NET 2026.0.0 and its permissive closure for S01. This brings SSH
+feasibility forward, not full Milestone 5 delivery.
 Tests, privacy-aware diagnostics, dependency audits, and output-security policies
 belong with each implementing change; Milestone 6 qualifies the assembled product.
 
@@ -144,6 +165,13 @@ Milestone 7 with evidence and a follow-up condition. Do not hide a port regressi
 as polish or silently reduce a promised workflow. Investigate uncertain cases
 with a bounded comparison before deciding. Historical research priorities are
 not additional current gates.
+
+REL01 is an explicit development-risk deferral approved on September 14. The
+known WARP investigation-budget failures do not by themselves block C4/3A or
+subsequent feature work. Reproducible exhaustion, continuing accumulation,
+crashes/hangs, shutdown failure or a concrete lifetime defect can reopen it.
+Milestone 7 reviews ordinary product-qualification evidence and records a
+disposition; it does not automatically require another tracing campaign.
 
 ## Supported system target
 
@@ -215,9 +243,10 @@ replies, and environment hints must match the effective session capabilities.
 - Direct SSH must deliver remote terminal bytes without legacy screen-buffer
   reconstruction, with a real remote PTY and live dimension updates. An external
   SSH process is acceptable; an embedded library is not a requirement.
-- Local sessions must meet the shell/application acceptance corpus. WinPTY is
-  the first candidate, not an assumption of transparent arbitrary VT transport.
-  Its reconstructed console stream cannot be used to claim every core feature.
+- Local sessions must meet the shell/application acceptance corpus. P01 selects
+  WinPTY 0.4.3 for Windows 7 legacy-console sessions behind a replaceable
+  boundary. Its reconstructed console stream cannot be used to claim transparent
+  arbitrary VT transport or every core feature.
 
 If a required local workflow fails, investigate an alternative or adaptation and
 record an explicit scope decision before closing the gate. Do not waive the
@@ -410,8 +439,9 @@ These partial F01/F02 results do not close the unchecked gates below.
 The completed experiment sequence is described in the
 [geometry and repaint test plan](doc/vt7/architecture/2026-09-11-font-geometry-test-plan.md):
 geometry/size/DPI and differential repaint preceded adapter work. The 0.3.5
-scheduling/stability harness now exists; the current C3 task is the unresolved
-WARP resource investigation described above, not another typography probe.
+scheduling/stability harness now exists. Its unresolved WARP resource concern
+is deferred under REL01; current development proceeds to C4/3A session
+feasibility. The earlier typography experiment chain also remains deferred.
 [Probe 0.6](doc/vt7/validation/2026-09-11-geometry-probe.md)
 implements the offscreen geometry matrix and passes on the supplied Windows 7 setup.
 Vertical overflow observations are covered by the approved upstream-aligned
@@ -626,8 +656,10 @@ passes all 6 viewport modes, 4 repaint modes, 16 recovery cases and 5 settings
 modes at each actual scale. Strict same-device image comparison is retained.
 This accepts the bounded system-DPI checkpoint on the tested configuration.
 The subsequent 0.3.5 slice supplies bounded synchronized-output/wait-notify,
-idle/resource and shutdown checks. Its integrated WARP resource failure keeps
-C3 open; non-blocking typography and visual refinements remain in Milestone 7.
+idle/resource and shutdown checks. Its integrated WARP resource failures stay
+recorded, with follow-up deferred under REL01. They no longer block session
+development. C3 remains incompletely qualified; optional typography keeps its
+separate POL entries in Milestone 7.
 
 - [x] Add forced hardware/WARP modes and test automatic hardware-failure
   fallback. A GDI fallback must be reported and cannot pass an Atlas test.
@@ -649,11 +681,14 @@ C3 open; non-blocking typography and visual refinements remain in Milestone 7.
   rendering is idle, active, hidden, or recovering.
   The 0.3.5 harness exercises parked wake bursts, one-shot timer arm/cancel,
   explicit/missing sync end, hidden pending output and repeated disposal.
-  Local and supplied Windows 7 WARP resource growth remains an open stability investigation,
-  not optional polish. Keep this gate open until the required profiles pass.
+  Local and supplied Windows 7 WARP resource failures remain recorded. REL01
+  defers further investigation to conditional release-readiness work; this
+  unchecked qualification item does not prevent C4/3A or feature development.
 
 Gate: automated lifecycle/recovery suites pass with the requested backend;
 fault injection is recorded separately from real driver/device-loss evidence.
+The REL01 exception changes the development dependency, not these test verdicts
+or the requirement to assess reliability before release.
 
 ### 2F: Visual and stability acceptance
 
@@ -692,34 +727,154 @@ must be documented, not silently turned into permanent product limitations.
 
 ### 3A: Session feasibility and contracts
 
+Current next development checkpoint, authorized by the
+[September 14 decision](doc/vt7/architecture/2026-09-14-warp-development-deferral.md).
+P01, I01, the 0.3.7 outbound slice and S00 are complete. Proceed with the
+approved SSH.NET S01 evaluation and session-identity contract without a new
+WARP trace prerequisite. Broader input/layout and production local transport
+remain later implementation work under the accepted boundaries.
+
 Run bounded experiments before committing to transport and input designs. These
 do not require daily-driver tabs or a finished SSH interface.
 
-- [ ] Characterize a pinned WinPTY native library/agent build (P01). Compare
+Inbound slice status, 2026-09-14: [0.3.6](doc/vt7/architecture/2026-09-14-session-stream-foundation.md)
+implements the shared inbound byte boundary. ABI 9 owns one incremental UTF-8
+decoder per surface generation; the managed session pump supplies ordered UI-thread
+delivery with a 16 by 64 KiB bounded queue, drain-before-EOF semantics and explicit
+incomplete-EOF failure. One-chunk, every-byte-boundary, malformed/incomplete,
+recovery and exact-render tests pass locally in Debug and Release. The broader
+session-owner item below remains open for input/replies, process exit, cancellation
+and resize. The [session ownership review](doc/vt7/architecture/2026-09-14-session-ownership-and-source-review.md)
+confirms that the current HWND-backed `Surface` is an interim proof boundary:
+production session/TerminalCore identity must be separated from transient HWND
+and WPF presentation identity before 3B backend wiring.
+
+P01 implementation status, 2026-09-14: the official WinPTY 0.4.3 MSVC bundle
+is pinned by archive and component hashes. A native controlled child and probe
+now retain child console cells, reconstructed bytes and final TerminalCore state
+for eighteen cases. Debug and Release pass the collection protocol on the development
+machine. The [baseline record](doc/vt7/validation/2026-09-14-winpty-p01.md)
+documents observed fidelity limits. Package 0.1 exposed a launcher path bug
+before probe startup. Package 0.2 passed five Windows 7 cases, then revealed
+that CP932 cannot be selected in that console (`ERROR_INVALID_PARAMETER` 87).
+Package 0.3 records unavailable code pages as capability evidence and continues.
+Its full Windows 7 run completes all eighteen cases with verified lifecycle,
+stream, UTF-8, dimension and attribute evidence. Sixteen cases have ordinally
+equal text; the two raw-VT cases expose NUL/ESC loss, Windows 7 rejects processed
+VT mode, CP932 selection is unavailable in the supplied console, and five cursor
+comparisons differ. Resize, alternate-buffer, final rewrite and exit drain pass.
+WinPTY 0.4.3 is selected for local legacy-console sessions with these limits;
+P01 is closed. The source comparator now uses ordinal equality to correct the
+package's embedded-NUL false positive without another target run.
+
+I01 implementation status, 2026-09-14: the separate Release x64 package 0.2
+completed on Windows 7 with the Croatian HR Latin layout. Both controls receive
+the required Croatian and AltGr text; Ctrl+C, Ctrl+Break, dead-key, focus and
+resize ordering are captured. `ToUnicodeEx` flags 1 and 5 both mutate dead state
+on the target, so production committed text comes once from the native HWND
+character/composition path and no live UI-thread helper translation is allowed.
+The native grid supplies one coalesced resize, and handled control keydowns
+suppress their paired U+0003 character. See the
+[I01 record](doc/vt7/validation/2026-09-14-input-i01.md).
+
+Outbound implementation status, 2026-09-14: [0.3.7](doc/vt7/architecture/2026-09-14-session-outbound-foundation.md)
+adds ABI 10 TerminalInput encoding at the native HWND boundary and a 256-operation
+generation queue for input bytes, Interrupt, Break, focus, resize, paste and
+terminal replies. Committed UTF-16 is not retranslated; handled Enter and Ctrl
+actions suppress their correlated character messages; focus loss reconciles
+modifiers; the native grid supplies one dispatcher-coalesced resize. Stale,
+bounded-full, FIFO/drain, Croatian/AltGr, control, non-text and resize checks pass
+locally in Debug and Release. The exact Windows 7 SP1 x64 candidate also passes
+with matching package host/native hashes. TerminalCore/session identity still resides in the interim
+surface and must be separated before 3B.
+
+S00 implementation status, 2026-09-14: the endpoint-independent
+[OpenSSH preflight](doc/vt7/validation/2026-09-14-openssh-s00.md) records an
+external installed client's exact executable identity, signature availability,
+algorithm inventory, effective isolated configuration, raw stdout/stderr and
+bounded cancellation against a disposable stalled loopback peer. Package 0.2
+passes twice on Windows 7 with the exact Microsoft 10.0p2 x64 `ssh.exe`, SHA256
+`6890C128C86CC2C38AAD9FCB32A82B851FF3D38C714A1F656B8E445D7CD5E1C6`.
+Both complete runs are archived and repeat byte-for-byte behavior except timing
+and run metadata. The package does not bundle OpenSSH.
+
+Controlled-server package status, 2026-09-14: network package 0.1 completes on
+the owner's Debian 12 server and dedicated unprivileged account. It pins the
+accepted client hash and covers out-of-band Ed25519 trust, strict unknown and
+changed-key rejection, key-only authentication, negotiated algorithms, exact
+non-PTY channels and remote exit, a 131,071-byte final drain, forced PTY initial
+dimensions and active-output cancellation. All behavioral checks pass, but the
+forced PTY begins at 0 columns by 0 rows. Package 0.1 retained the public server
+host-key fingerprint and temporary profile path in one changed-host diagnostic;
+the raw evidence is restricted, a sanitized copy is archived, and corrected
+source uses 0.2 for any reissue. It did not retain the endpoint, SSH username,
+port, private key, private-key hash or password. Exact 10.0p2 source inspection
+shows that Windows `TIOCGWINSZ` reads only the stdout console buffer, falls back
+to zero dimensions when stdout is VT7's pipe, and detects resize through console
+input events that redirected VT7 input does not produce. Another unchanged
+resize run would not alter that control path. S00 is complete: external
+`ssh.exe` is accepted for non-PTY command transport and rejected as VT7's
+interactive SSH backend.
+
+S01 candidate status, 2026-09-14: SSH.NET 2026.0.0 supplies explicit PTY resize,
+structured trust/authentication, .NET Framework 4.6.2 compatibility and the
+modern algorithms observed in S00. Its exact 13-package closure is not strictly
+MIT-only: package contents include an Apache-2.0 BZip2 portion through
+BouncyCastle.Cryptography 2.7.0 and an ISC-style BCrypt notice. Both are
+permissive and there is no copyleft. The owner approved this closure and a
+standing policy for compatible permissive dependencies. An exact-notice S01
+diagnostic may now be built; production integration still depends on Windows 7
+runtime evidence.
+
+- [x] Characterize a pinned WinPTY native library/agent build (P01). Compare
   child console state, reconstructed bytes, and final core state for W/A console
   APIs, direct buffer writes, raw VT, code pages, colors, Unicode, alternate
   buffers, and resize. Select the local backend from that evidence.
-- [ ] Evaluate a pinned Microsoft Win32-OpenSSH client first (S00), recording
+  - [x] Pin official 0.4.3 native artifacts and license; implement the controlled
+    eighteen-case comparison and pass Debug/Release locally.
+  - [x] Run the issued Release diagnostic on Windows 7, review exact evidence,
+    and record the local-backend selection or rejection.
+- [x] Evaluate a pinned Microsoft Win32-OpenSSH client first (S00), recording
   exact binaries/runtime hashes, Windows 7 configuration, and negotiated
   algorithms. Compare a known-good local-console run with direct byte I/O.
-- [ ] Prove unmodified remote VT/UTF-8 bytes, initial/live PTY dimensions, prompt
-  and diagnostic routing, trust decisions, and cancellation. `ssh -tt` and a
-  successful login alone do not close S00. Never substitute commands typed into
-  shell input for SSH window-change messages.
-- [ ] Record the SSH architecture choice: unmodified external OpenSSH, a narrowly
-  scoped maintained helper adaptation, or an embedded library if its structured
-  control is a better fit. No dependency is selected solely by this roadmap.
-  Document licensing, update responsibility, and reasons for rejecting alternatives.
-- [ ] Test the inherited `ToUnicodeEx` helpers on Windows 7 (I01), especially
+- [x] Prove strict trust decisions, public-key batch authentication, unmodified
+  non-PTY VT/UTF-8 channels, remote exit, final drain, forced PTY allocation and
+  active cancellation. Record the initial 0 by 0 PTY result as a failure for
+  usable geometry.
+- [x] Reject live SSH window-change control through unmodified redirected
+  Windows OpenSSH. Exact 10.0p2 source and the target's 0 by 0 PTY result show
+  that its geometry path requires Windows console output and input events.
+  `SSH_ASKPASS` could structure prompts but cannot repair resize. Never
+  substitute commands typed into shell input for SSH window-change messages.
+- [ ] Validate the approved SSH.NET 2026.0.0 candidate in S01. Test the exact
+  dependency closure, structured password/encrypted-key prompts and live resize
+  on Windows 7 before production integration. Document update responsibility,
+  required supplier notices and reasons for rejecting alternatives.
+- [x] Test the inherited `ToUnicodeEx` helpers on Windows 7 (I01), especially
   dead keys and AltGr. Do not assume newer non-mutating flag semantics or merely
   clear the flag without checking keyboard-state effects.
-- [ ] Define one session owner, per-session decoder/parser/input state, ordered
-  writes including terminal replies, bounded queues/backpressure, coalesced
-  resize generations, EOF/drain/exit distinctions, cancellation, and teardown.
-  Hidden panes keep consuming output without presenting unnecessary frames.
+  - [x] Build and locally qualify the native and WPF/native-focus diagnostic,
+    including its exact non-overwriting 0.2 package and PowerShell 5.1 launcher.
+  - [x] Run package 0.2 interactively on the Windows 7 Croatian HR Latin target,
+    archive the complete Logs directory and record the input-owner decision.
+- [x] Implement a generation-checked bounded outbound queue and the I01-selected
+  native child-HWND adapter. Serialize encoded input/control/focus/resize,
+  suppress correlated control characters, reconcile modifiers on focus loss,
+  and coalesce the native authoritative grid. The exact 0.3.7 candidate passes
+  its Windows 7 target validation.
+- [ ] Define one session owner and separate session/TerminalCore identity from
+  transient HWND and WPF presentation identity. Include per-session decoder/parser/
+  input state, ordered writes including terminal replies, bounded queues/backpressure,
+  coalesced resize generations, EOF/drain/exit distinctions, cancellation and
+  teardown. Reject stale callbacks by generation after close. Hidden panes keep
+  consuming output without presenting unnecessary frames; view recreation does
+  not implicitly restart or terminate the session.
 - [ ] Separate committed text from non-text key metadata. Choose the IME input
   owner and composition/candidate geometry contract; define accessible text/range
   mapping before the UI depends on it. Implementations follow in 3C and 4.
+  - [x] Separate native `WM_CHAR`/`WM_SYSCHAR` committed text from mode-aware
+    non-text key encoding without calling layout translation on the live input
+    thread; preserve Ctrl+C and Ctrl+Break distinctions.
 - [ ] Define host-action policies before feeding real session output: bounded
   titles/OSC/DCS, explicit clipboard permissions, user-activated validated links,
   and untrusted working-directory metadata. Scope callbacks/replies to the
@@ -745,7 +900,10 @@ feasibility, not full SSH acceptance or a promise to ship the evaluated release.
   full-screen applications.
 - [ ] Stream output through a persistent decoder and core (U01). Test every
   boundary of short UTF-8/VT fixtures, malformed/incomplete input, EOF, restart,
-  and replies. The existing UTF-16 core tests do not prove byte-stream decoding.
+  and replies. The 0.3.6 inbound foundation proves decoding, EOF and restart;
+  the 0.3.7 outbound foundation proves bounded generation ordering and native
+  input/resize admission;
+  transport integration and originating-session replies remain to close U01.
 
 Gate: required shells and representative native applications work end to end
 with documented fidelity, not merely a visible prompt.
@@ -806,8 +964,9 @@ manual configuration edits.
 
 ## Milestone 5: First-class SSH
 
-Deliver the architecture selected by 3A/S00. An external process with lossless
-terminal I/O and a proven control path is a first-class implementation option.
+Deliver the architecture accepted by 3A/S01. S00 rejected unmodified redirected
+OpenSSH for interactive sessions; the approved embedded candidate still must
+earn acceptance through the S01 Windows 7 evidence.
 
 - [ ] Integrate the selected implementation and pin its complete redistributable
   dependency set. Recheck security advisories, Windows 7 execution, licensing,
@@ -855,7 +1014,10 @@ hardening and release review repeat as the product approaches 1.0.
 - [ ] Measure startup, memory, active/hidden/minimized CPU, input-to-present
   latency, queue/cache growth, and sustained output against budgets established
   on target hardware. Extend earlier per-milestone measurements.
-- [ ] Test long-running sessions and repeated tab and pane creation.
+- [ ] Test long-running sessions and repeated tab and pane creation. Retain
+  active and equivalent settled-state resource trends for hardware and WARP;
+  use this ordinary product evidence for REL01, without an automatic extra
+  attribution campaign or rewriting the earlier investigation-budget failures.
 - [ ] Produce signed or checksum-verifiable portable release artifacts.
 - [ ] Document installation, prerequisites, recovery, and uninstallation.
 
@@ -868,6 +1030,9 @@ decision. Neither postpones security or correctness fixes from earlier milestone
 
 - [ ] Review required workflows, known limitations, prerequisites, diagnostics,
   accessibility and first-run/documentation clarity in the assembled application.
+- [ ] Review REL01 against product-qualification evidence and record acceptance
+  with measured limits, a named investigation/fix, or an explicit further risk
+  disposition. A review does not automatically reopen tracing.
 - [ ] Triage every deferred item below: select for this release, defer to a named
   post-release backlog/milestone, or reject with a reason. Record the decision;
   an unchecked optional improvement is not automatically a release blocker.
@@ -882,6 +1047,30 @@ Exit criterion: required qualification passes, the selected polish is complete,
 and every remaining idea has an explicit disposition. Local engineering packages
 remain proofs, not public alpha releases. Optional enhancements may follow after
 release; their mere presence in this register does not promise delivery in 1.0.
+
+### Deferred reliability review
+
+- **REL01: WARP resource lifetime and sustained-use qualification.** Status:
+  **accepted risk for continued development; tracing stopped; conditional
+  follow-up at release readiness**. Approved by the project owner on 2026-09-14;
+  see the [decision and evidence summary](doc/vt7/architecture/2026-09-14-warp-development-deferral.md).
+  This is a reliability concern, separate from optional cosmetic POL work.
+  The full Windows 7 two-round test has identical +180s handle/thread/GDI/USER
+  counts and +220 KiB private bytes, with three immediate budget failures still
+  recorded. The Windows 10 pair has small positive late deltas. No permanent
+  bound or complete ownership is claimed, and no code fix is declared.
+  Preserve issued artifacts, original limits, baseline/warm-up and failure exits.
+  Continue C4/3A and feature development now. Milestone 6 supplies ordinary
+  sustained-session and tab/pane resource evidence; Milestone 7 reviews it.
+  Reopen earlier for reproducible continued accumulation, exhaustion,
+  crashes/hangs, shutdown failure, material responsiveness loss, or an affected
+  lifetime change that invalidates the evidence. A known threshold crossing
+  alone does not mandate another trace. If reopened, state a finite question
+  and stopping criteria first; the discussed best-case 2-3 target rounds are
+  an estimate, not a mandatory checklist or guarantee. A release decision can
+  accept explained, adequately measured behavior without attributing every
+  internal Windows handle. Record any remaining risk explicitly; WARP support
+  and required stability are not silently removed from the product scope.
 
 ### Deferred improvements register
 

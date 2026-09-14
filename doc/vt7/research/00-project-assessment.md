@@ -8,8 +8,11 @@ and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidenc
 
 The [port-first plan](../architecture/2026-09-12-port-first-plan.md) governs
 sequencing. C1/C2 integration is accepted on the supplied Windows 7 setup;
-C3 WARP resource qualification remains open. Milestone 7 retains non-blocking
-improvements for release triage. Original findings and evidence limits remain.
+C3 WARP resource qualification remains incomplete. The later owner-approved
+[September 14 decision](../architecture/2026-09-14-warp-development-deferral.md)
+stops dedicated tracing and permits C4/3A development, with REL01 in Milestone 7
+release-readiness review. Optional improvements keep separate POL entries.
+Original findings and evidence limits remain.
 
 Assessed 2026-09-11. Repository HEAD: **28cb8bf7d023e270989b37d038c35364cf87540b**. Assessment includes the existing uncommitted working files, including VT7.Renderer, VT7.RendererProbe, Win7Presentation, Atlas changes, and updated build/validation documents. Their presence is not evidence that they have been committed, packaged, or accepted.
 
@@ -61,8 +64,9 @@ These are recommendations derived from the inspected boundaries and the subsyste
 Planning follow-up: the table below preserves the original research priorities.
 The [adopted plan](../architecture/2026-09-11-research-driven-plan.md) and roadmap
 now set execution order. OpenSSH evaluation is a required 3A feasibility gate
-alongside WinPTY fidelity and keyboard behavior, before substantial local/UI
-integration. Session, IME, accessibility-range, and output-security contracts
+alongside keyboard behavior before substantial local/UI integration. P01 has
+selected WinPTY for bounded Windows 7 local legacy-console sessions. Session,
+IME, accessibility-range, and output-security contracts
 are defined early; full implementations remain in their assigned milestones.
 The missing-glyph investigation belongs to 2C, not a restart of accepted backend
 presentation work. None of these scheduling decisions supplies runtime evidence.

@@ -180,6 +180,10 @@ public:
 #pragma region ITerminalInput
     // These methods are defined in Terminal.cpp
     [[nodiscard]] ::Microsoft::Console::VirtualTerminal::TerminalInput::OutputType SendKeyEvent(const WORD vkey, const WORD scanCode, const Microsoft::Terminal::Core::ControlKeyStates states, const bool keyDown) override;
+    // VT7 receives committed text from the native HWND character path. This
+    // variant is for key metadata that must not consult or mutate the live
+    // keyboard-layout dead-key state on Windows 7.
+    [[nodiscard]] ::Microsoft::Console::VirtualTerminal::TerminalInput::OutputType SendKeyEventWithoutLayoutTranslation(const WORD vkey, const WORD scanCode, const Microsoft::Terminal::Core::ControlKeyStates states, const bool keyDown);
     [[nodiscard]] ::Microsoft::Console::VirtualTerminal::TerminalInput::OutputType SendMouseEvent(const til::point viewportPos, const unsigned int uiButton, const ControlKeyStates states, const short wheelDelta, const Microsoft::Console::VirtualTerminal::TerminalInput::MouseButtonState state) override;
     [[nodiscard]] ::Microsoft::Console::VirtualTerminal::TerminalInput::OutputType SendCharEvent(const wchar_t ch, const WORD scanCode, const ControlKeyStates states) override;
     [[nodiscard]] ::Microsoft::Console::VirtualTerminal::TerminalInput::OutputType FocusChanged(const bool focused) override;
@@ -457,6 +461,7 @@ private:
     static WORD _VirtualKeyFromScanCode(const WORD scanCode) noexcept;
     static WORD _VirtualKeyFromCharacter(const wchar_t ch) noexcept;
     static wchar_t _CharacterFromKeyEvent(const WORD vkey, const WORD scanCode, const ControlKeyStates states) noexcept;
+    [[nodiscard]] ::Microsoft::Console::VirtualTerminal::TerminalInput::OutputType _SendKeyEvent(const WORD vkey, const WORD scanCode, const ControlKeyStates states, const bool keyDown, const bool translateLayout);
 
     void _StoreKeyEvent(const WORD vkey, const WORD scanCode) noexcept;
     WORD _TakeVirtualKeyFromLastKeyEvent(const WORD scanCode) noexcept;

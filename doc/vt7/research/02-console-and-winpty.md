@@ -6,6 +6,14 @@ such as "current", "next" and "latest" below retain their research-date scope.
 Use the [research status](README.md#planning-adoption), [current handoff](../HANDOFF.md)
 and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidence.
 
+Implementation note, 2026-09-14: P01 pins the official WinPTY 0.4.3 MSVC
+release at source commit `3e1ab962d5262dd76159870c6dc0724927ca6a9d` and
+completes the proposed child/backend/core comparison locally and on Windows 7.
+See the [P01 record](../validation/2026-09-14-winpty-p01.md). WinPTY is selected
+for Windows 7 local legacy-console sessions behind the replaceable boundary.
+Raw VT, CP932 selection, supplementary cursor width and overwritten intermediate
+states retain explicit limits; direct SSH remains a separate byte path.
+
 Research date: 2026-09-11. Priority: P0 before local-session feature commitments.
 
 ## Architectural boundary

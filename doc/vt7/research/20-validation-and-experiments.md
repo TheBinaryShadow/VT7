@@ -1,6 +1,6 @@
 # Diagnostics and Windows 7 acceptance experiments
 
-Current execution checkpoint, 2026-09-13: C1/C2 font/core/Atlas integration and
+Current execution checkpoint, 2026-09-14: C1/C2 font/core/Atlas integration and
 [0.3.4 system-DPI acceptance](../validation/2026-09-12-atlas-scaling-correction.md)
 are recorded on the supplied Windows 7 setup. C3 remains open: the
 [0.3.5 integrated WARP lifecycle](../validation/2026-09-13-atlas-stability.md)
@@ -11,11 +11,16 @@ baseline workers retiring by 90 seconds, while retained resources and the
 integrated WARP failure remain unresolved. The complete 17-file run now has a
 [verified local archive](../../../artifacts/vt7/evidence/resource-retirement-win7-0.1/ARCHIVE-VERIFICATION-20260913-152421-53a65b82.json).
 
-The next proposed observation is two rounds of the existing integrated
-100-lifecycle workload in one WPF process, each followed by closed
-+10/+90/+180-second samples. Run the original two warm-up lifetimes once; keep the fixed baseline
-and all immediate budget failures. This follow-up is not implemented or issued;
-the timed soak stays on hold.
+The separate [WPF resource reactivation diagnostic 0.1](../diagnostics/2026-09-14-resource-reactivation.md)
+now completes two rounds of the existing integrated 100-lifecycle workload on
+Windows 7. Both +180s states match at 1,314 handles, 13 threads, GDI 18 and USER
+10, with +220 KiB private bytes in the second. Three immediate checkpoints
+still fail against the original fixed baseline. Retained handle ownership and
+a permanent bound remain unproven. The owner-approved
+[REL01 development deferral](../architecture/2026-09-14-warp-development-deferral.md)
+now stops dedicated tracing and permits C4/3A session development. Original
+failures and unrun soak stay recorded; Milestone 7 release review reopens
+investigation only when needed. This supersedes earlier mandatory-trace steps.
 
 Use the [current handoff](../HANDOFF.md), [documentation index](../README.md),
 [port-first plan](../architecture/2026-09-12-port-first-plan.md) and
@@ -99,7 +104,10 @@ and completed recreate/reuse and [retirement controls](../diagnostics/2026-09-13
 do not close G01/G02/T01 or establish an integrated resource bound. The proposed
 two-round integrated work/close/idle observation above is not implemented or
 issued; the timed soak remains on hold. No additional test or implementation
-is implied by updating this index.
+is implied by updating this index. S00 is now complete as well: external
+Microsoft 10.0p2 passes non-PTY transport but its exact Windows source and 0 by
+0 target result reject redirected interactive PTY geometry. SSH.NET 2026.0.0
+and its permissive closure are approved for the next bounded S01 diagnostic.
 
 ## Priority experiments
 
@@ -118,8 +126,8 @@ All outcomes below are **acceptance targets**, not observed results.
 | P02 / P1 | Close local sessions during spawn, read, write, resize and child/grandchild exit; include a parent job. | No leaked agent/process/pipe; documented breakaway/containment behavior and no callbacks after close. |
 | U01 / P1 | Feed Unicode/VT fixtures under randomized byte chunking, then resize/select/copy/search. | Identical semantic state across chunking; stable text-to-cell mapping and no corrupted UTF sequences. |
 | I02 / P1 | Japanese/Chinese/Korean IMEs, focus switching, reconversion as supported, and candidate placement after resize/DPI change. | Composition and committed text are distinct; no duplicate commits; candidate UI follows the caret. |
-| S00 / P0 at 3A, before implementation selection | Evaluate the known Windows 7-compatible Microsoft OpenSSH client with local-console and direct-I/O configurations. | Exact version/hash, negotiated algorithms, unmodified terminal bytes, initial/live PTY dimensions, correct prompt/diagnostic and trust handling, cancellation, and a recorded architecture choice. See the [OpenSSH reassessment](22-win32-openssh-reassessment.md). |
-| S01 / P1 | Direct SSH nonblocking reads/writes, host-key changes, resize bursts, EOF/close and disconnect. | Correct retry buffers, terminal state, trust decision and exit status; no cross-session routing. |
+| S00 / P0 at 3A, complete | Evaluate the known Windows 7-compatible Microsoft OpenSSH client with direct-I/O configurations and exact source. | Exact client and network cases pass command transport; 0 by 0 PTY plus source reject redirected interactive geometry. See the [S00 record](../validation/2026-09-14-openssh-s00.md). |
+| S01 / P1, approved candidate | Test the exact SSH.NET 2026.0.0 closure and notices with nonblocking reads/writes, structured authentication, host-key changes, resize bursts, EOF/close and disconnect. | Windows 7 load and modern negotiation pass; correct retry buffers, prompt/trust ownership, terminal state, resize, exit status and no cross-session routing. |
 | A01 / P1 | Inspect a native terminal surface with Windows 7 UI Automation tools and a supported screen reader. | Navigable text/ranges, selection/caret reporting and bounded notifications from native content. |
 | C01 / P2 | Clipboard contention, huge/multiline paste, active mouse modes and OSC clipboard policy. | Correct ownership, bounded queues and explicit policy outcomes without freezing the UI. |
 | D01 / P2 | Persist settings during a forced interruption; test Unicode/long paths and read-only portable directories. | Old or new valid configuration, recoverable failure, and no launch-dependent working-directory assumption. |

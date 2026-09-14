@@ -1,6 +1,64 @@
 # NOTICES AND INFORMATION
 Do Not Translate or Localize
 
+## VT7 acknowledgements and licensing policy
+
+VT7's own original code is offered under the repository's MIT License. The
+project may include compatible third-party code, libraries, tools, runtime
+files, fonts and data under other licenses. Each component keeps its own
+copyright, license and notice requirements; those terms do not become MIT merely
+because the component is distributed with VT7.
+
+The project owner approved a standing policy on 2026-09-14 allowing permissive
+licenses such as Apache License 2.0, ISC, BSD-style, zlib, Unicode, W3C, CC0,
+public-domain dedications and similar supplier terms when they help deliver the
+Windows 7 port. Every adoption must still record the exact version and source,
+preserve the required notices, audit the distributable artifact, and avoid
+claiming that the third-party component is VT7-authored. A license with
+source-sharing, network-use, proprietary redistribution or other material
+distribution conditions requires a separate compatibility review before use.
+The repository's
+[third-party licensing policy](doc/vt7/architecture/2026-09-14-third-party-licensing-policy.md)
+records the standing decision and adoption checklist.
+
+VT7 exists because many people shared difficult work openly. The project offers
+its sincere thanks to:
+
+- the [Microsoft Terminal and OpenConsole](https://github.com/microsoft/terminal)
+  maintainers and contributors for the terminal core, parser, renderer and the
+  upstream history from which VT7 is derived;
+- Ryan Prichard and the [WinPTY](https://github.com/rprichard/winpty) contributors
+  for the Windows 7 local-console transport selected by P01;
+- Paul Hardy, the GNU Project and the [GNU Unifont](https://unifoundry.com/unifont/)
+  contributors for the private fallback fonts used by VT7;
+- the maintainers of [Microsoft WIL](https://github.com/microsoft/wil),
+  [Microsoft GSL](https://github.com/microsoft/GSL),
+  [{fmt}](https://github.com/fmtlib/fmt),
+  [Chromium](https://github.com/chromium/chromium), and
+  [stb](https://github.com/nothings/stb) for code used by the current native
+  build;
+- Microsoft and its contributors for the .NET Framework, WPF, Windows SDK,
+  DirectX, DirectWrite, and the app-local
+  [Visual C++ runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist)
+  used by VT7 packages;
+- the [OpenSSH](https://www.openssh.com/) and
+  [Microsoft Win32-OpenSSH](https://github.com/PowerShell/Win32-OpenSSH)
+  contributors for the external client characterized in S00 and retained as a
+  non-PTY command-transport option;
+- the authors and maintainers of jsoncpp, IntervalTree, PCG, wyhash, Oklab,
+  ColorBrewer, cmark, CommonMark, houdini, utf8proc, markdowntest, fzf,
+  Microsoft UI XAML, PowerToys/VirtualDesktopUtils, and every individually named
+  contributor in the retained Microsoft Terminal notices below; and
+- the [SSH.NET](https://github.com/sshnet/SSH.NET) and
+  [Bouncy Castle C#](https://github.com/bcgit/bc-csharp) maintainers for the
+  embedded SSH candidate approved for S01 evaluation. These packages are not
+  yet incorporated in the current VT7 application; their exact notices enter
+  the distribution with the selected and validated dependency closure.
+
+This acknowledgement is a statement of gratitude, not a replacement for the
+copyright and license texts below or the component-specific files shipped in a
+VT7 package.
+
 ## GNU Unifont and Unifont Upper (VT7 font probe and Atlas viewport)
 
 VT7 bundles unmodified GNU Unifont 17.0.05 and Unifont Upper 17.0.05 as
@@ -14,6 +72,49 @@ Source: https://unifoundry.com/unifont/index.html
 
 VT7's application code remains MIT licensed. No Unifont utility source is linked
 into the application. The notices below are retained from Microsoft Terminal.
+
+## WinPTY 0.4.3 (VT7 local legacy-console transport)
+
+VT7's P01 diagnostic packages include the unmodified official WinPTY 0.4.3 x64
+library and agent. Production local-session integration will retain this notice
+and the separate `winpty-LICENSE.txt` file.
+
+Source: https://github.com/rprichard/winpty/tree/0.4.3
+
+```text
+The MIT License (MIT)
+
+Copyright (c) 2011-2016 Ryan Prichard
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to
+deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+IN THE SOFTWARE.
+```
+
+## Microsoft Visual C++ app-local runtime
+
+VT7 test and application packages currently copy `msvcp140.dll`,
+`vcruntime140.dll` and `vcruntime140_1.dll` from the pinned Visual Studio 2022
+14.44.35112 redistributable directory. These files are Microsoft redistributable
+code governed by the applicable Visual Studio license terms; they are not MIT
+code. VT7 records the exact runtime version and verifies the packaged files.
+See Microsoft's
+[Visual C++ redistribution documentation](https://learn.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files)
+and the redist list supplied with the licensed Visual Studio installation.
 
 This software incorporates material from third parties. Microsoft makes certain
 open source code available at [http://3rdpartysource.microsoft.com](http://3rdpartysource.microsoft.com), or you may

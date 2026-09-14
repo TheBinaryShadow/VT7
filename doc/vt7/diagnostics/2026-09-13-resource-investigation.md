@@ -1,5 +1,13 @@
 # Native resource investigation: reproducible documentation snapshot
 
+Current execution decision, 2026-09-14: the owner approved
+[REL01](../architecture/2026-09-14-warp-development-deferral.md), stopping further
+dedicated WARP tracing and proceeding to C4/3A session development. This record
+preserves historical findings and reproduction instructions; its proposed next
+diagnostics are not active tasks. Original failures and release-qualification
+limits remain recorded. Further investigation is conditional on relevant evidence
+or Milestone 7 release review.
+
 Recorded: 2026-09-13. This appendix preserves diagnostic material that previously
 existed only under ignored `artifacts/` paths. It is source and evidence
 documentation, not a new executable, a production component or a new test run.

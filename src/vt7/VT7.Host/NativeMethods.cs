@@ -6,7 +6,7 @@ namespace VT7.Host
 {
     internal static class NativeMethods
     {
-        internal const uint ExpectedAbiVersion = 8;
+        internal const uint ExpectedAbiVersion = 10;
 
         [StructLayout(LayoutKind.Sequential)]
         internal struct SchedulingInfo
@@ -19,6 +19,10 @@ namespace VT7.Host
         internal static extern int VT7_SchedulingCommand(IntPtr window, uint operation, uint step);
         [DllImport("user32.dll", SetLastError = true)]
         internal static extern uint GetGuiResources(IntPtr process, uint flags);
+        [DllImport("user32.dll")]
+        internal static extern short GetKeyState(int virtualKey);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        internal static extern IntPtr SendMessage(IntPtr window, uint message, IntPtr wParam, IntPtr lParam);
         [DllImport("user32.dll", SetLastError = true)]
         internal static extern bool MoveWindow(IntPtr window, int x, int y, int width, int height, bool repaint);
         [DllImport("user32.dll")]
@@ -123,6 +127,30 @@ namespace VT7.Host
             internal uint RasterHeight;
         }
 
+        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct SurfaceStreamInfo
+        {
+            internal uint StructSize;
+            internal uint Generation;
+            internal ulong ReceivedBytes;
+            internal ulong DecodedUtf16Units;
+            internal uint WriteCount;
+            internal uint PendingUtf8Bytes;
+            internal uint Ended;
+            internal int LastHResult;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct InputResult
+        {
+            internal uint StructSize;
+            internal uint Handled;
+            internal uint ByteCount;
+            internal uint Reserved;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+            internal byte[] Bytes;
+        }
+
         [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         internal static extern int VT7_CreateSurface(IntPtr parent, uint rendererMode, out IntPtr window);
         [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
@@ -131,6 +159,22 @@ namespace VT7.Host
         internal static extern int VT7_GetSurfaceInfo(IntPtr window, ref SurfaceInfo info);
         [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         internal static extern int VT7_ResetSurface(IntPtr window);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_BeginSurfaceStream(IntPtr window);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_WriteSurfaceUtf8(IntPtr window, [In] byte[] bytes, uint length);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_EndSurfaceStream(IntPtr window);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_GetSurfaceStreamInfo(IntPtr window, ref SurfaceStreamInfo info);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_EncodeSurfaceKey(IntPtr window, uint virtualKey, uint scanCode,
+            uint controlKeyState, uint keyDown, uint repeatCount, ref InputResult result);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_EncodeSurfaceChar(IntPtr window, uint character, uint scanCode,
+            uint controlKeyState, uint repeatCount, ref InputResult result);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_EncodeSurfaceFocus(IntPtr window, uint focused, ref InputResult result);
         [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         internal static extern int VT7_InjectSurfaceFailure(IntPtr window, uint fault);
         [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true, CharSet = CharSet.Unicode)]

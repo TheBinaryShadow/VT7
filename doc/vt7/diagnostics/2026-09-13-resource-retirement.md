@@ -1,5 +1,13 @@
 # Focused resource retirement diagnostic 0.1
 
+Current execution decision, 2026-09-14: the owner approved
+[REL01](../architecture/2026-09-14-warp-development-deferral.md), stopping further
+dedicated WARP tracing and proceeding to C4/3A session development. This record
+preserves historical findings and reproduction instructions; its proposed next
+diagnostics are not active tasks. Original failures and release-qualification
+limits remain recorded. Further investigation is conditional on relevant evidence
+or Milestone 7 release review.
+
 Date: 2026-09-13. This implements the bounded follow-up from the
 [WARP pool inspection](2026-09-13-warp-pool-lifetime.md). The supplied Windows 7
 collection completes; its [result](#supplied-windows-7-result) confirms work
@@ -440,3 +448,14 @@ temporary inspection handles before idle. A managed diagnostic build should
 reuse the issued native DLL rather than rebuilding or replacing that payload.
 No new application build or diagnostic package is issued
 by this analysis, and no unchanged retirement 0.1 repeat is requested.
+
+Implementation follow-up, 2026-09-14: the user approved this design and the
+separate [WPF resource reactivation diagnostic 0.1](2026-09-14-resource-reactivation.md)
+now implements and locally qualifies it. It shares the exact integrated cycle
+body, uses one fixed baseline across both rounds, adds creation-time/liveness
+observations and reuses the issued native DLL. Its later
+[Windows 7 result](2026-09-14-resource-reactivation.md#supplied-windows-7-result)
+completes all 16 checkpoints, retaining three immediate failures. Both +180s
+handle/thread/GDI/USER counts match, with +220 KiB private bytes. This supersedes
+the design-pending status above; it does not revise this native capture, its
+residual-handle limits, or C3 acceptance.

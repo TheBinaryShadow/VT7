@@ -3,11 +3,16 @@ using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace VT7.Host
 {
     internal sealed class TerminalSurface : HwndHost
     {
+        private NativeHwndInputAdapter? _input;
+        private bool _resizePosted;
+        private uint _pendingColumns;
+        private uint _pendingRows;
         internal event Action? RecoveryStatusChanged;
         protected override IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
@@ -17,7 +22,53 @@ namespace VT7.Host
                 handled = true;
                 return IntPtr.Zero;
             }
+            if (msg == NativeHwndInputAdapter.WmAuthoritativeGrid)
+            {
+                _pendingColumns = unchecked((uint)wParam.ToInt64());
+                _pendingRows = unchecked((uint)lParam.ToInt64());
+                QueueAuthoritativeResize();
+                handled = true;
+                return IntPtr.Zero;
+            }
+            if (_input?.ProcessMessage(msg, wParam, lParam) == true)
+            {
+                handled = true;
+                return IntPtr.Zero;
+            }
             return base.WndProc(hwnd, msg, wParam, lParam, ref handled);
+        }
+
+        internal void AttachSessionInput(SessionOutboundQueue queue, long generation, Action<string> failure)
+        {
+            if (_input != null) throw new InvalidOperationException("The terminal input boundary is already attached.");
+            _input = new NativeHwndInputAdapter(this, queue, generation, failure);
+            QueueAuthoritativeResize();
+        }
+
+        internal void DetachSessionInput()
+        {
+            _input = null;
+            _resizePosted = false;
+            _pendingColumns = _pendingRows = 0;
+        }
+
+        private void QueueAuthoritativeResize()
+        {
+            if (_resizePosted || _input == null) return;
+            _resizePosted = true;
+            _ = Dispatcher.BeginInvoke(new Action(() =>
+            {
+                _resizePosted = false;
+                if (_input == null || Handle == IntPtr.Zero) return;
+                if (_pendingColumns == 0 || _pendingRows == 0)
+                {
+                    var info = ReadInfo();
+                    _pendingColumns = info.Columns;
+                    _pendingRows = info.Rows;
+                }
+                _input.ObserveAuthoritativeGrid(_pendingColumns, _pendingRows);
+                _pendingColumns = _pendingRows = 0;
+            }), DispatcherPriority.Background);
         }
 
         internal void InjectFailure(uint fault) =>
@@ -48,6 +99,65 @@ namespace VT7.Host
         internal void ResetDemo()
         {
             Marshal.ThrowExceptionForHR(NativeMethods.VT7_ResetSurface(Handle));
+        }
+
+        internal void BeginStream() =>
+            Marshal.ThrowExceptionForHR(NativeMethods.VT7_BeginSurfaceStream(Handle));
+
+        internal void WriteUtf8(byte[] bytes)
+        {
+            if (bytes == null) throw new ArgumentNullException(nameof(bytes));
+            Marshal.ThrowExceptionForHR(NativeMethods.VT7_WriteSurfaceUtf8(Handle, bytes, checked((uint)bytes.Length)));
+        }
+
+        internal void EndStream() =>
+            Marshal.ThrowExceptionForHR(NativeMethods.VT7_EndSurfaceStream(Handle));
+
+        internal NativeMethods.SurfaceStreamInfo ReadStreamInfo()
+        {
+            var info = new NativeMethods.SurfaceStreamInfo
+            {
+                StructSize = (uint)Marshal.SizeOf(typeof(NativeMethods.SurfaceStreamInfo)),
+            };
+            Marshal.ThrowExceptionForHR(NativeMethods.VT7_GetSurfaceStreamInfo(Handle, ref info));
+            return info;
+        }
+
+        internal NativeInputEncoding EncodeKey(uint virtualKey, uint scanCode, uint controlKeyState, bool keyDown, uint repeatCount)
+        {
+            var result = NewInputResult();
+            Marshal.ThrowExceptionForHR(NativeMethods.VT7_EncodeSurfaceKey(Handle, virtualKey, scanCode,
+                controlKeyState, keyDown ? 1u : 0u, repeatCount, ref result));
+            return ReadInputResult(result);
+        }
+
+        internal NativeInputEncoding EncodeCharacter(uint character, uint scanCode, uint controlKeyState, uint repeatCount)
+        {
+            var result = NewInputResult();
+            Marshal.ThrowExceptionForHR(NativeMethods.VT7_EncodeSurfaceChar(Handle, character, scanCode,
+                controlKeyState, repeatCount, ref result));
+            return ReadInputResult(result);
+        }
+
+        internal NativeInputEncoding EncodeFocus(bool focused)
+        {
+            var result = NewInputResult();
+            Marshal.ThrowExceptionForHR(NativeMethods.VT7_EncodeSurfaceFocus(Handle, focused ? 1u : 0u, ref result));
+            return ReadInputResult(result);
+        }
+
+        private static NativeMethods.InputResult NewInputResult() => new NativeMethods.InputResult
+        {
+            StructSize = checked((uint)Marshal.SizeOf(typeof(NativeMethods.InputResult))),
+            Bytes = new byte[256],
+        };
+
+        private static NativeInputEncoding ReadInputResult(NativeMethods.InputResult result)
+        {
+            if (result.ByteCount > result.Bytes.Length) throw new InvalidOperationException("The native input encoder returned an invalid byte count.");
+            var bytes = new byte[result.ByteCount];
+            Array.Copy(result.Bytes, bytes, bytes.Length);
+            return new NativeInputEncoding(result.Handled != 0, bytes);
         }
 
         internal NativeMethods.SchedulingInfo ReadScheduling()
@@ -121,5 +231,17 @@ namespace VT7.Host
                 await Task.Delay(15);
             }
         }
+    }
+
+    internal readonly struct NativeInputEncoding
+    {
+        internal NativeInputEncoding(bool handled, byte[] bytes)
+        {
+            Handled = handled;
+            Bytes = bytes;
+        }
+
+        internal bool Handled { get; }
+        internal byte[] Bytes { get; }
     }
 }

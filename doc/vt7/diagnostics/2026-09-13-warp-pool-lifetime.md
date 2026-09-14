@@ -1,5 +1,13 @@
 # WARP pool construction, cleanup and idle lifetime
 
+Current execution decision, 2026-09-14: the owner approved
+[REL01](../architecture/2026-09-14-warp-development-deferral.md), stopping further
+dedicated WARP tracing and proceeding to C4/3A session development. This record
+preserves historical findings and reproduction instructions; its proposed next
+diagnostics are not active tasks. Original failures and release-qualification
+limits remain recorded. Further investigation is conditional on relevant evidence
+or Milestone 7 release review.
+
 Date: 2026-09-13. This records offline analysis of the completed Windows 7
 [resource trace 0.3](2026-09-13-resource-trace.md) and the matching Microsoft
 WARP image/PDB. No target workload, application rebuild or new package was

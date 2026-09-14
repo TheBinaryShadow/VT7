@@ -3,14 +3,21 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Threading;
+using System.Threading;
 
 namespace VT7.Host
 {
     public partial class MainWindow : Window
     {
+        private static long _nextSessionGeneration;
         private string? _lastLogPath;
         private int _statusGeneration;
         private bool _closed;
+        private SessionOutputPump? _sessionOutput;
+        private SessionOutboundQueue? _sessionOutbound;
+        private SessionOutboundAuditSink? _outboundAudit;
+        internal SessionOutboundQueue? SessionOutbound => _sessionOutbound;
+        internal SessionOutboundAuditSink? OutboundAudit => _outboundAudit;
         internal TerminalSurface? Viewport { get; private set; }
         internal ProbeSnapshot? LastSnapshot { get; private set; }
         // Only the hidden font fixture opts out, to retain space for its largest test font.
@@ -33,6 +40,12 @@ namespace VT7.Host
         {
             _closed = true;
             ++_statusGeneration;
+            _sessionOutput?.Dispose();
+            _sessionOutput = null;
+            Viewport?.DetachSessionInput();
+            _sessionOutbound?.Dispose();
+            _sessionOutbound = null;
+            _outboundAudit = null;
             // HwndHost can reparent a detached child to retain it for reuse.
             // Explicit disposal gives the native surface a deterministic lifetime.
             Viewport?.Dispose();
@@ -48,16 +61,53 @@ namespace VT7.Host
                 Viewport = new TerminalSurface();
                 Viewport.RecoveryStatusChanged += () => { if (!_closed) RefreshSurfaceStatus(); };
                 SurfaceContainer.Child = Viewport;
+                _outboundAudit = new SessionOutboundAuditSink();
+                _sessionOutbound = new SessionOutboundQueue(Interlocked.Increment(ref _nextSessionGeneration), _outboundAudit);
+                Viewport.AttachSessionInput(_sessionOutbound, _sessionOutbound.Generation, message =>
+                {
+                    if (!_closed) SurfaceStatus.Text = "Input stopped: " + message;
+                });
                 Viewport.SizeChanged += (_, __) => QueueSurfaceStatusRefresh();
                 QueueSurfaceStatusRefresh();
+                if (App.ShowSessionFixture) _ = StreamFixtureAsync(Viewport);
             }
             else SurfaceStatus.Text = "Startup checks failed. See Diagnostics and the log.";
         }
 
         private void ResetSample_Click(object sender, RoutedEventArgs e)
         {
+            _sessionOutput?.Dispose();
+            _sessionOutput = null;
             Viewport?.ResetDemo();
             QueueSurfaceStatusRefresh();
+        }
+
+        private async System.Threading.Tasks.Task StreamFixtureAsync(TerminalSurface surface)
+        {
+            try
+            {
+                _sessionOutput = new SessionOutputPump(surface);
+                var pump = _sessionOutput;
+                await System.Threading.Tasks.Task.Run(async () =>
+                {
+                    foreach (var chunk in SessionStreamFixture.Split(SessionStreamFixture.Bytes, new[] { 1, 2, 3, 5, 8, 13 }))
+                        await pump.WriteAsync(chunk);
+                    await pump.CompleteAsync();
+                });
+                if (!_closed) QueueSurfaceStatusRefresh();
+            }
+            catch (ObjectDisposedException) when (_closed)
+            {
+            }
+            catch (Exception ex)
+            {
+                if (!_closed) SurfaceStatus.Text = "Session fixture failed: " + ex.Message;
+            }
+            finally
+            {
+                _sessionOutput?.Dispose();
+                _sessionOutput = null;
+            }
         }
 
         private async void QueueSurfaceStatusRefresh()
@@ -95,6 +145,7 @@ namespace VT7.Host
             var backend = new[] { "GDI reference", "Atlas D3D11 hardware", "Atlas D3D11 WARP", "Atlas D2D hardware", "Atlas D2D WARP", "Atlas automatic", "Atlas awaiting first frame" };
             SurfaceStatus.Text = $"TerminalCore | {backend[info.RendererMode]} | {info.Columns} x {info.Rows} cells | " +
                 $"{info.CellWidth} x {info.CellHeight} px | frames (snapshot) {info.PaintCount}, resizes {info.ResizeCount}";
+            if (_sessionOutbound != null) SurfaceStatus.Text += $" | input generation {_sessionOutbound.Generation}, backend pending";
             SurfaceStatus.Text += $" | system DPI {font.SystemDpi}";
             if (info.LastHResult < 0)
                 SurfaceStatus.Text += $" | FAILED 0x{unchecked((uint)info.LastHResult):X8}";

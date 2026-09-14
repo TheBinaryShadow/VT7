@@ -83,12 +83,14 @@ The design is still being proven, but the working direction is:
 - A .NET Framework 4.8 WPF desktop host with a native HWND terminal surface.
 - A downleveled Atlas renderer that uses the DirectX capabilities available
   through the Windows 7 Platform Update.
-- WinPTY as the first local session backend candidate, with console fidelity
-  tested before committing to its integration behind a replaceable boundary.
+- Pinned WinPTY 0.4.3 as the selected Windows 7 local legacy-console backend,
+  integrated behind a replaceable boundary with explicit fidelity limits.
 - A direct SSH backend for correct authentication, host-key handling, remote
-  PTY allocation, and resize messages. Evaluate Microsoft Win32-OpenSSH first,
-  including an external-process path that preserves remote terminal bytes.
-  The integration and shipping dependency have not yet been selected.
+  PTY allocation, and resize messages. S00 accepts Microsoft Win32-OpenSSH for
+  non-PTY command transport but rejects its redirected process path for
+  interactive sessions. SSH.NET 2026.0.0 is approved for a bounded S01
+  embedded-backend diagnostic; runtime acceptance and production integration
+  remain unproven.
 - A portable application package that can be extracted and run without modern
   Windows deployment infrastructure. (With a setup file to follow after the first
   full release)
@@ -136,14 +138,19 @@ build the best terminal we can for the platform we love.
 
 ## Project status
 
-Current working source: **0.3.5, native ABI 8**, still a static viewport.
-The active task is C3 renderer resource-lifetime qualification. The completed
+Current working source: **0.3.7, native ABI 10**, with session-neutral byte
+ingress plus a generation-checked outbound queue and native-HWND input/resize
+adapter. The active task is C4 / Milestone 3A session feasibility. The exact
+0.3.7 Windows 7 candidate passes. S00 is complete: the exact Microsoft 10.0p2
+x64 client passes command bytes, trust and lifecycle tests, while its 0 by 0
+PTY result and exact source reject the redirected interactive architecture.
+The SSH.NET 2026.0.0 dependency policy is approved and S01 is next. The completed
 [Windows 7 retirement diagnostic](doc/vt7/diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result)
 confirms WARP work cleanup and worker-associated Event release by 90 seconds;
 54 process handles remain above startup and the integrated WARP failure stays
 open. Its complete logs are archived locally with verified file hashes. See the
-[handoff](doc/vt7/HANDOFF.md) for the proposed two-round integrated lifecycle/idle
-control and the source-only versus issued-artifact boundary. The progression
+[handoff](doc/vt7/HANDOFF.md) for current package identities, evidence, and the
+source-only versus issued-artifact boundary. The progression
 below preserves each earlier checkpoint's scope.
 
 Engineering build **0.3.0** now connects TerminalCore to the real AtlasEngine and
@@ -177,13 +184,56 @@ and window/worker teardown order. It is a test candidate, not a completed
 stability checkpoint: hardware passes 100 lifecycles locally and on the supplied
 Windows 7 setup, while WARP exceeds the resource-growth budget on both.
 Quick checks pass on both backends, but no timed soak has been run. The remaining
-growth is under investigation, not deferred as polish. Local handle tracing and
+growth is deferred as REL01 under the owner's
+[development decision](doc/vt7/architecture/2026-09-14-warp-development-deferral.md).
+Further tracing is conditional release-readiness work; sessions can proceed.
+Local handle tracing and
 a paired native-only control implicate Windows power-notification/message
 delivery paths on the development machine. The supplied Windows 7 control grows
 with and without those subscriptions, so that specific explanation does not
-transfer unchanged. Thread/input-queue attribution and resource boundedness
-remain open. See the
+transfer unchanged. Later target tracing and retirement identify a bounded
+Event/worker path, and the WPF two-round late counts repeat. Retained handle
+ownership and a permanent bound remain uncertain. See the
 [stability investigation](doc/vt7/validation/2026-09-13-atlas-stability.md).
+
+Engineering **0.3.6** adds the first production session boundary. A bounded
+managed queue accepts ordered output from transport threads, marshals native
+calls to the surface dispatcher, and feeds a persistent per-surface UTF-8 decoder
+into TerminalCore. Its deterministic fixture renders Croatian HR Latin text and
+VT styling identically as one chunk, one byte per write and irregular chunks.
+Incomplete UTF-8 at EOF is explicit and a new generation recovers. Debug and
+Release focused tests pass locally, and the byte-stream checks pass in the later
+0.3.7 Windows 7 run. A real process transport remains ahead.
+See the [session stream foundation](doc/vt7/architecture/2026-09-14-session-stream-foundation.md).
+
+Engineering **0.3.7** implements the I01-selected native child-HWND input path.
+OS-committed Croatian, AltGr and composed UTF-16 is encoded once by the same
+TerminalInput instance whose modes follow parsed output. A Windows 7-specific
+non-text entry point avoids live-thread `ToUnicodeEx`; handled Enter, Ctrl+C and
+Ctrl+Break suppress their paired character messages while retaining distinct
+Interrupt and Break operations. One bounded queue orders input, focus, resize,
+paste and terminal-reply operation kinds by session generation. Debug and
+Release focused tests pass locally. The exact target ZIP also passes on Windows
+7 SP1 x64 with Croatian `hr-HR` culture and matching host/native hashes. See the
+[session outbound foundation](doc/vt7/architecture/2026-09-14-session-outbound-foundation.md).
+
+S00 now has an endpoint-independent OpenSSH preflight. It records the installed
+client's exact identity, raw stdout/stderr routing, algorithm inventory,
+effective configuration and bounded cancellation without credentials, a remote
+server or machine changes. Its MIT-only package does not redistribute OpenSSH.
+Two Windows 7 runs accept the exact official Microsoft 10.0p2 x64 executable
+and repeat all byte-level behavior. Controlled-server package 0.1 also completes
+against Debian 12: strict trust, key authentication, exact bytes, negotiation,
+active cancellation and final drain pass. Forced PTY allocation reports an
+unusable initial 0 by 0 size. One privacy claim failed because the changed-host
+diagnostic retained a public host fingerprint and temporary Windows profile
+path; restricted raw and sanitized evidence are separated. Exact 10.0p2 source
+shows that redirected stdout cannot supply the console size and redirected
+input receives no console resize events. S00 therefore accepts external
+`ssh.exe` only for non-PTY command transport. The leading S01 candidate is
+SSH.NET 2026.0.0. The owner approved its permissive license closure and the
+project-wide notice policy; a bounded Windows 7 S01 diagnostic is next. See the
+[S00 validation record](doc/vt7/validation/2026-09-14-openssh-s00.md).
 
 VT7 already has its first real terminal viewport running on Windows 7. Engineering
 build 0.2.0 brings together the WPF host, a native HWND surface, TerminalCore,
@@ -226,16 +276,32 @@ cursor/selection mapping are deferred research, not prerequisites to the port.
 These probe results are not a completed Atlas terminal renderer.
 
 The [port-first plan](doc/vt7/architecture/2026-09-12-port-first-plan.md)
-sets the next acceptance step: the remaining C3 renderer gates. Build 0.3.5
+and the [September 14 development decision](doc/vt7/architecture/2026-09-14-warp-development-deferral.md)
+make C4 / Milestone 3A session feasibility the current development step. Build 0.3.5
 implements synchronized-output, idle CPU and shutdown checks after the accepted
-0.3.4 scaling matrix. Its WARP resource-lifetime investigation remains open.
+0.3.4 scaling matrix. Its WARP resource concern remains recorded under REL01.
 The recreate/reuse comparison, ownership trace and retirement diagnostic now
-have Windows 7 results. The next bounded control connects those findings to
-repeated work and idle in the integrated WPF host; it still needs implementation
-and qualification. Theme and broader environment coverage remain open. Before substantial session integration
-or daily-driver UI work, a new feasibility gate will test local-console fidelity,
-direct OpenSSH I/O and resize, and Windows 7 input behavior. Full SSH delivery
-remains a later milestone. These are approved plans, not new compatibility results.
+have Windows 7 results. The separate
+[WPF reactivation diagnostic 0.1](doc/vt7/diagnostics/2026-09-14-resource-reactivation.md)
+now completes both integrated lifecycle/idle rounds on Windows 7. Its two
++180s states match at 1,314 handles, 13 threads, GDI 18 and USER 10, with only
+220 KiB more private memory in the second. Three immediate budget failures
+remain. The owner has accepted the remaining resource uncertainty for continued
+development and stopped dedicated WARP tracing. REL01 tracks conditional
+follow-up in Milestone 7 release readiness; C3, theme and broader environment
+qualification remain incomplete. Build 0.3.7 now supplies the shared byte-stream
+foundation. P01 now completes its eighteen-case Windows 7 comparison and selects
+WinPTY 0.4.3 for local legacy-console sessions, with raw-VT, code-page,
+cursor-width and intermediate-state limits recorded. The separate
+[I01 package 0.2](doc/vt7/validation/2026-09-14-input-i01.md) is locally
+and Windows 7 qualified for Croatian HR Latin mapping, `TerminalInput`,
+WPF/native focus, Ctrl and resize characterization. Windows 7 does not honor the
+helper's non-mutating `ToUnicodeEx` flag, so the native HWND's committed-text
+path owns printable input. That adapter and the bounded generation queue are now
+implemented and target validated. S00 now rejects direct redirected OpenSSH for
+interactive PTY use. The immediate SSH step is the approved, bounded Windows 7
+SSH.NET S01 probe. Full SSH delivery remains a later
+milestone. These are approved plans, not new compatibility results.
 
 - [x] Establish the VT7 project identity and scope.
 - [x] Select and record the Microsoft Terminal upstream baseline.
@@ -292,10 +358,20 @@ copyright and license notices of Microsoft Terminal and other included
 open-source components. New VT7 contributions are made under the same MIT
 License unless a file clearly states otherwise.
 
+MIT remains the default for new VT7-authored code. The project owner's standing
+2026-09-14 decision permits compatible permissive dependencies and assets under
+Apache-2.0, ISC-style, BSD-style and other supplier terms when they help deliver
+the port. Every inclusion keeps its own license, copyright and notice files and
+is recorded in an artifact-level inventory. Licenses that impose source-sharing,
+network-use, proprietary redistribution or other material distribution
+conditions receive a separate compatibility review before adoption. See the
+[project-wide third-party licensing policy](doc/vt7/architecture/2026-09-14-third-party-licensing-policy.md).
+
 The renderer probe and Atlas viewport bundle unmodified GNU Unifont and Unifont Upper fonts
 under their SIL Open Font License 1.1 option. These font assets retain their own
 copyright/license and do not change VT7's MIT code license. See
-[font provenance and licenses](oss/unifont/README.md) and [third-party notices](NOTICE.md).
+[font provenance and licenses](oss/unifont/README.md) and
+[third-party acknowledgements and notices](NOTICE.md).
 
 ## One last thing
 

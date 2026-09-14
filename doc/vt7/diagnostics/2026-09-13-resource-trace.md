@@ -1,5 +1,13 @@
 # Focused native WARP resource trace, 2026-09-13
 
+Current execution decision, 2026-09-14: the owner approved
+[REL01](../architecture/2026-09-14-warp-development-deferral.md), stopping further
+dedicated WARP tracing and proceeding to C4/3A session development. This record
+preserves historical findings and reproduction instructions; its proposed next
+diagnostics are not active tasks. Original failures and release-qualification
+limits remain recorded. Further investigation is conditional on relevant evidence
+or Milestone 7 release review.
+
 ## Status and purpose
 
 Resource tracing adds a bounded, process-local debugger observation to the

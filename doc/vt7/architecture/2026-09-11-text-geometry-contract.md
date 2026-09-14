@@ -1,6 +1,6 @@
 # Text geometry contract v0.2
 
-Current execution checkpoint, 2026-09-13: C1/C2 font/core/Atlas integration and
+Current execution checkpoint, 2026-09-14: C1/C2 font/core/Atlas integration and
 [0.3.4 system-DPI acceptance](../validation/2026-09-12-atlas-scaling-correction.md)
 are recorded on the supplied Windows 7 setup. C3 remains open: the
 [0.3.5 integrated WARP lifecycle](../validation/2026-09-13-atlas-stability.md)
@@ -11,11 +11,16 @@ baseline workers retiring by 90 seconds, while retained resources and the
 integrated WARP failure remain unresolved. The complete 17-file run now has a
 [verified local archive](../../../artifacts/vt7/evidence/resource-retirement-win7-0.1/ARCHIVE-VERIFICATION-20260913-152421-53a65b82.json).
 
-The next proposed observation is two rounds of the existing integrated
-100-lifecycle workload in one WPF process, each followed by closed
-+10/+90/+180-second samples. Run the original two warm-up lifetimes once; keep the fixed baseline
-and all immediate budget failures. This follow-up is not implemented or issued;
-the timed soak stays on hold.
+The separate [WPF resource reactivation diagnostic 0.1](../diagnostics/2026-09-14-resource-reactivation.md)
+now completes two rounds of the existing integrated 100-lifecycle workload on
+Windows 7. Both +180s states match at 1,314 handles, 13 threads, GDI 18 and USER
+10, with +220 KiB private bytes in the second. Three immediate checkpoints
+still fail against the original fixed baseline. Retained handle ownership and
+a permanent bound remain unproven. The owner-approved
+[REL01 development deferral](../architecture/2026-09-14-warp-development-deferral.md)
+now stops dedicated tracing and permits C4/3A session development. Original
+failures and unrun soak stay recorded; Milestone 7 release review reopens
+investigation only when needed. This supersedes earlier mandatory-trace steps.
 
 Use the [current handoff](../HANDOFF.md), [documentation index](../README.md),
 [port-first plan](../architecture/2026-09-12-port-first-plan.md) and

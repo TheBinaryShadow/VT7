@@ -1,15 +1,15 @@
 # VT7 Core and renderer boundary
 
-Engineering version 0.3.5 builds the real Microsoft Terminal core, parser, dispatch,
+Engineering version 0.3.7 builds the real Microsoft Terminal core, parser, dispatch,
 text buffer, and supporting types into `VT7.Core.lib`, then links that library
 into `VT7.Native.dll`. The static library is not a separate runtime dependency.
-This is a static viewport proof, not an interactive terminal release.
+It accepts a deterministic session byte stream but is not an interactive terminal release.
 
 Current status and evidence navigation are in the
 [documentation index](../../../doc/vt7/README.md) and
-[handoff](../../../doc/vt7/HANDOFF.md). Issued 0.3.5 and current source both use
-ABI 8, but source includes later resource-isolation diagnostics absent from the
-issued archive. Package hashes, not the version label alone, identify tested
+[handoff](../../../doc/vt7/HANDOFF.md). The issued 0.3.5 artifact uses ABI 8;
+current 0.3.7 source uses ABI 10 and also contains later resource-isolation
+diagnostics absent from that archive. Package hashes, not the version label alone, identify tested
 binaries. This source document does not replace frozen package provenance.
 
 The [port-first plan](../../../doc/vt7/architecture/2026-09-12-port-first-plan.md)
@@ -74,12 +74,21 @@ upstream project files are not redirected to this proof configuration.
 
 ## Native viewport
 
-The WPF `HwndHost` owns a native child window through C ABI version 8 in 0.3.5
-(0.3.4 used ABI 7, 0.3.3 ABI 6, 0.3.2 ABI 5, 0.3.1 ABI 4 and 0.3.0 ABI 3). That
-window writes a fixed VT demonstration through `Terminal::Write`, reads actual
+The WPF `HwndHost` owns a native child window through C ABI version 10 in 0.3.7
+(0.3.6 used ABI 9, 0.3.5 ABI 8, 0.3.4 ABI 7, 0.3.3 ABI 6, 0.3.2 ABI 5, 0.3.1 ABI 4 and 0.3.0 ABI 3). That
+window accepts ordered UTF-8 bytes through a persistent decoder and writes their
+UTF-16 output through `Terminal::Write`. It reads actual
 buffer rows and attributes, and calls `Terminal::UserResize` as its client size
 changes. Resizing does not replace the content with a fresh demonstration.
-The reset button is the only action that explicitly recreates the demo buffer.
+The reset button explicitly restores the earlier fixed demonstration.
+
+ABI 10 also routes committed characters, non-text key metadata and focus through
+the same TerminalInput state. VT7's no-layout key entry point skips
+`_CharacterFromKeyEvent` so the Windows 7 live message thread cannot mutate dead
+state through `ToUnicodeEx`; committed text arrives separately from `WM_CHAR`.
+The managed outbound queue orders encoded bytes, control distinctions, focus and
+the native post-resize grid by session generation. The terminal/session identity
+still needs to move out of this interim HWND-backed surface before 3B.
 
 Atlas is now the default renderer, using the actual controller/IRenderData path,
 primary-font metrics and inherited cell fitting. Direct3D11 and Direct2D each
@@ -97,7 +106,7 @@ complex shaping, emoji rendering, per-monitor DPI behavior, cursor animation,
 accessibility, or rendering performance. GDI drawing is separate from the
 hardware and WARP device probes shown in diagnostics.
 
-There is no session backend, keyboard forwarding, mouse interaction, clipboard,
+There is no process/session backend, mouse interaction, clipboard,
 selection UI, scrolling UI, search, hyperlink UI, image display, or soft-font
 display. Some corresponding upstream machinery is compiled because it belongs
 to the parser/core dependency graph, but it is not an advertised proof feature.
@@ -117,8 +126,15 @@ then records WARP's default-pool work cleanup and matching Event closes as all
 verified hashes. The residual 54 process handles above startup and integrated
 host resource growth remain unresolved; the timed soak stays on hold.
 See the [stability record](../../../doc/vt7/validation/2026-09-13-atlas-stability.md).
-The proposed next control repeats the integrated lifecycle workload and closed
-idle observations in one process; it is not yet implemented or qualified.
+The separate [WPF reactivation diagnostic 0.1](../../../doc/vt7/diagnostics/2026-09-14-resource-reactivation.md)
+now completes two integrated lifecycle/idle rounds locally and on Windows 7.
+The target retains three immediate failures; its two +180s handle/thread/GDI/USER
+counts match, with +220 KiB private bytes. Ownership and C3 acceptance remain
+open. It reuses this issued native/core payload without rebuilding it.
+The [owner-approved REL01 decision](../../../doc/vt7/architecture/2026-09-14-warp-development-deferral.md)
+stops further dedicated tracing and accepts this risk for continued development.
+C4/3A session work proceeds now. Milestone 7 reviews reliability evidence and
+reopens investigation only if needed; recorded failures are not changed to passes.
 
 0.3.1 adds an ordered diagnostic repaint command, normal-invalidation/full-redraw
 comparisons and cursor-cell bounds, plus a first-frame status-label regression.
@@ -146,14 +162,15 @@ restore baseline pixels and exercise a hidden settings update. This is not the
 Milestone 4 settings UI or arbitrary-font configuration. See the
 [settings record](../../../doc/vt7/validation/2026-09-12-atlas-settings.md).
 
-`VT7_RunCoreTests` exercises the real core with seven checks: cursor and erase,
+`VT7_RunCoreTests` exercises the real core with nine base checks: cursor and erase,
 indexed/true-color attributes, wide/combining cell allocation, alternate-screen
 restoration, resize/reflow content preservation, sequences split across writes,
-and the SRW-backed core lock under contention. These are focused regression
+UTF-8/VT streams split at every byte boundary, malformed/incomplete UTF-8 and
+recovery policy, and the SRW-backed core lock under contention. These are focused regression
 checks, not a replacement for the upstream test suite. Unicode buffer checks
 do not verify the appearance of glyphs on screen.
 
-The eighth check exercises the new font boundary with 48 mappings across six
+The tenth check exercises the font boundary with 48 mappings across six
 texts, two sizes and four styles, cached repeats, core-cluster preservation,
 font-file identities, required symbol coverage and invalid inputs. It does not
 replace a mixed-script raster/interaction acceptance suite.

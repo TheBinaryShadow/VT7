@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 #include <LibraryIncludes.h>
 #include "include/vt7_native.h"
+#include "utf8_terminal_stream.hpp"
 #include "../../cascadia/TerminalCore/Terminal.hpp"
 #include "../../renderer/base/renderer.hpp"
 #include "../../renderer/atlas/AtlasEngine.h"
@@ -15,6 +16,7 @@ namespace
     struct Surface
     {
         Microsoft::Terminal::Core::Terminal terminal;
+        VT7::Utf8TerminalStream outputStream;
         std::unique_ptr<Microsoft::Console::Render::AtlasEngine> atlas;
         Microsoft::Console::Render::Renderer renderer;
         HFONT font = nullptr;
@@ -237,6 +239,26 @@ namespace
                 L"Static proof - interactive sessions are coming later.");
         }
 
+        void BeginStream()
+        {
+            const auto guard = terminal.LockForWriting();
+            terminal.HardResetWithoutErase();
+            terminal.Write(L"\x1b[?1049l\x1b[?2026l\x1b[0m\x1b[3J\x1b[2J\x1b[H");
+            outputStream.Begin();
+            InvalidateRect(window, nullptr, FALSE);
+        }
+
+        void WriteStream(const std::string_view bytes)
+        {
+            {
+                const auto guard = terminal.LockForWriting();
+                THROW_IF_FAILED(outputStream.Write(bytes, [this](const std::wstring_view text) {
+                    terminal.Write(text);
+                }));
+            }
+            InvalidateRect(window, nullptr, FALSE);
+        }
+
         #include "surface_repaint.inl"
         #include "surface_settings.inl"
 
@@ -266,6 +288,7 @@ namespace
                 THROW_IF_FAILED(result);
                 if (result == S_OK) ++resizes;
             }
+            PostMessageW(window, WM_APP + 2, gsl::narrow<WPARAM>(size.width), gsl::narrow<LPARAM>(size.height));
             InvalidateRect(window, nullptr, FALSE);
         }
 
@@ -351,6 +374,11 @@ namespace
                     if (surface->closing) return 0;
                     surface->Resize();
                     return 0;
+                case WM_GETDLGCODE:
+                    return DLGC_WANTARROWS | DLGC_WANTTAB | DLGC_WANTCHARS | DLGC_WANTALLKEYS;
+                case WM_LBUTTONDOWN:
+                    SetFocus(window);
+                    break;
                 case WM_ERASEBKGND:
                     return 1;
                 case WM_PAINT:
@@ -402,6 +430,27 @@ namespace
         THROW_HR_IF(E_HANDLE, !surface);
         return surface;
     }
+
+    void CompleteInputResult(VT7_INPUT_RESULT* result, const bool handled, const std::wstring& output)
+    {
+        if (!result) THROW_HR(E_POINTER);
+        if (result->struct_size != sizeof(*result)) THROW_HR(E_INVALIDARG);
+        VT7_INPUT_RESULT value{};
+        value.struct_size = sizeof(value);
+        value.handled = handled ? 1u : 0u;
+        if (!output.empty())
+        {
+            const auto count = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, output.data(),
+                gsl::narrow<int>(output.size()), nullptr, 0, nullptr, nullptr);
+            THROW_LAST_ERROR_IF(count == 0);
+            THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER), count > gsl::narrow<int>(sizeof(value.bytes)));
+            const auto written = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, output.data(),
+                gsl::narrow<int>(output.size()), reinterpret_cast<char*>(value.bytes), count, nullptr, nullptr);
+            THROW_LAST_ERROR_IF(written != count);
+            value.byte_count = gsl::narrow<uint32_t>(written);
+        }
+        *result = value;
+    }
 }
 
 int32_t __cdecl VT7_CreateSurface(void* parent, uint32_t rendererMode, void** result)
@@ -426,7 +475,7 @@ try
     if (!RegisterClassExW(&klass)) THROW_LAST_ERROR_IF(GetLastError() != ERROR_CLASS_ALREADY_EXISTS);
     auto surface = std::make_unique<Surface>(rendererMode);
     const auto window = CreateWindowExW(0, windowClass, L"VT7 terminal viewport",
-        WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS, 0, 0, 900, 500, parentWindow, nullptr, module, surface.get());
+        WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_TABSTOP, 0, 0, 900, 500, parentWindow, nullptr, module, surface.get());
     if (!window)
     {
         THROW_IF_FAILED(surface->lastError.load());
@@ -532,9 +581,108 @@ try
 {
     const auto surface = Lookup(window);
     const auto guard = surface->terminal.LockForWriting();
+    surface->outputStream.Abandon();
     surface->terminal.HardResetWithoutErase();
     surface->FillDemo();
     InvalidateRect(static_cast<HWND>(window), nullptr, FALSE);
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_BeginSurfaceStream(void* window)
+try
+{
+    Lookup(window)->BeginStream();
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_WriteSurfaceUtf8(void* window, const uint8_t* bytes, uint32_t length)
+try
+{
+    if (length != 0 && !bytes) return E_POINTER;
+    if (length > 1024u * 1024u) return E_INVALIDARG;
+    const auto text = reinterpret_cast<const char*>(bytes);
+    Lookup(window)->WriteStream(std::string_view{ text ? text : "", length });
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_EndSurfaceStream(void* window)
+try
+{
+    return Lookup(window)->outputStream.End();
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_GetSurfaceStreamInfo(void* window, VT7_SURFACE_STREAM_INFO* info)
+try
+{
+    if (!info) return E_POINTER;
+    if (info->struct_size != sizeof(*info)) return E_INVALIDARG;
+    const auto snapshot = Lookup(window)->outputStream.Snapshot();
+    *info = { sizeof(*info), snapshot.generation, snapshot.bytes, snapshot.utf16Units,
+        snapshot.writes, snapshot.pendingBytes, snapshot.ended ? 1u : 0u, snapshot.lastError };
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_EncodeSurfaceKey(void* window, uint32_t virtualKey, uint32_t scanCode,
+    uint32_t controlKeyState, uint32_t keyDown, uint32_t repeatCount, VT7_INPUT_RESULT* result)
+try
+{
+    if (!result) return E_POINTER;
+    if (result->struct_size != sizeof(*result) || virtualKey > 0xffff || scanCode > 0xffff ||
+        keyDown > 1 || repeatCount == 0 || repeatCount > 0xffff) return E_INVALIDARG;
+    const auto surface = Lookup(window);
+    const auto guard = surface->terminal.LockForWriting();
+    std::wstring output;
+    bool handled = false;
+    for (uint32_t index = 0; index < repeatCount; ++index)
+    {
+        const auto encoded = surface->terminal.SendKeyEventWithoutLayoutTranslation(
+            gsl::narrow<WORD>(virtualKey), gsl::narrow<WORD>(scanCode),
+            Microsoft::Terminal::Core::ControlKeyStates{ controlKeyState }, keyDown != 0);
+        handled |= encoded.has_value();
+        if (encoded) output.append(*encoded);
+    }
+    CompleteInputResult(result, handled, output);
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_EncodeSurfaceChar(void* window, uint32_t character, uint32_t scanCode,
+    uint32_t controlKeyState, uint32_t repeatCount, VT7_INPUT_RESULT* result)
+try
+{
+    if (!result) return E_POINTER;
+    if (result->struct_size != sizeof(*result) || character > 0xffff || scanCode > 0xffff ||
+        repeatCount == 0 || repeatCount > 0xffff) return E_INVALIDARG;
+    const auto surface = Lookup(window);
+    const auto guard = surface->terminal.LockForWriting();
+    std::wstring output;
+    bool handled = false;
+    for (uint32_t index = 0; index < repeatCount; ++index)
+    {
+        const auto encoded = surface->terminal.SendCharEvent(gsl::narrow<wchar_t>(character),
+            gsl::narrow<WORD>(scanCode), Microsoft::Terminal::Core::ControlKeyStates{ controlKeyState });
+        handled |= encoded.has_value();
+        if (encoded) output.append(*encoded);
+    }
+    CompleteInputResult(result, handled, output);
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_EncodeSurfaceFocus(void* window, uint32_t focused, VT7_INPUT_RESULT* result)
+try
+{
+    if (!result) return E_POINTER;
+    if (result->struct_size != sizeof(*result) || focused > 1) return E_INVALIDARG;
+    const auto surface = Lookup(window);
+    const auto guard = surface->terminal.LockForWriting();
+    const auto encoded = surface->terminal.FocusChanged(focused != 0);
+    CompleteInputResult(result, encoded.has_value(), encoded.value_or(L""));
     return S_OK;
 }
 CATCH_RETURN()
