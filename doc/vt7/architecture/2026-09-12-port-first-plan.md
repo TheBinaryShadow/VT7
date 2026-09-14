@@ -79,7 +79,9 @@ Release static verification passes locally. P01 now selects WinPTY 0.4.3 for
 Windows 7 local legacy-console sessions with bounded fidelity limits. I01 is
 complete, and the 0.3.7/ABI 10 outbound queue/native-HWND adapter passes its exact
 Windows 7 target run. S00 is complete and rejects redirected external OpenSSH
-for interactive PTY use; the approved SSH.NET 2026.0.0 S01 diagnostic is next.
+for interactive PTY use. Corrected SSH.NET S01 0.6 passes public-key-only and
+optional-password Windows 7 controlled-server runs and accepts the approved
+embedded candidate.
 Process transport, terminal replies and assembled session acceptance remain open.
 
 ## Long-term goal

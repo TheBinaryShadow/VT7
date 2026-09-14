@@ -36,5 +36,6 @@ resize as an SSH window-change request. The completed target run reports 0 by 0.
 Exact Microsoft 10.0p2 source confirms that redirected pipes cannot supply its
 Windows console geometry or resize-event paths, so S00 rejects unmodified
 external ssh.exe for interactive VT7 SSH. This package remains available only
-to reproduce the accepted command/trust/lifecycle evidence. SSH.NET 2026.0.0 is
-approved as the separate S01 embedded candidate.
+to reproduce the accepted command/trust/lifecycle evidence. Corrected SSH.NET
+2026.0.0 package 0.6 subsequently passed S01 and is the accepted embedded
+interactive transport candidate.

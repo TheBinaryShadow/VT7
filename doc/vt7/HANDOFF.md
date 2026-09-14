@@ -1,7 +1,7 @@
 # VT7 development handoff
 
-Updated: 2026-09-14, after completing S00 and approving the project-wide
-permissive dependency policy and SSH.NET S01 evaluation.
+Updated: 2026-09-14, after accepting SSH.NET S01 and recording the project-wide
+permissive dependency policy.
 This is the current resumption guide. Start with the [documentation index](README.md)
 if unfamiliar with the repository. The [roadmap](../../ROADMAP.md) owns gates;
 dated validation records own test claims.
@@ -60,10 +60,11 @@ the earlier Arabic/geometry experiment chain is the default next task.
 | S00 OpenSSH evaluation | Complete. Preflight and controlled Debian cases accept exact Microsoft 10.0p2 x64 `ssh.exe` command bytes, strict trust, key authentication, negotiation, drain and cancellation. Forced PTY reports 0 by 0. Exact source proves its Windows geometry path requires console output and input events that VT7's redirected pipes cannot supply. External OpenSSH is accepted for non-PTY command transport and rejected for interactive VT7 SSH. |
 | S00 preflight package | `VT7-OpenSSH-S00-Preflight-0.2-x64.zip`, SHA256 `1F8FE67D0E388D82248B6383035BE03E848D8FB3E71F85EE27C297ADF4149395`, 12,248 bytes, 8 verified files. It contains no OpenSSH binary. Both complete target runs are archived byte-identically as 44 files and 35,558 bytes. |
 | S00 network package | Issued 0.1 is `VT7-OpenSSH-S00-Network-0.1-x64.zip`, SHA256 `8029CC9CF48F9BAEA839F16F3E104A552F848AB17A4A12636C966145B421B7FA`, 16,203 bytes, 8 verified top-level files. Its complete target run has 16 files and 149,987 bytes. The changed-host diagnostic retained a public host fingerprint and temporary profile path despite its privacy claim; raw evidence is restricted and a safe copy is archived. Corrected source advances any reissue to 0.2. |
-| S01 candidate | [SSH.NET 2026.0.0](research/2026-09-14-sshnet-license-audit.md) is approved for evaluation. It exposes explicit PTY resize and structured trust/authentication and fits net48 through its net462 target. Its exact 13-package closure carries MIT metadata plus permissive Apache-2.0, ISC-style and broader supplier notices. No copyleft was found. Product incorporation has not started. |
-| Next bounded task | Build a narrow S01 probe for exact dependency loading and modern negotiation, host trust, password/encrypted-key prompts, initial/live resize, raw bytes, drain and cancellation on Windows 7. No S00 rerun or WARP attribution test is a prerequisite. |
+| S01 candidate | Accepted. The isolated [SSH.NET 2026.0.0 diagnostic](validation/2026-09-14-sshnet-s01.md) passes its exact locked thirteen-package net48 closure and both Windows 7 controlled-Debian runs. Product incorporation has not started. |
+| S01 target package | Accepted `VT7-SSHNET-S01-0.6-x64.zip`, SHA256 `7200827585B88E337AC3CD2074DDF34D1E6B5EF433A4FD4A305395DBF869292E`, 3,258,501 bytes, 62 verified files. Public-key-only and optional-password runs both pass; no credential fields are retained. The three sanitized manifests and verification metadata are archived under `artifacts/vt7/evidence/sshnet-s01-win7-0.6`. |
+| Next bounded task | Complete the 3A session-identity/lifetime split and security contracts, carrying S01's stream-dispose-before-client-disconnect rule into the production design. No S00/S01 rerun or WARP attribution test is a prerequisite. |
 | Milestone 2 | Open. Theme/high-contrast, broader device/environment and milestone-level ESU coverage also remain. |
-| Development sequence | Run the approved S01 candidate evaluation and complete the session-identity split before 3B, followed by the existing local-session/application milestones. Remaining C3/Milestone 2 qualification stays recorded without a blanket serial dependency. |
+| Development sequence | Complete the session-identity split before 3B, then integrate production local and remote transports under the accepted P01/S01 boundaries. Remaining C3/Milestone 2 qualification stays recorded without a blanket serial dependency. |
 
 ## Resume safely
 
@@ -352,11 +353,13 @@ comes from console input events. VT7's redirected pipes provide neither path,
 so another resize run would not add evidence. S00 rejects this interactive
 architecture while retaining the client as a command-only option.
 
-SSH.NET 2026.0.0 is the approved S01 candidate because it exposes explicit PTY
-resize and structured trust/authentication. The owner accepted its audited
+SSH.NET 2026.0.0 is the accepted S01 transport candidate because it exposes
+explicit PTY resize and structured trust/authentication. The owner accepted its audited
 permissive Apache-2.0, ISC-style and supplier terms as a standing project-wide
-policy. The next package is a bounded Windows 7 S01 probe, not product
-integration. Then complete the session ownership and security contracts. Apply the
+policy. Corrected package 0.6 passes public-key-only and optional-password runs
+on Windows 7 against controlled Debian, so S01 accepts SSH.NET as the embedded
+interactive candidate. Complete the session ownership and security contracts
+next, carrying the stream-first shutdown rule into production. Apply the
 [session ownership and external source review](architecture/2026-09-14-session-ownership-and-source-review.md):
 do not let a real transport grow into the current HWND-owned `Surface`, and keep
 TerminalCore/session identity separate from presentation identity before 3B.

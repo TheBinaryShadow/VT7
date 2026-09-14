@@ -65,7 +65,8 @@ automatic recovery, and session acceptance.
 - WPF styling/contrast fixes, visual regression coverage, and native HWND
   lifetime and resize hardening.
 - Production WinPTY session integration under the completed P01 fidelity limits.
-- S01 Windows 7 validation of the approved SSH.NET 2026.0.0 candidate. S00 has
+- Production SSH.NET session integration under the accepted S01 trust,
+  authentication, transport, PTY and stream-first shutdown boundaries. S00
   rejected unmodified redirected OpenSSH for interactive PTY sessions.
 - Dependency, imported-API, and behavior-level compatibility audits.
 - Automated tests that protect Windows 7-specific behavior.

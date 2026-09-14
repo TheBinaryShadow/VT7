@@ -7,8 +7,9 @@ This C4 / Milestone 3A slice implements the bounded outbound ordering and native
 child-HWND input contract chosen by the completed
 [I01 characterization](../validation/2026-09-14-input-i01.md). It remains
 backend-neutral: the normal host currently drains to an audit sink, and no
-WinPTY process or SSH connection is created. S00 is complete; the approved
-SSH.NET 2026.0.0 S01 Windows 7 diagnostic is the next SSH task.
+WinPTY process or SSH connection is created. S00 is complete. The approved
+SSH.NET S01 0.6 accepts SSH.NET 2026.0.0 after both Windows 7
+controlled-server runs pass. The 3A session-identity/lifetime split is next.
 
 ## Serialized outbound owner
 
@@ -155,8 +156,8 @@ recorded by I01. Mouse input, paste policy, clipboard access and host actions ar
 also outside this slice.
 
 S00 rejects unmodified redirected Win32-OpenSSH for interactive PTY sessions
-after accepting its non-PTY command path. S01 now evaluates the approved
-SSH.NET 2026.0.0 candidate. Before 3B connects WinPTY, the
+after accepting its non-PTY command path. S01 accepts SSH.NET 2026.0.0 for
+embedded interactive transport. Before 3B connects either backend, the
 terminal/core/session identity must move out of the transient view,
 and inbound output, outbound input/replies, resize, cancellation, EOF, exit and
 teardown must use the same generation owner described in the

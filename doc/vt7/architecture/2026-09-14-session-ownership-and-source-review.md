@@ -149,7 +149,7 @@ compatibility review.
 | [Microsoft Terminal / OpenConsole](https://github.com/microsoft/terminal) | [MIT](https://github.com/microsoft/terminal/blob/main/LICENSE) | Primary source for TerminalCore, input, connection/core/presentation separation and resize behavior. | Primary inherited upstream at the pinned commit in `UPSTREAM.md`; existing history, copyright, license and notices are retained. |
 | [WinPTY](https://github.com/rprichard/winpty) | [MIT](https://github.com/rprichard/winpty/blob/master/LICENSE) | Selected Windows 7 local legacy-console transport. | Official 0.4.3 binaries are restored to the ignored dependency cache and packaged with the exact license; hashes and provenance are recorded by P01. |
 | [PuTTY](https://www.chiark.greenend.org.uk/~sgtatham/putty/) | [MIT](https://www.chiark.greenend.org.uk/~sgtatham/putty/licence.html) | Reference for SSH trust, authentication, prompts, cancellation, error routing and protocol edge cases if S00 exposes a gap. | Research only; no PuTTY source or binary is incorporated. |
-| [SSH.NET 2026.0.0](../research/2026-09-14-sshnet-license-audit.md) | Package metadata is MIT; exact contents also carry permissive Apache-2.0, ISC-style and broader supplier notices. | Approved S01 candidate for explicit PTY resize, structured trust/authentication and net48-compatible managed integration. | License policy approved. No source, binary or dependency is incorporated yet; the next step is a bounded exact-notice diagnostic. |
+| [SSH.NET 2026.0.0](../research/2026-09-14-sshnet-license-audit.md) | Package metadata is MIT; exact contents also carry permissive Apache-2.0, ISC-style and broader supplier notices. | S01-accepted candidate for explicit PTY resize, structured trust/authentication and net48-compatible managed integration. | Exact-notice package 0.6 passes on Windows 7; production source and dependencies are not incorporated yet. |
 | [WezTerm](https://github.com/wezterm/wezterm) | [MIT](https://github.com/wezterm/wezterm/blob/main/LICENSE.md) | Reference for stable pane/session/domain identities and presentation attachment. Its mux model demonstrates that UI windows need not own pane identity. | Research only; no WezTerm source or binary is incorporated. |
 | [Mintty](https://github.com/mintty/mintty) | [GPL version 3 or later](https://mintty.github.io/mintty.1.html#LICENSE) | Behavioral comparison for Windows keyboard layouts, AltGr/dead keys, Unicode, resize and WinPTY-facing behavior. | Behavioral oracle only. Do not copy or translate its implementation into VT7's MIT-licensed application without a separately reviewed licensing design. |
 
@@ -171,8 +171,8 @@ I01 settles the Windows 7 Croatian input boundary described above. The
 implements its generation-checked queue and native-HWND adapter and passes the
 exact Windows 7 target candidate. S00 is complete and rejects unmodified
 redirected OpenSSH for interactive PTY sessions after accepting it for non-PTY
-command transport. SSH.NET 2026.0.0 and its permissive closure are approved for
-the S01 diagnostic. The ownership,
+command transport. S01 accepts SSH.NET 2026.0.0 and its permissive closure on
+Windows 7. The ownership,
 stale-callback, input and resize rules remain
 prerequisites to production backend wiring in 3B. They also protect the later
 tabs and split-pane work, where WPF layout and HWND recreation cannot safely

@@ -107,7 +107,10 @@ issued; the timed soak remains on hold. No additional test or implementation
 is implied by updating this index. S00 is now complete as well: external
 Microsoft 10.0p2 passes non-PTY transport but its exact Windows source and 0 by
 0 target result reject redirected interactive PTY geometry. SSH.NET 2026.0.0
-and its permissive closure are approved for the next bounded S01 diagnostic.
+and its permissive closure are now locked in the isolated S01 diagnostic. The
+0.5 target run proved the transport paths but exposed two faulty probe
+assertions. Corrected 0.6 passes both target confirmation runs and accepts the
+embedded candidate.
 
 ## Priority experiments
 
@@ -127,7 +130,7 @@ All outcomes below are **acceptance targets**, not observed results.
 | U01 / P1 | Feed Unicode/VT fixtures under randomized byte chunking, then resize/select/copy/search. | Identical semantic state across chunking; stable text-to-cell mapping and no corrupted UTF sequences. |
 | I02 / P1 | Japanese/Chinese/Korean IMEs, focus switching, reconversion as supported, and candidate placement after resize/DPI change. | Composition and committed text are distinct; no duplicate commits; candidate UI follows the caret. |
 | S00 / P0 at 3A, complete | Evaluate the known Windows 7-compatible Microsoft OpenSSH client with direct-I/O configurations and exact source. | Exact client and network cases pass command transport; 0 by 0 PTY plus source reject redirected interactive geometry. See the [S00 record](../validation/2026-09-14-openssh-s00.md). |
-| S01 / P1, approved candidate | Test the exact SSH.NET 2026.0.0 closure and notices with nonblocking reads/writes, structured authentication, host-key changes, resize bursts, EOF/close and disconnect. | Windows 7 load and modern negotiation pass; correct retry buffers, prompt/trust ownership, terminal state, resize, exit status and no cross-session routing. |
+| S01 / P1, complete | Test the exact SSH.NET 2026.0.0 closure and notices with nonblocking reads/writes, structured authentication, host-key changes, resize bursts, EOF/close and disconnect. Corrected package 0.6 passes public-key-only and optional-password Windows 7 runs. | Windows 7 load and modern negotiation pass; correct prompt/trust ownership, terminal state, resize, exit status, owner-ordered stream disposal/client disconnect and no cross-session routing. |
 | A01 / P1 | Inspect a native terminal surface with Windows 7 UI Automation tools and a supported screen reader. | Navigable text/ranges, selection/caret reporting and bounded notifications from native content. |
 | C01 / P2 | Clipboard contention, huge/multiline paste, active mouse modes and OSC clipboard policy. | Correct ownership, bounded queues and explicit policy outcomes without freezing the UI. |
 | D01 / P2 | Persist settings during a forced interruption; test Unicode/long paths and read-only portable directories. | Old or new valid configuration, recoverable failure, and no launch-dependent working-directory assumption. |

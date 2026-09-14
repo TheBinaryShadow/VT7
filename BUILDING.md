@@ -281,8 +281,20 @@ the network runner is reissued. Exact 10.0p2 source proves that redirected
 `ssh.exe` cannot obtain VT7's PTY size or observe VT7 resize events through its
 Windows console path. S00 is complete and requests no further external-client
 run. The owner approved SSH.NET 2026.0.0 and its permissive supplier notices for
-S01. The next step is a separately versioned diagnostic with an exact dependency
-and license inventory; product integration still requires Windows 7 acceptance.
+S01. The separately versioned diagnostic and exact dependency/license inventory
+are now implemented. Build, test and package it independently of `VT7.sln`:
+
+```powershell
+.\tools\Restore-VT7SshNet.ps1
+.\tools\Build-VT7SshNet.ps1 -Configuration Release -NoRestore
+.\tools\Test-VT7SshNet.ps1 -Configuration Release -SelfTest
+.\tools\Package-VT7SshNet.ps1 -NoBuild
+```
+
+Package 0.5 proved the Windows 7 transport paths but exposed overly strict
+cipher and disconnect assertions. Corrected package 0.6 passes its local checks
+and both Windows 7 controlled-server runs. S01 is accepted as recorded in the
+[validation record](doc/vt7/validation/2026-09-14-sshnet-s01.md).
 
 Run the P01 local-console characterization after building either configuration:
 

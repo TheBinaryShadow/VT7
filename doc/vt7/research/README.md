@@ -120,8 +120,10 @@ concern is deferred under REL01. P01 selects WinPTY for bounded Windows 7 local
 legacy-console sessions. I01 now selects the Windows 7 Croatian native-HWND
 input boundary. Its outbound queue implementation is accepted. S00 completes
 the external OpenSSH evaluation and rejects redirected interactive PTY use; the
-SSH.NET 2026.0.0 and its permissive closure are approved for the next S01
-diagnostic. Session ownership remains
+SSH.NET 2026.0.0 and its permissive closure are locked in the isolated S01
+diagnostic. Corrected package 0.6 passes public-key-only and optional-password
+Windows 7 runs and accepts the embedded interactive candidate.
+Session ownership remains
 in 3A before substantial local integration or daily-driver UI work. Text geometry, session
 ownership, input, accessibility, and output-security contracts move ahead of
 their dependent UI features.
@@ -140,7 +142,8 @@ records Windows 7 automated passes for both Atlas backends on hardware/WARP,
 visible Direct3D11 output, and repeated R-key recreation. Its fixed-glyph scope
 does not establish later font/controller integration; that evidence belongs to
 0.3.0 and its successors above. The original research snapshots remain research,
-not execution reports. Interactive local sessions and S01 SSH remain future work.
+not execution reports. Interactive local sessions and production SSH remain future work;
+the bounded S01 candidate is accepted by corrected package 0.6 target evidence.
 
 Start with the [project assessment](00-project-assessment.md), [API availability matrix](21-api-availability.md), and [experiment plan](20-validation-and-experiments.md). The subsystem files contain platform behavior, relevant APIs, implementation consequences, and targeted tests.
 
