@@ -25,6 +25,10 @@ existing evidence before a relevant regression run.
 | `Test-VT7SessionOutbound.ps1` | ABI 10 generation queue and native HWND input/control/focus/resize checks; `-Configuration`, `-BinaryDirectory`, optional collision-resistant `-OutputDirectory`. |
 | `Test-VT7OpenSsh.ps1` | Endpoint-independent S00 preflight for an explicitly selected external `ssh.exe`; captures exact raw stdout/stderr, identity/signature, algorithms, effective configuration and bounded stalled-peer cancellation. Optional `-ExpectedSshSha256` and `-ExpectedVersionPattern` reject drift. |
 | `Test-VT7OpenSshNetwork.ps1` | Controlled Debian S00 cases with an out-of-band Ed25519 fingerprint and dedicated key. Pins the accepted client; tests strict trust, negotiated algorithms, exact `-T` channels/exit, final drain, forced-PTY initial size and active cancellation. Corrected source retains only generic endpoint/credential classifications; issued 0.1 has the privacy defect recorded below. |
+| `Restore-VT7SshNet.ps1` | Restores the locked thirteen-package SSH.NET 2026.0.0 net48 closure, verifies every audited NuGet hash, and pins the exact source license/notices. |
+| `Build-VT7SshNet.ps1` | Builds only the isolated net48/x64 S01 diagnostic; `-Configuration` selects Debug or Release and `-NoRestore` uses the verified lock result. |
+| `Test-VT7SshNet.ps1` | Runs S01 from a build or package directory. `-SelfTest` checks loads, modern algorithms, encrypted-key parsing and credential redaction without a server; network mode runs the controlled trust/authentication/PTY/lifecycle matrix. |
+| `Package-VT7SshNet.ps1` | Builds and self-tests the non-overwriting S01 package, preserves all exact dependency notices and metadata, verifies recursive hashes and ZIP entries, and emits the Windows 7 artifact. |
 | `Test-VT7AtlasRepaint.ps1` | Exact repaint/cursor checks; `-Configuration`, `-BinaryDirectory`, `-Renderers`; retains its expected-failure control. |
 | `Test-VT7AtlasRecovery.ps1` | Controlled recovery scenarios; `-Configuration`, `-BinaryDirectory`. |
 | `Test-VT7AtlasSettings.ps1` | Font/settings checks; `-Configuration`, `-BinaryDirectory`, `-ExpectedSystemDpi` accepts `0`, `96`, `120` or `144`. Zero leaves the actual DPI unasserted. |
@@ -82,8 +86,11 @@ that redirected `ssh.exe` cannot obtain VT7's PTY size or observe VT7 resize
 events through its Windows console path. S00 is complete: the external client is
 accepted for non-PTY command transport and rejected for interactive VT7 SSH.
 The owner approved SSH.NET 2026.0.0 and its permissive supplier notices for S01.
-No SSH.NET package is currently restored or incorporated by these tools; the
-next addition is a separately versioned Windows 7 diagnostic with exact notices.
+The locked closure is now incorporated only by the isolated diagnostic. Its
+0.5 target run proved the trust, authentication, command, PTY, resize, drain,
+cancellation and isolation paths. Corrected 0.6 passes local checks plus both
+Windows 7 controlled-Debian runs and is the accepted S01 package.
+See the [S01 record](../doc/vt7/validation/2026-09-14-sshnet-s01.md).
 
 The current application source reports 0.3.7/ABI 10 and includes the session-stream
 and native-HWND outbound foundation plus resource-isolation

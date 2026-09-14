@@ -1,12 +1,14 @@
 # SSH.NET 2026.0.0 dependency and license audit
 
-Audit date: 2026-09-14. Status: license policy approved for S01 evaluation. No
-audited package has yet been added to VT7 source, restored by the VT7 build,
-executed by the application or accepted for product distribution.
+Audit date: 2026-09-14. Status: license policy approved, exact closure locked,
+and corrected package 0.6 accepted by S01 on Windows 7. SSH.NET 2026.0.0 is the
+selected embedded interactive transport candidate. The closure is not yet
+referenced or executed by the VT7 application; production integration remains
+separate work.
 
 ## Candidate fit
 
-SSH.NET 2026.0.0 is the leading S01 candidate after
+SSH.NET 2026.0.0 is the S01-selected candidate after
 [S00](../validation/2026-09-14-openssh-s00.md) rejected unmodified redirected
 Windows OpenSSH for interactive PTY geometry. The package targets .NET Framework
 4.6.2 and can be referenced by VT7's .NET Framework 4.8 host. It exposes initial
@@ -59,13 +61,37 @@ distribution record:
 
 No copyleft term was found in this exact closure. The practical exception is
 therefore permissive, but the shipped product would no longer have a strictly
-MIT-only dependency and notice set. A final S01 package must retain the exact
-supplier notices and generate an artifact-level license inventory.
+MIT-only dependency and notice set. Accepted S01 package 0.6 retains the exact
+supplier notices and its artifact-level license inventory. A production package
+must preserve that closure unless a later audited dependency update replaces it.
 
 Removing BouncyCastle is not a small adaptation. SSH.NET uses it across modern
 key exchange, Ed25519/curve operations, ChaCha20-Poly1305, key parsing and other
 cryptographic paths. A strict MIT-only fork would carry meaningful security and
 maintenance responsibility and could lose modern algorithms.
+
+## Security and update ownership
+
+The exact 2026.0.0 release is the upstream patched version for four advisories
+published with that release: pre-authentication identification-banner memory
+growth, a zero maximum-packet-size channel loop, recursive SCP path traversal
+and SCP command-path injection. The first two affect the connection/channel
+boundary exercised by S01. The latter two concern `ScpClient`, which the probe
+and planned terminal backend do not use. All four official records list releases
+through 2025.1.0 as affected and 2026.0.0 as patched.
+
+The VT7 maintainer owns update review. Before any public package containing
+SSH.NET, check the upstream security-advisory list and NuGet vulnerability
+metadata, review newer releases against the Windows 7/net462 boundary, update
+the lock and hashes deliberately, and rerun S01. The lock must never advance
+automatically merely because a newer compatible NuGet version exists.
+
+Official advisory references:
+
+- [identification-banner memory growth](https://github.com/sshnet/SSH.NET/security/advisories/GHSA-h5q6-2gr6-3g3m);
+- [zero maximum-packet-size loop](https://github.com/sshnet/SSH.NET/security/advisories/GHSA-vhpg-4g9v-rppq);
+- [recursive SCP path traversal](https://github.com/sshnet/SSH.NET/security/advisories/GHSA-q939-rpr3-3284); and
+- [SCP command-path injection](https://github.com/sshnet/SSH.NET/security/advisories/GHSA-mggc-4xg6-vcxf).
 
 ## Owner decision
 
@@ -77,13 +103,11 @@ source remains MIT. Licenses with source-sharing, network-use, proprietary
 redistribution or other material conditions still receive a separate
 compatibility review because they can change the distribution model.
 
-The approval authorizes a bounded S01 Windows 7 diagnostic. It does not by
-itself claim runtime acceptance or add the packages to the current application.
-
-The S01 probe still must prove Windows 7 loads, negotiated modern
-algorithms, host trust, password/encrypted-key prompts, initial and live PTY
-resize, raw byte fidelity, final drain and cancellation. Audit success alone is
-not runtime acceptance.
+The approval authorized the bounded S01 Windows 7 diagnostic. Corrected package
+0.6 now supplies runtime acceptance for the tested configuration, including
+modern negotiation, trust, public-key/password handling, PTY resize, raw bytes,
+drain, cancellation, session isolation and owned shutdown. The packages remain
+outside the current application until production integration.
 
 ## Primary references
 

@@ -729,10 +729,12 @@ must be documented, not silently turned into permanent product limitations.
 
 Current next development checkpoint, authorized by the
 [September 14 decision](doc/vt7/architecture/2026-09-14-warp-development-deferral.md).
-P01, I01, the 0.3.7 outbound slice and S00 are complete. Proceed with the
-approved SSH.NET S01 evaluation and session-identity contract without a new
-WARP trace prerequisite. Broader input/layout and production local transport
-remain later implementation work under the accepted boundaries.
+P01, I01, the 0.3.7 outbound slice, S00 and S01 are complete. Corrected SSH.NET
+package 0.6 passes both Windows 7 controlled-server runs and selects the
+embedded interactive candidate. Complete the session-identity contract next
+without a new WARP trace prerequisite. Broader input/layout and production
+local/remote transport remain later implementation work under the accepted
+boundaries.
 
 Run bounded experiments before committing to transport and input designs. These
 do not require daily-driver tabs or a finished SSH interface.
@@ -816,15 +818,15 @@ resize run would not alter that control path. S00 is complete: external
 `ssh.exe` is accepted for non-PTY command transport and rejected as VT7's
 interactive SSH backend.
 
-S01 candidate status, 2026-09-14: SSH.NET 2026.0.0 supplies explicit PTY resize,
+S01 accepted status, 2026-09-14: SSH.NET 2026.0.0 supplies explicit PTY resize,
 structured trust/authentication, .NET Framework 4.6.2 compatibility and the
 modern algorithms observed in S00. Its exact 13-package closure is not strictly
 MIT-only: package contents include an Apache-2.0 BZip2 portion through
 BouncyCastle.Cryptography 2.7.0 and an ISC-style BCrypt notice. Both are
 permissive and there is no copyleft. The owner approved this closure and a
-standing policy for compatible permissive dependencies. An exact-notice S01
-diagnostic may now be built; production integration still depends on Windows 7
-runtime evidence.
+standing policy for compatible permissive dependencies. The exact-notice S01
+0.6 diagnostic now passes on Windows 7; production integration must preserve
+the accepted dependency and notice closure.
 
 - [x] Characterize a pinned WinPTY native library/agent build (P01). Compare
   child console state, reconstructed bytes, and final core state for W/A console
@@ -846,10 +848,18 @@ runtime evidence.
   that its geometry path requires Windows console output and input events.
   `SSH_ASKPASS` could structure prompts but cannot repair resize. Never
   substitute commands typed into shell input for SSH window-change messages.
-- [ ] Validate the approved SSH.NET 2026.0.0 candidate in S01. Test the exact
-  dependency closure, structured password/encrypted-key prompts and live resize
-  on Windows 7 before production integration. Document update responsibility,
-  required supplier notices and reasons for rejecting alternatives.
+- [x] Accept SSH.NET 2026.0.0 through corrected S01 0.6. Both Windows 7 runs
+  pass the exact dependency closure, structured public-key/password handling,
+  strict trust, modern AES-CTR/HMAC-SHA2 negotiation, command/PTY fidelity,
+  live resize, cancellation, session isolation and
+  stream-dispose-before-client-disconnect ownership. Required supplier notices
+  and rejected alternatives are documented.
+  - [x] Lock and hash the thirteen-package net48 closure; package exact supplier
+    notices and the encrypted-key fixture; pass Release/offline, recursive ZIP
+    and repeated path-with-spaces launcher checks.
+  - [x] Run the issued 0.5 package on Windows 7 against the controlled Debian 12
+    account, diagnose its two faulty assertions, correct them in 0.6, and archive
+    the sanitized accepted 0.6 manifests with verification metadata.
 - [x] Test the inherited `ToUnicodeEx` helpers on Windows 7 (I01), especially
   dead keys and AltGr. Do not assume newer non-mutating flag semantics or merely
   clear the flag without checking keyboard-state effects.
@@ -965,8 +975,8 @@ manual configuration edits.
 ## Milestone 5: First-class SSH
 
 Deliver the architecture accepted by 3A/S01. S00 rejected unmodified redirected
-OpenSSH for interactive sessions; the approved embedded candidate still must
-earn acceptance through the S01 Windows 7 evidence.
+OpenSSH for interactive sessions; S01 accepts SSH.NET 2026.0.0 as the embedded
+interactive candidate on the tested Windows 7 configuration.
 
 - [ ] Integrate the selected implementation and pin its complete redistributable
   dependency set. Recheck security advisories, Windows 7 execution, licensing,

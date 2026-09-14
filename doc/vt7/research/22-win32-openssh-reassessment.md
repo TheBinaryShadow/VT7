@@ -1,9 +1,10 @@
 # Win32-OpenSSH: a stronger SSH baseline for VT7
 
-Status note, 2026-09-13: this file preserves dated research and proposals,
+Status note, 2026-09-14: this file preserves dated research and proposals,
 not current implementation or acceptance claims. Source references and words
 such as "current", "next" and "latest" below retain their research-date scope.
-Use the [research status](README.md#planning-adoption), [current handoff](../HANDOFF.md)
+The later S00 and S01 sections record the resulting transport decisions. Use
+the [research status](README.md#planning-adoption), [current handoff](../HANDOFF.md)
 and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidence.
 
 Research date: 2026-09-11. Added after the user pointed out that current Microsoft Win32-OpenSSH runs successfully on Windows 7. This corrects an omission in the initial dependency shortlist. No binary was downloaded or executed during this reassessment.
@@ -23,6 +24,19 @@ events. VT7's redirected raw pipes provide neither console path. S00 therefore
 accepts external OpenSSH for non-PTY command transport and rejects it as VT7's
 interactive SSH backend. The historical questions and recommendation below are
 preserved as the path that led to this decision, not current unfinished work.
+
+## Later S01 result
+
+The subsequent
+[SSH.NET S01 evaluation](../validation/2026-09-14-sshnet-s01.md) selected
+SSH.NET 2026.0.0 as VT7's embedded interactive transport candidate. Corrected
+package 0.6 passes its offline self-test and both Windows 7 controlled-Debian
+runs, covering strict trust, public-key and optional-password authentication,
+modern negotiation, exact command bytes and status, PTY allocation and resize,
+drain, cancellation, session isolation and stream-first shutdown. This result
+supersedes the implementation-selection and recommended-next-experiment
+language retained below from the original reassessment. Production integration
+has not started; the current task is the 3A session-identity/lifetime split.
 
 ## Planning adoption
 

@@ -51,9 +51,10 @@ its sincere thanks to:
   contributor in the retained Microsoft Terminal notices below; and
 - the [SSH.NET](https://github.com/sshnet/SSH.NET) and
   [Bouncy Castle C#](https://github.com/bcgit/bc-csharp) maintainers for the
-  embedded SSH candidate approved for S01 evaluation. These packages are not
-  yet incorporated in the current VT7 application; their exact notices enter
-  the distribution with the selected and validated dependency closure.
+  embedded SSH transport candidate accepted by the S01 diagnostic. This
+  closure is not yet a dependency of the current VT7 application; the
+  diagnostic retains its exact package inventory and component notices
+  separately.
 
 This acknowledgement is a statement of gratitude, not a replacement for the
 copyright and license texts below or the component-specific files shipped in a
@@ -104,6 +105,26 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 ```
+
+## SSH.NET 2026.0.0 (VT7 S01 diagnostic)
+
+The bounded S01 diagnostic includes SSH.NET 2026.0.0 from exact source commit
+`7b2fd3dbf2c86a80a7b06cea020aa5f821c9902e` and its locked .NET Framework
+dependency closure. SSH.NET is licensed under the MIT License. The closure also
+includes BouncyCastle.Cryptography 2.7.0 and Microsoft compatibility packages.
+Their package metadata is MIT; their retained supplier files additionally
+disclose permissive ISC-style, Apache-2.0, BSD-style, Unicode, zlib, W3C, CC0
+and public-domain material where applicable.
+
+Source: https://github.com/sshnet/SSH.NET/tree/2026.0.0
+
+Every S01 package carries `DEPENDENCIES.json` with all thirteen exact NuGet
+package hashes. Its `licenses/` directory contains the SSH.NET license and
+third-party notices from the exact source commit, the Bouncy Castle license and
+BZip2 disclosure, the Microsoft MIT license, each available supplier notice,
+and each package's NuGet metadata. These files govern their respective
+components. S01 target evidence accepts SSH.NET as the embedded interactive
+candidate. It remains isolated from the application until production integration.
 
 ## Microsoft Visual C++ app-local runtime
 

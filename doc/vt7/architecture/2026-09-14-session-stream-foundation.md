@@ -104,7 +104,9 @@ key metadata retains control/non-text distinctions, and the live UI thread must
 not retranslate printable keys with `ToUnicodeEx`. The exact 0.3.7 target
 candidate passes on Windows 7. S00 subsequently accepted direct external
 OpenSSH command bytes and rejected its redirected interactive PTY architecture.
-The approved SSH.NET 2026.0.0 S01 Windows 7 diagnostic is the next SSH step.
+SSH.NET S01 0.6 accepts SSH.NET 2026.0.0 after both Windows 7
+controlled-Debian runs pass. The result requires the production owner to dispose
+the shell stream before disconnecting the client.
 Before 3B connects either backend, apply the
 [session ownership review](2026-09-14-session-ownership-and-source-review.md):
 the production session and TerminalCore lifetime must be distinct from the

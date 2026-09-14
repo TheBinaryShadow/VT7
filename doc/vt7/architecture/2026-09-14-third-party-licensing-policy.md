@@ -50,18 +50,19 @@ actually included.
 | GNU Unifont and Unifont Upper 17.0.05 | SIL Open Font License 1.1 private fallback assets | Included with pinned hashes, provenance and full font licenses. |
 | WinPTY 0.4.3 | MIT Windows 7 local legacy-console runtime | Selected by P01; exact official binaries and license are pinned and packaged. |
 | Microsoft Visual C++ runtime 14.44.35112 | Microsoft app-local redistributable code | Included in current packages from the licensed Visual Studio redist directory and disclosed in `NOTICE.md`. |
-| SSH.NET 2026.0.0 closure | MIT metadata plus permissive Apache-2.0, ISC-style and supplier notices | Approved for S01 evaluation. Not yet restored by VT7 or accepted for product distribution. |
+| SSH.NET 2026.0.0 closure | MIT metadata plus permissive Apache-2.0, ISC-style and supplier notices | Restored under a lock file and accepted by S01 package 0.6 on Windows 7. Production incorporation has not started and must preserve this exact notice closure. |
 | Microsoft Win32-OpenSSH 10.0p2 | Mixed permissive external installed executable | Characterized by S00 and retained as a non-PTY command option; not bundled. |
 
 The full inherited component notices and human acknowledgements are in
-[`NOTICE.md`](../../../NOTICE.md). The exact proposed SSH.NET closure is in the
+[`NOTICE.md`](../../../NOTICE.md). The exact accepted SSH.NET closure is in the
 [SSH.NET audit](../research/2026-09-14-sshnet-license-audit.md).
 
 ## Effect on S01
 
-The SSH.NET 2026.0.0 dependency and notice closure is approved for a bounded
-Windows 7 diagnostic. The diagnostic must preserve exact NuGet hashes and all
-supplier license/notice files. Runtime acceptance still depends on Windows 7
-loading, modern negotiation, trust and prompt behavior, initial/live PTY resize,
-byte fidelity, drain and cancellation evidence. Production integration follows
-that evidence rather than the license approval alone.
+The SSH.NET 2026.0.0 dependency and notice closure is accepted through the
+bounded Windows 7 S01 diagnostic. Corrected package 0.6 preserves the exact
+NuGet hashes and supplier license/notice files and proves Windows 7 loading,
+modern negotiation, trust and prompt behavior, initial/live PTY resize, byte
+fidelity, drain, cancellation, session isolation and owned shutdown. Production
+integration may now follow that accepted evidence and must retain the approved
+licenses and supplier notices.

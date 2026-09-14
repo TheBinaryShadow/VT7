@@ -88,9 +88,9 @@ The design is still being proven, but the working direction is:
 - A direct SSH backend for correct authentication, host-key handling, remote
   PTY allocation, and resize messages. S00 accepts Microsoft Win32-OpenSSH for
   non-PTY command transport but rejects its redirected process path for
-  interactive sessions. SSH.NET 2026.0.0 is approved for a bounded S01
-  embedded-backend diagnostic; runtime acceptance and production integration
-  remain unproven.
+  interactive sessions. The bounded SSH.NET 2026.0.0 S01 diagnostic is now
+  target-tested and accepted. Corrected package 0.6 passes public-key-only and
+  optional-password runs, including negotiated protection and owned shutdown.
 - A portable application package that can be extracted and run without modern
   Windows deployment infrastructure. (With a setup file to follow after the first
   full release)
@@ -144,7 +144,10 @@ adapter. The active task is C4 / Milestone 3A session feasibility. The exact
 0.3.7 Windows 7 candidate passes. S00 is complete: the exact Microsoft 10.0p2
 x64 client passes command bytes, trust and lifecycle tests, while its 0 by 0
 PTY result and exact source reject the redirected interactive architecture.
-The SSH.NET 2026.0.0 dependency policy is approved and S01 is next. The completed
+The exact SSH.NET 2026.0.0 S01 transport paths succeeded on Windows 7 against
+controlled Debian. Corrected package 0.6 passes both confirmation runs and
+selects SSH.NET as the embedded interactive candidate. Its locked closure and
+supplier notices remain isolated until production integration. The completed
 [Windows 7 retirement diagnostic](doc/vt7/diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result)
 confirms WARP work cleanup and worker-associated Event release by 90 seconds;
 54 process handles remain above startup and the integrated WARP failure stays
@@ -230,10 +233,12 @@ diagnostic retained a public host fingerprint and temporary Windows profile
 path; restricted raw and sanitized evidence are separated. Exact 10.0p2 source
 shows that redirected stdout cannot supply the console size and redirected
 input receives no console resize events. S00 therefore accepts external
-`ssh.exe` only for non-PTY command transport. The leading S01 candidate is
-SSH.NET 2026.0.0. The owner approved its permissive license closure and the
-project-wide notice policy; a bounded Windows 7 S01 diagnostic is next. See the
-[S00 validation record](doc/vt7/validation/2026-09-14-openssh-s00.md).
+`ssh.exe` only for non-PTY command transport. S01 accepts SSH.NET 2026.0.0 as
+the embedded interactive candidate. The owner approved its permissive license closure and the
+project-wide notice policy. Package 0.6 accepts trust, public-key and password
+authentication, command bytes, PTY resize/drain, cancellation, owned shutdown
+and session isolation on Windows 7. See the
+[S01 validation record](doc/vt7/validation/2026-09-14-sshnet-s01.md).
 
 VT7 already has its first real terminal viewport running on Windows 7. Engineering
 build 0.2.0 brings together the WPF host, a native HWND surface, TerminalCore,
@@ -298,10 +303,10 @@ and Windows 7 qualified for Croatian HR Latin mapping, `TerminalInput`,
 WPF/native focus, Ctrl and resize characterization. Windows 7 does not honor the
 helper's non-mutating `ToUnicodeEx` flag, so the native HWND's committed-text
 path owns printable input. That adapter and the bounded generation queue are now
-implemented and target validated. S00 now rejects direct redirected OpenSSH for
-interactive PTY use. The immediate SSH step is the approved, bounded Windows 7
-SSH.NET S01 probe. Full SSH delivery remains a later
-milestone. These are approved plans, not new compatibility results.
+implemented and target validated. S00 rejects direct redirected OpenSSH for
+interactive PTY use, while S01 accepts SSH.NET 2026.0.0 as the embedded
+interactive candidate. The immediate step is the 3A session-identity/lifetime
+split. Full SSH delivery remains a later milestone.
 
 - [x] Establish the VT7 project identity and scope.
 - [x] Select and record the Microsoft Terminal upstream baseline.
