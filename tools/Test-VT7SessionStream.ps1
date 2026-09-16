@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [ValidateSet('Debug', 'Release')][string]$Configuration = 'Debug',
-    [string]$BinaryDirectory
+    [string]$BinaryDirectory,
+    [string]$OutputDirectory
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3.0
@@ -11,7 +12,12 @@ if (-not $BinaryDirectory) { $BinaryDirectory = Join-Path $repositoryRoot "artif
 $executable = Join-Path $BinaryDirectory 'VT7.Host.exe'
 if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) { throw "Missing VT7 executable: $executable" }
 
-$reportRoot = Join-Path $repositoryRoot "artifacts\vt7\reports\$Configuration\Session"
+$reportRoot = if ($OutputDirectory) {
+    $parent = [IO.Path]::GetFullPath($OutputDirectory)
+    New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    $identity = (Get-Date).ToUniversalTime().ToString('yyyyMMdd-HHmmss') + '-' + [Guid]::NewGuid().ToString('N').Substring(0, 8)
+    Join-Path $parent ('session-ownership-' + $identity)
+} else { Join-Path $repositoryRoot "artifacts\vt7\reports\$Configuration\Session" }
 New-Item -ItemType Directory -Path $reportRoot -Force | Out-Null
 $reportPath = Join-Path $reportRoot 'session-stream.log'
 $started = Get-Date
@@ -44,6 +50,8 @@ $required = @(
     'PASS: byte-at-a-time UTF-8 and VT stream produced the exact baseline raster',
     'PASS: incomplete UTF-8 at EOF returned ERROR_NO_UNICODE_TRANSLATION',
     'recovered with irregular chunks and exact raster',
+    'PASS: ABI 11 detached HWND',
+    'PASS: TerminalSession switched fake root/overlay input generations 1/2/3',
     'PASS: session owner disposed the native surface with no surviving HWND'
 )
 foreach ($line in $required) {

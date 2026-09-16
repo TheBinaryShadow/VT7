@@ -48,6 +48,7 @@ existing evidence before a relevant regression run.
 | `Package-VT7WinPty.ps1` | Builds and verifies the Release x64 P01 diagnostic, stages the pinned WinPTY native runtime, MIT license and app-local VC runtime, then creates a non-overwriting ZIP. |
 | `Test-VT7Input.ps1` | Runs the I01 native keyboard-layout and TerminalInput characterization, then opens the WPF/native-focus recorder. `-NonInteractive` performs the local automation-safe smoke test; target acceptance requires the guided interactive run. |
 | `Package-VT7SessionOutbound.ps1` | Creates the non-overwriting 0.3.7 x64 target candidate whose exact Windows 7 run is accepted, verifies its native images and licenses, tests staged hashes, and validates every ZIP entry. |
+| `Package-VT7SessionOwnership.ps1` | Creates the non-overwriting 0.4.0/ABI 11 3A target candidate whose exact Windows 7 run is accepted, runs document/view, fake-transport and prior outbound checks from staged bytes, and validates every ZIP entry. |
 | `Package-VT7OpenSsh.ps1` | Creates the non-overwriting MIT-only S00 preflight package. It does not include OpenSSH; the target runner verifies itself and discovers the installed client under Program Files or on `PATH`. |
 | `Package-VT7OpenSshNetwork.ps1` | Creates the non-overwriting controlled-server S00 package. It contains no OpenSSH binary or secret, pins the accepted client hash and verifies the packaged files before prompting for runtime-only connection values. |
 | `Package-VT7Input.ps1` | Builds and verifies the Release x64 I01 diagnostic, stages its two probes with the existing license notices and app-local VC runtime, then creates a non-overwriting ZIP. |
@@ -92,8 +93,8 @@ cancellation and isolation paths. Corrected 0.6 passes local checks plus both
 Windows 7 controlled-Debian runs and is the accepted S01 package.
 See the [S01 record](../doc/vt7/validation/2026-09-14-sshnet-s01.md).
 
-The current application source reports 0.3.7/ABI 10 and includes the session-stream
-and native-HWND outbound foundation plus resource-isolation
+The current application source reports 0.4.0/ABI 11 and includes the native
+document/view split, managed session/transport foundation plus resource-isolation
 diagnostics absent from the issued 0.3.5 archive. These opt-in host CLI controls
 are documented in the [stability record](../doc/vt7/validation/2026-09-13-atlas-stability.md);
 the stability runner does not expose a resource-isolation parameter. The separate

@@ -1,6 +1,7 @@
 # VT7 documentation - start here
 
-Last reconciled: 2026-09-14, after accepting SSH.NET S01 on Windows 7.
+Last reconciled: 2026-09-17, after accepting the 0.4.0/ABI 11 C4/3A terminal
+document and session ownership boundary on Windows 7.
 
 VT7 is the terminal application Windows 7 always deserved. Version 0.3.7 now
 adds the generation-checked outbound queue and native child-HWND input/resize
@@ -10,7 +11,7 @@ port is the priority; optional improvements belong in final polish/release triag
 ## Read in this order
 
 1. [Development handoff](HANDOFF.md): current source and artifacts, accepted
-   results, deferred C3/REL01 concern, code map and the current C4/3A task.
+   results, deferred C3/REL01 concern, code map and the current 3B task.
 2. [Roadmap](../../ROADMAP.md): milestone gates and the deferred-work register.
 3. [Port-first plan](architecture/2026-09-12-port-first-plan.md) and
    [WARP development deferral](architecture/2026-09-14-warp-development-deferral.md):
@@ -27,23 +28,26 @@ port is the priority; optional improvements belong in final polish/release triag
 8. [Session ownership and external source review](architecture/2026-09-14-session-ownership-and-source-review.md):
    disposition of the supplied architecture analysis, the required separation
    between session and presentation lifetime, and the source/license ledger.
-9. [Input I01 characterization](validation/2026-09-14-input-i01.md): exact
+9. [Terminal document, transport, and typed-SSH handoff specification](architecture/2026-09-14-terminal-document-and-ssh-handoff-spec.md):
+   implementation-ready ownership, ABI 11, transport, shim/IPC, ordering,
+   fallback, SSH.NET lifecycle, security, staging, and acceptance contracts.
+10. [Input I01 characterization](validation/2026-09-14-input-i01.md): exact
    package and verified Windows 7 Croatian HR Latin evidence, the downlevel
    `ToUnicodeEx` result and the accepted native-HWND input/resize contract.
-10. [Session outbound foundation](architecture/2026-09-14-session-outbound-foundation.md):
+11. [Session outbound foundation](architecture/2026-09-14-session-outbound-foundation.md):
     ABI 10 input encoding, bounded generation ordering, control suppression,
     focus/resize ownership and accepted Windows 7 evidence.
-11. [OpenSSH S00 evaluation](validation/2026-09-14-openssh-s00.md): accepted
+12. [OpenSSH S00 evaluation](validation/2026-09-14-openssh-s00.md): accepted
     Windows 7 command transport, trust and lifecycle evidence; exact-source
     rejection of redirected interactive PTY geometry; and the S01-accepted
     SSH.NET candidate.
-12. [SSH.NET dependency and license audit](research/2026-09-14-sshnet-license-audit.md):
+13. [SSH.NET dependency and license audit](research/2026-09-14-sshnet-license-audit.md):
     exact 2026.0.0 net48 closure, package hashes, third-party terms and the
     project-wide permissive dependency decision.
-13. [SSH.NET S01 evaluation](validation/2026-09-14-sshnet-s01.md): isolated
+14. [SSH.NET S01 evaluation](validation/2026-09-14-sshnet-s01.md): isolated
     diagnostic design, 0.5 assertion findings, accepted 0.6 Windows 7 results,
     credential boundary and production teardown contract.
-14. [Third-party licensing policy](architecture/2026-09-14-third-party-licensing-policy.md):
+15. [Third-party licensing policy](architecture/2026-09-14-third-party-licensing-policy.md):
     standing owner decision, review triggers, packaging requirements, current
     component inventory and acknowledgement rule.
 
@@ -53,7 +57,8 @@ Dated validation records own what was actually tested. Research and historical
 If these disagree, reconcile them against source and evidence, do not silently
 choose the more optimistic status. The September 14 owner-approved REL01
 decision changes the development dependency; it does not rewrite failed tests.
-Proceed to C4/3A without another WARP trace prerequisite.
+C4/3A proceeded without another WARP trace prerequisite and is now accepted;
+continue to 3B under the same REL01 decision.
 
 ## Implementation and reproduction
 
@@ -122,7 +127,7 @@ Proceed to C4/3A without another WARP trace prerequisite.
 | C3 repaint/recovery | [0.3.1 repaint](validation/2026-09-12-atlas-repaint.md), [0.3.2 recovery](validation/2026-09-12-atlas-recovery.md) | Bounded target passes; injected recovery is not real driver-loss evidence. |
 | C3 scaling | [0.3.3 failures](validation/2026-09-12-atlas-settings.md), [0.3.4 correction](validation/2026-09-12-atlas-scaling-correction.md) | Actual Windows 7 96/120/144 DPI matrix accepted for 0.3.4 on the supplied setup. |
 | Deferred reliability concern | [REL01 decision](architecture/2026-09-14-warp-development-deferral.md) | Hardware lifecycle passes; WARP resource failures remain. Accepted risk for continued development; conditional Milestone 7 review. |
-| Current development | [completed S00](validation/2026-09-14-openssh-s00.md), [accepted S01](validation/2026-09-14-sshnet-s01.md), [session outbound 0.3.7](architecture/2026-09-14-session-outbound-foundation.md), [session stream 0.3.6](architecture/2026-09-14-session-stream-foundation.md), [completed P01](validation/2026-09-14-winpty-p01.md), [completed I01](validation/2026-09-14-input-i01.md), [ownership/source review](architecture/2026-09-14-session-ownership-and-source-review.md), [C4 / Milestone 3A](../../ROADMAP.md#3a-session-feasibility-and-contracts) | The native HWND/outbound foundation passes on Windows 7. S00 accepts exact Microsoft 10.0p2 command transport and rejects its redirected interactive PTY path. S01 accepts SSH.NET 2026.0.0 for embedded interactive transport; the 3A session-identity/lifetime split is next. |
+| Current development | [3A technical specification](architecture/2026-09-14-terminal-document-and-ssh-handoff-spec.md), [accepted 3A record](validation/2026-09-17-session-ownership-3a.md), [completed S00](validation/2026-09-14-openssh-s00.md), [accepted S01](validation/2026-09-14-sshnet-s01.md), [completed P01](validation/2026-09-14-winpty-p01.md), [completed I01](validation/2026-09-14-input-i01.md), [Milestone 3B](../../ROADMAP.md#3b-local-backend-integration) | Version 0.4.0/ABI 11 separates document/session/transport/view identity and passes the detach/hidden-drain/reattach plus fake root/overlay lifecycle locally and on the exact Windows 7 candidate. Implement the selected WinPTY root transport next. |
 | Previous native target result | [Windows 7 resource retirement 0.1](diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result) | Supported capture completes; workers retire by 90 seconds and USER returns to 4, but 54 process handles above pre-warmup remain. No C3 or timed-soak acceptance. |
 | Latest resource target result | [WPF reactivation 0.1](diagnostics/2026-09-14-resource-reactivation.md#supplied-windows-7-result) | Two integrated rounds complete, with 16 valid samples and three immediate failures. Both +180s handle/thread/GDI/USER counts match; private bytes rise 220 KiB. No permanent bound or C3 acceptance. |
 

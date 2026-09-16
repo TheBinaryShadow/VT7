@@ -1,6 +1,6 @@
 # VT7 Core and renderer boundary
 
-Engineering version 0.3.7 builds the real Microsoft Terminal core, parser, dispatch,
+Engineering version 0.4.0 builds the real Microsoft Terminal core, parser, dispatch,
 text buffer, and supporting types into `VT7.Core.lib`, then links that library
 into `VT7.Native.dll`. The static library is not a separate runtime dependency.
 It accepts a deterministic session byte stream but is not an interactive terminal release.
@@ -8,7 +8,7 @@ It accepts a deterministic session byte stream but is not an interactive termina
 Current status and evidence navigation are in the
 [documentation index](../../../doc/vt7/README.md) and
 [handoff](../../../doc/vt7/HANDOFF.md). The issued 0.3.5 artifact uses ABI 8;
-current 0.3.7 source uses ABI 10 and also contains later resource-isolation
+current 0.4.0 source uses ABI 11 and also contains later resource-isolation
 diagnostics absent from that archive. Package hashes, not the version label alone, identify tested
 binaries. This source document does not replace frozen package provenance.
 
@@ -74,9 +74,10 @@ upstream project files are not redirected to this proof configuration.
 
 ## Native viewport
 
-The WPF `HwndHost` owns a native child window through C ABI version 10 in 0.3.7
-(0.3.6 used ABI 9, 0.3.5 ABI 8, 0.3.4 ABI 7, 0.3.3 ABI 6, 0.3.2 ABI 5, 0.3.1 ABI 4 and 0.3.0 ABI 3). That
-window accepts ordered UTF-8 bytes through a persistent decoder and writes their
+ABI 11 in 0.4.0 separates opaque `TerminalDocument` and `TerminalView` handles
+(0.3.7 used ABI 10, 0.3.6 ABI 9, 0.3.5 ABI 8, 0.3.4 ABI 7, 0.3.3 ABI 6,
+0.3.2 ABI 5, 0.3.1 ABI 4 and 0.3.0 ABI 3). The document accepts ordered UTF-8
+bytes through a persistent decoder and writes their
 UTF-16 output through `Terminal::Write`. It reads actual
 buffer rows and attributes, and calls `Terminal::UserResize` as its client size
 changes. Resizing does not replace the content with a fresh demonstration.
@@ -87,8 +88,10 @@ the same TerminalInput state. VT7's no-layout key entry point skips
 `_CharacterFromKeyEvent` so the Windows 7 live message thread cannot mutate dead
 state through `ToUnicodeEx`; committed text arrives separately from `WM_CHAR`.
 The managed outbound queue orders encoded bytes, control distinctions, focus and
-the native post-resize grid by session generation. The terminal/session identity
-still needs to move out of this interim HWND-backed surface before 3B.
+the native post-resize grid by session generation. `TerminalSession` owns one
+continuous document pump across fake root/overlay switches; a bounded native
+reply queue returns TerminalCore responses to the originating transport. The
+legacy HWND surface exports remain for one diagnostic migration interval.
 
 Atlas is now the default renderer, using the actual controller/IRenderData path,
 primary-font metrics and inherited cell fitting. Direct3D11 and Direct2D each

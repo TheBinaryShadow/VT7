@@ -17,12 +17,16 @@ namespace VT7.Host
         private sealed class PendingWrite
         {
             internal readonly byte[] Bytes;
+            internal readonly ulong OriginGeneration;
+            internal readonly ulong Sequence;
             internal readonly TaskCompletionSource<bool> Completion =
                 new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            internal PendingWrite(byte[] bytes)
+            internal PendingWrite(byte[] bytes, ulong originGeneration, ulong sequence)
             {
                 Bytes = bytes;
+                OriginGeneration = originGeneration;
+                Sequence = sequence;
             }
         }
 
@@ -30,26 +34,39 @@ namespace VT7.Host
         private readonly Queue<PendingWrite> _writes = new Queue<PendingWrite>();
         private readonly SemaphoreSlim _available = new SemaphoreSlim(MaximumQueuedChunks, MaximumQueuedChunks);
         private readonly Dispatcher _dispatcher;
-        private TerminalSurface? _surface;
+        private TerminalDocument? _document;
+        private readonly ulong _streamGeneration;
+        private long _sequence;
         private TaskCompletionSource<bool>? _completion;
         private Exception? _failure;
         private bool _accepting = true;
         private bool _drainScheduled;
         private bool _disposed;
 
-        internal SessionOutputPump(TerminalSurface surface)
+        internal SessionOutputPump(TerminalSurface surface) : this(surface?.Document ?? throw new ArgumentNullException(nameof(surface)))
         {
-            _surface = surface ?? throw new ArgumentNullException(nameof(surface));
-            _dispatcher = surface.Dispatcher;
+        }
+
+        internal SessionOutputPump(TerminalDocument document)
+        {
+            _document = document ?? throw new ArgumentNullException(nameof(document));
+            _dispatcher = document.Dispatcher;
             if (!_dispatcher.CheckAccess())
-                throw new InvalidOperationException("A session output pump must be created on the terminal surface dispatcher.");
-            surface.BeginStream();
+                throw new InvalidOperationException("A session output pump must be created on the terminal document dispatcher.");
+            _streamGeneration = document.BeginStream();
         }
 
         internal async Task WriteAsync(byte[] bytes, CancellationToken cancellationToken = default)
         {
+            var sequence = checked((ulong)Interlocked.Increment(ref _sequence));
+            await WriteAsync(bytes, 1, sequence, cancellationToken).ConfigureAwait(false);
+        }
+
+        internal async Task WriteAsync(byte[] bytes, ulong originGeneration, ulong sequence, CancellationToken cancellationToken = default)
+        {
             if (bytes == null) throw new ArgumentNullException(nameof(bytes));
             if (bytes.Length == 0) return;
+            if (originGeneration == 0 || sequence == 0) throw new ArgumentOutOfRangeException(nameof(sequence));
             if (bytes.Length > MaximumChunkBytes)
                 throw new ArgumentOutOfRangeException(nameof(bytes), $"A session output chunk cannot exceed {MaximumChunkBytes} bytes.");
 
@@ -61,7 +78,7 @@ namespace VT7.Host
                 lock (_gate)
                 {
                     ThrowIfClosed();
-                    pending = new PendingWrite(copy);
+                    pending = new PendingWrite(copy, originGeneration, sequence);
                     _writes.Enqueue(pending);
                     try
                     {
@@ -128,7 +145,7 @@ namespace VT7.Host
             {
                 PendingWrite? pending;
                 TaskCompletionSource<bool>? completion = null;
-                TerminalSurface? surface;
+                TerminalDocument? document;
                 lock (_gate)
                 {
                     if (_disposed)
@@ -136,7 +153,7 @@ namespace VT7.Host
                         _drainScheduled = false;
                         return;
                     }
-                    surface = _surface;
+                    document = _document;
                     if (_writes.Count == 0)
                     {
                         _drainScheduled = false;
@@ -155,7 +172,7 @@ namespace VT7.Host
                     {
                         try
                         {
-                            surface?.EndStream();
+                            document?.EndStream(_streamGeneration);
                             completion.TrySetResult(true);
                         }
                         catch (Exception ex)
@@ -168,7 +185,7 @@ namespace VT7.Host
 
                 try
                 {
-                    surface?.WriteUtf8(pending.Bytes);
+                    document?.WriteUtf8(_streamGeneration, pending.OriginGeneration, pending.Sequence, pending.Bytes);
                     pending.Completion.TrySetResult(true);
                     _available.Release();
                 }
@@ -218,7 +235,7 @@ namespace VT7.Host
                 if (_disposed) return;
                 _disposed = true;
                 _accepting = false;
-                _surface = null;
+                _document = null;
                 abandoned = _writes.ToArray();
                 _writes.Clear();
                 completion = _completion;

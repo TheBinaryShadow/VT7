@@ -91,6 +91,9 @@ The design is still being proven, but the working direction is:
   interactive sessions. The bounded SSH.NET 2026.0.0 S01 diagnostic is now
   target-tested and accepted. Corrected package 0.6 passes public-key-only and
   optional-password runs, including negotiated protection and owned shutdown.
+  The [C4/3A technical specification](doc/vt7/architecture/2026-09-14-terminal-document-and-ssh-handoff-spec.md)
+  now defines the document/view lifetime split and the later same-tab typed
+  `ssh` handoff with an exact external-client fallback.
 - A portable application package that can be extracted and run without modern
   Windows deployment infrastructure. (With a setup file to follow after the first
   full release)
@@ -138,10 +141,14 @@ build the best terminal we can for the platform we love.
 
 ## Project status
 
-Current working source: **0.3.7, native ABI 10**, with session-neutral byte
-ingress plus a generation-checked outbound queue and native-HWND input/resize
-adapter. The active task is C4 / Milestone 3A session feasibility. The exact
-0.3.7 Windows 7 candidate passes. S00 is complete: the exact Microsoft 10.0p2
+Current working source: **0.4.0, native ABI 11**, with separate native terminal
+document/view identities and a managed session/transport owner. A document keeps
+TerminalCore, scrollback, UTF-8 state and terminal replies alive while its HWND
+and Atlas view are detached or recreated. Debug and Release pass the 3A
+detach/hidden-drain/reattach and fake root/overlay lifecycle checks locally and
+on the exact Windows 7 SP1 x64 candidate. The returned 0.4.0 reports match the
+issued host/native hashes and close focused 3A target qualification. S00 is
+complete: the exact Microsoft 10.0p2
 x64 client passes command bytes, trust and lifecycle tests, while its 0 by 0
 PTY result and exact source reject the redirected interactive architecture.
 The exact SSH.NET 2026.0.0 S01 transport paths succeeded on Windows 7 against
@@ -220,6 +227,18 @@ Release focused tests pass locally. The exact target ZIP also passes on Windows
 7 SP1 x64 with Croatian `hr-HR` culture and matching host/native hashes. See the
 [session outbound foundation](doc/vt7/architecture/2026-09-14-session-outbound-foundation.md).
 
+Engineering **0.4.0** implements Milestone 3A's ownership boundary. ABI 11 adds
+opaque `TerminalDocument` and `TerminalView` handles, rejects destruction of an
+attached document, keeps the decoder and core live without an HWND, and retains
+the ABI 10 surface exports as a one-transition diagnostic facade. The managed
+`TerminalSession` owns one continuous document pump, bounded outbound routing,
+root/overlay generations and awaited transport closure. TerminalCore replies are
+copied out of the core lock through a bounded native queue and returned to the
+transport generation that caused them. Debug and Release tests destroy and
+recreate the HWND during the 388-byte deterministic stream with an exact raster,
+then switch fake root/overlay input generations 1/2/3 while both producers drain
+into one document. Production WinPTY integration is the next 3B task.
+
 S00 now has an endpoint-independent OpenSSH preflight. It records the installed
 client's exact identity, raw stdout/stderr routing, algorithm inventory,
 effective configuration and bounded cancellation without credentials, a remote
@@ -282,7 +301,8 @@ These probe results are not a completed Atlas terminal renderer.
 
 The [port-first plan](doc/vt7/architecture/2026-09-12-port-first-plan.md)
 and the [September 14 development decision](doc/vt7/architecture/2026-09-14-warp-development-deferral.md)
-make C4 / Milestone 3A session feasibility the current development step. Build 0.3.5
+authorized C4 / Milestone 3A session feasibility, now completed and accepted on
+Windows 7. The current development step is 3B. Build 0.3.5
 implements synchronized-output, idle CPU and shutdown checks after the accepted
 0.3.4 scaling matrix. Its WARP resource concern remains recorded under REL01.
 The recreate/reuse comparison, ownership trace and retirement diagnostic now
@@ -294,7 +314,7 @@ now completes both integrated lifecycle/idle rounds on Windows 7. Its two
 remain. The owner has accepted the remaining resource uncertainty for continued
 development and stopped dedicated WARP tracing. REL01 tracks conditional
 follow-up in Milestone 7 release readiness; C3, theme and broader environment
-qualification remain incomplete. Build 0.3.7 now supplies the shared byte-stream
+qualification remain incomplete. Build 0.4.0 now supplies the document/session
 foundation. P01 now completes its eighteen-case Windows 7 comparison and selects
 WinPTY 0.4.3 for local legacy-console sessions, with raw-VT, code-page,
 cursor-width and intermediate-state limits recorded. The separate
@@ -305,8 +325,9 @@ helper's non-mutating `ToUnicodeEx` flag, so the native HWND's committed-text
 path owns printable input. That adapter and the bounded generation queue are now
 implemented and target validated. S00 rejects direct redirected OpenSSH for
 interactive PTY use, while S01 accepts SSH.NET 2026.0.0 as the embedded
-interactive candidate. The immediate step is the 3A session-identity/lifetime
-split. Full SSH delivery remains a later milestone.
+interactive candidate. The 3A session-identity/lifetime split is accepted on
+Windows 7; the immediate implementation step is 3B's selected WinPTY root
+transport. Full SSH delivery remains a later milestone.
 
 - [x] Establish the VT7 project identity and scope.
 - [x] Select and record the Microsoft Terminal upstream baseline.

@@ -1,7 +1,8 @@
 # VT7 Roadmap
 
 This file owns milestone completion and deferred-work triage. Start with the
-[current handoff](doc/vt7/HANDOFF.md) for current C4/3A session work and the
+[current handoff](doc/vt7/HANDOFF.md) for completed C4/3A session work, current
+3B integration, and the
 [documentation index](doc/vt7/README.md) for the code, build and evidence map.
 The [port-first decision](doc/vt7/architecture/2026-09-12-port-first-plan.md)
 owns execution direction; dated research remains supporting evidence and proposals.
@@ -46,8 +47,8 @@ Short term: complete the application port. The minimum 2C font adaptation and
 TerminalCore-backed Atlas viewport in 2D are implemented and accepted as C1/C2
 on the supplied Windows 7 setup. The
 [September 14 development decision](doc/vt7/architecture/2026-09-14-warp-development-deferral.md)
-now moves active work to C4 / Milestone 3A session feasibility, followed by the
-existing session/application milestones. WARP resource follow-up is deferred
+authorized C4 / Milestone 3A session feasibility, now accepted on Windows 7,
+and moves active work to 3B. WARP resource follow-up is deferred
 under REL01 in Milestone 7; it no longer blocks feature development. C3 and
 Milestone 2 retain their unpassed results and remaining qualification gaps.
 Long term: improve the finished port deliberately, using retained research and
@@ -440,8 +441,8 @@ The completed experiment sequence is described in the
 [geometry and repaint test plan](doc/vt7/architecture/2026-09-11-font-geometry-test-plan.md):
 geometry/size/DPI and differential repaint preceded adapter work. The 0.3.5
 scheduling/stability harness now exists. Its unresolved WARP resource concern
-is deferred under REL01; current development proceeds to C4/3A session
-feasibility. The earlier typography experiment chain also remains deferred.
+is deferred under REL01; C4/3A session feasibility is accepted and current
+development proceeds to 3B. The earlier typography experiment chain also remains deferred.
 [Probe 0.6](doc/vt7/validation/2026-09-11-geometry-probe.md)
 implements the offscreen geometry matrix and passes on the supplied Windows 7 setup.
 Vertical overflow observations are covered by the approved upstream-aligned
@@ -683,7 +684,8 @@ separate POL entries in Milestone 7.
   explicit/missing sync end, hidden pending output and repeated disposal.
   Local and supplied Windows 7 WARP resource failures remain recorded. REL01
   defers further investigation to conditional release-readiness work; this
-  unchecked qualification item does not prevent C4/3A or feature development.
+  unchecked qualification item did not prevent C4/3A and does not prevent 3B
+  or later feature development.
 
 Gate: automated lifecycle/recovery suites pass with the requested backend;
 fault injection is recorded separately from real driver/device-loss evidence.
@@ -727,14 +729,18 @@ must be documented, not silently turned into permanent product limitations.
 
 ### 3A: Session feasibility and contracts
 
-Current next development checkpoint, authorized by the
+Completed in 0.4.0/ABI 11 and accepted on the Windows 7 SP1 x64 target.
+This checkpoint was authorized by the
 [September 14 decision](doc/vt7/architecture/2026-09-14-warp-development-deferral.md).
 P01, I01, the 0.3.7 outbound slice, S00 and S01 are complete. Corrected SSH.NET
 package 0.6 passes both Windows 7 controlled-server runs and selects the
-embedded interactive candidate. Complete the session-identity contract next
-without a new WARP trace prerequisite. Broader input/layout and production
-local/remote transport remain later implementation work under the accepted
-boundaries.
+embedded interactive candidate. The session-identity and typed-handoff contract
+is implemented through its document/view identity and managed fake-transport
+boundary without a new WARP trace prerequisite. The exact 0.4.0 candidate passes
+the focused outbound and ownership runners with matching package binaries,
+detached drain, generation-2 reattachment and fake transport generations 1/2/3.
+The next development task is 3B's production WinPTY root transport. Broader
+input/layout and remote transport remain later work under the accepted boundaries.
 
 Run bounded experiments before committing to transport and input designs. These
 do not require daily-driver tabs or a finished SSH interface.
@@ -744,12 +750,12 @@ implements the shared inbound byte boundary. ABI 9 owns one incremental UTF-8
 decoder per surface generation; the managed session pump supplies ordered UI-thread
 delivery with a 16 by 64 KiB bounded queue, drain-before-EOF semantics and explicit
 incomplete-EOF failure. One-chunk, every-byte-boundary, malformed/incomplete,
-recovery and exact-render tests pass locally in Debug and Release. The broader
-session-owner item below remains open for input/replies, process exit, cancellation
-and resize. The [session ownership review](doc/vt7/architecture/2026-09-14-session-ownership-and-source-review.md)
-confirms that the current HWND-backed `Surface` is an interim proof boundary:
-production session/TerminalCore identity must be separated from transient HWND
-and WPF presentation identity before 3B backend wiring.
+recovery and exact-render tests pass locally in Debug and Release. Version 0.4.0
+supersedes the per-surface owner with one document pump, explicit session/transport
+states, originating replies and detachable presentation. The
+[session ownership review](doc/vt7/architecture/2026-09-14-session-ownership-and-source-review.md)
+identified the HWND-backed `Surface` as an interim proof boundary; ABI 11 now
+separates production session/TerminalCore identity before 3B backend wiring.
 
 P01 implementation status, 2026-09-14: the official WinPTY 0.4.3 MSVC bundle
 is pinned by archive and component hashes. A native controlled child and probe
@@ -787,8 +793,9 @@ actions suppress their correlated character messages; focus loss reconciles
 modifiers; the native grid supplies one dispatcher-coalesced resize. Stale,
 bounded-full, FIFO/drain, Croatian/AltGr, control, non-text and resize checks pass
 locally in Debug and Release. The exact Windows 7 SP1 x64 candidate also passes
-with matching package host/native hashes. TerminalCore/session identity still resides in the interim
-surface and must be separated before 3B.
+with matching package host/native hashes. ABI 11 now moves TerminalCore/session
+identity into `TerminalDocument`; the ABI 10 surface calls remain only as a
+temporary compatibility facade for established diagnostics.
 
 S00 implementation status, 2026-09-14: the endpoint-independent
 [OpenSSH preflight](doc/vt7/validation/2026-09-14-openssh-s00.md) records an
@@ -872,24 +879,45 @@ the accepted dependency and notice closure.
   suppress correlated control characters, reconcile modifiers on focus loss,
   and coalesce the native authoritative grid. The exact 0.3.7 candidate passes
   its Windows 7 target validation.
-- [ ] Define one session owner and separate session/TerminalCore identity from
+- [x] Define one session owner and separate session/TerminalCore identity from
   transient HWND and WPF presentation identity. Include per-session decoder/parser/
   input state, ordered writes including terminal replies, bounded queues/backpressure,
   coalesced resize generations, EOF/drain/exit distinctions, cancellation and
   teardown. Reject stale callbacks by generation after close. Hidden panes keep
   consuming output without presenting unnecessary frames; view recreation does
   not implicitly restart or terminate the session.
+  - [x] Write the implementation-ready
+    [terminal document, transport, and typed-SSH handoff specification](doc/vt7/architecture/2026-09-14-terminal-document-and-ssh-handoff-spec.md).
+    It fixes the ABI 11 document/view split, managed transport contract,
+    generation/origin rules, bounded lifecycle, exact OpenSSH fallback boundary,
+    secured shim IPC, ordering barrier, SSH.NET teardown, exit-status limitation,
+    phased delivery, and verification matrix. The 0.4.0/ABI 11 implementation
+    passes Debug and Release locally and the exact Windows 7 target candidate.
+  - [x] Add typed native document/view handles, attachment and producer
+    generations, attached-document `ERROR_BUSY`, bounded originating-transport
+    replies, and the temporary legacy facade.
+  - [x] Prove view destruction, headless drain and generation-2 reattachment
+    against the deterministic 388-byte stream with the exact baseline raster.
+  - [x] Add `TerminalSession`, `ITerminalTransport`, explicit state/result/close
+    types, fake root/overlay transports and generations 1/2/3; keep one document
+    stream across the switch and route a TerminalCore reply to its origin.
+  - [x] Run the exact 0.4.0/ABI 11 package on Windows 7 SP1 x64, verify matching
+    host/native hashes, and archive both passing focused reports with independent
+    package correlation.
 - [ ] Separate committed text from non-text key metadata. Choose the IME input
   owner and composition/candidate geometry contract; define accessible text/range
   mapping before the UI depends on it. Implementations follow in 3C and 4.
   - [x] Separate native `WM_CHAR`/`WM_SYSCHAR` committed text from mode-aware
     non-text key encoding without calling layout translation on the live input
     thread; preserve Ctrl+C and Ctrl+Break distinctions.
-- [ ] Define host-action policies before feeding real session output: bounded
+- [x] Define host-action policies before feeding real session output: bounded
   titles/OSC/DCS, explicit clipboard permissions, user-activated validated links,
   and untrusted working-directory metadata. Scope callbacks/replies to the
   originating session and reject stale work after close. Diagnostic replay must
-  not perform desktop actions by default.
+  not perform desktop actions by default. The
+  [3A technical specification](doc/vt7/architecture/2026-09-14-terminal-document-and-ssh-handoff-spec.md#terminal-output-and-host-action-policy)
+  fixes the initial deny/allow rules, bounds, generation checks, origin routing,
+  and fake replay sink; implementation remains part of session construction.
 
 Gate: evidence-backed backend choices and written session/input/security contracts
 exist before 3B or Milestone 4 construction. Record failed experiments and resolve
@@ -1070,7 +1098,7 @@ release; their mere presence in this register does not promise delivery in 1.0.
   recorded. The Windows 10 pair has small positive late deltas. No permanent
   bound or complete ownership is claimed, and no code fix is declared.
   Preserve issued artifacts, original limits, baseline/warm-up and failure exits.
-  Continue C4/3A and feature development now. Milestone 6 supplies ordinary
+  Continue 3B and feature development now. Milestone 6 supplies ordinary
   sustained-session and tab/pane resource evidence; Milestone 7 reviews it.
   Reopen earlier for reproducible continued accumulation, exhaustion,
   crashes/hangs, shutdown failure, material responsiveness loss, or an affected

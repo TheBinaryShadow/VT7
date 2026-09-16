@@ -1,7 +1,7 @@
 # VT7 development handoff
 
-Updated: 2026-09-14, after accepting SSH.NET S01 and recording the project-wide
-permissive dependency policy.
+Updated: 2026-09-17, after accepting C4/3A as 0.4.0/native ABI 11 locally in
+Debug and Release and on the exact Windows 7 SP1 x64 target candidate.
 This is the current resumption guide. Start with the [documentation index](README.md)
 if unfamiliar with the repository. The [roadmap](../../ROADMAP.md) owns gates;
 dated validation records own test claims.
@@ -21,7 +21,7 @@ references and human thanks.
 The current application streams a deterministic UTF-8/VT fixture through a
 bounded session output queue into the TerminalCore-backed Atlas viewport inside
 a .NET Framework 4.8 WPF host. It has no interactive local shell, SSH session,
-production tabs/panes/profiles, selection or session-input implementation yet.
+production tabs/panes/profiles, or selection implementation yet.
 The visible viewport/Diagnostics tabs belong to the proof host, not the finished
 multi-session UI. Planned PowerShell 7 coverage through 7.2.24 is not a tested
 VT7 session claim.
@@ -32,15 +32,17 @@ lifetime are blockers when affected; optional typography and refinements belong
 in Milestone 7. The owner-approved
 [WARP development deferral](architecture/2026-09-14-warp-development-deferral.md)
 moves the known resource concern to REL01 release-readiness review and stops
-the dedicated tracing campaign. C4/3A is active; its first shared output
-boundary is implemented and S00 has rejected redirected external OpenSSH for
-interactive PTY sessions.
+the dedicated tracing campaign. C4/3A is implemented and target accepted; its
+document/transport/view contract now forms the 0.4.0/ABI 11 ownership boundary.
+The first shared output boundary is implemented and S00 has rejected redirected
+external OpenSSH for interactive PTY sessions.
 Neither WARP attribution nor
-the earlier Arabic/geometry experiment chain is the default next task.
+the earlier Arabic/geometry experiment chain is the default next task. The next
+development slice is 3B's WinPTY root transport.
 
 | Item | Current state |
 | --- | --- |
-| Working application version | 0.3.7, native ABI 10, x64. The latest issued full viewport artifact remains 0.3.5/ABI 8; the focused 0.3.7 target candidate has a distinct identity. |
+| Working application version | 0.4.0, native ABI 11, x64. The latest issued full viewport artifact remains 0.3.5/ABI 8; focused 0.3.7 and 0.4.0 target candidates are accepted for their recorded scopes and have distinct identities. |
 | Milestone 1 | Complete on the tested configurations, with the evidence limits in its record. |
 | C1 minimum font boundary and C2 Atlas integration | Accepted on the supplied Windows 7 setup in 0.3.0. |
 | C3 repaint, controlled recovery, scaling | Bounded 0.3.1/0.3.2 results and actual 0.3.4 96/120/144 DPI matrix accepted. |
@@ -50,7 +52,10 @@ the earlier Arabic/geometry experiment chain is the default next task.
 | Remaining lifetime question | The two late integrated counts repeat, but individual handle identities/owners and a permanent bound are unproven. Final WPF handles remain 1,090 above pre-warm-up; this includes initialization and diagnostic effects. The previous native-only residual is 54 and is not directly comparable. |
 | Latest local diagnostic | WPF resource reactivation 0.1 completes two 100-lifecycle batches and closed +10/+90/+180s observations after each, in one process. All 16 checkpoints validate and all eight immediate budget failures remain. The native 0.3.5 DLL is unchanged. |
 | Session stream foundation | Implemented and locally validated in Debug and Release. Ordered transport-thread output reaches a per-surface decoder and TerminalCore through a bounded dispatcher queue; incomplete EOF and recovery are explicit. |
-| Session ownership review | The supplied pushed-commit analysis was reconciled with the current tree. UTF-8 streaming and P01 are already complete; the remaining architecture requirement is to separate production session/TerminalCore identity from HWND/WPF presentation identity, with generation-safe callbacks and two-sided core/backend resize. |
+| Session ownership review | The supplied pushed-commit analysis was reconciled with the tree and its remaining 3A requirement is implemented and target accepted: production session/TerminalCore identity is separate from HWND/WPF presentation, with generation-safe fake transports and originating-transport replies. Production backend resize starts in 3B. |
+| 3A implementation specification | Implemented through 3A.1 and 3A.2 in 0.4.0. The [terminal document/transport/typed-SSH design](architecture/2026-09-14-terminal-document-and-ssh-handoff-spec.md) defines the wider handoff path; ABI 11 typed identities, managed transport lifecycle, bounded per-origin replies and fake root/overlay generations pass locally and on Windows 7. H01 and production transport work remain later phases. |
+| 3A validation | Debug and Release builds pass the six-renderer smoke matrix, injected blank negative, session outbound and session stream checks. The exact Windows 7 run destroys the first HWND, drains 388 bytes with no attached view, reattaches generation 2 to raster `D90BE1DA17351A44`, switches fake root/overlay input generations 1/2/3, returns a TerminalCore device reply to its originating transport, and closes once. |
+| 3A target package | Accepted `VT7-Session-Ownership-0.4.0-x64.zip`, SHA256 `93DFB2B35D94DE6610C8734889D837594D593F3584F0FAE78F4679853AAE0449`, 10,642,845 bytes, 27 verified files. Both target reports pass with package-matching host/native hashes. The three supplied files and independent analysis are archived under `artifacts/vt7/evidence/session-ownership-win7-0.4.0`. |
 | P01 WinPTY characterization | Complete. The official 0.4.3 native x64 artifacts are pinned. Debug, Release and all eighteen Windows 7 package 0.3 cases complete with verified evidence. WinPTY is selected for Windows 7 local legacy-console sessions behind the replaceable session boundary; raw VT, code-page, cursor-width and intermediate-state limits are explicit. |
 | P01 target package | `VT7-WinPTY-P01-0.3-x64.zip`, SHA256 `6DD8560EDE4B4FEE9CCA3BC972F0437DAD216D9D0FE168E29989D96012CFDBCF`, 959,977 bytes, 15 verified files. Same-hash copy at `K:\VT7_work\VT7-WinPTY-P01-0.3-x64.zip`. Its complete target run has 109 files and 1,062,782 bytes. |
 | I01 input characterization | Complete for the Windows 7 Croatian HR Latin 3A decision. Both controls receive required Croatian/AltGr text. Flags 1 and 5 both mutate `ToUnicodeEx` dead state. Native key/character, focus and resize ordering define the input adapter contract; broader layouts, printable repeat and IME remain in 3C. |
@@ -62,9 +67,9 @@ the earlier Arabic/geometry experiment chain is the default next task.
 | S00 network package | Issued 0.1 is `VT7-OpenSSH-S00-Network-0.1-x64.zip`, SHA256 `8029CC9CF48F9BAEA839F16F3E104A552F848AB17A4A12636C966145B421B7FA`, 16,203 bytes, 8 verified top-level files. Its complete target run has 16 files and 149,987 bytes. The changed-host diagnostic retained a public host fingerprint and temporary profile path despite its privacy claim; raw evidence is restricted and a safe copy is archived. Corrected source advances any reissue to 0.2. |
 | S01 candidate | Accepted. The isolated [SSH.NET 2026.0.0 diagnostic](validation/2026-09-14-sshnet-s01.md) passes its exact locked thirteen-package net48 closure and both Windows 7 controlled-Debian runs. Product incorporation has not started. |
 | S01 target package | Accepted `VT7-SSHNET-S01-0.6-x64.zip`, SHA256 `7200827585B88E337AC3CD2074DDF34D1E6B5EF433A4FD4A305395DBF869292E`, 3,258,501 bytes, 62 verified files. Public-key-only and optional-password runs both pass; no credential fields are retained. The three sanitized manifests and verification metadata are archived under `artifacts/vt7/evidence/sshnet-s01-win7-0.6`. |
-| Next bounded task | Complete the 3A session-identity/lifetime split and security contracts, carrying S01's stream-dispose-before-client-disconnect rule into the production design. No S00/S01 rerun or WARP attribution test is a prerequisite. |
+| Next bounded task | Implement 3B's `WinPtyTransport` behind `ITerminalTransport`, retaining P01's process-handle, final-drain, size and reconstruction rules. Start with one explicit Command Prompt profile and use the fake-transport lifecycle as the oracle. No S00/S01 rerun or WARP attribution test is a prerequisite. |
 | Milestone 2 | Open. Theme/high-contrast, broader device/environment and milestone-level ESU coverage also remain. |
-| Development sequence | Complete the session-identity split before 3B, then integrate production local and remote transports under the accepted P01/S01 boundaries. Remaining C3/Milestone 2 qualification stays recorded without a blanket serial dependency. |
+| Development sequence | Integrate the production local WinPTY transport in 3B, then implement H01 and the accepted S01 remote transport under the 0.4.0 session boundary. Remaining C3/Milestone 2 qualification stays recorded without a blanket serial dependency. |
 
 ## Resume safely
 
@@ -85,6 +90,28 @@ the earlier Arabic/geometry experiment chain is the default next task.
    its fixed 0.3.5 directory and ZIP. Do not run it over retained evidence.
    The 0.3.7 source has a focused issued target candidate, not a complete application package. A later full candidate
    needs a new artifact identity and paths that preserve old evidence.
+
+## What 0.4.0 changed
+
+- ABI 11 splits `TerminalDocument` from `TerminalView`/HWND identity. Documents
+  validate attachment and producer generations, reject attached destruction,
+  retain core/decoder state headlessly, and queue bounded originating-transport
+  replies outside the TerminalCore callback lock.
+- `TerminalSurface` is now a WPF attachment facade over a separately owned
+  managed `TerminalDocument`. `SessionOutputPump` targets the document dispatcher,
+  so destroying an `HwndHost` cannot terminate or redirect its byte stream.
+- `TerminalSession` and `ITerminalTransport` define explicit root/overlay states,
+  transport completion results, close reasons and generation-checked input/output.
+  `MainWindow` owns this session rather than a backend queue and HWND directly.
+- The focused test destroys the first HWND after a stream prefix, drains the
+  remaining deterministic bytes while detached, reattaches generation 2 and
+  matches the always-attached raster. Fake root/overlay/root generations 1/2/3
+  share one stream and return a TerminalCore device reply to its origin.
+- Debug and Release builds, session stream/outbound suites, all six renderer
+  smoke modes and the injected blank-frame negative pass locally. The exact
+  0.4.0 package also passes its focused Windows 7 outbound and ownership runs
+  with package-matching binaries; see the
+  [3A validation record](validation/2026-09-17-session-ownership-3a.md).
 
 ## What 0.3.7 changed
 
@@ -358,15 +385,17 @@ explicit PTY resize and structured trust/authentication. The owner accepted its 
 permissive Apache-2.0, ISC-style and supplier terms as a standing project-wide
 policy. Corrected package 0.6 passes public-key-only and optional-password runs
 on Windows 7 against controlled Debian, so S01 accepts SSH.NET as the embedded
-interactive candidate. Complete the session ownership and security contracts
-next, carrying the stream-first shutdown rule into production. Apply the
-[session ownership and external source review](architecture/2026-09-14-session-ownership-and-source-review.md):
-do not let a real transport grow into the current HWND-owned `Surface`, and keep
-TerminalCore/session identity separate from presentation identity before 3B.
-Reuse the
-existing renderer and accepted evidence; preserve native HWND destruction before
-presentation-worker cleanup/join. Full local sessions and the daily-driver UI
-follow the 3A choices and contracts, not another renderer research campaign.
+interactive candidate. The ownership and security contracts are now written;
+carry the stream-first shutdown rule into production while implementing the
+[session ownership and external source review](architecture/2026-09-14-session-ownership-and-source-review.md)
+and the implementation-ready
+[terminal document/transport/handoff specification](architecture/2026-09-14-terminal-document-and-ssh-handoff-spec.md).
+Version 0.4.0 now realizes the 3A document/view and managed fake-transport
+boundary. Continue with 3B by implementing `WinPtyTransport` behind the existing
+interface; do not move backend handles into `MainWindow` or the view. Reuse P01's
+accepted WinPTY artifacts and preserve its final-drain, child-process, grid and
+reconstruction limits. Full SSH and the daily-driver UI follow the later phases,
+not another renderer research campaign.
 
 The two S00 preflight runs are preserved byte-identically under
 `artifacts/vt7/evidence/openssh-s00-win7-preflight-0.2/`. They contain 44 raw
@@ -556,9 +585,9 @@ Windows 7 setup rather than requesting a hardware matrix now.
 | Managed lifecycle workload | [StabilityWindowChecks.cs](../../src/vt7/VT7.Host/StabilityWindowChecks.cs). |
 | Integrated reactivation diagnostic | [Protocol and qualification](diagnostics/2026-09-14-resource-reactivation.md), [two-round controller](../../src/vt7/VT7.ResourceReactivation/ReactivationChecks.cs), [thread identities](../../src/vt7/VT7.ResourceReactivation/ReactivationThreads.cs), [validator](../../src/vt7/VT7.ResourceReactivation/Validate-ResourceReactivation.ps1), [launcher](../../src/vt7/VT7.ResourceReactivation/Run-ResourceReactivation.ps1). Separate managed project, shared actual host workload, unchanged native payload. |
 | Process/thread samples | [ResourceDiagnostics.cs](../../src/vt7/VT7.Host/ResourceDiagnostics.cs). |
-| WPF/native lifetime | [TerminalSurface.cs](../../src/vt7/VT7.Host/TerminalSurface.cs), [surface.cpp](../../src/vt7/VT7.Native/surface.cpp). |
+| Native document/view lifetime | [TerminalDocument.cs](../../src/vt7/VT7.Host/TerminalDocument.cs), [TerminalSurface.cs](../../src/vt7/VT7.Host/TerminalSurface.cs), [ABI declarations](../../src/vt7/VT7.Native/include/vt7_native.h), [surface.cpp](../../src/vt7/VT7.Native/surface.cpp). |
 | C ABI agreement | [vt7_native.h](../../src/vt7/VT7.Native/include/vt7_native.h), [exports.def](../../src/vt7/VT7.Native/exports.def), [NativeMethods.cs](../../src/vt7/VT7.Host/NativeMethods.cs). |
-| Session byte path | [native decoder](../../src/vt7/VT7.Native/utf8_terminal_stream.hpp), [bounded managed pump](../../src/vt7/VT7.Host/SessionOutputPump.cs), [visible fixture](../../src/vt7/VT7.Host/SessionStreamFixture.cs), [focused integration check](../../src/vt7/VT7.Host/SessionStreamWindowChecks.cs), [runner](../../tools/Test-VT7SessionStream.ps1). |
+| Session byte/transport path | [native decoder](../../src/vt7/VT7.Native/utf8_terminal_stream.hpp), [bounded managed pump](../../src/vt7/VT7.Host/SessionOutputPump.cs), [session/transport contract](../../src/vt7/VT7.Host/TerminalSession.cs), [visible fixture](../../src/vt7/VT7.Host/SessionStreamFixture.cs), [focused integration check](../../src/vt7/VT7.Host/SessionStreamWindowChecks.cs), [runner](../../tools/Test-VT7SessionStream.ps1). |
 | Renderer worker/timers | [renderer.cpp](../../src/renderer/base/renderer.cpp), [renderer.hpp](../../src/renderer/base/renderer.hpp), VT7 compatibility branches. |
 | Atlas/presentation | [AtlasEngine.cpp](../../src/renderer/atlas/AtlasEngine.cpp), [Win7Presentation.cpp](../../src/vt7/VT7.Renderer/Win7Presentation.cpp). |
 | Font boundary, not current task | [Renderer README](../../src/vt7/VT7.Renderer/README.md), Win7TextMapper and private font fallback. Experimental fitters are not automatic production policy. |

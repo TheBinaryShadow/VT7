@@ -7,18 +7,141 @@
 #include "../../renderer/base/renderer.hpp"
 #include "../../renderer/atlas/AtlasEngine.h"
 #include <thread>
+#include <unordered_map>
+#include <deque>
 
 namespace
 {
     constexpr wchar_t windowClass[] = L"VT7.TerminalSurface.3";
     constexpr COLORREF surfaceBackground = RGB(16, 24, 33);
 
-    struct Surface
+    struct Surface;
+
+    struct TerminalDocument
     {
+        struct Reply
+        {
+            uint64_t origin = 0;
+            uint64_t sequence = 0;
+            std::vector<uint8_t> bytes;
+        };
+        static constexpr uint64_t expectedCookie = 0x544437444f43554dull;
+        uint64_t cookie = expectedCookie;
+        DWORD creatingThread = GetCurrentThreadId();
         Microsoft::Terminal::Core::Terminal terminal;
         VT7::Utf8TerminalStream outputStream;
-        std::unique_ptr<Microsoft::Console::Render::AtlasEngine> atlas;
         Microsoft::Console::Render::Renderer renderer;
+        Surface* attachedView = nullptr;
+        uint64_t attachmentGeneration = 0;
+        uint64_t mutationSequence = 0;
+        uint64_t streamGeneration = 0;
+        uint64_t originGeneration = 0;
+        uint64_t lastSequence = 0;
+        std::unordered_map<uint64_t, uint64_t> producerSequences;
+        std::deque<Reply> replies;
+        size_t replyBytes = 0;
+        uint64_t replySequence = 0;
+        uint64_t currentOrigin = 0;
+        HRESULT replyFailure = S_OK;
+        bool streamActive = false;
+        bool initialized = false;
+        uint32_t scrollbackLines = 500;
+        bool loadDemo = true;
+
+        TerminalDocument(uint32_t columns, uint32_t rows, uint32_t scrollback, bool demonstration = true) : renderer([this]() -> auto& {
+            const auto guard = terminal.LockForWriting();
+            return terminal.GetRenderSettings();
+        }(), &terminal)
+        {
+            const auto guard = terminal.LockForWriting();
+            scrollbackLines = scrollback;
+            loadDemo = demonstration;
+            terminal.Create({ gsl::narrow<til::CoordType>(columns), gsl::narrow<til::CoordType>(rows) },
+                gsl::narrow<til::CoordType>(scrollback), renderer);
+            initialized = true;
+            auto& settings = terminal.GetRenderSettings();
+            settings.SetColorAlias(ColorAlias::DefaultForeground, TextColor::DEFAULT_FOREGROUND, RGB(235, 242, 248));
+            settings.SetColorAlias(ColorAlias::DefaultBackground, TextColor::DEFAULT_BACKGROUND, surfaceBackground);
+            settings.SaveDefaultSettings();
+            terminal.SetWriteInputCallback([this](const std::wstring_view response) noexcept { QueueReply(response); });
+            if (loadDemo) FillDemo();
+        }
+
+        void QueueReply(const std::wstring_view response) noexcept
+        {
+            try
+            {
+                THROW_HR_IF(E_UNEXPECTED, currentOrigin == 0);
+                const auto count = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, response.data(),
+                    gsl::narrow<int>(response.size()), nullptr, 0, nullptr, nullptr);
+                THROW_LAST_ERROR_IF(count == 0 && !response.empty());
+                std::vector<uint8_t> encoded(gsl::narrow<size_t>(count));
+                if (count)
+                {
+                    const auto written = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, response.data(),
+                        gsl::narrow<int>(response.size()), reinterpret_cast<char*>(encoded.data()), count, nullptr, nullptr);
+                    THROW_LAST_ERROR_IF(written != count);
+                }
+                for (size_t offset = 0; offset < encoded.size(); offset += VT7_TERMINAL_REPLY_BYTES)
+                {
+                    const auto length = std::min<size_t>(VT7_TERMINAL_REPLY_BYTES, encoded.size() - offset);
+                    THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_BUFFER_OVERFLOW),
+                        replies.size() >= 64 || replyBytes + length > 64 * 1024);
+                    Reply reply{ currentOrigin, ++replySequence,
+                        std::vector<uint8_t>(encoded.begin() + offset, encoded.begin() + offset + length) };
+                    replyBytes += length;
+                    replies.emplace_back(std::move(reply));
+                }
+            }
+            catch (...)
+            {
+                if (SUCCEEDED(replyFailure)) replyFailure = wil::ResultFromCaughtException();
+            }
+        }
+
+        void FillDemo()
+        {
+            terminal.Write(L"\x1b[0m\x1b[2J\x1b[H"
+                L"\x1b[1;38;2;101;184;255mVT7 - the first terminal viewport\x1b[0m\r\n"
+                L"Windows 7 deserves a terminal built with care.\r\n\r\n"
+                L"This text lives in Microsoft TerminalCore's text buffer.\r\n"
+                L"Resize the window: the core reflows the content.\r\n\r\n"
+                L"Standard and bright colors:\r\n");
+            for (int index = 0; index < 16; ++index)
+                terminal.Write(fmt::format(L"\x1b[{}m {:02} ", index < 8 ? 40 + index : 100 + index - 8, index));
+            terminal.Write(L"\x1b[0m\r\n\r\n256-color ramp:\r\n");
+            for (int index = 16; index < 52; ++index)
+                terminal.Write(fmt::format(L"\x1b[48;5;{}m ", index));
+            terminal.Write(L"\x1b[0m\r\n\r\n"
+                L"\x1b[38;2;255;170;80mTrue color\x1b[0m   "
+                L"\x1b[1mBold\x1b[0m   \x1b[4mUnderline\x1b[0m   \x1b[7mReverse\x1b[0m\r\n"
+                L"Unicode: caf\u00e9  \u03b1\u03b2\u03b3  e\u0301  \u4e2d\u6587\r\n"
+                L"Fallback: \u262f \U0001f600 | Arabic (logical cells): \u0633\u0644\u0627\u0645\r\n"
+                L"\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\r\n"
+                L"\u2502 Windows 7, VT7 \u2502\r\n"
+                L"\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\r\n\r\n"
+                L"Static proof - interactive sessions are coming later.");
+            ++mutationSequence;
+        }
+
+        ~TerminalDocument()
+        {
+            renderer.TriggerTeardown();
+            cookie = 0;
+        }
+    };
+
+    struct Surface
+    {
+        static constexpr uint64_t expectedCookie = 0x5444375649455748ull;
+        uint64_t cookie = expectedCookie;
+        DWORD creatingThread = GetCurrentThreadId();
+        TerminalDocument* document;
+        Microsoft::Terminal::Core::Terminal& terminal;
+        VT7::Utf8TerminalStream& outputStream;
+        std::unique_ptr<Microsoft::Console::Render::AtlasEngine> atlas;
+        Microsoft::Console::Render::Renderer& renderer;
+        std::unique_ptr<TerminalDocument> ownedDocument;
         HFONT font = nullptr;
         HFONT boldFont = nullptr;
         HWND window = nullptr;
@@ -38,15 +161,14 @@ namespace
         uint32_t rasterWidth = 0, rasterHeight = 0, headerPixels = 0, framePixels = 0;
         uint64_t rasterHash = 0;
         bool ownedByWindow = false;
-        bool initialized = false;
         bool closing = false;
+        uint64_t attachmentGeneration = 0;
         std::optional<Microsoft::Console::Render::TimerHandle> diagnosticTimer;
         uint32_t diagnosticTimerFires = 0;
 
-        explicit Surface(uint32_t rendererMode) : renderer([this]() -> auto& {
-            const auto guard = terminal.LockForWriting();
-            return terminal.GetRenderSettings();
-        }(), &terminal), mode(rendererMode & 0xff), capture((rendererMode & 0x100) != 0), injectBlank((rendererMode & 0x200) != 0),
+        Surface(TerminalDocument* terminalDocument, uint32_t rendererMode) : document(terminalDocument),
+            terminal(terminalDocument->terminal), outputStream(terminalDocument->outputStream), renderer(terminalDocument->renderer),
+            mode(rendererMode & 0xff), capture((rendererMode & 0x100) != 0), injectBlank((rendererMode & 0x200) != 0),
             creationFault((rendererMode >> 10) & 3) {}
 
         void Capture(const Microsoft::Console::Render::Atlas::RenderingPayload& p)
@@ -125,6 +247,8 @@ namespace
             if (closing) return;
             closing = true;
             renderer.TriggerTeardown();
+            renderer.SetRendererEnteredErrorStateCallback({});
+            renderer.SetThreadExitCallback({});
             if (atlas)
             {
                 renderer.RemoveRenderEngine(atlas.get());
@@ -134,7 +258,7 @@ namespace
 
         void Start()
         {
-            if (atlas && initialized && !running && SUCCEEDED(lastError.load()) && IsWindowVisible(window))
+            if (atlas && document->initialized && !running && SUCCEEDED(lastError.load()) && IsWindowVisible(window))
             {
                 const auto guard = terminal.LockForWriting();
                 renderer.EnablePainting();
@@ -154,6 +278,7 @@ namespace
             CloseRenderer();
             if (font) DeleteObject(font);
             if (boldFont) DeleteObject(boldFont);
+            cookie = 0;
         }
 
         void CreateFontForWindow()
@@ -270,17 +395,17 @@ namespace
             const til::size size{ std::clamp<int>(client.right / cellWidth, 1, 512),
                                   std::clamp<int>(client.bottom / cellHeight, 1, 256) };
             const auto guard = terminal.LockForWriting();
-            if (!initialized)
+            if (!document->initialized)
             {
-                terminal.Create(size, 500, renderer);
-                initialized = true;
+                terminal.Create(size, gsl::narrow<til::CoordType>(document->scrollbackLines), renderer);
+                document->initialized = true;
                 auto& settings = terminal.GetRenderSettings();
                 settings.SetColorAlias(ColorAlias::DefaultForeground,
                     TextColor::DEFAULT_FOREGROUND, RGB(235, 242, 248));
                 settings.SetColorAlias(ColorAlias::DefaultBackground,
                     TextColor::DEFAULT_BACKGROUND, surfaceBackground);
                 settings.SaveDefaultSettings();
-                FillDemo();
+                if (document->loadDemo) FillDemo();
             }
             else
             {
@@ -288,6 +413,7 @@ namespace
                 THROW_IF_FAILED(result);
                 if (result == S_OK) ++resizes;
             }
+            ++document->mutationSequence;
             PostMessageW(window, WM_APP + 2, gsl::narrow<WPARAM>(size.width), gsl::narrow<LPARAM>(size.height));
             InvalidateRect(window, nullptr, FALSE);
         }
@@ -296,7 +422,7 @@ namespace
         {
             RECT client{};
             THROW_IF_WIN32_BOOL_FALSE(GetClientRect(window, &client));
-            if (client.right <= 0 || client.bottom <= 0 || !initialized) return;
+            if (client.right <= 0 || client.bottom <= 0 || !document->initialized) return;
             const auto dc = CreateCompatibleDC(destination);
             THROW_LAST_ERROR_IF(!dc);
             const auto deleteDc = wil::scope_exit([&] { DeleteDC(dc); });
@@ -431,6 +557,117 @@ namespace
         return surface;
     }
 
+    TerminalDocument* LookupDocument(void* handle)
+    {
+        THROW_HR_IF(E_HANDLE, !handle);
+        const auto document = static_cast<TerminalDocument*>(handle);
+        THROW_HR_IF(E_HANDLE, document->cookie != TerminalDocument::expectedCookie);
+        THROW_HR_IF(RPC_E_WRONG_THREAD, document->creatingThread != GetCurrentThreadId());
+        return document;
+    }
+
+    Surface* LookupView(void* handle)
+    {
+        THROW_HR_IF(E_HANDLE, !handle);
+        const auto view = static_cast<Surface*>(handle);
+        THROW_HR_IF(E_HANDLE, view->cookie != Surface::expectedCookie);
+        THROW_HR_IF(RPC_E_WRONG_THREAD, view->creatingThread != GetCurrentThreadId());
+        return view;
+    }
+
+    void ValidateRendererMode(uint32_t mode)
+    {
+        THROW_HR_IF(E_INVALIDARG, (mode & 0xff) > 5 || (mode & ~0xfffu) ||
+            ((mode & 0xe00) && (!(mode & 0x100) || !(mode & 0xff))) || ((mode >> 10) & 3) == 3);
+    }
+
+    HWND CreateViewWindow(HWND parent, Surface* surface)
+    {
+        THROW_HR_IF(E_HANDLE, !IsWindow(parent));
+        THROW_HR_IF(RPC_E_WRONG_THREAD, GetWindowThreadProcessId(parent, nullptr) != GetCurrentThreadId());
+        HMODULE module = nullptr;
+        THROW_IF_WIN32_BOOL_FALSE(GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+            GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, reinterpret_cast<LPCWSTR>(&WindowProc), &module));
+        WNDCLASSEXW klass{ sizeof(klass) };
+        klass.lpfnWndProc = WindowProc;
+        klass.hInstance = module;
+        klass.hCursor = LoadCursorW(nullptr, IDC_ARROW);
+        klass.lpszClassName = windowClass;
+        if (!RegisterClassExW(&klass)) THROW_LAST_ERROR_IF(GetLastError() != ERROR_CLASS_ALREADY_EXISTS);
+        const auto window = CreateWindowExW(0, windowClass, L"VT7 terminal viewport",
+            WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_TABSTOP, 0, 0, 900, 500,
+            parent, nullptr, module, surface);
+        if (!window)
+        {
+            THROW_IF_FAILED(surface->lastError.load());
+            THROW_LAST_ERROR();
+        }
+        return window;
+    }
+
+    void InvalidateAttached(TerminalDocument* document)
+    {
+        if (document->attachedView && document->attachedView->window)
+            InvalidateRect(document->attachedView->window, nullptr, FALSE);
+    }
+
+    void BeginDocumentStream(TerminalDocument* document, uint64_t generation)
+    {
+        THROW_HR_IF(E_INVALIDARG, generation == 0);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !document->initialized);
+        const auto guard = document->terminal.LockForWriting();
+        document->terminal.HardResetWithoutErase();
+        document->terminal.Write(L"\x1b[?1049l\x1b[?2026l\x1b[0m\x1b[3J\x1b[2J\x1b[H");
+        document->outputStream.Begin();
+        document->streamGeneration = generation;
+        document->originGeneration = 0;
+        document->lastSequence = 0;
+        document->producerSequences.clear();
+        document->replies.clear();
+        document->replyBytes = 0;
+        document->replySequence = 0;
+        document->replyFailure = S_OK;
+        document->streamActive = true;
+        ++document->mutationSequence;
+        InvalidateAttached(document);
+    }
+
+    void WriteDocumentStream(TerminalDocument* document, uint64_t generation, uint64_t origin,
+        uint64_t sequence, std::string_view bytes)
+    {
+        THROW_HR_IF(E_INVALIDARG, !document->streamActive || generation == 0 ||
+            generation != document->streamGeneration || origin == 0 || sequence == 0);
+        const auto prior = document->producerSequences.find(origin);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE),
+            prior != document->producerSequences.end() && sequence <= prior->second);
+        const auto guard = document->terminal.LockForWriting();
+        document->currentOrigin = origin;
+        const auto clearOrigin = wil::scope_exit([&] { document->currentOrigin = 0; });
+        THROW_IF_FAILED(document->outputStream.Write(bytes, [document](const std::wstring_view text) {
+            document->terminal.Write(text);
+        }));
+        THROW_IF_FAILED(document->replyFailure);
+        document->originGeneration = origin;
+        document->lastSequence = sequence;
+        document->producerSequences[origin] = sequence;
+        ++document->mutationSequence;
+        InvalidateAttached(document);
+    }
+
+    HRESULT EndDocumentStream(TerminalDocument* document, uint64_t generation, uint32_t eofKind)
+    {
+        THROW_HR_IF(E_INVALIDARG, generation == 0 || generation != document->streamGeneration || eofKind > 1);
+        const auto guard = document->terminal.LockForWriting();
+        document->streamActive = false;
+        ++document->mutationSequence;
+        if (eofKind)
+        {
+            document->outputStream.Abandon();
+            return S_OK;
+        }
+        return document->outputStream.End();
+    }
+
     void CompleteInputResult(VT7_INPUT_RESULT* result, const bool handled, const std::wstring& output)
     {
         if (!result) THROW_HR(E_POINTER);
@@ -453,34 +690,254 @@ namespace
     }
 }
 
+int32_t __cdecl VT7_CreateTerminalDocument(const VT7_TERMINAL_DOCUMENT_SETTINGS* settings, void** result)
+try
+{
+    if (!settings || !result) return E_POINTER;
+    *result = nullptr;
+    THROW_HR_IF(E_INVALIDARG, settings->struct_size != sizeof(*settings) ||
+        settings->columns < 1 || settings->columns > 512 || settings->rows < 1 || settings->rows > 256 ||
+        settings->scrollback_lines > 32767 || settings->load_demonstration > 1);
+    auto document = std::make_unique<TerminalDocument>(settings->columns, settings->rows,
+        settings->scrollback_lines, settings->load_demonstration != 0);
+    *result = document.release();
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_DestroyTerminalDocument(void* handle)
+try
+{
+    const auto document = LookupDocument(handle);
+    THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_BUSY), document->attachedView != nullptr);
+    delete document;
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_GetTerminalDocumentInfo(void* handle, VT7_TERMINAL_DOCUMENT_INFO* info)
+try
+{
+    if (!info) return E_POINTER;
+    if (info->struct_size != sizeof(*info)) return E_INVALIDARG;
+    const auto document = LookupDocument(handle);
+    uint32_t columns = 0, rows = 0;
+    if (document->initialized)
+    {
+        const auto guard = document->terminal.LockForReading();
+        const auto viewport = document->terminal.GetViewport();
+        columns = gsl::narrow<uint32_t>(viewport.Width());
+        rows = gsl::narrow<uint32_t>(viewport.Height());
+    }
+    const auto snapshot = document->outputStream.Snapshot();
+    *info = { sizeof(*info), columns, rows, document->attachedView ? 1u : 0u,
+        document->attachmentGeneration, document->mutationSequence, document->streamGeneration,
+        snapshot.bytes, snapshot.utf16Units, snapshot.writes, snapshot.pendingBytes,
+        snapshot.ended ? 1u : 0u, snapshot.lastError };
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_BeginDocumentStream(void* handle, uint64_t generation)
+try
+{
+    BeginDocumentStream(LookupDocument(handle), generation);
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_WriteDocumentUtf8(void* handle, uint64_t generation, uint64_t origin,
+    uint64_t sequence, const uint8_t* bytes, uint32_t length)
+try
+{
+    if (length && !bytes) return E_POINTER;
+    if (length > 1024u * 1024u) return E_INVALIDARG;
+    const auto text = reinterpret_cast<const char*>(bytes);
+    WriteDocumentStream(LookupDocument(handle), generation, origin, sequence,
+        std::string_view{ text ? text : "", length });
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_EndDocumentStream(void* handle, uint64_t generation, uint32_t eofKind)
+try
+{
+    return EndDocumentStream(LookupDocument(handle), generation, eofKind);
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_ReadDocumentReply(void* handle, VT7_TERMINAL_REPLY* reply)
+try
+{
+    if (!reply) return E_POINTER;
+    if (reply->struct_size != sizeof(*reply)) return E_INVALIDARG;
+    const auto document = LookupDocument(handle);
+    if (document->replies.empty()) return S_FALSE;
+    const auto& queued = document->replies.front();
+    VT7_TERMINAL_REPLY value{};
+    value.struct_size = sizeof(value);
+    value.byte_count = gsl::narrow<uint32_t>(queued.bytes.size());
+    value.origin_transport_generation = queued.origin;
+    value.sequence = queued.sequence;
+    memcpy(value.bytes, queued.bytes.data(), queued.bytes.size());
+    document->replyBytes -= queued.bytes.size();
+    document->replies.pop_front();
+    *reply = value;
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_CreateTerminalView(void* parent, void* documentHandle, uint32_t rendererMode,
+    void** viewResult, void** childResult)
+try
+{
+    if (!viewResult || !childResult) return E_POINTER;
+    *viewResult = nullptr;
+    *childResult = nullptr;
+    ValidateRendererMode(rendererMode);
+    const auto document = LookupDocument(documentHandle);
+    THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_BUSY), document->attachedView != nullptr);
+    auto view = std::make_unique<Surface>(document, rendererMode);
+    view->attachmentGeneration = ++document->attachmentGeneration;
+    document->attachedView = view.get();
+    auto rollback = wil::scope_exit([&] {
+        if (document->attachedView == view.get()) document->attachedView = nullptr;
+    });
+    const auto child = CreateViewWindow(static_cast<HWND>(parent), view.get());
+    rollback.release();
+    *childResult = child;
+    *viewResult = view.release();
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_DetachTerminalView(void* handle)
+try
+{
+    const auto view = LookupView(handle);
+    if (!view->window) return S_FALSE;
+    view->Stop();
+    const auto child = view->window;
+    view->ownedByWindow = false;
+    THROW_IF_WIN32_BOOL_FALSE(DestroyWindow(child));
+    view->window = nullptr;
+    view->CloseRenderer();
+    if (view->document->attachedView == view) view->document->attachedView = nullptr;
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_DestroyTerminalView(void* handle)
+try
+{
+    const auto view = LookupView(handle);
+    if (view->window) THROW_IF_FAILED(static_cast<HRESULT>(VT7_DetachTerminalView(handle)));
+    delete view;
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_GetTerminalViewInfo(void* handle, VT7_TERMINAL_VIEW_INFO* info)
+try
+{
+    if (!info) return E_POINTER;
+    if (info->struct_size != sizeof(*info)) return E_INVALIDARG;
+    const auto view = LookupView(handle);
+    *info = { sizeof(*info), view->window ? 1u : 0u, view->attachmentGeneration, view->window };
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_ResizeTerminalDocument(void* handle, uint64_t generation, uint32_t columns, uint32_t rows)
+try
+{
+    const auto document = LookupDocument(handle);
+    THROW_HR_IF(E_INVALIDARG, generation == 0 || columns < 1 || columns > 512 || rows < 1 || rows > 256);
+    THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), generation != document->attachmentGeneration || !document->initialized);
+    const auto guard = document->terminal.LockForWriting();
+    THROW_IF_FAILED(document->terminal.UserResize({ gsl::narrow<til::CoordType>(columns), gsl::narrow<til::CoordType>(rows) }));
+    ++document->mutationSequence;
+    InvalidateAttached(document);
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_EncodeTerminalKey(void* handle, uint32_t virtualKey, uint32_t scanCode,
+    uint32_t controlKeyState, uint32_t keyDown, uint32_t repeatCount, VT7_INPUT_RESULT* result)
+try
+{
+    if (!result) return E_POINTER;
+    if (result->struct_size != sizeof(*result) || virtualKey > 0xffff || scanCode > 0xffff ||
+        keyDown > 1 || repeatCount == 0 || repeatCount > 0xffff) return E_INVALIDARG;
+    const auto document = LookupDocument(handle);
+    THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !document->initialized);
+    const auto guard = document->terminal.LockForWriting();
+    std::wstring output;
+    bool handled = false;
+    for (uint32_t index = 0; index < repeatCount; ++index)
+    {
+        const auto encoded = document->terminal.SendKeyEventWithoutLayoutTranslation(
+            gsl::narrow<WORD>(virtualKey), gsl::narrow<WORD>(scanCode),
+            Microsoft::Terminal::Core::ControlKeyStates{ controlKeyState }, keyDown != 0);
+        handled |= encoded.has_value();
+        if (encoded) output.append(*encoded);
+    }
+    CompleteInputResult(result, handled, output);
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_EncodeTerminalChar(void* handle, uint32_t character, uint32_t scanCode,
+    uint32_t controlKeyState, uint32_t repeatCount, VT7_INPUT_RESULT* result)
+try
+{
+    if (!result) return E_POINTER;
+    if (result->struct_size != sizeof(*result) || character > 0xffff || scanCode > 0xffff ||
+        repeatCount == 0 || repeatCount > 0xffff) return E_INVALIDARG;
+    const auto document = LookupDocument(handle);
+    THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !document->initialized);
+    const auto guard = document->terminal.LockForWriting();
+    std::wstring output;
+    bool handled = false;
+    for (uint32_t index = 0; index < repeatCount; ++index)
+    {
+        const auto encoded = document->terminal.SendCharEvent(gsl::narrow<wchar_t>(character),
+            gsl::narrow<WORD>(scanCode), Microsoft::Terminal::Core::ControlKeyStates{ controlKeyState });
+        handled |= encoded.has_value();
+        if (encoded) output.append(*encoded);
+    }
+    CompleteInputResult(result, handled, output);
+    return S_OK;
+}
+CATCH_RETURN()
+
+int32_t __cdecl VT7_EncodeTerminalFocus(void* handle, uint32_t focused, VT7_INPUT_RESULT* result)
+try
+{
+    if (!result) return E_POINTER;
+    if (result->struct_size != sizeof(*result) || focused > 1) return E_INVALIDARG;
+    const auto document = LookupDocument(handle);
+    THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !document->initialized);
+    const auto guard = document->terminal.LockForWriting();
+    const auto encoded = document->terminal.FocusChanged(focused != 0);
+    CompleteInputResult(result, encoded.has_value(), encoded.value_or(L""));
+    return S_OK;
+}
+CATCH_RETURN()
+
 int32_t __cdecl VT7_CreateSurface(void* parent, uint32_t rendererMode, void** result)
 try
 {
     if (!result) return E_POINTER;
     *result = nullptr;
-    THROW_HR_IF(E_INVALIDARG, (rendererMode & 0xff) > 5 || (rendererMode & ~0xfffu) ||
-        ((rendererMode & 0xe00) && (!(rendererMode & 0x100) || !(rendererMode & 0xff))) ||
-        ((rendererMode >> 10) & 3) == 3);
-    const auto parentWindow = static_cast<HWND>(parent);
-    THROW_HR_IF(E_HANDLE, !IsWindow(parentWindow));
-    THROW_HR_IF(RPC_E_WRONG_THREAD, GetWindowThreadProcessId(parentWindow, nullptr) != GetCurrentThreadId());
-    HMODULE module = nullptr;
-    THROW_IF_WIN32_BOOL_FALSE(GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
-        GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, reinterpret_cast<LPCWSTR>(&WindowProc), &module));
-    WNDCLASSEXW klass{ sizeof(klass) };
-    klass.lpfnWndProc = WindowProc;
-    klass.hInstance = module;
-    klass.hCursor = LoadCursorW(nullptr, IDC_ARROW);
-    klass.lpszClassName = windowClass;
-    if (!RegisterClassExW(&klass)) THROW_LAST_ERROR_IF(GetLastError() != ERROR_CLASS_ALREADY_EXISTS);
-    auto surface = std::make_unique<Surface>(rendererMode);
-    const auto window = CreateWindowExW(0, windowClass, L"VT7 terminal viewport",
-        WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_TABSTOP, 0, 0, 900, 500, parentWindow, nullptr, module, surface.get());
-    if (!window)
-    {
-        THROW_IF_FAILED(surface->lastError.load());
-        THROW_LAST_ERROR();
-    }
+    ValidateRendererMode(rendererMode);
+    auto document = std::make_unique<TerminalDocument>(80, 24, 500);
+    auto surface = std::make_unique<Surface>(document.get(), rendererMode);
+    document->attachedView = surface.get();
+    document->attachmentGeneration = 1;
+    surface->attachmentGeneration = 1;
+    const auto window = CreateViewWindow(static_cast<HWND>(parent), surface.get());
+    surface->ownedDocument = std::move(document);
     surface->ownedByWindow = true;
     surface.release();
     *result = window;
@@ -500,6 +957,7 @@ try
         surface->ownedByWindow = true;
         THROW_LAST_ERROR();
     }
+    surface->document->attachedView = nullptr;
     delete surface;
     return S_OK;
 }
@@ -582,8 +1040,10 @@ try
     const auto surface = Lookup(window);
     const auto guard = surface->terminal.LockForWriting();
     surface->outputStream.Abandon();
+    surface->document->streamActive = false;
     surface->terminal.HardResetWithoutErase();
     surface->FillDemo();
+    ++surface->document->mutationSequence;
     InvalidateRect(static_cast<HWND>(window), nullptr, FALSE);
     return S_OK;
 }
@@ -592,7 +1052,8 @@ CATCH_RETURN()
 int32_t __cdecl VT7_BeginSurfaceStream(void* window)
 try
 {
-    Lookup(window)->BeginStream();
+    const auto surface = Lookup(window);
+    BeginDocumentStream(surface->document, surface->outputStream.Snapshot().generation + 1ull);
     return S_OK;
 }
 CATCH_RETURN()
@@ -603,7 +1064,9 @@ try
     if (length != 0 && !bytes) return E_POINTER;
     if (length > 1024u * 1024u) return E_INVALIDARG;
     const auto text = reinterpret_cast<const char*>(bytes);
-    Lookup(window)->WriteStream(std::string_view{ text ? text : "", length });
+    const auto surface = Lookup(window);
+    WriteDocumentStream(surface->document, surface->document->streamGeneration, 1,
+        surface->document->lastSequence + 1, std::string_view{ text ? text : "", length });
     return S_OK;
 }
 CATCH_RETURN()
@@ -611,7 +1074,8 @@ CATCH_RETURN()
 int32_t __cdecl VT7_EndSurfaceStream(void* window)
 try
 {
-    return Lookup(window)->outputStream.End();
+    const auto surface = Lookup(window);
+    return EndDocumentStream(surface->document, surface->document->streamGeneration, 0);
 }
 CATCH_RETURN()
 

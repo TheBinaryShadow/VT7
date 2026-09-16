@@ -9,14 +9,14 @@ namespace VT7.Host
 {
     public partial class MainWindow : Window
     {
-        private static long _nextSessionGeneration;
         private string? _lastLogPath;
         private int _statusGeneration;
         private bool _closed;
-        private SessionOutputPump? _sessionOutput;
-        private SessionOutboundQueue? _sessionOutbound;
         private SessionOutboundAuditSink? _outboundAudit;
-        internal SessionOutboundQueue? SessionOutbound => _sessionOutbound;
+        private TerminalDocument? _document;
+        private TerminalSession? _session;
+        private FakeTerminalTransport? _rootTransport;
+        internal SessionOutboundQueue? SessionOutbound => _session?.State == TerminalSessionState.RunningRoot ? _session.Outbound : null;
         internal SessionOutboundAuditSink? OutboundAudit => _outboundAudit;
         internal TerminalSurface? Viewport { get; private set; }
         internal ProbeSnapshot? LastSnapshot { get; private set; }
@@ -36,63 +36,100 @@ namespace VT7.Host
             InitializeComponent();
         }
 
-        protected override void OnClosed(EventArgs e)
+        internal TerminalDocument DetachViewportForTest()
+        {
+            if (_document == null || Viewport == null) throw new InvalidOperationException("No terminal view is attached.");
+            var document = _document;
+            SurfaceContainer.Child = null;
+            Viewport.DetachSessionInput();
+            Viewport.Dispose();
+            Viewport = null;
+            return document;
+        }
+
+        internal TerminalSurface AttachViewportForTest(TerminalDocument document)
+        {
+            if (Viewport != null || _document != document) throw new InvalidOperationException("The test document is not detached from this window.");
+            var surface = new TerminalSurface(document);
+            Viewport = surface;
+            SurfaceContainer.Child = surface;
+            return surface;
+        }
+
+        protected override async void OnClosed(EventArgs e)
         {
             _closed = true;
             ++_statusGeneration;
-            _sessionOutput?.Dispose();
-            _sessionOutput = null;
             Viewport?.DetachSessionInput();
-            _sessionOutbound?.Dispose();
-            _sessionOutbound = null;
+            if (_session != null)
+            {
+                try { await _session.CloseAsync(); }
+                finally { _session.Dispose(); _session = null; }
+            }
+            _rootTransport = null;
             _outboundAudit = null;
             // HwndHost can reparent a detached child to retain it for reuse.
             // Explicit disposal gives the native surface a deterministic lifetime.
             Viewport?.Dispose();
             Viewport = null;
+            _document?.Dispose();
+            _document = null;
             base.OnClosed(e);
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             RunProbes();
             if (LastSnapshot?.Passed == true)
             {
-                Viewport = new TerminalSurface();
+                _document = new TerminalDocument();
+                Viewport = new TerminalSurface(_document);
                 Viewport.RecoveryStatusChanged += () => { if (!_closed) RefreshSurfaceStatus(); };
                 SurfaceContainer.Child = Viewport;
-                _outboundAudit = new SessionOutboundAuditSink();
-                _sessionOutbound = new SessionOutboundQueue(Interlocked.Increment(ref _nextSessionGeneration), _outboundAudit);
-                Viewport.AttachSessionInput(_sessionOutbound, _sessionOutbound.Generation, message =>
+                if (!App.SessionStreamTest)
                 {
-                    if (!_closed) SurfaceStatus.Text = "Input stopped: " + message;
-                });
+                    _outboundAudit = new SessionOutboundAuditSink();
+                    _rootTransport = new FakeTerminalTransport("development-root", _outboundAudit);
+                    _session = new TerminalSession(_document, _rootTransport);
+                    await _session.StartAsync();
+                    var outbound = _session.Outbound;
+                    _session.ActiveOutboundChanged += queue =>
+                    {
+                        if (_closed || Viewport == null) return;
+                        Viewport.DetachSessionInput();
+                        Viewport.AttachSessionInput(queue, queue.Generation, message => SurfaceStatus.Text = "Input stopped: " + message);
+                    };
+                    Viewport.AttachSessionInput(outbound, outbound.Generation, message =>
+                    {
+                        if (!_closed) SurfaceStatus.Text = "Input stopped: " + message;
+                    });
+                }
                 Viewport.SizeChanged += (_, __) => QueueSurfaceStatusRefresh();
                 QueueSurfaceStatusRefresh();
-                if (App.ShowSessionFixture) _ = StreamFixtureAsync(Viewport);
+                if (App.ShowSessionFixture && _rootTransport != null) _ = StreamFixtureAsync(_rootTransport);
             }
             else SurfaceStatus.Text = "Startup checks failed. See Diagnostics and the log.";
         }
 
         private void ResetSample_Click(object sender, RoutedEventArgs e)
         {
-            _sessionOutput?.Dispose();
-            _sessionOutput = null;
+            if (_session != null)
+            {
+                SurfaceStatus.Text = "Reset is unavailable while a terminal session is running.";
+                return;
+            }
             Viewport?.ResetDemo();
             QueueSurfaceStatusRefresh();
         }
 
-        private async System.Threading.Tasks.Task StreamFixtureAsync(TerminalSurface surface)
+        private async System.Threading.Tasks.Task StreamFixtureAsync(FakeTerminalTransport transport)
         {
             try
             {
-                _sessionOutput = new SessionOutputPump(surface);
-                var pump = _sessionOutput;
                 await System.Threading.Tasks.Task.Run(async () =>
                 {
                     foreach (var chunk in SessionStreamFixture.Split(SessionStreamFixture.Bytes, new[] { 1, 2, 3, 5, 8, 13 }))
-                        await pump.WriteAsync(chunk);
-                    await pump.CompleteAsync();
+                        await transport.EmitAsync(chunk);
                 });
                 if (!_closed) QueueSurfaceStatusRefresh();
             }
@@ -103,11 +140,7 @@ namespace VT7.Host
             {
                 if (!_closed) SurfaceStatus.Text = "Session fixture failed: " + ex.Message;
             }
-            finally
-            {
-                _sessionOutput?.Dispose();
-                _sessionOutput = null;
-            }
+            finally { }
         }
 
         private async void QueueSurfaceStatusRefresh()
@@ -145,7 +178,8 @@ namespace VT7.Host
             var backend = new[] { "GDI reference", "Atlas D3D11 hardware", "Atlas D3D11 WARP", "Atlas D2D hardware", "Atlas D2D WARP", "Atlas automatic", "Atlas awaiting first frame" };
             SurfaceStatus.Text = $"TerminalCore | {backend[info.RendererMode]} | {info.Columns} x {info.Rows} cells | " +
                 $"{info.CellWidth} x {info.CellHeight} px | frames (snapshot) {info.PaintCount}, resizes {info.ResizeCount}";
-            if (_sessionOutbound != null) SurfaceStatus.Text += $" | input generation {_sessionOutbound.Generation}, backend pending";
+            if (_session != null && (_session.State == TerminalSessionState.RunningRoot || _session.State == TerminalSessionState.RunningOverlay))
+                SurfaceStatus.Text += $" | input generation {_session.Outbound.Generation}, {_session.State}";
             SurfaceStatus.Text += $" | system DPI {font.SystemDpi}";
             if (info.LastHResult < 0)
                 SurfaceStatus.Text += $" | FAILED 0x{unchecked((uint)info.LastHResult):X8}";

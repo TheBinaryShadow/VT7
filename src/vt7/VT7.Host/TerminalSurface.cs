@@ -9,11 +9,29 @@ namespace VT7.Host
 {
     internal sealed class TerminalSurface : HwndHost
     {
+        private readonly bool _ownsDocument;
+        private IntPtr _view;
         private NativeHwndInputAdapter? _input;
         private bool _resizePosted;
         private uint _pendingColumns;
         private uint _pendingRows;
         internal event Action? RecoveryStatusChanged;
+
+        internal TerminalSurface() : this(new TerminalDocument(), true)
+        {
+        }
+
+        internal TerminalSurface(TerminalDocument document) : this(document, false)
+        {
+        }
+
+        private TerminalSurface(TerminalDocument document, bool ownsDocument)
+        {
+            Document = document ?? throw new ArgumentNullException(nameof(document));
+            _ownsDocument = ownsDocument;
+        }
+
+        internal TerminalDocument Document { get; }
         protected override IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             if (msg == 0x8001)
@@ -77,13 +95,19 @@ namespace VT7.Host
         {
             if (NativeMethods.VT7_GetAbiVersion() != NativeMethods.ExpectedAbiVersion)
                 throw new InvalidOperationException("The VT7 native bridge ABI does not match this host.");
-            Marshal.ThrowExceptionForHR(NativeMethods.VT7_CreateSurface(hwndParent.Handle, App.SurfaceOptions, out var window));
+            Marshal.ThrowExceptionForHR(NativeMethods.VT7_CreateTerminalView(hwndParent.Handle, Document.Handle,
+                App.SurfaceOptions, out _view, out var window));
             return new HandleRef(this, window);
         }
 
         protected override void DestroyWindowCore(HandleRef hwnd)
         {
-            Marshal.ThrowExceptionForHR(NativeMethods.VT7_DestroySurface(hwnd.Handle));
+            if (_view != IntPtr.Zero)
+            {
+                Marshal.ThrowExceptionForHR(NativeMethods.VT7_DestroyTerminalView(_view));
+                _view = IntPtr.Zero;
+            }
+            if (_ownsDocument) Document.Dispose();
         }
 
         internal NativeMethods.SurfaceInfo ReadInfo()
@@ -101,49 +125,31 @@ namespace VT7.Host
             Marshal.ThrowExceptionForHR(NativeMethods.VT7_ResetSurface(Handle));
         }
 
-        internal void BeginStream() =>
-            Marshal.ThrowExceptionForHR(NativeMethods.VT7_BeginSurfaceStream(Handle));
+        internal ulong BeginStream() => Document.BeginStream();
 
-        internal void WriteUtf8(byte[] bytes)
-        {
-            if (bytes == null) throw new ArgumentNullException(nameof(bytes));
-            Marshal.ThrowExceptionForHR(NativeMethods.VT7_WriteSurfaceUtf8(Handle, bytes, checked((uint)bytes.Length)));
-        }
+        internal void WriteUtf8(ulong streamGeneration, ulong originGeneration, ulong sequence, byte[] bytes) =>
+            Document.WriteUtf8(streamGeneration, originGeneration, sequence, bytes);
 
-        internal void EndStream() =>
-            Marshal.ThrowExceptionForHR(NativeMethods.VT7_EndSurfaceStream(Handle));
+        internal void EndStream(ulong streamGeneration) => Document.EndStream(streamGeneration);
 
         internal NativeMethods.SurfaceStreamInfo ReadStreamInfo()
         {
-            var info = new NativeMethods.SurfaceStreamInfo
-            {
-                StructSize = (uint)Marshal.SizeOf(typeof(NativeMethods.SurfaceStreamInfo)),
-            };
-            Marshal.ThrowExceptionForHR(NativeMethods.VT7_GetSurfaceStreamInfo(Handle, ref info));
-            return info;
+            return Document.ReadStreamInfo();
         }
 
         internal NativeInputEncoding EncodeKey(uint virtualKey, uint scanCode, uint controlKeyState, bool keyDown, uint repeatCount)
         {
-            var result = NewInputResult();
-            Marshal.ThrowExceptionForHR(NativeMethods.VT7_EncodeSurfaceKey(Handle, virtualKey, scanCode,
-                controlKeyState, keyDown ? 1u : 0u, repeatCount, ref result));
-            return ReadInputResult(result);
+            return Document.EncodeKey(virtualKey, scanCode, controlKeyState, keyDown, repeatCount);
         }
 
         internal NativeInputEncoding EncodeCharacter(uint character, uint scanCode, uint controlKeyState, uint repeatCount)
         {
-            var result = NewInputResult();
-            Marshal.ThrowExceptionForHR(NativeMethods.VT7_EncodeSurfaceChar(Handle, character, scanCode,
-                controlKeyState, repeatCount, ref result));
-            return ReadInputResult(result);
+            return Document.EncodeCharacter(character, scanCode, controlKeyState, repeatCount);
         }
 
         internal NativeInputEncoding EncodeFocus(bool focused)
         {
-            var result = NewInputResult();
-            Marshal.ThrowExceptionForHR(NativeMethods.VT7_EncodeSurfaceFocus(Handle, focused ? 1u : 0u, ref result));
-            return ReadInputResult(result);
+            return Document.EncodeFocus(focused);
         }
 
         private static NativeMethods.InputResult NewInputResult() => new NativeMethods.InputResult
