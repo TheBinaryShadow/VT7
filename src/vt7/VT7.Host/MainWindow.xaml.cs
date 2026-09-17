@@ -15,7 +15,7 @@ namespace VT7.Host
         private SessionOutboundAuditSink? _outboundAudit;
         private TerminalDocument? _document;
         private TerminalSession? _session;
-        private FakeTerminalTransport? _rootTransport;
+        private ITerminalTransport? _rootTransport;
         internal SessionOutboundQueue? SessionOutbound => _session?.State == TerminalSessionState.RunningRoot ? _session.Outbound : null;
         internal SessionOutboundAuditSink? OutboundAudit => _outboundAudit;
         internal TerminalSurface? Viewport { get; private set; }
@@ -82,31 +82,48 @@ namespace VT7.Host
             RunProbes();
             if (LastSnapshot?.Passed == true)
             {
-                _document = new TerminalDocument();
+                _document = new TerminalDocument(loadDemonstration: !App.LaunchLocalSession);
                 Viewport = new TerminalSurface(_document);
                 Viewport.RecoveryStatusChanged += () => { if (!_closed) RefreshSurfaceStatus(); };
                 SurfaceContainer.Child = Viewport;
                 if (!App.SessionStreamTest)
                 {
-                    _outboundAudit = new SessionOutboundAuditSink();
-                    _rootTransport = new FakeTerminalTransport("development-root", _outboundAudit);
-                    _session = new TerminalSession(_document, _rootTransport);
-                    await _session.StartAsync();
-                    var outbound = _session.Outbound;
-                    _session.ActiveOutboundChanged += queue =>
+                    try
                     {
-                        if (_closed || Viewport == null) return;
-                        Viewport.DetachSessionInput();
-                        Viewport.AttachSessionInput(queue, queue.Generation, message => SurfaceStatus.Text = "Input stopped: " + message);
-                    };
-                    Viewport.AttachSessionInput(outbound, outbound.Generation, message =>
+                        if (App.LaunchLocalSession)
+                        {
+                            _rootTransport = new WinPtyTransport(TerminalProfile.CreateCommandPrompt());
+                        }
+                        else
+                        {
+                            _outboundAudit = new SessionOutboundAuditSink();
+                            _rootTransport = new FakeTerminalTransport("diagnostic-root", _outboundAudit);
+                        }
+                        _session = new TerminalSession(_document, _rootTransport);
+                        await _session.StartAsync();
+                        var outbound = _session.Outbound;
+                        _session.ActiveOutboundChanged += queue =>
+                        {
+                            if (_closed || Viewport == null) return;
+                            Viewport.DetachSessionInput();
+                            Viewport.AttachSessionInput(queue, queue.Generation, message => SurfaceStatus.Text = "Input stopped: " + message);
+                        };
+                        Viewport.AttachSessionInput(outbound, outbound.Generation, message =>
+                        {
+                            if (!_closed) SurfaceStatus.Text = "Input stopped: " + message;
+                        });
+                        _ = ObserveSessionCompletionAsync(_session);
+                    }
+                    catch (Exception ex)
                     {
-                        if (!_closed) SurfaceStatus.Text = "Input stopped: " + message;
-                    });
+                        _session?.Dispose();
+                        _session = null;
+                        _rootTransport = null;
+                        SurfaceStatus.Text = "Command Prompt could not start: " + ex.Message;
+                    }
                 }
                 Viewport.SizeChanged += (_, __) => QueueSurfaceStatusRefresh();
                 QueueSurfaceStatusRefresh();
-                if (App.ShowSessionFixture && _rootTransport != null) _ = StreamFixtureAsync(_rootTransport);
             }
             else SurfaceStatus.Text = "Startup checks failed. See Diagnostics and the log.";
         }
@@ -122,25 +139,20 @@ namespace VT7.Host
             QueueSurfaceStatusRefresh();
         }
 
-        private async System.Threading.Tasks.Task StreamFixtureAsync(FakeTerminalTransport transport)
+        private async System.Threading.Tasks.Task ObserveSessionCompletionAsync(TerminalSession session)
         {
             try
             {
-                await System.Threading.Tasks.Task.Run(async () =>
-                {
-                    foreach (var chunk in SessionStreamFixture.Split(SessionStreamFixture.Bytes, new[] { 1, 2, 3, 5, 8, 13 }))
-                        await transport.EmitAsync(chunk);
-                });
-                if (!_closed) QueueSurfaceStatusRefresh();
+                var result = await session.Completion;
+                if (_closed || _session != session) return;
+                Viewport?.DetachSessionInput();
+                var exit = result.ExitCode.HasValue ? $", exit {result.ExitCode.Value}" : string.Empty;
+                SurfaceStatus.Text = $"Command Prompt session ended: {result.Kind}{exit}. Scrollback remains available.";
             }
-            catch (ObjectDisposedException) when (_closed)
+            catch (Exception ex) when (!_closed)
             {
+                SurfaceStatus.Text = "Terminal session failed: " + ex.Message;
             }
-            catch (Exception ex)
-            {
-                if (!_closed) SurfaceStatus.Text = "Session fixture failed: " + ex.Message;
-            }
-            finally { }
         }
 
         private async void QueueSurfaceStatusRefresh()

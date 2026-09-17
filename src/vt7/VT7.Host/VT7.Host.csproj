@@ -22,4 +22,10 @@
       <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
     </ProjectReference>
   </ItemGroup>
+
+  <Target Name="CopyWinPtyRuntime" AfterTargets="Build">
+    <Copy SourceFiles="$(VT7ArtifactsRoot)deps\winpty-0.4.3-msvc2015\x64\bin\winpty.dll;$(VT7ArtifactsRoot)deps\winpty-0.4.3-msvc2015\x64\bin\winpty-agent.exe;$(VT7ArtifactsRoot)deps\winpty-0.4.3-msvc2015\LICENSE"
+          DestinationFiles="$(OutDir)winpty.dll;$(OutDir)winpty-agent.exe;$(OutDir)winpty-LICENSE.txt"
+          SkipUnchangedFiles="true" />
+  </Target>
 </Project>

@@ -17,7 +17,8 @@ namespace VT7.Host
         internal static bool InjectSettingsFailure { get; private set; }
         internal static bool SessionStreamTest { get; private set; }
         internal static bool SessionOutboundTest { get; private set; }
-        internal static bool ShowSessionFixture { get; private set; }
+        internal static bool LaunchLocalSession { get; private set; }
+        internal static bool WinPtySessionTest { get; private set; }
         internal static uint ExpectedSystemDpi { get; private set; }
         internal static string? RecoveryScenario { get; private set; }
         internal static bool CaptureFrames { get; private set; }
@@ -42,6 +43,7 @@ namespace VT7.Host
             var smokeTest = HasArgument(e.Args, "--window-smoke-test");
             SessionStreamTest = HasArgument(e.Args, "--session-stream-test");
             SessionOutboundTest = HasArgument(e.Args, "--session-outbound-test");
+            WinPtySessionTest = HasArgument(e.Args, "--winpty-session-test");
             var recoveryIndex = Array.IndexOf(e.Args, "--recovery-test");
             if (recoveryIndex >= 0)
             {
@@ -84,17 +86,18 @@ namespace VT7.Host
                 (InjectSettingsFailure && !SettingsTest)) { Shutdown(2); return; }
             if ((RepaintTest && (RendererMode == 0 || smokeTest || diagnostics || RecoveryScenario != null)) ||
                 (InjectRepaintFailure && !RepaintTest)) { Shutdown(2); return; }
-            if ((SessionStreamTest || SessionOutboundTest) && (RendererMode == 0 || diagnostics || smokeTest || RepaintTest ||
-                RecoveryScenario != null || SettingsTest || StabilityTest || (SessionStreamTest && SessionOutboundTest)))
+            var sessionTestCount = (SessionStreamTest ? 1 : 0) + (SessionOutboundTest ? 1 : 0) + (WinPtySessionTest ? 1 : 0);
+            if (sessionTestCount > 0 && (RendererMode == 0 || diagnostics || smokeTest || RepaintTest ||
+                RecoveryScenario != null || SettingsTest || StabilityTest || sessionTestCount != 1))
             { Shutdown(2); return; }
-            CaptureFrames = smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest || StabilityTest || SessionStreamTest || SessionOutboundTest;
+            CaptureFrames = smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest || StabilityTest || SessionStreamTest || SessionOutboundTest || WinPtySessionTest;
             var injectBlank = HasArgument(e.Args, "--inject-blank-frame");
             if (injectBlank && (!smokeTest || RendererMode == 0)) { Shutdown(2); return; }
             SurfaceOptions = RendererMode | (CaptureFrames ? 0x100u : 0u) | (injectBlank ? 0x200u : 0u);
             if (RecoveryScenario == "startup-hardware") SurfaceOptions |= 0x400u;
             if (RecoveryScenario == "startup-both") SurfaceOptions |= 0x800u;
-            ShowSessionFixture = !(diagnostics || smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest || StabilityTest || SessionStreamTest || SessionOutboundTest);
-            if (diagnostics || smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest || StabilityTest || SessionStreamTest || SessionOutboundTest)
+            LaunchLocalSession = !(diagnostics || smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest || StabilityTest || SessionStreamTest || SessionOutboundTest || WinPtySessionTest);
+            if (!LaunchLocalSession)
             {
                 ShutdownMode = ShutdownMode.OnExplicitShutdown;
                 RunChecks(e.Args, smokeTest);
@@ -136,6 +139,13 @@ namespace VT7.Host
                     await SessionOutboundWindowChecks.Run(report);
                     snapshot.SurfaceDisplay = report.ToString();
                     snapshot.Summary = "Generation-checked outbound ordering and the native HWND input boundary passed.";
+                }
+                if (WinPtySessionTest)
+                {
+                    if (!snapshot.Passed) throw new InvalidOperationException("Core or platform checks failed before WinPTY session testing.");
+                    await WinPtySessionChecks.Run(report);
+                    snapshot.SurfaceDisplay = report.ToString();
+                    snapshot.Summary = "The production WinPTY root transport launched, resized, exchanged data, drained, and exited through TerminalSession.";
                 }
                 if (SettingsTest)
                 {

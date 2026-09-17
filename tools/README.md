@@ -45,7 +45,9 @@ existing evidence before a relevant regression run.
 | `Test-VT7ReactivationRunner.ps1` | `-BinaryDirectory`, new `-OutputDirectory`; PS2-compatible CLI, timeout, exit-code, checksum and protocol-override rejection controls. |
 | `Package-VT7ResourceReactivation.ps1` | Requires `-BuildDirectory`, `-QualificationDirectory`; checks qualified sources/evidence, preserves inherited bytes and refuses existing 0.1 outputs. |
 | `Test-VT7WinPty.ps1` | Runs the eighteen-case P01 child/WinPTY/TerminalCore comparison. Fidelity and unavailable code pages are recorded; dependency, lifecycle, UTF-8, timeout and evidence failures abort. Supports standalone package paths and collision-resistant run identities. |
+| `Test-VT7WinPtySession.ps1` | Runs the 0.5.2 production `WinPtyTransport` and explicit Command Prompt profile through `TerminalSession`: Unicode environment, generation-1 input, authoritative resize, output drain, exit code and cancellation. |
 | `Package-VT7WinPty.ps1` | Builds and verifies the Release x64 P01 diagnostic, stages the pinned WinPTY native runtime, MIT license and app-local VC runtime, then creates a non-overwriting ZIP. |
+| `Package-VT7WinPtyRoot.ps1` | Creates the non-overwriting 0.5.2/ABI 11 3B.1 Command Prompt candidate, runs the 3A regressions and real WinPTY transport check from staged bytes, includes native wheel scrollback and committed-character snap-to-live, and validates every ZIP entry. The candidate is 11,161,619 bytes with SHA256 `BDB12430AF3325EA4ED4AAE153CF7AF355411BF57E3DD4E4303132C372499A87`. |
 | `Test-VT7Input.ps1` | Runs the I01 native keyboard-layout and TerminalInput characterization, then opens the WPF/native-focus recorder. `-NonInteractive` performs the local automation-safe smoke test; target acceptance requires the guided interactive run. |
 | `Package-VT7SessionOutbound.ps1` | Creates the non-overwriting 0.3.7 x64 target candidate whose exact Windows 7 run is accepted, verifies its native images and licenses, tests staged hashes, and validates every ZIP entry. |
 | `Package-VT7SessionOwnership.ps1` | Creates the non-overwriting 0.4.0/ABI 11 3A target candidate whose exact Windows 7 run is accepted, runs document/view, fake-transport and prior outbound checks from staged bytes, and validates every ZIP entry. |
@@ -93,9 +95,14 @@ cancellation and isolation paths. Corrected 0.6 passes local checks plus both
 Windows 7 controlled-Debian runs and is the accepted S01 package.
 See the [S01 record](../doc/vt7/validation/2026-09-14-sshnet-s01.md).
 
-The current application source reports 0.4.0/ABI 11 and includes the native
-document/view split, managed session/transport foundation plus resource-isolation
-diagnostics absent from the issued 0.3.5 archive. These opt-in host CLI controls
+The current application source reports 0.5.2/ABI 11 and includes the native
+document/view split, managed session/transport foundation, real Command Prompt
+WinPTY root plus resource-isolation diagnostics absent from the issued 0.3.5
+archive. The exact 0.5.0 Windows 7 package passes its automated runners and
+manual Unicode workflow. Active-command Ctrl+C works; prompt-line cancellation
+is a known WinPTY limit. Version 0.5.1 proves native wheel movement and retained
+history on Windows 7. Version 0.5.2 corrects printable-character snap-to-live,
+and the supplied checks pass. These opt-in host CLI controls
 are documented in the [stability record](../doc/vt7/validation/2026-09-13-atlas-stability.md);
 the stability runner does not expose a resource-isolation parameter. The separate
 native comparison 0.1 has its own packaged launcher and reuses the issued native

@@ -37,11 +37,15 @@ of required workflows remain immediate concerns, not optional polish.
 
 Start with [BUILDING.md](BUILDING.md) and the current
 [stability record](doc/vt7/validation/2026-09-13-atlas-stability.md).
-The working source is 0.3.7/ABI 10. It combines the 0.3.6 bounded inbound stream
-and persistent UTF-8 decoder with a generation-checked outbound queue and the
-native child-HWND input/resize adapter. The exact 0.3.7 package passes its
-Windows 7 SP1 x64 target run. It still has no process backend; the normal host
-drains outbound operations to an audit sink. Start with the
+The working source is 0.5.2/ABI 11. It combines the accepted document/session/
+view ownership and bounded inbound/outbound paths with a real Command Prompt
+root through pinned WinPTY 0.4.3. Local Debug/Release, lifecycle and visible
+agent-cleanup checks pass. The exact Windows 7 3B.1 candidate also passes its
+automated transport/lifecycle checks and manual Croatian/Unicode workflow;
+active-command Ctrl+C passes; prompt-line cancellation is a known WinPTY 0.4.3
+limit. The 0.5.1 target run accepts wheel movement and retained history but found
+printable-character input did not snap to live output. Version 0.5.2 corrects
+that boundary and passes the supplied test-machine checks. Start with the
 [session stream contract](doc/vt7/architecture/2026-09-14-session-stream-foundation.md)
 and [session outbound contract](doc/vt7/architecture/2026-09-14-session-outbound-foundation.md).
 The completed [I01 record](doc/vt7/validation/2026-09-14-input-i01.md) defines
@@ -64,7 +68,9 @@ automatic recovery, and session acceptance.
 - Windows 7 Atlas, DXGI, Direct3D 11, and WARP work.
 - WPF styling/contrast fixes, visual regression coverage, and native HWND
   lifetime and resize hardening.
-- Production WinPTY session integration under the completed P01 fidelity limits.
+- Explicit PowerShell
+  5.1/7.2.24 profiles and their PSReadLine/native-child corpus under the
+  completed P01 fidelity limits.
 - Production SSH.NET session integration under the accepted S01 trust,
   authentication, transport, PTY and stream-first shutdown boundaries. S00
   rejected unmodified redirected OpenSSH for interactive PTY sessions.

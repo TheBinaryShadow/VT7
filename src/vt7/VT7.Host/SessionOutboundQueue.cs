@@ -126,7 +126,8 @@ namespace VT7.Host
         private readonly ISessionOutboundSink _sink;
         private readonly Task _worker;
         private readonly long _generation;
-        private readonly TaskCompletionSource<bool> _completion = new TaskCompletionSource<bool>();
+        private readonly TaskCompletionSource<bool> _completion =
+            new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         private long _nextSequence;
         private bool _accepting = true;
         private bool _disposed;

@@ -165,6 +165,7 @@ namespace
         uint64_t attachmentGeneration = 0;
         std::optional<Microsoft::Console::Render::TimerHandle> diagnosticTimer;
         uint32_t diagnosticTimerFires = 0;
+        int64_t wheelDeltaRemainder = 0;
 
         Surface(TerminalDocument* terminalDocument, uint32_t rendererMode) : document(terminalDocument),
             terminal(terminalDocument->terminal), outputStream(terminalDocument->outputStream), renderer(terminalDocument->renderer),
@@ -271,6 +272,33 @@ namespace
             const auto guard = terminal.LockForWriting();
             requested = atlas ? atlas->RequestFrame() : requested + 1;
             renderer.TriggerRedrawAll();
+        }
+
+        void ScrollWheel(const short wheelDelta)
+        {
+            if (!wheelDelta || !document->initialized) return;
+
+            UINT configuredLines = 3;
+            if (!SystemParametersInfoW(SPI_GETWHEELSCROLLLINES, 0, &configuredLines, 0))
+                configuredLines = 3;
+            if (configuredLines == 0) return;
+
+            const auto guard = terminal.LockForWriting();
+            const auto viewport = terminal.GetViewport();
+            const auto rowsPerNotch = configuredLines == WHEEL_PAGESCROLL ?
+                std::max(1, viewport.Height()) : gsl::narrow<int>(std::min<UINT>(configuredLines, 1000));
+
+            // Preserve sub-notch precision while honoring the Windows wheel setting.
+            // Positive WM_MOUSEWHEEL deltas move toward older output (a smaller top).
+            wheelDeltaRemainder -= static_cast<int64_t>(wheelDelta) * rowsPerNotch;
+            const auto rowDelta = wheelDeltaRemainder / WHEEL_DELTA;
+            wheelDeltaRemainder %= WHEEL_DELTA;
+            if (!rowDelta) return;
+
+            const auto currentTop = terminal.GetScrollOffset();
+            const auto targetTop = std::clamp<int64_t>(currentTop + rowDelta, 0, INT_MAX);
+            terminal.UserScrollViewport(gsl::narrow<int>(targetTop));
+            InvalidateRect(window, nullptr, FALSE);
         }
 
         ~Surface()
@@ -505,6 +533,9 @@ namespace
                 case WM_LBUTTONDOWN:
                     SetFocus(window);
                     break;
+                case WM_MOUSEWHEEL:
+                    surface->ScrollWheel(static_cast<short>(HIWORD(wparam)));
+                    return 0;
                 case WM_ERASEBKGND:
                     return 1;
                 case WM_PAINT:

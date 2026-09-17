@@ -739,8 +739,19 @@ is implemented through its document/view identity and managed fake-transport
 boundary without a new WARP trace prerequisite. The exact 0.4.0 candidate passes
 the focused outbound and ownership runners with matching package binaries,
 detached drain, generation-2 reattachment and fake transport generations 1/2/3.
-The next development task is 3B's production WinPTY root transport. Broader
-input/layout and remote transport remain later work under the accepted boundaries.
+Version 0.5.0 implements 3B.1's production WinPTY root transport for one
+explicit Command Prompt profile and passes locally in Debug and Release. Its
+exact Windows 7 automated run, manual Croatian text, Unicode filename and child
+GUI launch pass. This accepts the bounded transport/Unicode/lifecycle slice.
+Follow-up confirms Ctrl+C aborts a running command; only empty or partial
+prompt-line cancellation fails, matching the documented WinPTY 0.4.3 limit.
+Version 0.5.1 adds the missing native mouse-wheel scrollback path. Its Windows 7
+run passes movement and retained history, then exposes that printable characters
+do not snap to live output although non-text keys do. Version 0.5.2 moves the
+snap to the committed-character boundary. The supplied test-machine checks pass
+without further issues. Broader local
+shells, input/layout and remote transport remain later work under the accepted
+boundaries.
 
 Run bounded experiments before committing to transport and input designs. These
 do not require daily-driver tabs or a finished SSH interface.
@@ -926,10 +937,27 @@ feasibility, not full SSH acceptance or a promise to ship the evaluated release.
 
 ### 3B: Local backend integration
 
-- [ ] Integrate the selected native local backend behind a replaceable boundary,
+- [x] Integrate the selected native local backend behind a replaceable boundary,
   preserving its lifecycle and ownership contracts without requiring Cygwin UI.
+  - [x] Implement `WinPtyTransport` behind `ITerminalTransport` for an explicit
+    Command Prompt profile. Local Debug/Release checks cover spawn, generation-1
+    input, resize, final drain, exit code, cancellation and visible agent cleanup.
+  - [x] Accept the exact 0.5.0 package on Windows 7 for the bounded transport,
+    Unicode and lifecycle scope. All runners, Croatian text, `ććć.txt` creation
+    through Notepad and ordinary interaction pass. Active-command Ctrl+C works;
+    prompt-line cancellation is a recorded WinPTY 0.4.3 fidelity limit for 3C.
+  - [x] Accept 0.5.1 mouse-wheel movement and retained-position behavior on
+    Windows 7. Printable characters fail to snap to live output; Backspace,
+    Delete and arrow keys pass that behavior.
+  - [x] Accept the 0.5.2 committed-character correction on the supplied test
+    machines. Printable input returns to live output without changing the
+    accepted wheel and retained-history behavior.
 - [ ] Launch Command Prompt, Windows PowerShell 5.1, and PowerShell 7.2.24 with
   explicit executable, arguments, environment, working directory, and versions.
+  - [x] Implement and target-qualify the explicit Command Prompt profile in
+    0.5.0 for the bounded 3B.1 scope.
+  - [ ] Add and qualify explicit Windows PowerShell 5.1 and PowerShell 7.2.24
+    profiles after the Command Prompt target result is reviewed.
 - [ ] Validate PSReadLine editing, history, completion, supported prediction,
   multiline prompts, and native children, using clean and ordinary profiles.
   Do not silently alter execution policy, user profiles, or global code pages.

@@ -1,7 +1,9 @@
 # VT7 development handoff
 
-Updated: 2026-09-17, after accepting C4/3A as 0.4.0/native ABI 11 locally in
-Debug and Release and on the exact Windows 7 SP1 x64 target candidate.
+Updated: 2026-09-17, after the 0.5.2/native ABI 11 printable-input snap fix
+passed locally and on the supplied test machines. The 0.5.0 Command Prompt WinPTY root passed its bounded Windows 7
+transport, Unicode and lifecycle scope. Active-command Ctrl+C works; prompt-line
+cancellation is a known WinPTY 0.4.3 fidelity limit.
 This is the current resumption guide. Start with the [documentation index](README.md)
 if unfamiliar with the repository. The [roadmap](../../ROADMAP.md) owns gates;
 dated validation records own test claims.
@@ -18,10 +20,17 @@ term still requires a separate compatibility review. The
 [standing licensing policy](architecture/2026-09-14-third-party-licensing-policy.md)
 owns this decision. `NOTICE.md` now combines legal disclosure, upstream
 references and human thanks.
-The current application streams a deterministic UTF-8/VT fixture through a
-bounded session output queue into the TerminalCore-backed Atlas viewport inside
-a .NET Framework 4.8 WPF host. It has no interactive local shell, SSH session,
-production tabs/panes/profiles, or selection implementation yet.
+The current application starts a real Command Prompt through pinned WinPTY 0.4.3,
+the bounded session queues and the TerminalCore-backed Atlas viewport inside a
+.NET Framework 4.8 WPF host. This first production local transport passes locally
+and on the supplied Windows 7 setup. Manual Croatian text, a Unicode filename
+and child GUI launch pass. Ctrl+C at a prompt exposes the known WinPTY limit;
+active-command interruption passes. Version 0.5.1 wheel navigation passes on
+Windows 7, including retained history during output, but printable characters
+do not snap to live output. Version 0.5.2 corrects that committed-character path
+and passes the supplied checks without further issues. VT7
+has no SSH session, production tabs/panes/profile UI, or selection implementation
+yet.
 The visible viewport/Diagnostics tabs belong to the proof host, not the finished
 multi-session UI. Planned PowerShell 7 coverage through 7.2.24 is not a tested
 VT7 session claim.
@@ -36,13 +45,13 @@ the dedicated tracing campaign. C4/3A is implemented and target accepted; its
 document/transport/view contract now forms the 0.4.0/ABI 11 ownership boundary.
 The first shared output boundary is implemented and S00 has rejected redirected
 external OpenSSH for interactive PTY sessions.
-Neither WARP attribution nor
-the earlier Arabic/geometry experiment chain is the default next task. The next
-development slice is 3B's WinPTY root transport.
+Neither WARP attribution nor the earlier Arabic/geometry experiment chain is the
+default next task. The immediate task is explicit PowerShell 5.1 and 7.2.24
+profiles and their bounded acceptance corpus.
 
 | Item | Current state |
 | --- | --- |
-| Working application version | 0.4.0, native ABI 11, x64. The latest issued full viewport artifact remains 0.3.5/ABI 8; focused 0.3.7 and 0.4.0 target candidates are accepted for their recorded scopes and have distinct identities. |
+| Working application version | 0.5.2, native ABI 11, x64. The visible host starts a real Command Prompt through pinned WinPTY 0.4.3. The Windows 7 0.5.0 automated run and manual Unicode/child-GUI workflows pass. Active-command Ctrl+C works; prompt-line cancellation is a known WinPTY limit. Version 0.5.1 proves wheel movement and retained history on Windows 7; 0.5.2 corrects printable-character snap-to-live and passes the supplied test-machine checks. |
 | Milestone 1 | Complete on the tested configurations, with the evidence limits in its record. |
 | C1 minimum font boundary and C2 Atlas integration | Accepted on the supplied Windows 7 setup in 0.3.0. |
 | C3 repaint, controlled recovery, scaling | Bounded 0.3.1/0.3.2 results and actual 0.3.4 96/120/144 DPI matrix accepted. |
@@ -52,10 +61,15 @@ development slice is 3B's WinPTY root transport.
 | Remaining lifetime question | The two late integrated counts repeat, but individual handle identities/owners and a permanent bound are unproven. Final WPF handles remain 1,090 above pre-warm-up; this includes initialization and diagnostic effects. The previous native-only residual is 54 and is not directly comparable. |
 | Latest local diagnostic | WPF resource reactivation 0.1 completes two 100-lifecycle batches and closed +10/+90/+180s observations after each, in one process. All 16 checkpoints validate and all eight immediate budget failures remain. The native 0.3.5 DLL is unchanged. |
 | Session stream foundation | Implemented and locally validated in Debug and Release. Ordered transport-thread output reaches a per-surface decoder and TerminalCore through a bounded dispatcher queue; incomplete EOF and recovery are explicit. |
-| Session ownership review | The supplied pushed-commit analysis was reconciled with the tree and its remaining 3A requirement is implemented and target accepted: production session/TerminalCore identity is separate from HWND/WPF presentation, with generation-safe fake transports and originating-transport replies. Production backend resize starts in 3B. |
-| 3A implementation specification | Implemented through 3A.1 and 3A.2 in 0.4.0. The [terminal document/transport/typed-SSH design](architecture/2026-09-14-terminal-document-and-ssh-handoff-spec.md) defines the wider handoff path; ABI 11 typed identities, managed transport lifecycle, bounded per-origin replies and fake root/overlay generations pass locally and on Windows 7. H01 and production transport work remain later phases. |
+| Session ownership review | The supplied pushed-commit analysis was reconciled with the tree and its remaining 3A requirement is implemented and target accepted: production session/TerminalCore identity is separate from HWND/WPF presentation, with generation-safe transports and originating-transport replies. Version 0.5.0 now routes production resize to WinPTY for the Command Prompt slice. |
+| 3A implementation specification | Implemented through 3A.1 and 3A.2 in 0.4.0. The [terminal document/transport/typed-SSH design](architecture/2026-09-14-terminal-document-and-ssh-handoff-spec.md) defines the wider handoff path; ABI 11 typed identities, managed transport lifecycle, bounded per-origin replies and fake root/overlay generations pass locally and on Windows 7. The first production local transport is implemented in 0.5.0; H01 and the remote transport remain later phases. |
 | 3A validation | Debug and Release builds pass the six-renderer smoke matrix, injected blank negative, session outbound and session stream checks. The exact Windows 7 run destroys the first HWND, drains 388 bytes with no attached view, reattaches generation 2 to raster `D90BE1DA17351A44`, switches fake root/overlay input generations 1/2/3, returns a TerminalCore device reply to its originating transport, and closes once. |
 | 3A target package | Accepted `VT7-Session-Ownership-0.4.0-x64.zip`, SHA256 `93DFB2B35D94DE6610C8734889D837594D593F3584F0FAE78F4679853AAE0449`, 10,642,845 bytes, 27 verified files. Both target reports pass with package-matching host/native hashes. The three supplied files and independent analysis are archived under `artifacts/vt7/evidence/session-ownership-win7-0.4.0`. |
+| 3B.1 implementation | `WinPtyTransport` owns the exact WinPTY 0.4.3 runtime, pipes, child handle, read loop and cancellation. The explicit Command Prompt profile pins executable, arguments, working directory and Unicode environment. Input and resize retain the 3A queue; EOF drains before child exit reporting. Local Debug and Release pass real spawn/input/100x30 resize/drain/exit 37, cancellation, 3A regressions and the full renderer/host suite. |
+| 3B.1 accepted target package | `VT7-WinPty-Root-0.5.0-x64.zip`, SHA256 `5BC66EB5149301140BCB916EC270349DB1BC955309FEB3949B5C65E2185E5F3E`, 11,158,230 bytes, 33 verified files. All three target runners pass with package-matching hashes. Manual Croatian text, Notepad launch and `ććć.txt` creation pass. Active-command Ctrl+C works; prompt-line cancellation has the known WinPTY limitation. Ctrl+V/Ctrl+A retain classic control-character behavior. |
+| 3B.1 scrollback result | `VT7-WinPty-Root-0.5.1-x64.zip`, SHA256 `2A0532EDA35B1B9D4CF805830C72DB8E82FC01941D96F87CEC1B5D57B68B46C0`, 11,193,875 bytes, 33 verified files. Windows 7 accepts wheel movement and retained history during output. Printable characters fail snap-to-live while Backspace, Delete and arrows pass. |
+| 3B.1 accepted input-snap package | `VT7-WinPty-Root-0.5.2-x64.zip`, SHA256 `BDB12430AF3325EA4ED4AAE153CF7AF355411BF57E3DD4E4303132C372499A87`, 11,161,619 bytes, 33 verified files. Debug/Release verification and all three staged package runners pass locally. The supplied test-machine checks confirm printable input snaps to live output with no further issue. |
+| 3B.1 target evidence | Seven supplied files plus `ARCHIVE-VERIFICATION.json` are preserved under `artifacts/vt7/evidence/winpty-root-win7-0.5.0`, 13,016 bytes. Target: Windows 7 SP1 x64, .NET 4.8.4795.0, PowerShell 5.1.14409.1005, `hr-HR`, RX 6800 XT. |
 | P01 WinPTY characterization | Complete. The official 0.4.3 native x64 artifacts are pinned. Debug, Release and all eighteen Windows 7 package 0.3 cases complete with verified evidence. WinPTY is selected for Windows 7 local legacy-console sessions behind the replaceable session boundary; raw VT, code-page, cursor-width and intermediate-state limits are explicit. |
 | P01 target package | `VT7-WinPTY-P01-0.3-x64.zip`, SHA256 `6DD8560EDE4B4FEE9CCA3BC972F0437DAD216D9D0FE168E29989D96012CFDBCF`, 959,977 bytes, 15 verified files. Same-hash copy at `K:\VT7_work\VT7-WinPTY-P01-0.3-x64.zip`. Its complete target run has 109 files and 1,062,782 bytes. |
 | I01 input characterization | Complete for the Windows 7 Croatian HR Latin 3A decision. Both controls receive required Croatian/AltGr text. Flags 1 and 5 both mutate `ToUnicodeEx` dead state. Native key/character, focus and resize ordering define the input adapter contract; broader layouts, printable repeat and IME remain in 3C. |
@@ -67,9 +81,9 @@ development slice is 3B's WinPTY root transport.
 | S00 network package | Issued 0.1 is `VT7-OpenSSH-S00-Network-0.1-x64.zip`, SHA256 `8029CC9CF48F9BAEA839F16F3E104A552F848AB17A4A12636C966145B421B7FA`, 16,203 bytes, 8 verified top-level files. Its complete target run has 16 files and 149,987 bytes. The changed-host diagnostic retained a public host fingerprint and temporary profile path despite its privacy claim; raw evidence is restricted and a safe copy is archived. Corrected source advances any reissue to 0.2. |
 | S01 candidate | Accepted. The isolated [SSH.NET 2026.0.0 diagnostic](validation/2026-09-14-sshnet-s01.md) passes its exact locked thirteen-package net48 closure and both Windows 7 controlled-Debian runs. Product incorporation has not started. |
 | S01 target package | Accepted `VT7-SSHNET-S01-0.6-x64.zip`, SHA256 `7200827585B88E337AC3CD2074DDF34D1E6B5EF433A4FD4A305395DBF869292E`, 3,258,501 bytes, 62 verified files. Public-key-only and optional-password runs both pass; no credential fields are retained. The three sanitized manifests and verification metadata are archived under `artifacts/vt7/evidence/sshnet-s01-win7-0.6`. |
-| Next bounded task | Implement 3B's `WinPtyTransport` behind `ITerminalTransport`, retaining P01's process-handle, final-drain, size and reconstruction rules. Start with one explicit Command Prompt profile and use the fake-transport lifecycle as the oracle. No S00/S01 rerun or WARP attribution test is a prerequisite. |
+| Next bounded task | Implement explicit Windows PowerShell 5.1 and PowerShell 7.2.24 profiles and their PSReadLine/native-child corpus. No S00/S01 rerun, Command Prompt rerun or WARP attribution test is a prerequisite. |
 | Milestone 2 | Open. Theme/high-contrast, broader device/environment and milestone-level ESU coverage also remain. |
-| Development sequence | Integrate the production local WinPTY transport in 3B, then implement H01 and the accepted S01 remote transport under the 0.4.0 session boundary. Remaining C3/Milestone 2 qualification stays recorded without a blanket serial dependency. |
+| Development sequence | Complete the required PowerShell/local-app 3B corpus, then implement H01 and the accepted S01 remote transport under the ABI 11 session boundary. Remaining C3/Milestone 2 qualification stays recorded without a blanket serial dependency. |
 
 ## Resume safely
 
@@ -90,6 +104,34 @@ development slice is 3B's WinPTY root transport.
    its fixed 0.3.5 directory and ZIP. Do not run it over retained evidence.
    The 0.3.7 source has a focused issued target candidate, not a complete application package. A later full candidate
    needs a new artifact identity and paths that preserve old evidence.
+
+## What 0.5.0 changed
+
+- `WinPtyTransport` implements the real local root behind `ITerminalTransport`
+  and owns WinPTY, its pipes, child handle, output loop and cancellation.
+- One explicit Command Prompt profile pins `%SystemRoot%\System32\cmd.exe`,
+  `/d /q /k`, an absolute working directory and a Unicode environment block.
+- The visible host now opens that real session. Hidden smoke and lifecycle tests
+  retain deterministic fake transports.
+- Natural EOF drains through TerminalCore before preserving the child exit code.
+  Owner cancellation closes input, joins the reader and shuts down the agent.
+- `TaskCompletionSource` continuations in the outbound queue run asynchronously,
+  preventing natural child exit from synchronously joining its own worker.
+- Debug and Release pass the real transport check and 3A regressions. The full
+  Release renderer/host suite and a visible one-agent launch/close check pass.
+- The exact Windows 7 package also passes all three runners. Manual Croatian
+  text, child Notepad launch and Unicode filename creation pass. Ctrl+C aborts
+  a running command; prompt-line cancellation remains an explicit 3C fidelity
+  item because WinPTY 0.4.3 cannot provide it.
+- Version 0.5.1 adds native child-HWND mouse-wheel handling. It honors the
+  Windows row/page setting and high-resolution deltas, uses TerminalCore's
+  user-scroll state and retains history position during new output. Windows 7
+  confirms those behaviors but finds printable characters do not snap to live.
+- Version 0.5.2 adds VT7-scoped snap-on-input to TerminalCore's committed-
+  character boundary. This preserves `WM_CHAR` ownership of Croatian, dead-key
+  and AltGr text. ABI 11 is unchanged; local and supplied target checks pass.
+- Exact identities, evidence and limits are in the
+  [3B.1 validation record](validation/2026-09-17-winpty-root-3b.md).
 
 ## What 0.4.0 changed
 
@@ -135,8 +177,9 @@ development slice is 3B's WinPTY root transport.
   checks with exact package host/native hashes.
 
 See the [session outbound foundation](architecture/2026-09-14-session-outbound-foundation.md).
-The backend remains an audit sink. TerminalCore/session identity is not yet
-separate from the HWND-backed surface, and no shell or SSH transport is wired.
+At the 0.3.7 checkpoint the backend remained an audit sink, TerminalCore/session
+identity was not yet separate from the HWND-backed surface, and no shell or SSH
+transport was wired. Versions 0.4.0 and 0.5.0 supersede those limitations.
 
 ## What 0.3.6 changed
 
@@ -158,9 +201,9 @@ separate from the HWND-backed surface, and no shell or SSH transport is wired.
 
 The detailed contract, evidence and remaining limits are in the
 [session stream foundation](architecture/2026-09-14-session-stream-foundation.md).
-The application source does not yet instantiate the selected WinPTY backend or
-implement OpenSSH or terminal replies. Input and resize now have the 0.3.7
-backend-neutral queue boundary.
+At the 0.3.6 checkpoint the application did not instantiate WinPTY, implement
+OpenSSH or return terminal replies. The later 0.3.7 queue, 0.4.0 document/session
+owner and 0.5.0 Command Prompt transport supersede those local-session limits.
 
 ## P01 WinPTY diagnostic
 
@@ -390,12 +433,14 @@ carry the stream-first shutdown rule into production while implementing the
 [session ownership and external source review](architecture/2026-09-14-session-ownership-and-source-review.md)
 and the implementation-ready
 [terminal document/transport/handoff specification](architecture/2026-09-14-terminal-document-and-ssh-handoff-spec.md).
-Version 0.4.0 now realizes the 3A document/view and managed fake-transport
-boundary. Continue with 3B by implementing `WinPtyTransport` behind the existing
-interface; do not move backend handles into `MainWindow` or the view. Reuse P01's
-accepted WinPTY artifacts and preserve its final-drain, child-process, grid and
-reconstruction limits. Full SSH and the daily-driver UI follow the later phases,
-not another renderer research campaign.
+Version 0.4.0 realizes the 3A document/view and managed fake-transport boundary.
+Version 0.5.0 now implements `WinPtyTransport` behind that interface for one
+explicit Command Prompt root, without moving backend handles into `MainWindow`
+or the view. It reuses P01's accepted WinPTY artifacts and preserves its
+final-drain, child-process, grid and reconstruction limits. Versions 0.5.1 and
+0.5.2 add and target-qualify wheel scrollback, retained history and printable-
+character snap-to-live. Add the required PowerShell profiles next. Full SSH and the
+daily-driver UI follow the later phases, not another renderer research campaign.
 
 The two S00 preflight runs are preserved byte-identically under
 `artifacts/vt7/evidence/openssh-s00-win7-preflight-0.2/`. They contain 44 raw

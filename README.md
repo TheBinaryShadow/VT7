@@ -22,9 +22,11 @@ independent open-source engineering effort to create a real terminal
 application for Windows 7.
 
 > [!IMPORTANT]
-> VT7 is currently in pre-alpha development. The repository does not yet
-> produce a usable Windows 7 terminal. Features described here are project
-> goals until they are implemented and verified on Windows 7 hardware.
+> VT7 is currently in pre-alpha development. Version 0.5.2 produces the first
+> interactive Command Prompt candidate and its bounded Windows 7 transport,
+> Unicode and lifecycle checks pass. It is not an alpha release; Ctrl+C prompt
+> behavior and the wider shell/input corpus remain open. Other features described
+> here remain project goals until they are implemented and verified on Windows 7.
 
 Picking up development? Start with the [development handoff](doc/vt7/HANDOFF.md)
 and [documentation index](doc/vt7/README.md). They distinguish current source,
@@ -141,13 +143,20 @@ build the best terminal we can for the platform we love.
 
 ## Project status
 
-Current working source: **0.4.0, native ABI 11**, with separate native terminal
-document/view identities and a managed session/transport owner. A document keeps
-TerminalCore, scrollback, UTF-8 state and terminal replies alive while its HWND
-and Atlas view are detached or recreated. Debug and Release pass the 3A
-detach/hidden-drain/reattach and fake root/overlay lifecycle checks locally and
-on the exact Windows 7 SP1 x64 candidate. The returned 0.4.0 reports match the
-issued host/native hashes and close focused 3A target qualification. S00 is
+Current working source: **0.5.2, native ABI 11**. It retains the accepted 3A
+document/session/view ownership and now connects one explicit Command Prompt
+profile to pinned WinPTY 0.4.3 through production `WinPtyTransport`. Debug and
+Release locally pass real spawn, input, resize, output drain, exit-status and
+cancellation checks, the earlier 3A regressions and the full renderer/host
+suite. The exact 0.5.0 Windows 7 package also passes all three runners; manual
+Command Prompt use, Croatian text and a Unicode filename pass. Ctrl+C interrupts
+a running command; empty or partial prompt-line cancellation has the known
+WinPTY 0.4.3 limitation. Version 0.5.1 added native mouse-wheel scrollback; its
+Windows 7 run passed movement and retained-history behavior but exposed that
+printable characters did not snap back to live output. Version 0.5.2 moves that
+snap to VT7's committed-character boundary and passes local Debug/Release and
+the supplied target-machine checks without further issues.
+This accepts the bounded 3B.1 transport, not the full 3B or 3C gate. S00 is
 complete: the exact Microsoft 10.0p2
 x64 client passes command bytes, trust and lifecycle tests, while its 0 by 0
 PTY result and exact source reject the redirected interactive architecture.
@@ -237,7 +246,34 @@ copied out of the core lock through a bounded native queue and returned to the
 transport generation that caused them. Debug and Release tests destroy and
 recreate the HWND during the 388-byte deterministic stream with an exact raster,
 then switch fake root/overlay input generations 1/2/3 while both producers drain
-into one document. Production WinPTY integration is the next 3B task.
+into one document.
+
+Engineering **0.5.0** implements the first 3B production transport slice. The
+visible host now starts `%SystemRoot%\System32\cmd.exe` through the exact pinned
+WinPTY 0.4.3 runtime, with explicit arguments, working directory and Unicode
+environment. The transport owns its pipes, child and agent lifecycle, forwards
+ordered input and authoritative resize operations, drains final output before
+reporting the child exit code, and closes deterministically on owner
+cancellation. Local Debug/Release and visible-close checks pass. The issued
+Windows 7 candidate passes its automated runners and manual Croatian HR Latin,
+Unicode filename and child-GUI checks. Ctrl+C exposed an open WinPTY control-
+input boundary at an empty or partial prompt, while active-command interruption
+works. Ctrl+V and Ctrl+A retain classic console behavior until host keybindings
+are implemented.
+
+Engineering **0.5.1** fixes the missing viewport navigation found in the first
+manual Command Prompt run. The child HWND honors the Windows wheel-lines setting
+and high-resolution deltas, delegates movement to TerminalCore's user-scroll
+state, holds the selected history position as output arrives and snaps to live
+output on input. ABI 11 is unchanged. Local Debug and Release verification pass;
+the Windows 7 run confirms wheel movement and retained history. Backspace,
+Delete and arrow keys snapped to live output, but printable characters did not.
+
+Engineering **0.5.2** applies snap-on-input when the native HWND delivers a
+committed character. This retains the I01 decision that Windows owns Croatian,
+dead-key and AltGr composition through `WM_CHAR`, without synthesizing printable
+text from keydown events. The regression now encodes an actual printable `x`
+and verifies that it returns the viewport to live output.
 
 S00 now has an endpoint-independent OpenSSH preflight. It records the installed
 client's exact identity, raw stdout/stderr routing, algorithm inventory,
@@ -302,7 +338,12 @@ These probe results are not a completed Atlas terminal renderer.
 The [port-first plan](doc/vt7/architecture/2026-09-12-port-first-plan.md)
 and the [September 14 development decision](doc/vt7/architecture/2026-09-14-warp-development-deferral.md)
 authorized C4 / Milestone 3A session feasibility, now completed and accepted on
-Windows 7. The current development step is 3B. Build 0.3.5
+Windows 7. Build 0.5.0 implements the first 3B Command Prompt slice and passes
+its bounded Windows 7 transport/Unicode/lifecycle scope. Active-command Ctrl+C
+works; prompt-line cancellation is the known WinPTY limit. Build 0.5.1 proves
+native wheel movement and retained history on the target; build 0.5.2 corrects
+printable-character snap-to-live and passes the supplied target checks. The broader
+input corpus remains open. Build 0.3.5
 implements synchronized-output, idle CPU and shutdown checks after the accepted
 0.3.4 scaling matrix. Its WARP resource concern remains recorded under REL01.
 The recreate/reuse comparison, ownership trace and retirement diagnostic now
@@ -326,8 +367,10 @@ path owns printable input. That adapter and the bounded generation queue are now
 implemented and target validated. S00 rejects direct redirected OpenSSH for
 interactive PTY use, while S01 accepts SSH.NET 2026.0.0 as the embedded
 interactive candidate. The 3A session-identity/lifetime split is accepted on
-Windows 7; the immediate implementation step is 3B's selected WinPTY root
-transport. Full SSH delivery remains a later milestone.
+Windows 7; the selected WinPTY root transport is now implemented and boundedly
+target accepted for Command Prompt. Ctrl+C control delivery and the PowerShell
+5.1/7.2.24 profile corpus remain in Milestone 3. Full SSH delivery remains a
+later milestone.
 
 - [x] Establish the VT7 project identity and scope.
 - [x] Select and record the Microsoft Terminal upstream baseline.

@@ -59,7 +59,7 @@ namespace VT7.Host
         Task WriteAsync(TerminalOutputBlock block, CancellationToken cancellationToken);
     }
 
-    internal interface ITerminalTransport : ISessionOutboundSink
+    internal interface ITerminalTransport : ISessionOutboundSink, IDisposable
     {
         Guid TransportId { get; }
         long Generation { get; }
@@ -89,6 +89,10 @@ namespace VT7.Host
         private ITerminalTransport? _overlay;
         private SessionOutboundQueue? _outbound;
         private long _activeGeneration;
+        private Task? _closeTask;
+        private Task? _rootMonitor;
+        private readonly TaskCompletionSource<TerminalTransportResult> _completion =
+            new TaskCompletionSource<TerminalTransportResult>(TaskCreationOptions.RunContinuationsAsynchronously);
         private bool _disposed;
 
         internal TerminalSession(TerminalDocument document, ITerminalTransport root)
@@ -103,6 +107,7 @@ namespace VT7.Host
         internal TerminalDocument Document { get; }
         internal TerminalSessionState State { get; private set; } = TerminalSessionState.Created;
         internal SessionOutboundQueue Outbound => _outbound ?? throw new InvalidOperationException("The session has not started.");
+        internal Task<TerminalTransportResult> Completion => _completion.Task;
         internal event Action<SessionOutboundQueue>? ActiveOutboundChanged;
 
         internal async Task StartAsync()
@@ -122,10 +127,12 @@ namespace VT7.Host
                     new OutputSink(this), _lifetime.Token);
                 _outbound = new SessionOutboundQueue(generation, _root);
                 State = TerminalSessionState.RunningRoot;
+                _rootMonitor = MonitorRootAsync();
             }
-            catch
+            catch (Exception ex)
             {
                 State = TerminalSessionState.Failed;
+                _completion.TrySetResult(new TerminalTransportResult(TerminalTransportResultKind.ConnectionFailure, detail: ex.Message));
                 throw;
             }
         }
@@ -180,13 +187,24 @@ namespace VT7.Host
             ActiveOutboundChanged?.Invoke(_outbound);
         }
 
-        internal async Task CloseAsync(TerminalCloseReason reason = TerminalCloseReason.Normal)
+        internal Task CloseAsync(TerminalCloseReason reason = TerminalCloseReason.Normal)
+        {
+            lock (_gate)
+            {
+                if (_closeTask != null) return _closeTask;
+                _closeTask = CloseCoreAsync(reason);
+                return _closeTask;
+            }
+        }
+
+        private async Task CloseCoreAsync(TerminalCloseReason reason)
         {
             if (State == TerminalSessionState.Closed) return;
             if (State == TerminalSessionState.Created)
             {
                 State = TerminalSessionState.Closed;
                 _output.Dispose();
+                _completion.TrySetResult(new TerminalTransportResult(TerminalTransportResultKind.Cancelled));
                 return;
             }
             State = TerminalSessionState.Closing;
@@ -204,10 +222,27 @@ namespace VT7.Host
                 _overlay = null;
             }
             await _root.CloseAsync(reason, CancellationToken.None);
-            await _root.Completion;
+            var result = await _root.Completion;
             await _output.CompleteAsync();
             _output.Dispose();
-            State = TerminalSessionState.Closed;
+            State = result.Kind == TerminalTransportResultKind.ConnectionFailure ? TerminalSessionState.Failed : TerminalSessionState.Closed;
+            _completion.TrySetResult(result);
+        }
+
+        private async Task MonitorRootAsync()
+        {
+            try
+            {
+                var result = await _root.Completion.ConfigureAwait(false);
+                var reason = result.Kind == TerminalTransportResultKind.ConnectionFailure
+                    ? TerminalCloseReason.Failed : TerminalCloseReason.Normal;
+                await CloseAsync(reason).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                State = TerminalSessionState.Failed;
+                _completion.TrySetResult(new TerminalTransportResult(TerminalTransportResultKind.ConnectionFailure, detail: ex.Message));
+            }
         }
 
         private async Task AcceptOutputAsync(TerminalOutputBlock block, CancellationToken cancellationToken)
@@ -259,12 +294,13 @@ namespace VT7.Host
             _lifetime.Cancel();
             _outbound?.Dispose();
             _output.Dispose();
+            _overlay?.Dispose();
+            _root.Dispose();
             _lifetime.Dispose();
         }
     }
 
-    // Deterministic in-memory transport used by 3A tests and by the backend-free
-    // development host until WinPtyTransport replaces it in 3B.
+    // Deterministic in-memory transport retained by 3A and hidden host tests.
     internal sealed class FakeTerminalTransport : ITerminalTransport
     {
         private readonly object _gate = new object();
@@ -341,6 +377,11 @@ namespace VT7.Host
                     reason == TerminalCloseReason.Normal ? TerminalTransportResultKind.CleanEof : TerminalTransportResultKind.Cancelled));
             }
             return Task.CompletedTask;
+        }
+
+        public void Dispose()
+        {
+            if (State != TerminalTransportState.Closed) CloseAsync(TerminalCloseReason.Cancelled, CancellationToken.None).GetAwaiter().GetResult();
         }
     }
 }

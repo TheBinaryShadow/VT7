@@ -1,6 +1,6 @@
 # VT7 Core and renderer boundary
 
-Engineering version 0.4.0 builds the real Microsoft Terminal core, parser, dispatch,
+Engineering version 0.5.2 builds the real Microsoft Terminal core, parser, dispatch,
 text buffer, and supporting types into `VT7.Core.lib`, then links that library
 into `VT7.Native.dll`. The static library is not a separate runtime dependency.
 It accepts a deterministic session byte stream but is not an interactive terminal release.
@@ -8,7 +8,7 @@ It accepts a deterministic session byte stream but is not an interactive termina
 Current status and evidence navigation are in the
 [documentation index](../../../doc/vt7/README.md) and
 [handoff](../../../doc/vt7/HANDOFF.md). The issued 0.3.5 artifact uses ABI 8;
-current 0.4.0 source uses ABI 11 and also contains later resource-isolation
+current 0.5.2 source uses ABI 11 and also contains later session and resource-isolation
 diagnostics absent from that archive. Package hashes, not the version label alone, identify tested
 binaries. This source document does not replace frozen package provenance.
 
@@ -109,9 +109,10 @@ complex shaping, emoji rendering, per-monitor DPI behavior, cursor animation,
 accessibility, or rendering performance. GDI drawing is separate from the
 hardware and WARP device probes shown in diagnostics.
 
-There is no process/session backend, mouse interaction, clipboard,
-selection UI, scrolling UI, search, hyperlink UI, image display, or soft-font
-display. Some corresponding upstream machinery is compiled because it belongs
+The current host has a WinPTY Command Prompt process/session backend and native
+mouse-wheel scrollback. It does not yet have general mouse interaction, clipboard,
+selection UI, a visible scrollbar, search, hyperlink UI, image display, or
+soft-font display. Some corresponding upstream machinery is compiled because it belongs
 to the parser/core dependency graph, but it is not an advertised proof feature.
 
 ## Checks and acceptance

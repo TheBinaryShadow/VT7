@@ -76,9 +76,9 @@ into the application. The notices below are retained from Microsoft Terminal.
 
 ## WinPTY 0.4.3 (VT7 local legacy-console transport)
 
-VT7's P01 diagnostic packages include the unmodified official WinPTY 0.4.3 x64
-library and agent. Production local-session integration will retain this notice
-and the separate `winpty-LICENSE.txt` file.
+VT7's P01 diagnostic and 0.5.0 local-session packages include the unmodified
+official WinPTY 0.4.3 x64 library and agent. Production local-session builds
+retain this notice and the separate `winpty-LICENSE.txt` file.
 
 Source: https://github.com/rprichard/winpty/tree/0.4.3
 

@@ -2,8 +2,11 @@
 
 Decision date: 2026-09-14. Implementation status updated 2026-09-17: 3A.1 and
 3A.2 are implemented as 0.4.0/native ABI 11 and pass locally in Debug and
-Release and on the exact Windows 7 SP1 x64 candidate. 3B, H01 and Milestone 5
-remain future phases.
+Release and on the exact Windows 7 SP1 x64 candidate. The 0.5.0 3B.1 slice now
+connects an explicit Command Prompt profile to production `WinPtyTransport` and
+passes its bounded local and Windows 7 transport/Unicode/lifecycle scope. Ctrl+C
+classification and the PowerShell profiles remain. H01 and Milestone 5 remain
+future phases.
 
 This specification turns the accepted WinPTY P01, input I01, outbound 0.3.7,
 OpenSSH S00, and SSH.NET S01 results into one production ownership model. It also
@@ -32,11 +35,12 @@ This document fixes the following contracts before backend construction:
 - trust, authentication, diagnostics, and secret boundaries;
 - implementation stages and tests required before the typed-SSH path ships.
 
-The C4/3A implementation closes when the document/view identity split and fake
-transport lifecycle pass locally and on Windows 7. WinPTY production connection
-is 3B. SSH.NET, trust UI, and the typed-SSH experience remain Milestone 5, after
-the H01 shim/barrier diagnostic has passed. Writing this specification does not
-claim that those later features exist.
+The C4/3A implementation closed when the document/view identity split and fake
+transport lifecycle passed locally and on Windows 7. The first WinPTY production
+connection is implemented and boundedly target-qualified in 3B.1 for Command
+Prompt. Ctrl+C input acceptance remains in 3C. SSH.NET, trust UI, and the typed-SSH experience remain Milestone 5,
+after the H01 shim/barrier diagnostic has passed. Writing this specification
+does not claim that those later features exist.
 
 The implemented ownership has one deliberate mechanical refinement. Upstream
 TerminalCore stores the renderer controller address in its text buffer and VT
@@ -852,10 +856,14 @@ Milestone 5.
 
 ### 3B: WinPTY root transport
 
-- Wrap pinned WinPTY 0.4.3 in `WinPtyTransport`.
-- Preserve P01's final drain, process-handle, size, and reconstruction limits.
-- Launch Command Prompt, Windows PowerShell 5.1, and PowerShell 7.2.24 through
-  explicit profiles and Unicode environment blocks.
+- [x] Wrap pinned WinPTY 0.4.3 in `WinPtyTransport`.
+- [x] Preserve P01's final drain, process-handle, size, and reconstruction limits
+  for the first Command Prompt root. The 0.5.0 package passes locally and on
+  Windows 7 for the bounded transport, Unicode and lifecycle scope. Ctrl+C
+  manual behavior remains explicitly open under 3C.
+- [ ] Add Windows PowerShell 5.1 and PowerShell 7.2.24 explicit profiles and
+  qualify all three shells with Unicode environment blocks and their required
+  interaction corpus.
 
 ### H01: typed-command shim and barrier diagnostic
 
