@@ -27,13 +27,16 @@ namespace VT7.Host
 
     internal sealed class SessionOutboundOperation
     {
-        private SessionOutboundOperation(SessionOutboundKind kind, byte[] bytes, bool focused, uint columns, uint rows)
+        private SessionOutboundOperation(SessionOutboundKind kind, byte[] bytes, bool focused, uint columns, uint rows,
+            uint pixelWidth, uint pixelHeight)
         {
             Kind = kind;
             Bytes = bytes;
             Focused = focused;
             Columns = columns;
             Rows = rows;
+            PixelWidth = pixelWidth;
+            PixelHeight = pixelHeight;
         }
 
         internal SessionOutboundKind Kind { get; }
@@ -41,6 +44,8 @@ namespace VT7.Host
         internal bool Focused { get; }
         internal uint Columns { get; }
         internal uint Rows { get; }
+        internal uint PixelWidth { get; }
+        internal uint PixelHeight { get; }
         internal long Generation { get; private set; }
         internal long Sequence { get; private set; }
 
@@ -51,19 +56,20 @@ namespace VT7.Host
                 kind != SessionOutboundKind.TerminalReply)
                 throw new ArgumentOutOfRangeException(nameof(kind));
             if (bytes == null) throw new ArgumentNullException(nameof(bytes));
-            return new SessionOutboundOperation(kind, (byte[])bytes.Clone(), false, 0, 0);
+            return new SessionOutboundOperation(kind, (byte[])bytes.Clone(), false, 0, 0, 0, 0);
         }
 
         internal static SessionOutboundOperation Focus(bool focused, byte[] bytes)
         {
             if (bytes == null) throw new ArgumentNullException(nameof(bytes));
-            return new SessionOutboundOperation(SessionOutboundKind.Focus, (byte[])bytes.Clone(), focused, 0, 0);
+            return new SessionOutboundOperation(SessionOutboundKind.Focus, (byte[])bytes.Clone(), focused, 0, 0, 0, 0);
         }
 
-        internal static SessionOutboundOperation Resize(uint columns, uint rows)
+        internal static SessionOutboundOperation Resize(uint columns, uint rows, uint pixelWidth = 0, uint pixelHeight = 0)
         {
             if (columns == 0 || rows == 0) throw new ArgumentOutOfRangeException(nameof(columns));
-            return new SessionOutboundOperation(SessionOutboundKind.Resize, Array.Empty<byte>(), false, columns, rows);
+            return new SessionOutboundOperation(SessionOutboundKind.Resize, Array.Empty<byte>(), false, columns, rows,
+                pixelWidth, pixelHeight);
         }
 
         internal SessionOutboundOperation Stamp(long generation, long sequence)

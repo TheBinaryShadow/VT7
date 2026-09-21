@@ -19,6 +19,11 @@ namespace VT7.Host
         internal static bool SessionOutboundTest { get; private set; }
         internal static bool LaunchLocalSession { get; private set; }
         internal static bool WinPtySessionTest { get; private set; }
+        internal static bool PowerShellProfileTest { get; private set; }
+        internal static bool H01Test { get; private set; }
+        internal static bool SshNetFoundationTest { get; private set; }
+        internal static bool AllowMissingPowerShell7 { get; private set; }
+        internal static string RequestedProfileId { get; private set; } = "command-prompt";
         internal static uint ExpectedSystemDpi { get; private set; }
         internal static string? RecoveryScenario { get; private set; }
         internal static bool CaptureFrames { get; private set; }
@@ -44,6 +49,17 @@ namespace VT7.Host
             SessionStreamTest = HasArgument(e.Args, "--session-stream-test");
             SessionOutboundTest = HasArgument(e.Args, "--session-outbound-test");
             WinPtySessionTest = HasArgument(e.Args, "--winpty-session-test");
+            PowerShellProfileTest = HasArgument(e.Args, "--powershell-profile-test");
+            H01Test = HasArgument(e.Args, "--h01-test");
+            SshNetFoundationTest = HasArgument(e.Args, "--sshnet-foundation-test");
+            AllowMissingPowerShell7 = HasArgument(e.Args, "--allow-missing-powershell-7");
+            var profileIndex = Array.IndexOf(e.Args, "--profile");
+            if (profileIndex >= 0)
+            {
+                RequestedProfileId = profileIndex + 1 < e.Args.Length ? e.Args[profileIndex + 1] : string.Empty;
+                if (Array.IndexOf(new[] { "command-prompt", "windows-powershell", "powershell-7" }, RequestedProfileId.ToLowerInvariant()) < 0)
+                { Shutdown(2); return; }
+            }
             var recoveryIndex = Array.IndexOf(e.Args, "--recovery-test");
             if (recoveryIndex >= 0)
             {
@@ -86,17 +102,26 @@ namespace VT7.Host
                 (InjectSettingsFailure && !SettingsTest)) { Shutdown(2); return; }
             if ((RepaintTest && (RendererMode == 0 || smokeTest || diagnostics || RecoveryScenario != null)) ||
                 (InjectRepaintFailure && !RepaintTest)) { Shutdown(2); return; }
-            var sessionTestCount = (SessionStreamTest ? 1 : 0) + (SessionOutboundTest ? 1 : 0) + (WinPtySessionTest ? 1 : 0);
+            var sessionTestCount = (SessionStreamTest ? 1 : 0) + (SessionOutboundTest ? 1 : 0) +
+                (WinPtySessionTest ? 1 : 0) + (PowerShellProfileTest ? 1 : 0) + (H01Test ? 1 : 0) +
+                (SshNetFoundationTest ? 1 : 0);
             if (sessionTestCount > 0 && (RendererMode == 0 || diagnostics || smokeTest || RepaintTest ||
                 RecoveryScenario != null || SettingsTest || StabilityTest || sessionTestCount != 1))
             { Shutdown(2); return; }
-            CaptureFrames = smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest || StabilityTest || SessionStreamTest || SessionOutboundTest || WinPtySessionTest;
+            if (AllowMissingPowerShell7 && !PowerShellProfileTest && !H01Test) { Shutdown(2); return; }
+            if (profileIndex >= 0 && (diagnostics || smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest ||
+                StabilityTest || sessionTestCount > 0)) { Shutdown(2); return; }
+            CaptureFrames = smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest || StabilityTest ||
+                SessionStreamTest || SessionOutboundTest || WinPtySessionTest || PowerShellProfileTest || H01Test;
+            CaptureFrames = CaptureFrames || SshNetFoundationTest;
             var injectBlank = HasArgument(e.Args, "--inject-blank-frame");
             if (injectBlank && (!smokeTest || RendererMode == 0)) { Shutdown(2); return; }
             SurfaceOptions = RendererMode | (CaptureFrames ? 0x100u : 0u) | (injectBlank ? 0x200u : 0u);
             if (RecoveryScenario == "startup-hardware") SurfaceOptions |= 0x400u;
             if (RecoveryScenario == "startup-both") SurfaceOptions |= 0x800u;
-            LaunchLocalSession = !(diagnostics || smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest || StabilityTest || SessionStreamTest || SessionOutboundTest || WinPtySessionTest);
+            LaunchLocalSession = !(diagnostics || smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest ||
+                StabilityTest || SessionStreamTest || SessionOutboundTest || WinPtySessionTest || PowerShellProfileTest || H01Test);
+            LaunchLocalSession = LaunchLocalSession && !SshNetFoundationTest;
             if (!LaunchLocalSession)
             {
                 ShutdownMode = ShutdownMode.OnExplicitShutdown;
@@ -146,6 +171,27 @@ namespace VT7.Host
                     await WinPtySessionChecks.Run(report);
                     snapshot.SurfaceDisplay = report.ToString();
                     snapshot.Summary = "The production WinPTY root transport launched, resized, exchanged data, drained, and exited through TerminalSession.";
+                }
+                if (PowerShellProfileTest)
+                {
+                    if (!snapshot.Passed) throw new InvalidOperationException("Core or platform checks failed before PowerShell profile testing.");
+                    await PowerShellProfileChecks.Run(report, AllowMissingPowerShell7);
+                    snapshot.SurfaceDisplay = report.ToString();
+                    snapshot.Summary = "Explicit PowerShell profile discovery and the available clean-profile WinPTY lifecycle checks completed.";
+                }
+                if (H01Test)
+                {
+                    if (!snapshot.Passed) throw new InvalidOperationException("Core or platform checks failed before H01 testing.");
+                    await H01Checks.Run(report, AllowMissingPowerShell7);
+                    snapshot.SurfaceDisplay = report.ToString();
+                    snapshot.Summary = "The authenticated typed-command shim, exact fallback and committed WinPTY barrier checks completed.";
+                }
+                if (SshNetFoundationTest)
+                {
+                    if (!snapshot.Passed) throw new InvalidOperationException("Core or platform checks failed before SSH.NET foundation testing.");
+                    await SshNetFoundationChecks.Run(report);
+                    snapshot.SurfaceDisplay = report.ToString();
+                    snapshot.Summary = "The direct SSH.NET root transport foundation, trust input and geometry contracts passed without a network connection.";
                 }
                 if (SettingsTest)
                 {

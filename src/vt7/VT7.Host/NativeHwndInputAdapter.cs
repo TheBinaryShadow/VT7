@@ -74,7 +74,11 @@ namespace VT7.Host
         internal void ObserveAuthoritativeGrid(uint columns, uint rows)
         {
             if (columns == 0 || rows == 0 || !_queue.IsCurrent(_generation)) return;
-            CheckEnqueue(_queue.TryEnqueue(_generation, SessionOutboundOperation.Resize(columns, rows)), "resize");
+            var info = _surface.ReadInfo();
+            var pixelWidth = checked(columns * info.CellWidth);
+            var pixelHeight = checked(rows * info.CellHeight);
+            CheckEnqueue(_queue.TryEnqueue(_generation,
+                SessionOutboundOperation.Resize(columns, rows, pixelWidth, pixelHeight)), "resize");
         }
 
         private bool ProcessCharacter(uint character, IntPtr lParam)

@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace VT7.Host
@@ -29,9 +30,58 @@ namespace VT7.Host
         {
             Document = document ?? throw new ArgumentNullException(nameof(document));
             _ownsDocument = ownsDocument;
+            Focusable = true;
+            KeyboardNavigation.SetIsTabStop(this, true);
         }
 
         internal TerminalDocument Document { get; }
+
+        internal bool FocusTerminal()
+        {
+            var window = Handle;
+            if (window == IntPtr.Zero) return false;
+            NativeMethods.SetFocus(window);
+            return NativeMethods.GetFocus() == window;
+        }
+
+        protected override bool TabIntoCore(TraversalRequest request) => FocusTerminal();
+
+        protected override bool TranslateAcceleratorCore(ref MSG msg, ModifierKeys modifiers)
+        {
+            if (_input == null || Handle == IntPtr.Zero || !IsTerminalAccelerator(msg)) return false;
+            NativeMethods.SendMessage(Handle, unchecked((uint)msg.message), msg.wParam, msg.lParam);
+            return true;
+        }
+
+        protected override bool TranslateCharCore(ref MSG msg, ModifierKeys modifiers)
+        {
+            if (_input == null || Handle == IntPtr.Zero || !IsTerminalCharacterMessage(msg.message)) return false;
+            NativeMethods.SendMessage(Handle, unchecked((uint)msg.message), msg.wParam, msg.lParam);
+            return true;
+        }
+
+        private static bool IsTerminalAccelerator(MSG msg)
+        {
+            if (msg.message != NativeHwndInputAdapter.WmKeyDown &&
+                msg.message != NativeHwndInputAdapter.WmKeyUp &&
+                msg.message != NativeHwndInputAdapter.WmSysKeyDown &&
+                msg.message != NativeHwndInputAdapter.WmSysKeyUp) return false;
+            var key = unchecked((uint)msg.wParam.ToInt64());
+            if (key == 0x03 || key == 0x08 || key == 0x09 || key == 0x0C || key == 0x0D || key == 0x13) return true;
+            if (key >= 0x10 && key <= 0x12) return true;
+            if (key >= 0x21 && key <= 0x28) return true;
+            if (key == 0x2D || key == 0x2E) return true;
+            if (key >= 0x60 && key <= 0x6F) return true;
+            if (key >= 0x70 && key <= 0x87) return true;
+            if (key >= 0xA0 && key <= 0xA5) return true;
+            if (key >= 0xAD && key <= 0xB3) return true;
+            return false;
+        }
+
+        private static bool IsTerminalCharacterMessage(int message) =>
+            message == NativeHwndInputAdapter.WmChar || message == NativeHwndInputAdapter.WmDeadChar ||
+            message == NativeHwndInputAdapter.WmSysChar || message == NativeHwndInputAdapter.WmSysDeadChar;
+
         protected override IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             if (msg == 0x8001)

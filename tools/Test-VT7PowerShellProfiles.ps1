@@ -2,7 +2,8 @@
 param(
     [ValidateSet('Debug', 'Release')][string]$Configuration = 'Debug',
     [string]$BinaryDirectory,
-    [string]$OutputDirectory
+    [string]$OutputDirectory,
+    [switch]$AllowMissingPowerShell7
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3.0
@@ -50,10 +51,10 @@ $reportRoot = if ($OutputDirectory) {
     $parent = [IO.Path]::GetFullPath($OutputDirectory)
     New-Item -ItemType Directory -Path $parent -Force | Out-Null
     $identity = (Get-Date).ToUniversalTime().ToString('yyyyMMdd-HHmmss') + '-' + [Guid]::NewGuid().ToString('N').Substring(0, 8)
-    Join-Path $parent ('winpty-root-' + $identity)
-} else { Join-Path $repositoryRoot "artifacts\vt7\reports\$Configuration\WinPtyRoot" }
+    Join-Path $parent ('powershell-profiles-' + $identity)
+} else { Join-Path $repositoryRoot "artifacts\vt7\reports\$Configuration\PowerShellProfiles" }
 New-Item -ItemType Directory -Path $reportRoot -Force | Out-Null
-$reportPath = Join-Path $reportRoot 'winpty-root.log'
+$reportPath = Join-Path $reportRoot 'powershell-profiles.log'
 $environmentPath = Join-Path $reportRoot 'RUN-ENVIRONMENT.txt'
 $started = Get-Date
 
@@ -70,42 +71,75 @@ $environment = @(
     'WinPtySHA256=' + $expected['winpty.dll']
     'WinPtyAgentSHA256=' + $expected['winpty-agent.exe']
 )
+$windowsPowerShell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+$environment += 'WindowsPowerShellPath=' + $windowsPowerShell
+if (Test-Path -LiteralPath $windowsPowerShell -PathType Leaf) {
+    $environment += 'WindowsPowerShellFileVersion=' + [Diagnostics.FileVersionInfo]::GetVersionInfo($windowsPowerShell).FileVersion
+}
+$powerShell7Path = $null
+foreach ($candidate in @(
+    (Join-Path $env:ProgramFiles 'PowerShell\7\pwsh.exe'),
+    (Join-Path $env:ProgramFiles 'PowerShell\7-preview\pwsh.exe')
+)) {
+    if (Test-Path -LiteralPath $candidate -PathType Leaf) { $powerShell7Path = $candidate; break }
+}
+if ($powerShell7Path) {
+    $powerShell7Version = [Diagnostics.FileVersionInfo]::GetVersionInfo($powerShell7Path)
+    $environment += 'PowerShell7Path=' + $powerShell7Path
+    $environment += 'PowerShell7ProductVersion=' + $powerShell7Version.ProductVersion
+} else {
+    $environment += 'PowerShell7Path=NOT INSTALLED'
+}
 [IO.File]::WriteAllLines($environmentPath, $environment, (New-Object Text.UTF8Encoding($false)))
 
 $arguments = @(
-    '--winpty-session-test',
+    '--powershell-profile-test',
     '--renderer', 'atlas-d3d-hardware',
     '--diagnostics-output', $reportPath
 )
+if ($AllowMissingPowerShell7) { $arguments += '--allow-missing-powershell-7' }
 $process = Start-Process -FilePath $executable -ArgumentList $arguments -PassThru -WindowStyle Hidden
 try {
-    if (-not $process.WaitForExit(60000)) {
+    if (-not $process.WaitForExit(90000)) {
         $process.Kill()
-        throw 'VT7 WinPTY root test exceeded its 60-second timeout.'
+        throw 'VT7 PowerShell profile test exceeded its 90-second timeout.'
     }
-    if ($process.ExitCode -ne 0) { throw "VT7 WinPTY root test failed ($($process.ExitCode)). See $reportPath" }
+    if ($process.ExitCode -ne 0) { throw "VT7 PowerShell profile test failed ($($process.ExitCode)). See $reportPath" }
 }
 finally { $process.Dispose() }
 
-if (-not (Test-Path -LiteralPath $reportPath -PathType Leaf)) { throw 'VT7 WinPTY root test did not produce a report.' }
+if (-not (Test-Path -LiteralPath $reportPath -PathType Leaf)) { throw 'VT7 PowerShell profile test did not produce a report.' }
 $report = Get-Item -LiteralPath $reportPath
-if ($report.LastWriteTime -lt $started.AddSeconds(-2)) { throw 'VT7 WinPTY root test left a stale report.' }
+if ($report.LastWriteTime -lt $started.AddSeconds(-2)) { throw 'VT7 PowerShell profile test left a stale report.' }
 $text = [IO.File]::ReadAllText($reportPath)
 $required = @(
     'Build: VT7 0.8.0',
     'Native: ABI 11, expected 11',
-    'PASS: explicit Command Prompt profile pins executable, arguments, working directory, and a Unicode environment block.',
-    'PASS: WinPtyTransport launched cmd.exe PID',
-    'resized to 100x30',
-    'preserved exit code 37.',
-    'PASS: owner cancellation stopped WinPTY, joined its read path, and ended the document stream without a surviving session callback.',
+    'PASS: Windows PowerShell 5.1 uses an explicit System32 executable, preserves ordinary user profiles, and reserves -NoProfile for controlled diagnostics.',
     'Error: None'
 )
 foreach ($line in $required) {
-    if (-not $text.Contains($line)) { throw "WinPTY root report is missing: $line" }
+    if (-not $text.Contains($line)) { throw "PowerShell profile report is missing: $line" }
+}
+$acceptedWindowsPowerShellEditor = $text.Contains('PASS: Windows PowerShell 5.1 reported runtime 5.1, loaded PSReadLine') -or
+    $text.Contains('PASS: Windows PowerShell 5.1 reported runtime 5.1, used its legacy ConsoleHost editor because PSReadLine was not auto-loaded')
+if (-not $acceptedWindowsPowerShellEditor) { throw 'Windows PowerShell 5.1 reported neither a PSReadLine nor legacy editor pass.' }
+if ($AllowMissingPowerShell7) {
+    $acceptedPowerShell7 = $text.Contains('PASS: PowerShell 7.2.24 reported its exact runtime') -or
+        $text.Contains('SKIP: PowerShell 7 is not installed') -or
+        $text.Contains('outside the Windows 7 qualification target 7.2.24')
+    if (-not $acceptedPowerShell7) { throw 'PowerShell 7 was neither qualified nor explicitly skipped.' }
+} else {
+    foreach ($line in @(
+        'PASS: PowerShell 7.2.24 uses an explicit Program Files executable, preserves ordinary user profiles, and reserves -NoProfile for controlled diagnostics.',
+        'PASS: PowerShell 7.2.24 reported its exact runtime, loaded PSReadLine with prediction capability, exposed completion, ran a native child, resized, drained, and exited through WinPTY.'
+    )) {
+        if (-not $text.Contains($line)) { throw "PowerShell 7.2.24 report is missing: $line" }
+    }
+    if ($text -match '(?m)^SKIP:') { throw 'Strict target validation cannot contain a skipped PowerShell 7 check.' }
 }
 if ($text -notmatch '(?m)^Passed: True\r?$' -or $text -match '(?m)^FAIL:') {
-    throw "VT7 WinPTY root report did not pass. See $reportPath"
+    throw "VT7 PowerShell profile report did not pass. See $reportPath"
 }
-Write-Host "PASS: WinPTY root transport ($reportPath)"
+Write-Host "PASS: PowerShell profiles ($reportPath)"
 if ($OutputDirectory) { Write-Host "Return this entire log folder: $reportRoot" }

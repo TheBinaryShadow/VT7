@@ -89,6 +89,10 @@ namespace VT7.Host
         internal static extern short GetKeyState(int virtualKey);
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         internal static extern IntPtr SendMessage(IntPtr window, uint message, IntPtr wParam, IntPtr lParam);
+        [DllImport("user32.dll")]
+        internal static extern IntPtr SetFocus(IntPtr window);
+        [DllImport("user32.dll")]
+        internal static extern IntPtr GetFocus();
         [DllImport("user32.dll", SetLastError = true)]
         internal static extern bool MoveWindow(IntPtr window, int x, int y, int width, int height, bool repaint);
         [DllImport("user32.dll")]

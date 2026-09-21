@@ -1,12 +1,23 @@
 # Terminal document, transport, and typed-SSH handoff specification
 
-Decision date: 2026-09-14. Implementation status updated 2026-09-17: 3A.1 and
+Decision date: 2026-09-14. Implementation status updated 2026-09-19: 3A.1 and
 3A.2 are implemented as 0.4.0/native ABI 11 and pass locally in Debug and
 Release and on the exact Windows 7 SP1 x64 candidate. The 0.5.0 3B.1 slice now
 connects an explicit Command Prompt profile to production `WinPtyTransport` and
-passes its bounded local and Windows 7 transport/Unicode/lifecycle scope. Ctrl+C
-classification and the PowerShell profiles remain. H01 and Milestone 5 remain
-future phases.
+passes its bounded local and Windows 7 transport/Unicode/lifecycle scope. The
+3B.2 profiles and keyboard-sink correction are accepted on Windows 7. H01 is
+implemented in 0.7.0 and its three embedded Windows 7 shell paths pass. The
+external fallback exposed three downlevel console-handle restrictions in
+packages 0.1 through 0.3. Corrected 0.7.3 package 0.4 uses Windows 7's
+traditional standard-handle transfer without broad inheritance and retains the
+explicit handle list on Windows 8+; its strict Windows 7 three-shell run passes
+and H01 is accepted. Version 0.8.0 starts Milestone 5 with the first production
+`SshNetTransport` as a direct root profile. It implements strict fingerprint
+trust, private-key and password authentication, actual cell/pixel PTY geometry,
+serialized live resize, one ordered output reader and stream-first shutdown
+behind ABI 11. Its local package passes; Windows 7 controlled-server validation
+is pending. The overlay coordinator and typed `USE_EMBEDDED` reply remain
+disabled.
 
 This specification turns the accepted WinPTY P01, input I01, outbound 0.3.7,
 OpenSSH S00, and SSH.NET S01 results into one production ownership model. It also
@@ -38,9 +49,11 @@ This document fixes the following contracts before backend construction:
 The C4/3A implementation closed when the document/view identity split and fake
 transport lifecycle passed locally and on Windows 7. The first WinPTY production
 connection is implemented and boundedly target-qualified in 3B.1 for Command
-Prompt. Ctrl+C input acceptance remains in 3C. SSH.NET, trust UI, and the typed-SSH experience remain Milestone 5,
-after the H01 shim/barrier diagnostic has passed. Writing this specification
-does not claim that those later features exist.
+Prompt. Ctrl+C input acceptance remains in 3C. The first SSH.NET direct-profile
+and trust/authentication UI slice is implemented in 0.8.0 after the H01 shim/
+barrier diagnostic passed. Windows 7 network acceptance, overlay coordination
+and the typed-SSH experience remain Milestone 5 work. This specification
+distinguishes those later contracts from the implemented direct root.
 
 The implemented ownership has one deliberate mechanical refinement. Upstream
 TerminalCore stores the renderer controller address in its text buffer and VT
@@ -368,6 +381,13 @@ A first-class SSH profile starts `SshNetTransport` as the root transport and has
 no WinPTY process, shim, or overlay. Its document and view follow the same
 ownership rules; when SSH completes, the session becomes closed while the view
 may remain attached to display scrollback and the final result.
+
+Version 0.8.0 implements this direct-root paragraph. The connection dialog
+requires a separately obtained SHA256 fingerprint and creates an ephemeral
+private-key or password option; the session allocates `xterm-256color` with the
+view's actual cell and pixel geometry. The implementation record and target
+procedure are in
+[SSH.NET direct-profile transport](../validation/2026-09-19-sshnet-direct-profile.md).
 
 Presentation uses an independent state machine:
 
@@ -861,15 +881,16 @@ Milestone 5.
   for the first Command Prompt root. The 0.5.0 package passes locally and on
   Windows 7 for the bounded transport, Unicode and lifecycle scope. Ctrl+C
   manual behavior remains explicitly open under 3C.
-- [ ] Add Windows PowerShell 5.1 and PowerShell 7.2.24 explicit profiles and
+- [x] Add Windows PowerShell 5.1 and PowerShell 7.2.24 explicit profiles and
   qualify all three shells with Unicode environment blocks and their required
   interaction corpus.
 
 ### H01: typed-command shim and barrier diagnostic
 
-- Build the native shim and exact fallback quoting tests.
-- Implement the secured named-pipe handshake and PID/console membership check.
-- Prove command resolution and the visible barrier through each required shell
+- [x] Build the native shim and exact fallback quoting tests.
+- [x] Implement and locally pass the secured named-pipe handshake and
+  PID/console membership check.
+- [x] Prove command resolution and the visible barrier through each required shell
   on Windows 7 before enabling embedded handling.
 
 ### Milestone 5: SSH.NET and typed handoff

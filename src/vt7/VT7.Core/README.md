@@ -1,6 +1,6 @@
 # VT7 Core and renderer boundary
 
-Engineering version 0.5.2 builds the real Microsoft Terminal core, parser, dispatch,
+Engineering version 0.8.0 builds the real Microsoft Terminal core, parser, dispatch,
 text buffer, and supporting types into `VT7.Core.lib`, then links that library
 into `VT7.Native.dll`. The static library is not a separate runtime dependency.
 It accepts a deterministic session byte stream but is not an interactive terminal release.
@@ -8,7 +8,8 @@ It accepts a deterministic session byte stream but is not an interactive termina
 Current status and evidence navigation are in the
 [documentation index](../../../doc/vt7/README.md) and
 [handoff](../../../doc/vt7/HANDOFF.md). The issued 0.3.5 artifact uses ABI 8;
-current 0.5.2 source uses ABI 11 and also contains later session and resource-isolation
+current 0.8.0 source uses ABI 11 and also contains the direct SSH.NET root
+transport, later session and resource-isolation
 diagnostics absent from that archive. Package hashes, not the version label alone, identify tested
 binaries. This source document does not replace frozen package provenance.
 

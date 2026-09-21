@@ -12,12 +12,25 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <RestoreSources>https://api.nuget.org/v3/index.json</RestoreSources>
+    <RestorePackagesPath>$(VT7ArtifactsRoot)deps\nuget</RestorePackagesPath>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <OutputPath>$(VT7BinaryRoot)</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="SSH.NET" Version="[2026.0.0]" />
     <ProjectReference Include="..\VT7.Native\VT7.Native.vcxproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+    </ProjectReference>
+    <ProjectReference Include="..\VT7.SshShim\VT7.SshShim.vcxproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+    </ProjectReference>
+    <ProjectReference Include="..\VT7.WinPtyFixture\VT7.WinPtyFixture.vcxproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
     </ProjectReference>
@@ -27,5 +40,11 @@
     <Copy SourceFiles="$(VT7ArtifactsRoot)deps\winpty-0.4.3-msvc2015\x64\bin\winpty.dll;$(VT7ArtifactsRoot)deps\winpty-0.4.3-msvc2015\x64\bin\winpty-agent.exe;$(VT7ArtifactsRoot)deps\winpty-0.4.3-msvc2015\LICENSE"
           DestinationFiles="$(OutDir)winpty.dll;$(OutDir)winpty-agent.exe;$(OutDir)winpty-LICENSE.txt"
           SkipUnchangedFiles="true" />
+  </Target>
+
+  <Target Name="StageSshShim" AfterTargets="Build">
+    <MakeDir Directories="$(OutDir)shim" />
+    <Copy SourceFiles="$(OutDir)VT7.SshShim.exe;$(OutDir)VT7.SshShim.exe"
+          DestinationFiles="$(OutDir)shim\ssh.exe;$(OutDir)shim\ssh-system.exe" />
   </Target>
 </Project>

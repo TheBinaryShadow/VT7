@@ -952,15 +952,40 @@ feasibility, not full SSH acceptance or a promise to ship the evaluated release.
   - [x] Accept the 0.5.2 committed-character correction on the supplied test
     machines. Printable input returns to live output without changing the
     accepted wheel and retained-history behavior.
-- [ ] Launch Command Prompt, Windows PowerShell 5.1, and PowerShell 7.2.24 with
+- [x] Launch Command Prompt, Windows PowerShell 5.1, and PowerShell 7.2.24 with
   explicit executable, arguments, environment, working directory, and versions.
   - [x] Implement and target-qualify the explicit Command Prompt profile in
     0.5.0 for the bounded 3B.1 scope.
-  - [ ] Add and qualify explicit Windows PowerShell 5.1 and PowerShell 7.2.24
-    profiles after the Command Prompt target result is reviewed.
-- [ ] Validate PSReadLine editing, history, completion, supported prediction,
+  - [x] Add explicit Windows PowerShell 5.1 and versioned PowerShell 7 profiles
+    in 0.6.0 through 0.6.6, with ordinary user profiles preserved, clean diagnostic variants,
+    visible selection and deterministic root replacement.
+  - [x] Qualify the corrected 0.6.4 Windows 7 PowerShell 5.1/7.2.24 candidate.
+- [x] Validate PSReadLine editing, history, completion, supported prediction,
   multiline prompts, and native children, using clean and ordinary profiles.
   Do not silently alter execution policy, user profiles, or global code pages.
+  - [x] Pass the local clean-profile transport contract, accept the 5.1 legacy
+    ConsoleHost editor, and reject a local 7.6 preview as 7.2.24 evidence.
+  - [x] Pass exact 5.1/7.2.24 automation and ordinary multiline Croatian text,
+    resize, scrollback, native-child and lifecycle checks on Windows 7.
+  - [x] Confirm 0.6.5 keeps the accepted automated session contract and clean
+    startup/replacement/shutdown behavior; record that direct `SetFocus` does not
+    keep Tab, Down and End inside the terminal.
+  - [x] Confirm the 0.6.6 `HwndHost` keyboard sink keeps Tab, Down and End
+    inside the terminal immediately after startup and profile replacement.
+- [x] Accept H01, the typed-command shim and committed-output barrier, on the
+  exact Windows 7 shell matrix before enabling typed embedded SSH.
+  - [x] Build the Windows 7-subsystem native shim, bounded grammar and exact
+    hashed external fallback with CRT-compatible quoting and sanitized state.
+  - [x] Implement and locally pass the per-session secured pipe, capability/
+    HMAC exchange, PID/creation-time/ancestry/console checks, one-shot decision
+    and marker commit through `SessionOutputPump`.
+  - [x] Pass corrected 0.7.3 package 0.4 through Command Prompt, Windows
+    PowerShell 5.1 and exact PowerShell 7.2.24 on Windows 7. Package 0.1 passed
+    all embedded paths but failed external fallback with duplicated console
+    handles; package 0.2 proves the originals reject `SetHandleInformation` with
+    error 87; package 0.3 proves traditional console handles cannot enter the
+    explicit handle list. Package 0.4 passes the strict Windows 7 matrix.
+    Embedded SSH stays disabled until the Milestone 5 product path is ready.
 - [ ] Propagate the authoritative grid to the child console during resize;
   compare results across code pages, long prompts, wide/combining text, and
   full-screen applications.
@@ -1034,23 +1059,38 @@ Deliver the architecture accepted by 3A/S01. S00 rejected unmodified redirected
 OpenSSH for interactive sessions; S01 accepts SSH.NET 2026.0.0 as the embedded
 interactive candidate on the tested Windows 7 configuration.
 
-- [ ] Integrate the selected implementation and pin its complete redistributable
-  dependency set. Recheck security advisories, Windows 7 execution, licensing,
+- [x] Integrate SSH.NET 2026.0.0 behind `ITerminalTransport` and pin its complete
+  audited redistributable dependency set. Version 0.8.0 direct-profile package
+  0.1 passes local restore, build, offline lifecycle, image/import, notice and ZIP
+  verification. Windows 7 network acceptance is tracked separately below.
+- [ ] Recheck security advisories, Windows 7 execution, licensing,
   release/support status, and the maintenance/update process before shipping.
-- [ ] Implement host-key verification and recoverable known-host management.
+- [x] Require and verify a separately obtained SHA256 host-key fingerprint before
+  authentication in the direct-profile slice. A mismatch fails closed.
+- [ ] Implement recoverable known-host management.
   Separate unknown, changed, matching, and unreadable trust records; never
   silently accept a mismatch or continue authentication past a failed decision.
-- [ ] Support password, private-key, passphrase, and agent authentication where
+- [x] Support ephemeral password, private-key and passphrase authentication in
+  the direct-profile dialog without persistence or default-log disclosure.
+- [ ] Add agent and keyboard-interactive authentication where
   the selected implementation permits it. Keep prompts/diagnostics distinct
   from remote terminal data; do not infer structured trust decisions from
   arbitrary localized terminal text. Protect secrets and exclude them from logs.
-- [ ] Allocate the requested remote terminal type and dimensions.
-- [ ] Send remote window-change messages for relevant grid changes, coalescing
-  bursts but delivering the latest size. Verify remote dimensions, not only
-  successful local writes.
+- [x] Allocate `xterm-256color` with the authoritative root session cell and
+  native viewport pixel dimensions. Local geometry contracts pass.
+- [ ] Accept allocation and live `ChangeWindowSize` behavior on Windows 7 against
+  the controlled Debian server. The 0.8.0 implementation serializes resize with
+  input and delivers the latest session size; target `stty size` remains pending.
 - [ ] Handle stage-specific deadlines/cancellation, stalled peers, partial I/O,
   rekey under output, keepalives, EOF/close/exit status, and reconnection UX (S01).
   Never replay already-submitted input automatically on reconnection.
+- [ ] Accept the bounded 0.8.0 direct-profile trust/authentication, Unicode,
+  output/scrollback, resize, EOF, idle-close and local-profile-isolation matrix on
+  Windows 7. See the
+  [direct-profile record](doc/vt7/validation/2026-09-19-sshnet-direct-profile.md).
+- [ ] Implement the SSH overlay coordinator and structured prompt ownership, then
+  enable H01 `USE_EMBEDDED` only after its ordering and return-to-local-shell
+  contracts pass. Typed `ssh` remains disabled in package 0.1.
 - [ ] Test `vim`, `htop`, `tmux`, `mc`, `less`, full-screen TUIs, mouse input,
   bracketed paste, Unicode, 256-color/true-color output, alternate-screen
   restoration, and the shared keyboard/IME/clipboard paths on Windows 7.

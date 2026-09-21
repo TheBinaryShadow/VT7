@@ -26,17 +26,29 @@ namespace VT7.Host
 
     internal sealed class TerminalStartContext
     {
-        internal TerminalStartContext(Guid sessionId, long generation, uint columns, uint rows)
+        internal TerminalStartContext(Guid sessionId, long generation, uint columns, uint rows,
+            uint pixelWidth = 0, uint pixelHeight = 0)
         {
             SessionId = sessionId;
             Generation = generation;
             Columns = columns;
             Rows = rows;
+            PixelWidth = pixelWidth;
+            PixelHeight = pixelHeight;
         }
         internal Guid SessionId { get; }
         internal long Generation { get; }
         internal uint Columns { get; }
         internal uint Rows { get; }
+        internal uint PixelWidth { get; }
+        internal uint PixelHeight { get; }
+    }
+
+    internal readonly struct TerminalPixelSize
+    {
+        internal TerminalPixelSize(uint width, uint height) { Width = width; Height = height; }
+        internal uint Width { get; }
+        internal uint Height { get; }
     }
 
     internal sealed class TerminalOutputBlock
@@ -85,6 +97,7 @@ namespace VT7.Host
         private readonly HashSet<long> _producerGenerations = new HashSet<long>();
         private readonly Dictionary<long, ITerminalTransport> _producerTransports = new Dictionary<long, ITerminalTransport>();
         private readonly ITerminalTransport _root;
+        private readonly Func<TerminalPixelSize>? _pixelSize;
         private readonly SessionOutputPump _output;
         private ITerminalTransport? _overlay;
         private SessionOutboundQueue? _outbound;
@@ -95,10 +108,12 @@ namespace VT7.Host
             new TaskCompletionSource<TerminalTransportResult>(TaskCreationOptions.RunContinuationsAsynchronously);
         private bool _disposed;
 
-        internal TerminalSession(TerminalDocument document, ITerminalTransport root)
+        internal TerminalSession(TerminalDocument document, ITerminalTransport root,
+            Func<TerminalPixelSize>? pixelSize = null)
         {
             Document = document ?? throw new ArgumentNullException(nameof(document));
             _root = root ?? throw new ArgumentNullException(nameof(root));
+            _pixelSize = pixelSize;
             SessionId = Guid.NewGuid();
             _output = new SessionOutputPump(document);
         }
@@ -123,7 +138,9 @@ namespace VT7.Host
                     _producerTransports.Add(generation, _root);
                 }
                 var info = Document.ReadInfo();
-                await _root.StartAsync(new TerminalStartContext(SessionId, generation, info.Columns, info.Rows),
+                var pixels = _pixelSize?.Invoke() ?? default;
+                await _root.StartAsync(new TerminalStartContext(SessionId, generation, info.Columns, info.Rows,
+                    pixels.Width, pixels.Height),
                     new OutputSink(this), _lifetime.Token);
                 _outbound = new SessionOutboundQueue(generation, _root);
                 State = TerminalSessionState.RunningRoot;
@@ -155,7 +172,9 @@ namespace VT7.Host
                     _producerTransports.Add(generation, overlay);
                 }
                 var info = Document.ReadInfo();
-                await overlay.StartAsync(new TerminalStartContext(SessionId, generation, info.Columns, info.Rows),
+                var pixels = _pixelSize?.Invoke() ?? default;
+                await overlay.StartAsync(new TerminalStartContext(SessionId, generation, info.Columns, info.Rows,
+                    pixels.Width, pixels.Height),
                     new OutputSink(this), _lifetime.Token);
                 _overlay = overlay;
                 _outbound = new SessionOutboundQueue(generation, overlay);
@@ -317,6 +336,7 @@ namespace VT7.Host
             _audit = audit;
         }
         internal string Name { get; }
+        internal TerminalStartContext? StartContext { get; private set; }
         internal SessionOutboundOperation[] Received { get { lock (_gate) return _received.ToArray(); } }
         public Guid TransportId { get; } = Guid.NewGuid();
         public long Generation { get; private set; }
@@ -329,6 +349,7 @@ namespace VT7.Host
             if (State != TerminalTransportState.Created) throw new InvalidOperationException("Transport already started.");
             State = TerminalTransportState.Starting;
             Generation = context.Generation;
+            StartContext = context;
             _output = output ?? throw new ArgumentNullException(nameof(output));
             State = TerminalTransportState.Running;
             return Task.CompletedTask;

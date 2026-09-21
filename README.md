@@ -22,11 +22,17 @@ independent open-source engineering effort to create a real terminal
 application for Windows 7.
 
 > [!IMPORTANT]
-> VT7 is currently in pre-alpha development. Version 0.5.2 produces the first
-> interactive Command Prompt candidate and its bounded Windows 7 transport,
-> Unicode and lifecycle checks pass. It is not an alpha release; Ctrl+C prompt
-> behavior and the wider shell/input corpus remain open. Other features described
-> here remain project goals until they are implemented and verified on Windows 7.
+> VT7 is currently in pre-alpha development. Version 0.8.0 retains selectable
+> Command Prompt, Windows PowerShell 5.1 and versioned PowerShell 7 profiles to
+> the accepted local transport. The exact PowerShell 5.1/7.2.24 transport,
+> Unicode, resize, lifecycle and keyboard corpus passes on Windows 7. The 0.7.3
+> H01 package adds a secured, typed `ssh` shim/fallback and output-ordering
+> barrier; its exact Windows 7 three-shell run passes. Version 0.8.0 adds the
+> first direct SSH.NET root profile with strict host-key verification, private-key
+> or password authentication, a remote PTY and live resize. Its local package is
+> ready for Windows 7 controlled-server validation; typed `ssh` remains disabled.
+> Other
+> features described here remain project goals until implemented and verified.
 
 Picking up development? Start with the [development handoff](doc/vt7/HANDOFF.md)
 and [documentation index](doc/vt7/README.md). They distinguish current source,
@@ -143,12 +149,38 @@ build the best terminal we can for the platform we love.
 
 ## Project status
 
-Current working source: **0.5.2, native ABI 11**. It retains the accepted 3A
-document/session/view ownership and now connects one explicit Command Prompt
-profile to pinned WinPTY 0.4.3 through production `WinPtyTransport`. Debug and
-Release locally pass real spawn, input, resize, output drain, exit-status and
-cancellation checks, the earlier 3A regressions and the full renderer/host
-suite. The exact 0.5.0 Windows 7 package also passes all three runners; manual
+Current working source: **0.8.0, native ABI 11**. It retains the accepted 3A
+document/session/view ownership and Command Prompt path, then adds explicit
+Windows PowerShell 5.1 and versioned PowerShell 7 profiles through the same
+production `WinPtyTransport`. Ordinary PowerShell launches preserve user
+profiles; only controlled diagnostics use `-NoProfile`. The visible selector
+replaces and joins the active root session without moving transport ownership
+into WPF. The exact 0.6.4 Windows 7 run passes all four automated stages and both
+ordinary shells pass Unicode, multiline, resize, scrollback, native-child and
+lifecycle checks. It exposed that WPF retained focus after profile startup and
+that the selected profile text lacked contrast. Version 0.6.5 applied explicit
+selector colors and passed every automated contract plus startup, replacement
+and shutdown on Windows 7, but its direct `SetFocus` correction did not stop WPF
+from consuming Tab, Down and End. Version 0.6.6 implements the missing
+`HwndHost` keyboard-sink path. All automated stages pass on Windows 7, and the
+manual retest confirms the affected keys work properly in every local profile.
+Version 0.7.3 implements the corrected H01 native shim and managed broker diagnostic. Its
+per-session pipe capability, authenticated PID/console checks, restricted typed
+grammar, exact external fallback and committed-output barrier pass locally and
+in the strict Windows 7 Command Prompt, Windows PowerShell 5.1 and PowerShell
+7.2.24 run. H01 is accepted for its bounded diagnostic scope. It does not enable
+embedded SSH or contact a network endpoint. Version 0.8.0 incorporates the exact
+S01-accepted SSH.NET 2026.0.0 dependency closure and implements a direct remote
+root through the production `ITerminalTransport` boundary. The **Start SSH...**
+dialog requires an out-of-band SHA256 host-key fingerprint and supports a
+dedicated private key or password without persistence. The transport allocates
+an `xterm-256color` PTY with real cell/pixel geometry, serializes input and live
+resize, uses one ordered output reader, and performs stream-first shutdown. Its
+offline package and regression suite pass locally; Windows 7 network acceptance
+is pending. The [direct-profile record](doc/vt7/validation/2026-09-19-sshnet-direct-profile.md)
+defines the exact boundary and target procedure. Typed `ssh` remains disabled
+until that direct path and the later overlay coordinator are accepted.
+The exact 0.5.0 Windows 7 package also passes all three runners; manual
 Command Prompt use, Croatian text and a Unicode filename pass. Ctrl+C interrupts
 a running command; empty or partial prompt-line cancellation has the known
 WinPTY 0.4.3 limitation. Version 0.5.1 added native mouse-wheel scrollback; its
@@ -156,14 +188,17 @@ Windows 7 run passed movement and retained-history behavior but exposed that
 printable characters did not snap back to live output. Version 0.5.2 moves that
 snap to VT7's committed-character boundary and passes local Debug/Release and
 the supplied target-machine checks without further issues.
-This accepts the bounded 3B.1 transport, not the full 3B or 3C gate. S00 is
+This accepts the bounded 3B.1 transport and the 3B.2 PowerShell transport/profile
+corpus and its 0.6.6 keyboard correction. Neither
+result closes the full 3B or 3C gate. S00 is
 complete: the exact Microsoft 10.0p2
 x64 client passes command bytes, trust and lifecycle tests, while its 0 by 0
 PTY result and exact source reject the redirected interactive architecture.
-The exact SSH.NET 2026.0.0 S01 transport paths succeeded on Windows 7 against
+The exact SSH.NET 2026.0.0 S01 diagnostic paths succeeded on Windows 7 against
 controlled Debian. Corrected package 0.6 passes both confirmation runs and
-selects SSH.NET as the embedded interactive candidate. Its locked closure and
-supplier notices remain isolated until production integration. The completed
+selects SSH.NET as the embedded interactive candidate. Version 0.8.0 now uses
+that locked closure in the production host; the first direct-profile target run
+remains pending. The completed
 [Windows 7 retirement diagnostic](doc/vt7/diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result)
 confirms WARP work cleanup and worker-associated Event release by 90 seconds;
 54 process handles remain above startup and the integrated WARP failure stays
@@ -275,6 +310,66 @@ dead-key and AltGr composition through `WM_CHAR`, without synthesizing printable
 text from keydown events. The regression now encodes an actual printable `x`
 and verifies that it returns the viewport to live output.
 
+Engineering **0.6.0** adds typed Windows PowerShell 5.1 and PowerShell 7
+profiles, exact executable/version discovery, visible root-session selection and
+strict 7.2.24 qualification. Normal launches retain user profiles and settings;
+clean diagnostics verify PSReadLine, completion, multiline input, Croatian
+environment text, native children, resize and final drain. See the
+[3B.2 validation record](doc/vt7/validation/2026-09-17-powershell-profiles-3b2.md).
+
+Engineering **0.6.1** split the multiline diagnostic into separately observed
+writes after 0.6.0 timed out. Two Windows 7 runs still timed out because the
+lines retained a carriage-return-plus-line-feed terminator.
+
+Engineering **0.6.2** sends the carriage return produced by VT7's real Enter-key
+path without an additional line feed. It also records per-line WinPTY counters
+if the target still stalls. The target received and echoed every line but stayed
+inside the continuation construct.
+
+Engineering **0.6.3** removes multiline continuation parsing from the automated
+gate. One ordinary prompt line performs the same checks and exits directly with
+a distinct code for every failed assertion. Its target result identifies absent
+automatic PSReadLine loading in clean Windows PowerShell 5.1.
+
+Engineering **0.6.4** accepts either the built-in Windows PowerShell ConsoleHost
+editor or an auto-loaded PSReadLine module. PowerShell 7.2.24 still requires its
+bundled PSReadLine and prediction capability. The manual workflow validates
+visible history, completion and multiline behavior with the active editor. Its
+Windows 7 automated suite passes; ordinary use verifies multiline Croatian text,
+resize, scrollback and clean lifecycle while exposing WPF focus and selector
+contrast defects.
+
+Engineering **0.6.5** returns Win32 focus to the native terminal HWND after
+profile startup and replacement and gives the closed profile selector an
+explicit text/background pair. Target testing proved that focus alone does not
+cross WPF keyboard preprocessing: Tab, Down and End can still navigate WPF.
+
+Engineering **0.6.6** overrides the `HwndHost` keyboard sink for terminal
+navigation, editing, control and character messages before WPF performs control
+traversal. Its focused regression now exercises `IKeyboardInputSink`, including
+Tab, Down, End and the printable-text boundary that the 0.6.5 check omitted.
+All four Windows 7 stages and the manual all-profile key retest pass.
+
+Engineering **0.7.0** implements the bounded H01 typed-command shim and barrier
+diagnostic. A Windows 7-subsystem native `ssh.exe` shim authenticates to a
+per-session local broker, reports its process/console identity, accepts only the
+specified interactive grammar, and falls back to an exact hashed external
+executable with CRT-compatible quoting and sanitized state. Embedded acceptance
+uses a visible WinPTY marker whose bytes must commit through `SessionOutputPump`
+before the host completes the handoff. Debug/Release and staged-package checks
+pass locally.
+
+The first Windows 7 H01 run passes all three embedded shell/barrier paths but
+exposes that duplicated console handles cannot be used by the external fallback
+child on Windows 7. Engineering **0.7.1** tries to mark the original handles
+inheritable, but package 0.2 proves WinPTY's Windows 7 console handles reject
+that operation with error 87. Engineering **0.7.2** then proves Windows 7 also
+rejects traditional console handles inside `PROC_THREAD_ATTRIBUTE_HANDLE_LIST`
+when `CreateProcessW` returns error 1450. Engineering **0.7.3** uses Windows 7's
+documented standard-handle transfer with `bInheritHandles=FALSE`, while Windows
+8+ retains the explicit handle-list path. Package 0.4 passes the strict Windows
+7 three-shell target run and H01 is accepted.
+
 S00 now has an endpoint-independent OpenSSH preflight. It records the installed
 client's exact identity, raw stdout/stderr routing, algorithm inventory,
 effective configuration and bounded cancellation without credentials, a remote
@@ -342,8 +437,14 @@ Windows 7. Build 0.5.0 implements the first 3B Command Prompt slice and passes
 its bounded Windows 7 transport/Unicode/lifecycle scope. Active-command Ctrl+C
 works; prompt-line cancellation is the known WinPTY limit. Build 0.5.1 proves
 native wheel movement and retained history on the target; build 0.5.2 corrects
-printable-character snap-to-live and passes the supplied target checks. The broader
-input corpus remains open. Build 0.3.5
+printable-character snap-to-live and passes the supplied target checks. Build
+0.6.4 carries the accepted Windows 7 local PowerShell profile layer and editor-
+fallback automation. Version 0.6.5 retains the accepted contracts and lifecycle
+but fails the manual navigation-key correction. Version 0.6.6 adds the WPF
+keyboard-sink implementation and passes focused target confirmation. The
+0.7.3 H01 package passes its strict Windows 7 three-shell run. Version 0.8.0
+implements the separate direct SSH.NET root profile and awaits Windows 7 network
+acceptance; typed SSH remains disabled. The broader input corpus remains open. Build 0.3.5
 implements synchronized-output, idle CPU and shutdown checks after the accepted
 0.3.4 scaling matrix. Its WARP resource concern remains recorded under REL01.
 The recreate/reuse comparison, ownership trace and retirement diagnostic now
@@ -368,9 +469,9 @@ implemented and target validated. S00 rejects direct redirected OpenSSH for
 interactive PTY use, while S01 accepts SSH.NET 2026.0.0 as the embedded
 interactive candidate. The 3A session-identity/lifetime split is accepted on
 Windows 7; the selected WinPTY root transport is now implemented and boundedly
-target accepted for Command Prompt. Ctrl+C control delivery and the PowerShell
-5.1/7.2.24 profile corpus remain in Milestone 3. Full SSH delivery remains a
-later milestone.
+target accepted for Command Prompt. Ctrl+C control delivery retains its stated
+limit. The PowerShell 5.1/7.2.24 profile and transport corpus is accepted on the
+supplied Windows 7 target. Full SSH delivery remains a later milestone.
 
 - [x] Establish the VT7 project identity and scope.
 - [x] Select and record the Microsoft Terminal upstream baseline.
@@ -383,7 +484,8 @@ later milestone.
 - [ ] Complete the remaining C3 renderer qualification, including WARP
   resource lifetime, broader environment checks and subsequent timed stability.
 - [ ] Run an interactive local shell through the Windows 7 PTY backend.
-- [ ] Complete the first direct SSH session.
+- [ ] Accept the first direct SSH session on Windows 7. Version 0.8.0 package
+  0.1 is implemented and locally verified; controlled-server validation remains.
 - [ ] Add the daily-driver interface, including tabs, panes, profiles, and
   settings.
 - [ ] Publish the first alpha build.

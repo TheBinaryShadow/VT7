@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Threading;
 
 namespace VT7.Host
@@ -73,7 +75,35 @@ namespace VT7.Host
                 var queue = window.SessionOutbound ?? throw new InvalidOperationException("The outbound session owner was not created.");
                 var audit = window.OutboundAudit ?? throw new InvalidOperationException("The outbound audit sink was not created.");
 
+                const int wmGetDlgCode = 0x0087;
+                const long requiredDialogKeys = 0x0001 | 0x0002 | 0x0004 | 0x0080;
+                var dialogCode = NativeMethods.SendMessage(surface.Handle, wmGetDlgCode, IntPtr.Zero, IntPtr.Zero).ToInt64();
+                Require((dialogCode & requiredDialogKeys) == requiredDialogKeys,
+                    $"The terminal HWND did not claim arrows, Tab, characters and all keys (0x{dialogCode:X}).");
+                var previousFocus = NativeMethods.GetFocus();
+                Require(surface.FocusTerminal() && NativeMethods.GetFocus() == surface.Handle,
+                    "The terminal HWND could not take keyboard focus from the WPF host.");
+                if (previousFocus != IntPtr.Zero && previousFocus != surface.Handle)
+                    NativeMethods.SetFocus(previousFocus);
+
                 var before = await AddFence(queue, audit, 0xF0);
+                var tab = KeyMessage(surface, NativeHwndInputAdapter.WmKeyDown, 0x09, KeyBits(0x0F));
+                var down = KeyMessage(surface, NativeHwndInputAdapter.WmKeyDown, 0x28, KeyBits(0x50, true));
+                var end = KeyMessage(surface, NativeHwndInputAdapter.WmKeyDown, 0x23, KeyBits(0x4F, true));
+                var letter = KeyMessage(surface, NativeHwndInputAdapter.WmKeyDown, 0x41, KeyBits(0x1E));
+                var sink = (IKeyboardInputSink)surface;
+                Require(sink.TranslateAccelerator(ref tab, ModifierKeys.None) &&
+                    sink.TranslateAccelerator(ref down, ModifierKeys.None) &&
+                    sink.TranslateAccelerator(ref end, ModifierKeys.None),
+                    "The WPF keyboard sink did not retain Tab, Down and End for the terminal HWND.");
+                Require(!sink.TranslateAccelerator(ref letter, ModifierKeys.None),
+                    "The WPF keyboard sink swallowed a printable key before committed-text translation.");
+                var sinkAfter = await AddFence(queue, audit, 0xEF);
+                var sinkBytes = audit.Snapshot().Where(item => item.Sequence > before && item.Sequence < sinkAfter &&
+                    item.Kind == SessionOutboundKind.InputBytes).SelectMany(item => item.Bytes).ToArray();
+                Require(Contains(sinkBytes, new byte[] { 9 }) && Contains(sinkBytes, new byte[] { 0x1B, 0x5B, 0x42 }),
+                    "The WPF keyboard sink did not encode Tab and Down through TerminalCore.");
+
                 Send(surface, NativeHwndInputAdapter.WmSetFocus, 0, 0);
                 Send(surface, NativeHwndInputAdapter.WmKeyDown, 0x41, KeyBits(0x1E));
                 Send(surface, NativeHwndInputAdapter.WmChar, '\u010D', KeyBits(0x1E));
@@ -109,7 +139,7 @@ namespace VT7.Host
                 Send(surface, NativeHwndInputAdapter.WmKillFocus, 0, 0);
                 var after = await AddFence(queue, audit, 0xF1);
 
-                var items = audit.Snapshot().Where(item => item.Sequence > before && item.Sequence < after).ToArray();
+                var items = audit.Snapshot().Where(item => item.Sequence > sinkAfter && item.Sequence < after).ToArray();
                 Require(items.Count(item => item.Kind == SessionOutboundKind.Interrupt) == 1,
                     "Ctrl+C was not represented by exactly one interrupt operation.");
                 Require(items.Count(item => item.Kind == SessionOutboundKind.Break) == 1,
@@ -144,7 +174,8 @@ namespace VT7.Host
 
                 Require(queue.TryEnqueue(queue.Generation + 1, SessionOutboundOperation.Input(SessionOutboundKind.Paste, new byte[] { 9 })) == SessionEnqueueResult.StaleGeneration,
                     "The live HWND queue accepted a stale generation.");
-                report.AppendLine("PASS: native HWND commits Croatian UTF-16 once, keeps Ctrl+C and Ctrl+Break distinct without duplicate ETX, encodes non-text keys through TerminalCore, reconciles focus, and emits one authoritative resize grid.");
+                report.AppendLine("PASS: WPF keyboard sink retains Tab, Down and End for the native HWND without swallowing printable text.");
+                report.AppendLine("PASS: native HWND commits Croatian UTF-16 once, keeps Ctrl+C and Ctrl+Break distinct without duplicate ETX, encodes non-text keys through TerminalCore, reconciles focus, emits one authoritative resize grid, takes keyboard focus, and claims terminal dialog keys.");
             }
             finally
             {
@@ -154,6 +185,14 @@ namespace VT7.Host
 
         private static void Send(TerminalSurface surface, uint message, int wParam, int lParam) =>
             NativeMethods.SendMessage(surface.Handle, message, new IntPtr(wParam), new IntPtr(lParam));
+
+        private static MSG KeyMessage(TerminalSurface surface, int message, int virtualKey, int keyBits) => new MSG
+        {
+            hwnd = surface.Handle,
+            message = message,
+            wParam = new IntPtr(virtualKey),
+            lParam = new IntPtr(keyBits),
+        };
 
         private static int KeyBits(int scan, bool extended = false, bool released = false)
         {

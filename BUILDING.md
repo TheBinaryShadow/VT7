@@ -1,15 +1,19 @@
 # Building VT7
 
-VT7 currently builds the 0.5.2/ABI 11 Command Prompt candidate: a WPF desktop
+VT7 currently builds the 0.8.0/ABI 11 application: a WPF desktop
 host, native HWND view, separate TerminalCore document/session owner, AtlasEngine
-and renderer controller, and a real pinned WinPTY 0.4.3 root transport.
-Normal startup launches an explicit `%SystemRoot%\System32\cmd.exe` profile.
+and renderer controller, a real pinned WinPTY 0.4.3 local root transport, and the
+first direct SSH.NET 2026.0.0 remote root transport. Normal startup launches an
+explicit `%SystemRoot%\System32\cmd.exe` profile; **Start SSH...** opens the
+ephemeral direct connection dialog.
 Hidden regression modes retain deterministic fixtures and fake transports. The
 Command Prompt transport, Unicode and lifecycle scope passes locally and on the
 supplied Windows 7 target. Active-command Ctrl+C passes; prompt-line cancellation
 is a known WinPTY 0.4.3 limit. Native mouse-wheel scrollback and the 0.5.2
-printable-character snap-to-live correction pass on the supplied test machines. SSH and the
-required PowerShell profiles are not yet integrated.
+printable-character snap-to-live correction pass on the supplied test machines.
+The PowerShell profiles and H01 diagnostic are target accepted. The SSH.NET
+direct profile and its offline package checks pass locally; its controlled-server
+Windows 7 run remains pending, and typed SSH remains disabled.
 
 The solution also builds an independent capability probe and an Atlas backend
 proof (0.1). The latter renders fixed glyphs through real Atlas backends and
@@ -300,6 +304,21 @@ cipher and disconnect assertions. Corrected package 0.6 passes its local checks
 and both Windows 7 controlled-server runs. S01 is accepted as recorded in the
 [validation record](doc/vt7/validation/2026-09-14-sshnet-s01.md).
 
+The production host consumes the same locked closure. Build and package the
+0.8.0 direct-profile slice with:
+
+```powershell
+.\tools\Restore-VT7SshNet.ps1
+.\tools\Build-VT7.ps1 -Configuration Release -NoRestore
+.\tools\Test-VT7SshNetFoundation.ps1 -Configuration Release
+.\tools\Package-VT7SshNetDirect.ps1 -NoBuild
+```
+
+The package performs a recursive image/import audit, preserves every dependency
+notice, runs its offline foundation check and independently verifies the ZIP.
+The [direct-profile record](doc/vt7/validation/2026-09-19-sshnet-direct-profile.md)
+contains the Windows 7 controlled-server procedure.
+
 Run the P01 local-console characterization after building either configuration:
 
 ```powershell
@@ -381,6 +400,7 @@ identity. See the [I01 record](doc/vt7/validation/2026-09-14-input-i01.md).
 | `Package-VT7Input.ps1` | `vt7/packages/VT7-Input-I01-0.2-x64` / matching ZIP; refuses replacement. Package 0.2 completed on the target and is preserved. |
 | `Package-VT7OpenSsh.ps1` | `vt7/packages/VT7-OpenSSH-S00-Preflight-0.2-x64` / matching ZIP; refuses replacement and contains no OpenSSH binary. |
 | `Package-VT7OpenSshNetwork.ps1` | Next identity `vt7/packages/VT7-OpenSSH-S00-Network-0.2-x64` / matching ZIP; refuses replacement and contains no OpenSSH binary or secret. Issued target evidence remains package 0.1. |
+| `Package-VT7SshNetDirect.ps1` | Issued local candidate `vt7/packages/VT7-SSHNET-Direct-0.1-x64` / matching ZIP; refuses replacement. Application 0.8.0/ABI 11, exact SSH.NET closure, 82 verified files. Windows 7 network acceptance remains pending. |
 
 Issued P01 package 0.3 used a culture-sensitive PowerShell row comparison that
 ignored embedded NULs in the two Windows 7 raw-VT cases. The retained strings

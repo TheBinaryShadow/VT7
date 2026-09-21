@@ -1,6 +1,5 @@
 using Microsoft.Win32.SafeHandles;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -10,80 +9,6 @@ using System.Threading.Tasks;
 
 namespace VT7.Host
 {
-    internal sealed class TerminalProfile
-    {
-        private TerminalProfile(string id, string name, string executable, string arguments,
-            string workingDirectory, IReadOnlyList<KeyValuePair<string, string>> environment)
-        {
-            Id = id;
-            Name = name;
-            Executable = executable;
-            Arguments = arguments;
-            WorkingDirectory = workingDirectory;
-            Environment = environment;
-        }
-
-        internal string Id { get; }
-        internal string Name { get; }
-        internal string Executable { get; }
-        internal string Arguments { get; }
-        internal string WorkingDirectory { get; }
-        internal IReadOnlyList<KeyValuePair<string, string>> Environment { get; }
-        internal string CommandLine => Quote(Executable) + (string.IsNullOrWhiteSpace(Arguments) ? string.Empty : " " + Arguments);
-
-        internal static TerminalProfile CreateCommandPrompt(string arguments = "/d /q /k")
-        {
-            var windows = System.Environment.GetEnvironmentVariable("SystemRoot");
-            if (string.IsNullOrWhiteSpace(windows)) windows = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Windows);
-            if (string.IsNullOrWhiteSpace(windows)) throw new InvalidOperationException("The Windows directory is unavailable.");
-            var executable = Path.GetFullPath(Path.Combine(windows, "System32", "cmd.exe"));
-            if (!File.Exists(executable)) throw new FileNotFoundException("Command Prompt was not found.", executable);
-            var workingDirectory = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
-            if (string.IsNullOrWhiteSpace(workingDirectory) || !Directory.Exists(workingDirectory))
-                workingDirectory = System.Environment.CurrentDirectory;
-            return new TerminalProfile("command-prompt", "Command Prompt", executable, arguments,
-                Path.GetFullPath(workingDirectory), CaptureEnvironment());
-        }
-
-        internal TerminalProfile WithEnvironmentVariable(string name, string value)
-        {
-            if (string.IsNullOrWhiteSpace(name) || name.IndexOf('=') >= 0 || name.IndexOf('\0') >= 0)
-                throw new ArgumentException("Environment variable name is invalid.", nameof(name));
-            if (value == null || value.IndexOf('\0') >= 0) throw new ArgumentException("Environment variable value is invalid.", nameof(value));
-            var values = new List<KeyValuePair<string, string>>(Environment.Count + 1);
-            var replaced = false;
-            foreach (var pair in Environment)
-            {
-                if (string.Equals(pair.Key, name, StringComparison.OrdinalIgnoreCase))
-                {
-                    values.Add(new KeyValuePair<string, string>(name, value));
-                    replaced = true;
-                }
-                else values.Add(pair);
-            }
-            if (!replaced) values.Add(new KeyValuePair<string, string>(name, value));
-            values.Sort((left, right) => StringComparer.OrdinalIgnoreCase.Compare(left.Key, right.Key));
-            return new TerminalProfile(Id, Name, Executable, Arguments, WorkingDirectory, values.AsReadOnly());
-        }
-
-        private static IReadOnlyList<KeyValuePair<string, string>> CaptureEnvironment()
-        {
-            var values = new List<KeyValuePair<string, string>>();
-            foreach (DictionaryEntry entry in System.Environment.GetEnvironmentVariables())
-            {
-                var name = entry.Key as string;
-                var value = entry.Value as string;
-                if (name == null || name.Length == 0 || name.IndexOf('\0') >= 0 || name.IndexOf('=') >= 0 ||
-                    value == null || value.IndexOf('\0') >= 0) continue;
-                values.Add(new KeyValuePair<string, string>(name, value));
-            }
-            values.Sort((left, right) => StringComparer.OrdinalIgnoreCase.Compare(left.Key, right.Key));
-            return values.AsReadOnly();
-        }
-
-        private static string Quote(string value) => "\"" + value.Replace("\"", "\\\"") + "\"";
-    }
-
     internal sealed class WinPtyTransportSnapshot
     {
         internal WinPtyTransportSnapshot(long outputBytes, long outputBlocks, long inputBytes,

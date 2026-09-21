@@ -37,15 +37,39 @@ of required workflows remain immediate concerns, not optional polish.
 
 Start with [BUILDING.md](BUILDING.md) and the current
 [stability record](doc/vt7/validation/2026-09-13-atlas-stability.md).
-The working source is 0.5.2/ABI 11. It combines the accepted document/session/
-view ownership and bounded inbound/outbound paths with a real Command Prompt
-root through pinned WinPTY 0.4.3. Local Debug/Release, lifecycle and visible
-agent-cleanup checks pass. The exact Windows 7 3B.1 candidate also passes its
+The working source is 0.8.0/ABI 11. It combines the accepted document/session/
+view ownership and bounded inbound/outbound paths with Command Prompt, Windows
+PowerShell 5.1 and versioned PowerShell 7 profiles through pinned WinPTY 0.4.3.
+Local Debug/Release, lifecycle and clean-profile PowerShell 5.1 checks pass. The
+exact Windows 7 3B.1 Command Prompt candidate also passes its
 automated transport/lifecycle checks and manual Croatian/Unicode workflow;
 active-command Ctrl+C passes; prompt-line cancellation is a known WinPTY 0.4.3
 limit. The 0.5.1 target run accepts wheel movement and retained history but found
 printable-character input did not snap to live output. Version 0.5.2 corrects
-that boundary and passes the supplied test-machine checks. Start with the
+that boundary and passes the supplied test-machine checks. Version 0.6.6 retains
+visible profile selection, preserves ordinary PowerShell user profiles and
+strictly separates local preview discovery from exact 7.2.24 qualification. Its
+exact Windows 7 3B.2 automation and ordinary profile lifecycle pass. The run
+found WPF focus retention and selector contrast defects. Version 0.6.5 passed
+the automated contract and lifecycle retest, but direct Win32 focus did not keep
+Tab, Down or End inside the viewport. Version 0.6.6 implements the missing
+`HwndHost` keyboard sink; all automated Windows 7 stages and the manual key test
+across every local profile pass. Version 0.7.3 adds the corrected H01
+typed-command shim, authenticated local broker, exact fallback and committed
+WinPTY barrier diagnostic. Package 0.1 passed all three embedded paths on
+Windows 7 but exposed invalid cross-process use of duplicated console handles.
+Package 0.2 then proved those downlevel handles reject inheritance-flag changes.
+Package 0.3 proves the explicit handle list also rejects traditional console
+handles at process creation. Package 0.4 uses Windows 7's standard-handle
+transfer without broad handle inheritance and passes the strict three-shell
+target run. H01 is accepted. Version 0.8.0 adds the first production
+`SshNetTransport` as a separate direct root profile with mandatory SHA256
+host-key pinning, private-key/password authentication, actual cell/pixel PTY
+geometry, live resize and stream-first teardown. Its exact locked dependency
+closure, local regressions and offline package check pass. Windows 7
+controlled-server acceptance is pending, and typed `ssh` remains disabled until
+the direct path and overlay coordination pass. Start with the
+[direct-profile validation record](doc/vt7/validation/2026-09-19-sshnet-direct-profile.md),
 [session stream contract](doc/vt7/architecture/2026-09-14-session-stream-foundation.md)
 and [session outbound contract](doc/vt7/architecture/2026-09-14-session-outbound-foundation.md).
 The completed [I01 record](doc/vt7/validation/2026-09-14-input-i01.md) defines
@@ -68,12 +92,11 @@ automatic recovery, and session acceptance.
 - Windows 7 Atlas, DXGI, Direct3D 11, and WARP work.
 - WPF styling/contrast fixes, visual regression coverage, and native HWND
   lifetime and resize hardening.
-- Explicit PowerShell
-  5.1/7.2.24 profiles and their PSReadLine/native-child corpus under the
-  completed P01 fidelity limits.
-- Production SSH.NET session integration under the accepted S01 trust,
-  authentication, transport, PTY and stream-first shutdown boundaries. S00
-  rejected unmodified redirected OpenSSH for interactive PTY sessions.
+- Windows 7 acceptance of the implemented PowerShell 5.1/7.2.24 profiles and
+  their ordinary PSReadLine/native-child corpus under the P01 fidelity limits.
+- Windows 7 controlled-server validation and follow-on overlay integration for
+  the implemented SSH.NET direct profile. S00 rejected unmodified redirected
+  OpenSSH for interactive PTY sessions.
 - Dependency, imported-API, and behavior-level compatibility audits.
 - Automated tests that protect Windows 7-specific behavior.
 - Physical Windows 7 testing with precise system and driver information.

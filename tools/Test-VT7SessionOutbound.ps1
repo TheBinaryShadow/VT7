@@ -76,6 +76,7 @@ if ($report.LastWriteTime -lt $started.AddSeconds(-2)) { throw 'VT7 session-outb
 $text = [IO.File]::ReadAllText($reportPath)
 $required = @(
     'PASS: outbound queue rejects stale generations',
+    'PASS: WPF keyboard sink retains Tab, Down and End for the native HWND without swallowing printable text.',
     'PASS: native HWND commits Croatian UTF-16 once',
     'keeps Ctrl+C and Ctrl+Break distinct without duplicate ETX',
     'encodes non-text keys through TerminalCore',
