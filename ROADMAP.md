@@ -1061,8 +1061,14 @@ interactive candidate on the tested Windows 7 configuration.
 
 - [x] Integrate SSH.NET 2026.0.0 behind `ITerminalTransport` and pin its complete
   audited redistributable dependency set. Version 0.8.0 direct-profile package
-  0.1 passes local restore, build, offline lifecycle, image/import, notice and ZIP
-  verification. Windows 7 network acceptance is tracked separately below.
+  0.2 passes local restore, build, offline lifecycle, target-style CMD launch,
+  image/import, notice and ZIP verification. Package 0.1 is rejected for its
+  PowerShell 5.1 trailing-backslash launcher defect. Package 0.2 passes the
+  complete Windows 7 network matrix. Version 0.8.1/package 0.3 corrects the form
+  labels but its focused visual check rejects the generated selected
+  Authentication text. Version 0.8.2/package 0.4 gives that item an explicit
+  dark template, tests the rendered selection at 4.5:1 and passes focused
+  Windows 7 visual confirmation.
 - [ ] Recheck security advisories, Windows 7 execution, licensing,
   release/support status, and the maintenance/update process before shipping.
 - [x] Require and verify a separately obtained SHA256 host-key fingerprint before
@@ -1078,22 +1084,24 @@ interactive candidate on the tested Windows 7 configuration.
   arbitrary localized terminal text. Protect secrets and exclude them from logs.
 - [x] Allocate `xterm-256color` with the authoritative root session cell and
   native viewport pixel dimensions. Local geometry contracts pass.
-- [ ] Accept allocation and live `ChangeWindowSize` behavior on Windows 7 against
-  the controlled Debian server. The 0.8.0 implementation serializes resize with
-  input and delivers the latest session size; target `stty size` remains pending.
+- [x] Accept allocation and live `ChangeWindowSize` behavior on Windows 7 against
+  the controlled Debian server. Package 0.2 passes initial and resized `stty
+  size`, with input serialized against the latest session geometry.
 - [ ] Handle stage-specific deadlines/cancellation, stalled peers, partial I/O,
   rekey under output, keepalives, EOF/close/exit status, and reconnection UX (S01).
   Never replay already-submitted input automatically on reconnection.
-- [ ] Accept the bounded 0.8.0 direct-profile trust/authentication, Unicode,
+- [x] Accept the bounded 0.8.0 direct-profile trust/authentication, Unicode,
   output/scrollback, resize, EOF, idle-close and local-profile-isolation matrix on
   Windows 7. See the
   [direct-profile record](doc/vt7/validation/2026-09-19-sshnet-direct-profile.md).
 - [ ] Implement the SSH overlay coordinator and structured prompt ownership, then
   enable H01 `USE_EMBEDDED` only after its ordering and return-to-local-shell
-  contracts pass. Typed `ssh` remains disabled in package 0.1.
+  contracts pass. Typed `ssh` remains disabled in package 0.4.
 - [ ] Test `vim`, `htop`, `tmux`, `mc`, `less`, full-screen TUIs, mouse input,
   bracketed paste, Unicode, 256-color/true-color output, alternate-screen
   restoration, and the shared keyboard/IME/clipboard paths on Windows 7.
+  Package 0.2 already passes owner-directed `htop` and `nano` runs; the remaining
+  applications and interaction paths keep this broader item open.
 
 Exit criterion: SSH is a first-class VT7 connection type with lossless remote
 terminal bytes, secure trust/authentication handling, initial/live PTY sizing,

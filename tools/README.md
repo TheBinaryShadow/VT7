@@ -29,8 +29,8 @@ existing evidence before a relevant regression run.
 | `Build-VT7SshNet.ps1` | Builds only the isolated net48/x64 S01 diagnostic; `-Configuration` selects Debug or Release and `-NoRestore` uses the verified lock result. |
 | `Test-VT7SshNet.ps1` | Runs S01 from a build or package directory. `-SelfTest` checks loads, modern algorithms, encrypted-key parsing and credential redaction without a server; network mode runs the controlled trust/authentication/PTY/lifecycle matrix. |
 | `Package-VT7SshNet.ps1` | Builds and self-tests the non-overwriting S01 package, preserves all exact dependency notices and metadata, verifies recursive hashes and ZIP entries, and emits the Windows 7 artifact. |
-| `Test-VT7SshNetFoundation.ps1` | Runs the application-host 0.8.0 offline direct-profile contract: exact runtime closure, strict fingerprint validation, direct-root ownership, actual cell/pixel start and resize geometry, and credential-owner disposal. It makes no network connection. |
-| `Package-VT7SshNetDirect.ps1` | Creates the non-overwriting 0.8.0/ABI 11 direct-profile package, stages the accepted SSH.NET 2026.0.0 closure and every required notice, audits every native or managed image, runs the staged foundation check, and independently verifies every ZIP entry. Typed `ssh` remains disabled. |
+| `Test-VT7SshNetFoundation.ps1` | Runs the application-host 0.8.2 offline direct-profile contract: exact runtime closure, strict fingerprint validation, direct-root ownership, actual cell/pixel start and resize geometry, credential-owner disposal, and at least 4.5:1 contrast for every SSH-dialog label and the rendered Authentication selection. It makes no network connection. |
+| `Package-VT7SshNetDirect.ps1` | Creates the non-overwriting 0.8.2/ABI 11 direct-profile package, stages the accepted SSH.NET 2026.0.0 closure and every required notice, audits every native or managed image, runs the actual PowerShell 5.1 CMD launcher from a package path containing spaces, and independently verifies every ZIP entry. Package 0.2 is transport-accepted on Windows 7; package 0.3 fixes labels but misses selected Authentication text; package 0.4 corrects it and passes focused visual confirmation. Typed `ssh` remains disabled. |
 | `Test-VT7AtlasRepaint.ps1` | Exact repaint/cursor checks; `-Configuration`, `-BinaryDirectory`, `-Renderers`; retains its expected-failure control. |
 | `Test-VT7AtlasRecovery.ps1` | Controlled recovery scenarios; `-Configuration`, `-BinaryDirectory`. |
 | `Test-VT7AtlasSettings.ps1` | Font/settings checks; `-Configuration`, `-BinaryDirectory`, `-ExpectedSystemDpi` accepts `0`, `96`, `120` or `144`. Zero leaves the actual DPI unasserted. |
@@ -96,13 +96,13 @@ events through its Windows console path. S00 is complete: the external client is
 accepted for non-PTY command transport and rejected for interactive VT7 SSH.
 The owner approved SSH.NET 2026.0.0 and its permissive supplier notices for S01.
 The locked closure is now incorporated by both the isolated diagnostic and the
-0.8.0 application host. Its
+0.8.2 application host. Its
 0.5 target run proved the trust, authentication, command, PTY, resize, drain,
 cancellation and isolation paths. Corrected 0.6 passes local checks plus both
 Windows 7 controlled-Debian runs and is the accepted S01 package.
 See the [S01 record](../doc/vt7/validation/2026-09-14-sshnet-s01.md).
 
-The current application source reports 0.8.0/ABI 11 and includes the native
+The current application source reports 0.8.2/ABI 11 and includes the native
 document/view split, managed session/transport foundation, real Command Prompt
 WinPTY root plus resource-isolation diagnostics absent from the issued 0.3.5
 archive. The exact 0.5.0 Windows 7 package passes its automated runners and
@@ -120,8 +120,12 @@ explicit handle list at `CreateProcessW`. Version 0.7.3 uses the documented
 Windows 7 standard-handle transfer and retains the handle list on Windows 8+;
 package 0.4 passes the strict Windows 7 three-shell run. H01 is accepted for its
 bounded diagnostic scope. Version 0.8.0 adds the separate direct SSH.NET root
-profile; its local regressions and package foundation pass, with Windows 7
-controlled-server validation pending. Typed SSH remains off.
+profile; corrected package 0.2 passes its complete Windows 7 controlled-server
+matrix plus separate `htop` and `nano` runs. Version 0.8.1/package 0.3 corrects
+the logical form labels but fails focused visual confirmation because the
+generated selected Authentication item remains light. Version 0.8.2/package 0.4
+styles and checks that rendered selection, and its focused Windows 7 visual
+confirmation passes. Typed SSH remains off pending overlay integration.
 These opt-in host CLI controls
 are documented in the [stability record](../doc/vt7/validation/2026-09-13-atlas-stability.md);
 the stability runner does not expose a resource-isolation parameter. The separate

@@ -5,18 +5,22 @@ keyboard results remain the current target baseline. H01 packages 0.1 through
 0.3 pass all embedded shell/barrier paths on Windows 7 while exposing the full
 traditional-console fallback boundary. Version 0.7.3 uses the documented
 Windows 7 creation path, and package 0.4 passes the strict target run. Version
-0.8.0 adds the first direct SSH.NET root profile; its local package passes and
-awaits controlled-server validation on Windows 7.
+0.8.0 adds the first direct SSH.NET root profile; corrected package 0.2 passes
+the complete Windows 7 controlled-server matrix. Version 0.8.1/package 0.3 fixes
+the form labels but fails its selected Authentication-item visual check. Version
+0.8.2/package 0.4 corrects that generated text and passes its focused visual check.
 
-VT7 is the terminal application Windows 7 always deserved. Version 0.8.0 keeps
+VT7 is the terminal application Windows 7 always deserved. Version 0.8.2 keeps
 the accepted Command Prompt/WinPTY path and adds explicit Windows PowerShell 5.1
 and versioned PowerShell 7 profiles through the 3A document/session/view
 boundary. Exact Windows 7 5.1/7.2.24 automation passes, as do the applicable
 ordinary profile checks. The 0.6.6 automated and all-profile keyboard checks
 pass. H01 itself adds no live SSH session and makes no network connection.
 Version 0.8.0 integrates the accepted SSH.NET closure behind ABI 11 as a direct
-profile with strict host-key trust, remote PTY geometry and live resize. Typed
-SSH remains disabled while direct Windows 7 acceptance and overlay work remain.
+profile with strict host-key trust, remote PTY geometry and live resize. Its
+Windows 7 matrix, plus separate `htop` and `nano` runs, passes. Version 0.8.2
+scopes readable text styling to the SSH connection dialog and its generated
+Authentication selection. Typed SSH remains disabled while overlay work remains.
 The
 application port is the priority; optional improvements belong in final
 polish/release triage.
@@ -71,8 +75,9 @@ polish/release triage.
     diagnostic design, 0.5 assertion findings, accepted 0.6 Windows 7 results,
     credential boundary and production teardown contract.
 18. [SSH.NET direct-profile transport](validation/2026-09-19-sshnet-direct-profile.md):
-    0.8.0 production transport boundary, local package identity and the pending
-    Windows 7 controlled-server acceptance procedure.
+    0.8.0 production transport boundary, accepted package 0.2 Windows 7 result,
+    the rejected 0.8.1/package 0.3 selector result, and the corrected 0.8.2/
+    package 0.4 candidate.
 19. [Third-party licensing policy](architecture/2026-09-14-third-party-licensing-policy.md):
     standing owner decision, review triggers, packaging requirements, current
     component inventory and acknowledgement rule.
@@ -88,8 +93,10 @@ C4/3A proceeded without another WARP trace prerequisite and is accepted. The
 are target accepted. The 0.6.5 direct-focus correction failed the manual key
 check; the 0.6.6 `HwndHost` keyboard sink passes focused Windows 7 confirmation.
 The corrected 0.7.3 H01 package passes its strict Windows 7 three-shell run.
-The 0.8.0 direct SSH.NET package passes locally and awaits its Windows 7 network
-run; it does not enable the typed handoff.
+The 0.8.0 direct SSH.NET package 0.2 passes its complete Windows 7 network run;
+it does not enable the typed handoff. Version 0.8.1/package 0.3 fixes the labels
+but fails its selected-item visual check. Version 0.8.2/package 0.4 passes the
+focused Windows 7 confirmation of the corrected Authentication selector.
 
 ## Implementation and reproduction
 
@@ -158,7 +165,7 @@ run; it does not enable the typed handoff.
 | C3 repaint/recovery | [0.3.1 repaint](validation/2026-09-12-atlas-repaint.md), [0.3.2 recovery](validation/2026-09-12-atlas-recovery.md) | Bounded target passes; injected recovery is not real driver-loss evidence. |
 | C3 scaling | [0.3.3 failures](validation/2026-09-12-atlas-settings.md), [0.3.4 correction](validation/2026-09-12-atlas-scaling-correction.md) | Actual Windows 7 96/120/144 DPI matrix accepted for 0.3.4 on the supplied setup. |
 | Deferred reliability concern | [REL01 decision](architecture/2026-09-14-warp-development-deferral.md) | Hardware lifecycle passes; WARP resource failures remain. Accepted risk for continued development; conditional Milestone 7 review. |
-| Current development | [3A technical specification](architecture/2026-09-14-terminal-document-and-ssh-handoff-spec.md), [SSH.NET direct profile](validation/2026-09-19-sshnet-direct-profile.md), [accepted H01](validation/2026-09-19-typed-ssh-h01.md), [3B.1 WinPTY root record](validation/2026-09-17-winpty-root-3b.md), [3B.2 PowerShell record](validation/2026-09-17-powershell-profiles-3b2.md), [completed S00](validation/2026-09-14-openssh-s00.md), [accepted S01](validation/2026-09-14-sshnet-s01.md), [Milestone 5](../../ROADMAP.md#milestone-5-first-class-ssh) | Version 0.8.0/ABI 11 retains the accepted local corpus and H01 result, and implements the accepted SSH.NET closure as a separate direct root profile. Local regressions and package checks pass; Windows 7 controlled-server validation remains. Typed `ssh` stays disabled pending direct acceptance and overlay integration. |
+| Current development | [3A technical specification](architecture/2026-09-14-terminal-document-and-ssh-handoff-spec.md), [SSH.NET direct profile](validation/2026-09-19-sshnet-direct-profile.md), [accepted H01](validation/2026-09-19-typed-ssh-h01.md), [3B.1 WinPTY root record](validation/2026-09-17-winpty-root-3b.md), [3B.2 PowerShell record](validation/2026-09-17-powershell-profiles-3b2.md), [completed S00](validation/2026-09-14-openssh-s00.md), [accepted S01](validation/2026-09-14-sshnet-s01.md), [Milestone 5](../../ROADMAP.md#milestone-5-first-class-ssh) | Version 0.8.2/ABI 11 retains the accepted local corpus, H01 and direct SSH.NET package 0.2 result. Package 0.3 fixes form labels but fails selected-item contrast; package 0.4 corrects the generated selector and passes focused Windows 7 confirmation. The overlay coordinator is next; typed `ssh` stays disabled pending its integration. |
 | Previous native target result | [Windows 7 resource retirement 0.1](diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result) | Supported capture completes; workers retire by 90 seconds and USER returns to 4, but 54 process handles above pre-warmup remain. No C3 or timed-soak acceptance. |
 | Latest resource target result | [WPF reactivation 0.1](diagnostics/2026-09-14-resource-reactivation.md#supplied-windows-7-result) | Two integrated rounds complete, with 16 valid samples and three immediate failures. Both +180s handle/thread/GDI/USER counts match; private bytes rise 220 KiB. No permanent bound or C3 acceptance. |
 

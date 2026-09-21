@@ -1,8 +1,8 @@
-VT7 SSH.NET direct profile 0.1
+VT7 SSH.NET direct profile 0.4
 ================================
 
 This package is the first production-session integration of the accepted
-SSH.NET 2026.0.0 backend. It adds a direct SSH.NET root transport to VT7 0.8.0.
+SSH.NET 2026.0.0 backend. It adds a direct SSH.NET root transport to VT7 0.8.2.
 Ordinary typed ssh interception remains disabled.
 
 AUTOMATED CHECK

@@ -6,6 +6,9 @@ using System.Reflection;
 using System.Security;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace VT7.Host
 {
@@ -48,6 +51,33 @@ namespace VT7.Host
             }
             Require(rejected, "An invalid host-key fingerprint was accepted.");
             report.AppendLine("PASS: structured SSH options require an explicit valid SHA256 trust fingerprint before authentication.");
+
+            var dialog = new SshConnectionDialog();
+            var dialogBackground = Solid(dialog.Background, "SSH dialog background");
+            var labels = Descendants(dialog.FormContent).OfType<TextBlock>().ToArray();
+            Require(labels.Length >= 8, "The SSH dialog contrast check did not find every form label.");
+            foreach (var label in labels)
+            {
+                var foreground = Solid(label.Foreground, "SSH dialog text");
+                Require(ContrastRatio(foreground, dialogBackground) >= 4.5,
+                    "The SSH dialog contains text below the 4.5:1 contrast requirement.");
+            }
+            var selectorForeground = Solid(dialog.AuthenticationSelector.Foreground, "SSH authentication selector text");
+            Require(ContrastRatio(selectorForeground, dialogBackground) >= 4.5,
+                "The SSH authentication selector foreground is below the 4.5:1 contrast requirement.");
+            dialog.FormContent.Measure(new Size(550, 450));
+            dialog.FormContent.Arrange(new Rect(0, 0, 550, 450));
+            dialog.FormContent.UpdateLayout();
+            dialog.AuthenticationSelector.ApplyTemplate();
+            dialog.AuthenticationSelector.UpdateLayout();
+            var selectorText = VisualDescendants(dialog.AuthenticationSelector).OfType<TextBlock>()
+                .FirstOrDefault(item => string.Equals(item.Text, "Private key", StringComparison.Ordinal));
+            if (selectorText == null)
+                throw new InvalidOperationException("The SSH authentication selector did not render its selected text.");
+            var selectedForeground = Solid(selectorText.Foreground, "SSH selected authentication text");
+            Require(ContrastRatio(selectedForeground, dialogBackground) >= 4.5,
+                "The selected SSH authentication text is below the 4.5:1 contrast requirement.");
+            report.AppendLine("PASS: every SSH connection-dialog label and the selected authentication item have explicit WCAG AA contrast.");
 
             var document = new TerminalDocument(loadDemonstration: false);
             var fake = new FakeTerminalTransport("sshnet-foundation-root");
@@ -97,6 +127,49 @@ namespace VT7.Host
         private static void Require(bool condition, string message)
         {
             if (!condition) throw new InvalidOperationException(message);
+        }
+
+        private static System.Collections.Generic.IEnumerable<DependencyObject> Descendants(DependencyObject root)
+        {
+            foreach (var child in LogicalTreeHelper.GetChildren(root).OfType<DependencyObject>())
+            {
+                yield return child;
+                foreach (var descendant in Descendants(child)) yield return descendant;
+            }
+        }
+
+        private static System.Collections.Generic.IEnumerable<DependencyObject> VisualDescendants(DependencyObject root)
+        {
+            for (var index = 0; index < VisualTreeHelper.GetChildrenCount(root); ++index)
+            {
+                var child = VisualTreeHelper.GetChild(root, index);
+                yield return child;
+                foreach (var descendant in VisualDescendants(child)) yield return descendant;
+            }
+        }
+
+        private static Color Solid(Brush brush, string name)
+        {
+            if (brush is SolidColorBrush solid && solid.Color.A == byte.MaxValue) return solid.Color;
+            throw new InvalidOperationException(name + " is not an opaque solid color.");
+        }
+
+        private static double ContrastRatio(Color first, Color second)
+        {
+            var light = Math.Max(Luminance(first), Luminance(second));
+            var dark = Math.Min(Luminance(first), Luminance(second));
+            return (light + 0.05) / (dark + 0.05);
+        }
+
+        private static double Luminance(Color color)
+        {
+            return 0.2126 * Linear(color.R) + 0.7152 * Linear(color.G) + 0.0722 * Linear(color.B);
+        }
+
+        private static double Linear(byte component)
+        {
+            var value = component / 255.0;
+            return value <= 0.04045 ? value / 12.92 : Math.Pow((value + 0.055) / 1.055, 2.4);
         }
     }
 }

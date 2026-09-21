@@ -22,15 +22,19 @@ independent open-source engineering effort to create a real terminal
 application for Windows 7.
 
 > [!IMPORTANT]
-> VT7 is currently in pre-alpha development. Version 0.8.0 retains selectable
+> VT7 is currently in pre-alpha development. Version 0.8.2 retains selectable
 > Command Prompt, Windows PowerShell 5.1 and versioned PowerShell 7 profiles to
 > the accepted local transport. The exact PowerShell 5.1/7.2.24 transport,
 > Unicode, resize, lifecycle and keyboard corpus passes on Windows 7. The 0.7.3
 > H01 package adds a secured, typed `ssh` shim/fallback and output-ordering
 > barrier; its exact Windows 7 three-shell run passes. Version 0.8.0 adds the
 > first direct SSH.NET root profile with strict host-key verification, private-key
-> or password authentication, a remote PTY and live resize. Its local package is
-> ready for Windows 7 controlled-server validation; typed `ssh` remains disabled.
+> or password authentication, a remote PTY and live resize. Package 0.2 passes
+> the complete Windows 7 controlled-server matrix, including `htop` and `nano`.
+> Package 0.3 corrects the form labels but its Windows 7 visual check finds the
+> selected Authentication item still too light. Version 0.8.2/package 0.4 gives
+> that generated selector text an explicit dark template and passes focused
+> Windows 7 confirmation; typed `ssh` remains disabled pending overlay integration.
 > Other
 > features described here remain project goals until implemented and verified.
 
@@ -149,7 +153,7 @@ build the best terminal we can for the platform we love.
 
 ## Project status
 
-Current working source: **0.8.0, native ABI 11**. It retains the accepted 3A
+Current working source: **0.8.2, native ABI 11**. It retains the accepted 3A
 document/session/view ownership and Command Prompt path, then adds explicit
 Windows PowerShell 5.1 and versioned PowerShell 7 profiles through the same
 production `WinPtyTransport`. Ordinary PowerShell launches preserve user
@@ -176,10 +180,15 @@ dialog requires an out-of-band SHA256 host-key fingerprint and supports a
 dedicated private key or password without persistence. The transport allocates
 an `xterm-256color` PTY with real cell/pixel geometry, serializes input and live
 resize, uses one ordered output reader, and performs stream-first shutdown. Its
-offline package and regression suite pass locally; Windows 7 network acceptance
-is pending. The [direct-profile record](doc/vt7/validation/2026-09-19-sshnet-direct-profile.md)
-defines the exact boundary and target procedure. Typed `ssh` remains disabled
-until that direct path and the later overlay coordinator are accepted.
+offline package and regression suite pass locally. Package 0.2 passes the full
+Windows 7 direct-profile matrix, scrollback and additional `htop`/`nano` runs.
+Version 0.8.1/package 0.3 corrects the form labels, but the target visual check
+finds its closed Authentication selection still light-on-light. Version
+0.8.2/package 0.4 adds an explicit dark authentication-item template, verifies
+the rendered selected text at 4.5:1 and passes focused Windows 7 confirmation. The
+[direct-profile record](doc/vt7/validation/2026-09-19-sshnet-direct-profile.md)
+defines the exact boundary and evidence. Typed `ssh` remains disabled until the
+overlay coordinator and structured prompt ownership are implemented and accepted.
 The exact 0.5.0 Windows 7 package also passes all three runners; manual
 Command Prompt use, Croatian text and a Unicode filename pass. Ctrl+C interrupts
 a running command; empty or partial prompt-line cancellation has the known
@@ -197,8 +206,8 @@ PTY result and exact source reject the redirected interactive architecture.
 The exact SSH.NET 2026.0.0 S01 diagnostic paths succeeded on Windows 7 against
 controlled Debian. Corrected package 0.6 passes both confirmation runs and
 selects SSH.NET as the embedded interactive candidate. Version 0.8.0 now uses
-that locked closure in the production host; the first direct-profile target run
-remains pending. The completed
+that locked closure in the production host; corrected package 0.2 passes the
+complete direct-profile Windows 7 matrix. The completed
 [Windows 7 retirement diagnostic](doc/vt7/diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result)
 confirms WARP work cleanup and worker-associated Event release by 90 seconds;
 54 process handles remain above startup and the integrated WARP failure stays
@@ -443,8 +452,10 @@ fallback automation. Version 0.6.5 retains the accepted contracts and lifecycle
 but fails the manual navigation-key correction. Version 0.6.6 adds the WPF
 keyboard-sink implementation and passes focused target confirmation. The
 0.7.3 H01 package passes its strict Windows 7 three-shell run. Version 0.8.0
-implements the separate direct SSH.NET root profile and awaits Windows 7 network
-acceptance; typed SSH remains disabled. The broader input corpus remains open. Build 0.3.5
+implements the separate direct SSH.NET root profile; package 0.2 passes its full
+Windows 7 network matrix plus `htop` and `nano`. Version 0.8.1/package 0.3
+corrects the form labels but misses the selected Authentication item; version
+0.8.2/package 0.4 corrects and checks that generated text. Typed SSH remains disabled. The broader input corpus remains open. Build 0.3.5
 implements synchronized-output, idle CPU and shutdown checks after the accepted
 0.3.4 scaling matrix. Its WARP resource concern remains recorded under REL01.
 The recreate/reuse comparison, ownership trace and retirement diagnostic now
@@ -484,8 +495,10 @@ supplied Windows 7 target. Full SSH delivery remains a later milestone.
 - [ ] Complete the remaining C3 renderer qualification, including WARP
   resource lifetime, broader environment checks and subsequent timed stability.
 - [ ] Run an interactive local shell through the Windows 7 PTY backend.
-- [ ] Accept the first direct SSH session on Windows 7. Version 0.8.0 package
-  0.1 is implemented and locally verified; controlled-server validation remains.
+- [x] Accept the first direct SSH session on Windows 7. Version 0.8.0 package
+  0.2 passes the controlled-server matrix. Package 0.3 fixes the form labels but
+  misses selected Authentication text; 0.8.2 package 0.4 corrects that remaining
+  UI-only defect.
 - [ ] Add the daily-driver interface, including tabs, panes, profiles, and
   settings.
 - [ ] Publish the first alpha build.

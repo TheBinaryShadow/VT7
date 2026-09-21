@@ -15,9 +15,11 @@ and H01 is accepted. Version 0.8.0 starts Milestone 5 with the first production
 `SshNetTransport` as a direct root profile. It implements strict fingerprint
 trust, private-key and password authentication, actual cell/pixel PTY geometry,
 serialized live resize, one ordered output reader and stream-first shutdown
-behind ABI 11. Its local package passes; Windows 7 controlled-server validation
-is pending. The overlay coordinator and typed `USE_EMBEDDED` reply remain
-disabled.
+behind ABI 11. Corrected package 0.2 passes the complete Windows 7
+controlled-server matrix plus separate `htop` and `nano` runs. Version 0.8.1
+corrects the ordinary connection-dialog labels; version 0.8.2 also corrects the
+generated selected Authentication item. The overlay coordinator and
+typed `USE_EMBEDDED` reply remain disabled.
 
 This specification turns the accepted WinPTY P01, input I01, outbound 0.3.7,
 OpenSSH S00, and SSH.NET S01 results into one production ownership model. It also
@@ -50,9 +52,9 @@ The C4/3A implementation closed when the document/view identity split and fake
 transport lifecycle passed locally and on Windows 7. The first WinPTY production
 connection is implemented and boundedly target-qualified in 3B.1 for Command
 Prompt. Ctrl+C input acceptance remains in 3C. The first SSH.NET direct-profile
-and trust/authentication UI slice is implemented in 0.8.0 after the H01 shim/
-barrier diagnostic passed. Windows 7 network acceptance, overlay coordination
-and the typed-SSH experience remain Milestone 5 work. This specification
+and trust/authentication UI slice is implemented and Windows 7 accepted in 0.8.0
+after the H01 shim/barrier diagnostic passed. Overlay coordination and the
+typed-SSH experience remain Milestone 5 work. This specification
 distinguishes those later contracts from the implemented direct root.
 
 The implemented ownership has one deliberate mechanical refinement. Upstream
@@ -388,6 +390,12 @@ private-key or password option; the session allocates `xterm-256color` with the
 view's actual cell and pixel geometry. The implementation record and target
 procedure are in
 [SSH.NET direct-profile transport](../validation/2026-09-19-sshnet-direct-profile.md).
+Corrected package 0.2 passes that Windows 7 procedure. Version 0.8.1 scopes an
+explicit black-on-white text style to this dialog and adds an offline 4.5:1
+logical-label assertion. Package 0.3 passes that test but its visual check exposes
+the generated selected Authentication text as still light. Version 0.8.2 gives
+the selector items an explicit dark template and tests the actual rendered
+selection; package 0.4 passes focused Windows 7 visual confirmation.
 
 Presentation uses an independent state machine:
 
@@ -897,7 +905,7 @@ Milestone 5.
 
 - Implement structured profiles, trust storage, authentication UI, and
   `SshNetTransport` using the accepted S01 closure.
-- Pass direct-profile SSH first.
+- Preserve the accepted direct-profile SSH boundary while integrating the overlay.
 - Enable the typed shim allowlist only after direct SSH lifecycle, overlay tests,
   and H01 pass.
 - Keep fallback available and visible in diagnostics.

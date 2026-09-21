@@ -90,7 +90,7 @@ $report = Get-Item -LiteralPath $reportPath
 if ($report.LastWriteTime -lt $started.AddSeconds(-2)) { throw 'VT7 H01 test left a stale report.' }
 $text = [IO.File]::ReadAllText($reportPath)
 $required = @(
-    'Build: VT7 0.8.0',
+    'Build: VT7 0.8.2',
     'Native: ABI 11, expected 11',
     'PASS: H01 grammar admits only interactive -4/-6/-l/-p/-i forms and sends ambiguous or unsupported syntax to exact fallback.',
     'PASS: Command Prompt resolved ordinary ssh through the authenticated shim and committed the visible WinPTY barrier in order.',

@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$PackageName = 'VT7-SSHNET-Direct-0.1-x64',
+    [string]$PackageName = 'VT7-SSHNET-Direct-0.4-x64',
     [switch]$NoBuild
 )
 $ErrorActionPreference = 'Stop'
@@ -14,14 +14,14 @@ $noticeRoot = Join-Path $dependencyRoot 'sshnet-source-notices-7b2fd3dbf2c86a80a
 $packageParent = Join-Path $repositoryRoot 'artifacts\vt7\packages'
 $packageRoot = Join-Path $packageParent $PackageName
 $archivePath = Join-Path $packageParent ($PackageName + '.zip')
-if ($PackageName -notmatch '^VT7-SSHNET-Direct-0\.1-x64$') { throw "Invalid SSH.NET direct package name: $PackageName" }
+if ($PackageName -notmatch '^VT7-SSHNET-Direct-0\.4-x64$') { throw "Invalid SSH.NET direct package name: $PackageName" }
 foreach ($path in @($packageRoot, $archivePath)) {
     if (Test-Path -LiteralPath $path) { throw "Refusing to replace an existing SSH.NET direct package: $path" }
 }
 if (-not $NoBuild) { & (Join-Path $PSScriptRoot 'Build-VT7.ps1') -Configuration Release }
 
 $hostPath = Join-Path $binaryRoot 'VT7.Host.exe'
-if ([Diagnostics.FileVersionInfo]::GetVersionInfo($hostPath).FileVersion -ne '0.8.0.0') { throw 'Expected VT7.Host 0.8.0.0.' }
+if ([Diagnostics.FileVersionInfo]::GetVersionInfo($hostPath).FileVersion -ne '0.8.2.0') { throw 'Expected VT7.Host 0.8.2.0.' }
 $vswherePath = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
 $installationPath = (& $vswherePath -latest -products * -version '[17.0,18.0)' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath).Trim()
 if (-not $installationPath) { throw 'Visual Studio 2022 C++ tools were not found.' }
@@ -122,7 +122,7 @@ $manifest = [ordered]@{
     package = $PackageName
     createdUtc = [DateTime]::UtcNow.ToString('o')
     architecture = 'x64'
-    applicationVersion = '0.8.0'
+    applicationVersion = '0.8.2'
     nativeAbi = 11
     targetFramework = 'net48'
     sshNetVersion = '2026.0.0'
@@ -143,16 +143,39 @@ $hashLines = @(Get-ChildItem -LiteralPath $packageRoot -Recurse | Where-Object {
 [IO.File]::WriteAllLines((Join-Path $packageRoot 'SHA256SUMS.txt'), $hashLines, $utf8)
 
 $localTestRoot = Join-Path $packageParent ($PackageName + '-local-test')
-if (Test-Path -LiteralPath $localTestRoot) { throw "Refusing to replace an existing SSH.NET direct test directory: $localTestRoot" }
+$batchTestRoot = Join-Path $packageParent ($PackageName + ' batch path with spaces')
+foreach ($testPath in @($localTestRoot, $batchTestRoot)) {
+    if (Test-Path -LiteralPath $testPath) { throw "Refusing to replace an existing SSH.NET direct test directory: $testPath" }
+}
+$oldNoPause = $env:VT7_TEST_NO_PAUSE
+$oldOutputDirectory = $env:VT7_TEST_OUTPUT_DIRECTORY
 try {
-    & (Join-Path $PSScriptRoot 'Test-VT7SshNetFoundation.ps1') -Configuration Release -BinaryDirectory $packageRoot -OutputDirectory $localTestRoot
+    Copy-Item -LiteralPath $packageRoot -Destination $batchTestRoot -Recurse
+    $env:VT7_TEST_NO_PAUSE = '1'
+    $env:VT7_TEST_OUTPUT_DIRECTORY = $localTestRoot
+    $batchRunner = Join-Path $batchTestRoot 'RUN-SSHNET-FOUNDATION.cmd'
+    & (Join-Path $env:SystemRoot 'System32\cmd.exe') /d /c ('"' + $batchRunner + '"')
+    if ($LASTEXITCODE -ne 0) { throw "Packaged SSH.NET foundation batch launcher failed with exit code $LASTEXITCODE." }
 }
 finally {
-    if (Test-Path -LiteralPath $localTestRoot) {
-        $boundary = [IO.Path]::GetFullPath($packageParent).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
-        $resolved = [IO.Path]::GetFullPath($localTestRoot)
-        if (-not $resolved.StartsWith($boundary, [StringComparison]::OrdinalIgnoreCase)) { throw "Refusing cleanup outside package directory: $resolved" }
-        Remove-Item -LiteralPath $localTestRoot -Recurse -Force
+    $env:VT7_TEST_NO_PAUSE = $oldNoPause
+    $env:VT7_TEST_OUTPUT_DIRECTORY = $oldOutputDirectory
+    foreach ($testPath in @($localTestRoot, $batchTestRoot)) {
+        if (Test-Path -LiteralPath $testPath) {
+            $boundary = [IO.Path]::GetFullPath($packageParent).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+            $resolved = [IO.Path]::GetFullPath($testPath)
+            if (-not $resolved.StartsWith($boundary, [StringComparison]::OrdinalIgnoreCase)) { throw "Refusing cleanup outside package directory: $resolved" }
+            for ($attempt = 1; $attempt -le 10; ++$attempt) {
+                try {
+                    Remove-Item -LiteralPath $testPath -Recurse -Force
+                    break
+                }
+                catch {
+                    if ($attempt -eq 10) { throw }
+                    Start-Sleep -Milliseconds 250
+                }
+            }
+        }
     }
 }
 

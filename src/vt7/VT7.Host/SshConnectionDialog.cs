@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace VT7.Host
 {
@@ -13,7 +14,11 @@ namespace VT7.Host
         private readonly TextBox _port = new TextBox { Text = "22" };
         private readonly TextBox _username = new TextBox();
         private readonly TextBox _fingerprint = new TextBox();
-        private readonly ComboBox _authentication = new ComboBox();
+        private readonly ComboBox _authentication = new ComboBox
+        {
+            Foreground = System.Windows.Media.Brushes.Black,
+            ItemTemplate = AuthenticationItemTemplate(),
+        };
         private readonly TextBox _keyPath = new TextBox();
         private readonly Button _browse = new Button { Content = "Browse...", Margin = new Thickness(6, 0, 0, 0) };
         private readonly TextBlock _secretLabel = new TextBlock();
@@ -31,6 +36,16 @@ namespace VT7.Host
             Background = System.Windows.Media.Brushes.White;
             Foreground = System.Windows.Media.Brushes.Black;
             FontFamily = new System.Windows.Media.FontFamily("Segoe UI");
+
+            // The application-level TextBlock style is light text for the dark
+            // main window. This dialog deliberately uses the Windows light form
+            // surface, so keep every generated label (including ComboBox text)
+            // paired with an explicit dark foreground.
+            var dialogText = new Style(typeof(TextBlock));
+            dialogText.Setters.Add(new Setter(TextBlock.ForegroundProperty, System.Windows.Media.Brushes.Black));
+            dialogText.Setters.Add(new Setter(System.Windows.Media.TextOptions.TextFormattingModeProperty,
+                System.Windows.Media.TextFormattingMode.Display));
+            Resources.Add(typeof(TextBlock), dialogText);
 
             _authentication.Items.Add("Private key");
             _authentication.Items.Add("Password");
@@ -95,6 +110,21 @@ namespace VT7.Host
         }
 
         internal SshConnectionOptions? Result { get; private set; }
+        internal FrameworkElement FormContent => (FrameworkElement)Content;
+        internal ComboBox AuthenticationSelector => _authentication;
+
+        private static DataTemplate AuthenticationItemTemplate()
+        {
+            // A ComboBox presents a string selection through a generated
+            // TextBlock. Give that generated element a local foreground so the
+            // application's light-on-dark implicit TextBlock style cannot win.
+            var text = new FrameworkElementFactory(typeof(TextBlock));
+            text.SetBinding(TextBlock.TextProperty, new Binding());
+            text.SetValue(TextBlock.ForegroundProperty, System.Windows.Media.Brushes.Black);
+            text.SetValue(System.Windows.Media.TextOptions.TextFormattingModeProperty,
+                System.Windows.Media.TextFormattingMode.Display);
+            return new DataTemplate { VisualTree = text };
+        }
 
         private static void AddField(Grid root, int row, string label, FrameworkElement control)
         {

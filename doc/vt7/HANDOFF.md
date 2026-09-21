@@ -1,6 +1,6 @@
 # VT7 development handoff
 
-Updated: 2026-09-19. Version 0.6.6/native ABI 11 remains accepted across the
+Updated: 2026-09-21. Version 0.6.6/native ABI 11 remains accepted across the
 Windows 7 PowerShell/profile and keyboard matrix. H01 packages 0.1 through 0.3
 pass the Command Prompt, PowerShell 5.1 and PowerShell 7.2.24 embedded/barrier
 paths while successively exposing the Windows 7 fallback restrictions: timeout,
@@ -9,9 +9,12 @@ console handles enter the extended handle list. Version 0.7.3 uses the native
 Windows 7 standard-handle inheritance rule and keeps the explicit handle list on
 Windows 8 or later. Package 0.4 passes the strict Windows 7 three-shell run and
 H01 is accepted. Version 0.8.0 integrates the S01-accepted SSH.NET closure and
-adds the first direct remote root profile. Its local package passes all offline
-checks and awaits the controlled Windows 7 server run. Typed SSH remains
-disabled.
+adds the first direct remote root profile. Corrected package 0.2 passes its full
+Windows 7 controlled-server matrix, and separate `htop` and `nano` runs expose
+no issue. Version 0.8.1/package 0.3 corrects the form labels, but its focused
+visual check finds the selected Authentication item still light-on-light.
+Version 0.8.2/package 0.4 gives that generated text an explicit dark template;
+its focused Windows 7 visual confirmation passes. Typed SSH remains disabled.
 This is the current resumption guide. Start with the [documentation index](README.md)
 if unfamiliar with the repository. The [roadmap](../../ROADMAP.md) owns gates;
 dated validation records own test claims.
@@ -36,10 +39,10 @@ PowerShell launches preserve user profiles and settings; only controlled tests
 use `-NoProfile`. The accepted Command Prompt transport, Croatian text, Unicode
 filename, child GUI, scrollback and printable-input snap behavior remain intact.
 The exact 5.1/7.2.24 clean-profile transport and ordinary-profile corpus passes
-on Windows 7. VT7 0.8.0 also has an implemented direct SSH.NET root session with
+on Windows 7. VT7 0.8.0 also has an accepted direct SSH.NET root session with
 mandatory pinned-fingerprint trust, private-key/password authentication, remote
-PTY geometry and live resize. This remote path is locally verified but not yet
-Windows 7 accepted. VT7 has no production tabs/panes, final profile management,
+PTY geometry and live resize. The full required Windows 7 matrix passes, as do
+separate `htop` and `nano` runs. VT7 has no production tabs/panes, final profile management,
 selection implementation or typed SSH overlay yet.
 The visible viewport/Diagnostics tabs and profile selector belong to the proof
 host, not the finished multi-session UI. Version 0.6.5 returns Win32 focus to the
@@ -58,12 +61,13 @@ document/transport/view contract now forms the 0.4.0/ABI 11 ownership boundary.
 The first shared output boundary is implemented and S00 has rejected redirected
 external OpenSSH for interactive PTY sessions.
 Neither WARP attribution nor the earlier Arabic/geometry experiment chain is the
-default next task. The immediate task is Windows 7 controlled-server validation
-of direct-profile package 0.1. The typed shim allowlist remains disabled.
+default next task. The immediate development task is the SSH overlay coordinator
+and structured trust/authentication prompt ownership. The typed shim allowlist
+remains disabled until that ordering and return-to-local-shell work passes.
 
 | Item | Current state |
 | --- | --- |
-| Working application version | 0.8.0, native ABI 11, x64. It retains the accepted Command Prompt, PowerShell profile/keyboard and H01 behavior. It adds a separate direct SSH.NET root profile with strict fingerprint trust, private-key/password authentication, actual cell/pixel PTY geometry, live resize and stream-first shutdown. Local checks pass; Windows 7 network acceptance is pending. Typed SSH remains disabled. |
+| Working application version | 0.8.2, native ABI 11, x64. It retains the accepted Command Prompt, PowerShell profile/keyboard, H01 and direct SSH.NET transport behavior. Package 0.2 passes the full Windows 7 direct-profile matrix. Version 0.8.2 adds an explicit dark authentication-item template and verifies the rendered selection at 4.5:1 after package 0.3's focused check exposed the prior logical-label test gap. Typed SSH remains disabled. |
 | Milestone 1 | Complete on the tested configurations, with the evidence limits in its record. |
 | C1 minimum font boundary and C2 Atlas integration | Accepted on the supplied Windows 7 setup in 0.3.0. |
 | C3 repaint, controlled recovery, scaling | Bounded 0.3.1/0.3.2 results and actual 0.3.4 96/120/144 DPI matrix accepted. |
@@ -109,10 +113,13 @@ of direct-profile package 0.1. The typed shim allowlist remains disabled.
 | S01 candidate | Accepted. The isolated [SSH.NET 2026.0.0 diagnostic](validation/2026-09-14-sshnet-s01.md) passes its exact locked thirteen-package net48 closure and both Windows 7 controlled-Debian runs. Version 0.8.0 now incorporates that exact closure in the product host. |
 | S01 target package | Accepted `VT7-SSHNET-S01-0.6-x64.zip`, SHA256 `7200827585B88E337AC3CD2074DDF34D1E6B5EF433A4FD4A305395DBF869292E`, 3,258,501 bytes, 62 verified files. Public-key-only and optional-password runs both pass; no credential fields are retained. The three sanitized manifests and verification metadata are archived under `artifacts/vt7/evidence/sshnet-s01-win7-0.6`. |
 | Direct SSH.NET implementation | [Version 0.8.0](validation/2026-09-19-sshnet-direct-profile.md) implements `SshNetTransport`, ephemeral connection UI, mandatory SHA256 fingerprint verification, root PTY creation, ordered byte ingress, actual pixel/cell resize and stream-first shutdown through ABI 11. Debug/Release and all affected local regressions pass. |
-| Direct SSH.NET target package | Pending Windows 7 result. `VT7-SSHNET-Direct-0.1-x64.zip`, SHA256 `764840E82E9979A82BC1C58850E0961B14B67556568FA89157BD56540A95724B`, 14,458,736 bytes, 82 verified files. The review copy is `artifacts/VT7-SSHNET-Direct-0.1-x64.zip`. |
-| Next bounded task | Run package 0.1's offline foundation check and controlled Debian direct-profile matrix on Windows 7. Keep the typed shim allowlist disabled until trust/authentication, PTY/resize, Unicode/output, EOF/idle-close and local-profile isolation pass. |
+| Direct SSH.NET rejected package 0.1 | `VT7-SSHNET-Direct-0.1-x64.zip`, SHA256 `764840E82E9979A82BC1C58850E0961B14B67556568FA89157BD56540A95724B`, 14,458,736 bytes, 82 verified files. Its first Windows 7 attempt stopped before log creation because quoted trailing `%~dp0` corrupted the following PowerShell 5.1 argument. No VT7 executable or network path ran. |
+| Direct SSH.NET accepted transport package | `VT7-SSHNET-Direct-0.2-x64.zip`, SHA256 `5D11B42D94835C946E45D8ED8D9D261B2F3812E49FA293AB7EE9FB9430BB78D5`, 14,458,800 bytes, 82 verified files. The Windows 7 foundation and controlled Debian matrix pass, including trust/authentication, PTY/resize, Unicode/output, scrollback, EOF/idle-close, reconnect and local-profile isolation. Separate `htop` and `nano` runs also pass. The sole reported defect is low connection-dialog text contrast. |
+| Direct SSH.NET rejected contrast package 0.3 | `VT7-SSHNET-Direct-0.3-x64.zip`, SHA256 `04C56F61FF3A23C52DB89E70A153A61932C37E4C59DE3323B9D2B376E8721D96`, 14,465,404 bytes, 82 verified files. Its Windows 7 foundation test passes and its ordinary form labels are readable, but the selected **Private key** Authentication item remains light-on-light. The logical-label assertion did not inspect the generated selector visual. Supplied evidence is archived under `artifacts/vt7/evidence/sshnet-direct-win7-0.3-contrast-rejected`. |
+| Direct SSH.NET accepted contrast package 0.4 | `VT7-SSHNET-Direct-0.4-x64.zip`, SHA256 `FA4B2054EA9B68D4E78EE43FB838F358F2CD87D13F5B06A385ACC497B0D1BD46`, 14,459,542 bytes, 82 verified files. Version 0.8.2 gives the authentication choices an explicit dark template; the foundation check lays out the real selector and verifies its rendered selected text at 4.5:1. Debug/Release, all affected regressions, staged CMD launch, binary audit and ZIP verification pass. The owner confirms the closed selection and opened choices are readable and look correct on Windows 7. |
+| Next bounded task | Implement the overlay coordinator and structured prompt ownership, then validate ordering and return-to-local-shell behavior before enabling the typed shim allowlist. |
 | Milestone 2 | Open. Theme/high-contrast, broader device/environment and milestone-level ESU coverage also remain. |
-| Development sequence | Accept the implemented direct SSH.NET root on Windows 7, then implement and validate overlay coordination and state normalization before enabling typed handoff. Remaining C3/Milestone 2 qualification stays recorded without a blanket serial dependency. |
+| Development sequence | Implement and validate overlay coordination and state normalization before enabling typed handoff. Remaining C3/Milestone 2 qualification stays recorded without a blanket serial dependency. |
 
 ## Resume safely
 
@@ -459,7 +466,12 @@ policy. Corrected package 0.6 passes public-key-only and optional-password runs
 on Windows 7 against controlled Debian, so S01 accepts SSH.NET as the embedded
 interactive candidate. Version 0.8.0 now carries the exact locked closure and
 stream-first shutdown rule into the production transport boundary. Package 0.1
-passes locally and needs the bounded Windows 7 direct-profile run. Continue to
+is rejected only for its pre-launch batch quoting defect. Corrected package 0.2
+passes the full Windows 7 direct-profile matrix and separate `htop` and `nano`
+runs. Version 0.8.1/package 0.3 corrects the form labels but its target visual
+check exposes the generated selected Authentication text as still light.
+Version 0.8.2/package 0.4 corrects and checks that selector; its focused Windows
+7 visual confirmation passes. Continue to
 apply the ownership and security contracts in the
 [session ownership and external source review](architecture/2026-09-14-session-ownership-and-source-review.md)
 and the implementation-ready
@@ -483,9 +495,12 @@ paths and identify the successive Windows 7 console-handle restrictions. Version
 explicit handle list on Windows 8 or later; package 0.4 passes the strict Windows
 7 three-shell run and H01 is accepted.
 Version 0.8.0 adds the direct SSH.NET root, ephemeral connection dialog, pinned
-host-key trust, remote PTY geometry and live resize. Its controlled-server
-Windows 7 run is the next bounded task. Overlay coordination, typed handoff and
-the daily-driver UI follow after direct acceptance.
+host-key trust, remote PTY geometry and live resize. Corrected package 0.2 passes
+the complete controlled-server Windows 7 matrix plus `htop` and `nano`. Version
+0.8.1/package 0.3 fixes the form labels but fails its focused selector check.
+Version 0.8.2/package 0.4 corrects and verifies the rendered Authentication item,
+and its focused Windows 7 visual confirmation passes. Overlay coordination,
+typed handoff and the daily-driver UI follow.
 
 The two S00 preflight runs are preserved byte-identically under
 `artifacts/vt7/evidence/openssh-s00-win7-preflight-0.2/`. They contain 44 raw
