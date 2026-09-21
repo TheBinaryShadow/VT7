@@ -43,14 +43,20 @@ namespace VT7.Host
         private readonly string _externalPath;
         private readonly string _externalHash;
         private readonly Func<string, Task> _barrierWaiter;
+        private readonly Func<SshInvocation, Task<int>> _embeddedHandler;
+        private readonly Func<SshInvocation, Task> _embeddedCompleted;
+        private readonly bool _continuous;
         private readonly NamedPipeServerStream _server;
         private readonly CancellationTokenSource _lifetime = new CancellationTokenSource();
         private readonly TaskCompletionSource<int> _rootProcess = NewCompletion<int>();
         private readonly TaskCompletionSource<bool> _accepted = NewCompletion<bool>();
-        private readonly Task<SshShimBrokerResult> _completion;
+        private readonly TaskCompletionSource<SshShimBrokerResult> _firstResult = NewCompletion<SshShimBrokerResult>();
+        private readonly Task _worker;
         private bool _disposed;
 
-        internal SshShimBroker(long generation, string externalPath, Func<string, Task> barrierWaiter)
+        internal SshShimBroker(long generation, string externalPath, Func<string, Task> barrierWaiter,
+            Func<SshInvocation, Task<int>>? embeddedHandler = null,
+            Func<SshInvocation, Task>? embeddedCompleted = null, bool continuous = false)
         {
             if (generation <= 0) throw new ArgumentOutOfRangeException(nameof(generation));
             _generation = generation;
@@ -60,6 +66,9 @@ namespace VT7.Host
             using (var sha = SHA256.Create())
                 _externalHash = BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", string.Empty);
             _barrierWaiter = barrierWaiter ?? throw new ArgumentNullException(nameof(barrierWaiter));
+            _embeddedHandler = embeddedHandler ?? (_ => Task.FromResult(0));
+            _embeddedCompleted = embeddedCompleted ?? (_ => Task.CompletedTask);
+            _continuous = continuous;
             using (var random = RandomNumberGenerator.Create())
             {
                 random.GetBytes(_capability);
@@ -67,7 +76,7 @@ namespace VT7.Host
             }
             PipeName = @"\\.\pipe\VT7.SSH." + Guid.NewGuid().ToString("N");
             _server = CreatePipe(PipeName);
-            _completion = RunAsync();
+            _worker = RunAsync();
         }
 
         internal string PipeName { get; }
@@ -75,7 +84,7 @@ namespace VT7.Host
         internal string ExternalPath => _externalPath;
         internal string ExternalHash => _externalHash;
         internal Task RequestAccepted => _accepted.Task;
-        internal Task<SshShimBrokerResult> Completion => _completion;
+        internal Task<SshShimBrokerResult> Completion => _firstResult.Task;
 
         internal void SetRootProcess(int processId)
         {
@@ -83,12 +92,41 @@ namespace VT7.Host
             if (!_rootProcess.TrySetResult(processId)) throw new InvalidOperationException("The H01 root process was already assigned.");
         }
 
-        private async Task<SshShimBrokerResult> RunAsync()
+        private async Task RunAsync()
+        {
+            while (!_lifetime.IsCancellationRequested)
+            {
+                try
+                {
+                    var result = await RunRequestAsync().ConfigureAwait(false);
+                    _firstResult.TrySetResult(result);
+                }
+                catch (Exception error)
+                {
+                    if (!_lifetime.IsCancellationRequested) _firstResult.TrySetException(error);
+                    if (!_continuous) return;
+                }
+                finally
+                {
+                    try
+                    {
+                        if (_server.IsConnected) _server.Disconnect();
+                    }
+                    catch when (_lifetime.IsCancellationRequested) { }
+                }
+                if (!_continuous) return;
+            }
+        }
+
+        private async Task<SshShimBrokerResult> RunRequestAsync()
         {
             var result = new SshShimBrokerResult();
             try
             {
-                await WithTimeout(_server.WaitForConnectionAsync(), TimeSpan.FromSeconds(10), "shim pipe connection").ConfigureAwait(false);
+                using (var random = RandomNumberGenerator.Create()) random.GetBytes(_serverNonce);
+                var connection = _server.WaitForConnectionAsync(_lifetime.Token);
+                if (_continuous) await connection.ConfigureAwait(false);
+                else await WithTimeout(connection, TimeSpan.FromSeconds(10), "shim pipe connection").ConfigureAwait(false);
                 if (!GetNamedPipeClientProcessId(_server.SafePipeHandle, out var clientPid))
                     throw new Win32Exception(Marshal.GetLastWin32Error(), "GetNamedPipeClientProcessId failed.");
                 result.ClientProcessId = clientPid;
@@ -149,7 +187,19 @@ namespace VT7.Host
                 if (!result.BarrierAcknowledged) throw new InvalidDataException("Barrier acknowledgement authentication failed.");
                 await WithTimeout(_barrierWaiter(barrier), TimeSpan.FromSeconds(10), "committed WinPTY barrier").ConfigureAwait(false);
                 result.BarrierCommitted = true;
-                await WriteFrameAsync(SshShimProtocol.Complete(0, requestId)).ConfigureAwait(false);
+                var exitCode = await _embeddedHandler(invocation).ConfigureAwait(false);
+                if (exitCode != 0 && exitCode != 255)
+                    throw new InvalidOperationException("The embedded SSH handler returned an unsupported status.");
+                try
+                {
+                    await WriteFrameAsync(SshShimProtocol.Complete(exitCode, requestId)).ConfigureAwait(false);
+                }
+                finally
+                {
+                    // Root input must reopen even if an accepted shim disappears
+                    // before it can receive the completion frame.
+                    await _embeddedCompleted(invocation).ConfigureAwait(false);
+                }
                 return result;
             }
             catch
@@ -274,7 +324,8 @@ namespace VT7.Host
             _disposed = true;
             _lifetime.Cancel();
             _server.Dispose();
-            _lifetime.Dispose();
+            _ = _worker.ContinueWith(_ => _lifetime.Dispose(), CancellationToken.None,
+                TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
         }
 
         [StructLayout(LayoutKind.Sequential)]

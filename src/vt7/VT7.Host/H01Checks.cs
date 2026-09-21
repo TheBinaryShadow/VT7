@@ -76,8 +76,8 @@ namespace VT7.Host
             report.AppendLine("PASS: H01 grammar admits only interactive -4/-6/-l/-p/-i forms and sends ambiguous or unsupported syntax to exact fallback.");
 
             var commandPrompt = TerminalProfile.CreateCommandPrompt();
-            await RunEmbedded(commandPrompt, "Command Prompt", 61, false);
-            report.AppendLine("PASS: Command Prompt resolved ordinary ssh through the authenticated shim and committed the visible WinPTY barrier in order.");
+            await RunEmbedded(commandPrompt, "Command Prompt", 61, false, 6000);
+            report.AppendLine("PASS: Command Prompt resolved ordinary ssh through the authenticated shim, committed the visible WinPTY barrier in order, and kept the accepted shim waiting beyond the five-second handshake timeout until embedded completion.");
 
             var windowsPowerShell = TerminalProfile.CreateWindowsPowerShell(cleanProfile: true);
             await RunEmbedded(windowsPowerShell, "Windows PowerShell 5.1", 62, true);
@@ -110,7 +110,8 @@ namespace VT7.Host
             report.AppendLine("PASS: a wrong session capability was denied before embedded acceptance and fell back once without a duplicate connection.");
         }
 
-        private static async Task RunEmbedded(TerminalProfile baseProfile, string label, int exitCode, bool powerShell)
+        private static async Task RunEmbedded(TerminalProfile baseProfile, string label, int exitCode,
+            bool powerShell, int embeddedDelayMilliseconds = 0)
         {
             var binaryRoot = AppDomain.CurrentDomain.BaseDirectory;
             var shimDirectory = Path.Combine(binaryRoot, "shim");
@@ -121,7 +122,11 @@ namespace VT7.Host
 
             var document = new TerminalDocument(loadDemonstration: false);
             using (var sink = new CommittedOutputSink(document))
-            using (var broker = new SshShimBroker(1, fixture, sink.WaitForBarrierAsync))
+            using (var broker = new SshShimBroker(1, fixture, sink.WaitForBarrierAsync, async _ =>
+            {
+                if (embeddedDelayMilliseconds > 0) await Task.Delay(embeddedDelayMilliseconds);
+                return 0;
+            }))
             {
                 var fixtureReport = Path.Combine(Path.GetTempPath(), "vt7-h01-fixture-" + Guid.NewGuid().ToString("N") + ".json");
                 var profile = ConfigureProfile(baseProfile, shimDirectory, broker, fixtureReport);

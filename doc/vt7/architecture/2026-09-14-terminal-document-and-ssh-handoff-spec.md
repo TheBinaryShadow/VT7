@@ -1,6 +1,6 @@
 # Terminal document, transport, and typed-SSH handoff specification
 
-Decision date: 2026-09-14. Implementation status updated 2026-09-19: 3A.1 and
+Decision date: 2026-09-14. Implementation status updated 2026-09-21: 3A.1 and
 3A.2 are implemented as 0.4.0/native ABI 11 and pass locally in Debug and
 Release and on the exact Windows 7 SP1 x64 candidate. The 0.5.0 3B.1 slice now
 connects an explicit Command Prompt profile to production `WinPtyTransport` and
@@ -18,8 +18,16 @@ serialized live resize, one ordered output reader and stream-first shutdown
 behind ABI 11. Corrected package 0.2 passes the complete Windows 7
 controlled-server matrix plus separate `htop` and `nano` runs. Version 0.8.1
 corrects the ordinary connection-dialog labels; version 0.8.2 also corrects the
-generated selected Authentication item. The overlay coordinator and
-typed `USE_EMBEDDED` reply remain disabled.
+generated selected Authentication item. Version 0.9.0 implements the production
+overlay coordinator, sequential broker, structured prompt ownership, committed
+barrier handoff, dual-live resize and return-to-root path. Package 0.1 passed its
+Windows 7 automation but exposed that broker-thread startup directly read
+dispatcher-owned geometry. Version 0.9.1/package 0.2 marshals geometry capture
+to the document dispatcher and connects on Windows 7, but applies the five-second
+handshake timeout to the full accepted-session completion wait. Version 0.9.2/
+package 0.3 separates those lifetimes and guarantees root recovery if the shim
+disconnects before completion delivery. Its complete controlled Windows 7
+overlay matrix passes.
 
 This specification turns the accepted WinPTY P01, input I01, outbound 0.3.7,
 OpenSSH S00, and SSH.NET S01 results into one production ownership model. It also
@@ -54,8 +62,12 @@ connection is implemented and boundedly target-qualified in 3B.1 for Command
 Prompt. Ctrl+C input acceptance remains in 3C. The first SSH.NET direct-profile
 and trust/authentication UI slice is implemented and Windows 7 accepted in 0.8.0
 after the H01 shim/barrier diagnostic passed. Overlay coordination and the
-typed-SSH experience remain Milestone 5 work. This specification
-distinguishes those later contracts from the implemented direct root.
+typed-SSH experience are implemented in 0.9.0. The first target attempt rejected
+package 0.1 at the worker-thread geometry boundary before network startup;
+version 0.9.1/package 0.2 accepts that correction with a real connection but
+rejects the completion lifetime. Version 0.9.2/package 0.3 carries the lifecycle
+correction and passes focused plus complete Windows 7 acceptance. The direct root
+and typed overlay are both accepted within their recorded boundaries.
 
 The implemented ownership has one deliberate mechanical refinement. Upstream
 TerminalCore stores the renderer controller address in its text buffer and VT
@@ -799,6 +811,13 @@ its content. This policy is consistent with the broader
 [VT protocol and security research](../research/19-vt-protocol-and-security.md).
 
 ## Trust, authentication, and privacy
+
+The specialized
+[OpenSSH-compatible known-host management specification](2026-09-21-openssh-known-hosts-management-spec.md)
+supersedes this section's generic trust-store details. It defines the exact
+OpenSSH 10.0p2 file grammar, source precedence, certificate and revocation
+policy, SSH.NET retry state machine, Windows mutation rules and acceptance
+matrix. The invariants below remain binding.
 
 Host-key trust is resolved before authentication. VT7 distinguishes unknown,
 matching, changed, revoked/policy-rejected, and unreadable trust records. Unknown

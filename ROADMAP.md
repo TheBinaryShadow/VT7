@@ -1076,6 +1076,16 @@ interactive candidate on the tested Windows 7 configuration.
 - [ ] Implement recoverable known-host management.
   Separate unknown, changed, matching, and unreadable trust records; never
   silently accept a mismatch or continue authentication past a failed decision.
+  The [OpenSSH-compatible technical specification](doc/vt7/architecture/2026-09-21-openssh-known-hosts-management-spec.md)
+  is complete. It selects the user's default OpenSSH files, pins 10.0p2 as the
+  differential oracle, defines raw-key/certificate/revocation precedence,
+  fresh-connection first-contact decisions and byte-preserving Windows writes.
+  KH01.1 parser/oracle package 0.1 passes Debug, Release, path-with-spaces and
+  independent ZIP verification locally against `ssh-keygen.exe` 9.5.5.2. The
+  owner reports a clean Windows 7 pass through the launcher's mandatory
+  10.0.0.0 file-version gate for the 10.0p2 oracle. The production path is
+  unchanged and this item remains open until KH01.2-KH01.5 and the complete
+  target matrix pass.
 - [x] Support ephemeral password, private-key and passphrase authentication in
   the direct-profile dialog without persistence or default-log disclosure.
 - [ ] Add agent and keyboard-interactive authentication where
@@ -1094,9 +1104,23 @@ interactive candidate on the tested Windows 7 configuration.
   output/scrollback, resize, EOF, idle-close and local-profile-isolation matrix on
   Windows 7. See the
   [direct-profile record](doc/vt7/validation/2026-09-19-sshnet-direct-profile.md).
-- [ ] Implement the SSH overlay coordinator and structured prompt ownership, then
-  enable H01 `USE_EMBEDDED` only after its ordering and return-to-local-shell
-  contracts pass. Typed `ssh` remains disabled in package 0.4.
+- [x] Accept the implemented SSH overlay coordinator on Windows 7. Version 0.9.0
+  enables H01 `USE_EMBEDDED`, owns trust/authentication in WPF, keeps the local
+  root alive, switches the shared document to SSH.NET after the committed
+  barrier, and returns status 0/255 to the originating shell. Package 0.1 passed
+  the complete automated Windows 7 corpus and proved the shim/barrier/return
+  path, but real typed connections failed before network startup because the
+  broker worker directly read dispatcher-owned document/viewport geometry.
+  Version 0.9.1/package 0.2 marshals that capture through the document dispatcher
+  and connects successfully on Windows 7, accepting that correction. Its shim
+  then applies the five-second handshake timeout to the full remote-session
+  completion wait, returns the local prompt early and prevents root recovery on
+  later remote exit. Version 0.9.2/package 0.3 uses a session-lifetime completion
+  wait, guarantees root recovery if completion delivery loses the shim, and
+  passes a real delayed-shim regression. Package 0.3 passes the complete target
+  corpus: the former timeout boundary, normal exit and local prompt recovery,
+  sequential handoff, explicit disconnect/status 255, all three local shells,
+  Unicode/resize/scrollback/TUI checks and exact external fallback.
 - [ ] Test `vim`, `htop`, `tmux`, `mc`, `less`, full-screen TUIs, mouse input,
   bracketed paste, Unicode, 256-color/true-color output, alternate-screen
   restoration, and the shared keyboard/IME/clipboard paths on Windows 7.

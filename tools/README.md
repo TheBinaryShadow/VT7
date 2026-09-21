@@ -29,8 +29,10 @@ existing evidence before a relevant regression run.
 | `Build-VT7SshNet.ps1` | Builds only the isolated net48/x64 S01 diagnostic; `-Configuration` selects Debug or Release and `-NoRestore` uses the verified lock result. |
 | `Test-VT7SshNet.ps1` | Runs S01 from a build or package directory. `-SelfTest` checks loads, modern algorithms, encrypted-key parsing and credential redaction without a server; network mode runs the controlled trust/authentication/PTY/lifecycle matrix. |
 | `Package-VT7SshNet.ps1` | Builds and self-tests the non-overwriting S01 package, preserves all exact dependency notices and metadata, verifies recursive hashes and ZIP entries, and emits the Windows 7 artifact. |
-| `Test-VT7SshNetFoundation.ps1` | Runs the application-host 0.8.2 offline direct-profile contract: exact runtime closure, strict fingerprint validation, direct-root ownership, actual cell/pixel start and resize geometry, credential-owner disposal, and at least 4.5:1 contrast for every SSH-dialog label and the rendered Authentication selection. It makes no network connection. |
+| `Test-VT7SshNetFoundation.ps1` | Runs the application-host 0.9.2 offline SSH.NET contract: exact runtime closure, strict fingerprint and structured address-family validation, direct-root ownership, actual cell/pixel geometry, credential-owner disposal, and at least 4.5:1 contrast for every SSH-dialog label and the rendered Authentication selection. It makes no network connection. |
 | `Package-VT7SshNetDirect.ps1` | Creates the non-overwriting 0.8.2/ABI 11 direct-profile package, stages the accepted SSH.NET 2026.0.0 closure and every required notice, audits every native or managed image, runs the actual PowerShell 5.1 CMD launcher from a package path containing spaces, and independently verifies every ZIP entry. Package 0.2 is transport-accepted on Windows 7; package 0.3 fixes labels but misses selected Authentication text; package 0.4 corrects it and passes focused visual confirmation. Typed `ssh` remains disabled. |
+| `Test-VT7SshOverlay.ps1` | Runs the 0.9.2 combined session stream/input, SSH.NET foundation and H01 corpus, including a real accepted shim held beyond the five-second handshake timeout, then records the exact installed external OpenSSH identity. The distributed runner strictly requires PowerShell 7.2.24; `-AllowMissingPowerShell7` is local-development only. |
+| `Package-VT7SshOverlay.ps1` | Creates the non-overwriting 0.9.2/ABI 11 typed-overlay package, stages the shim and SSH.NET closure with all notices, runs the real Windows PowerShell batch path from a directory containing spaces, and independently verifies every ZIP entry. Package 0.1 exposed worker-thread WPF geometry access. Package 0.2 connects after that correction but applies the handshake timeout to the remote-session completion wait. Package 0.3 corrects both boundaries and passes the complete controlled Windows 7 matrix. |
 | `Test-VT7AtlasRepaint.ps1` | Exact repaint/cursor checks; `-Configuration`, `-BinaryDirectory`, `-Renderers`; retains its expected-failure control. |
 | `Test-VT7AtlasRecovery.ps1` | Controlled recovery scenarios; `-Configuration`, `-BinaryDirectory`. |
 | `Test-VT7AtlasSettings.ps1` | Font/settings checks; `-Configuration`, `-BinaryDirectory`, `-ExpectedSystemDpi` accepts `0`, `96`, `120` or `144`. Zero leaves the actual DPI unasserted. |
@@ -125,7 +127,18 @@ matrix plus separate `htop` and `nano` runs. Version 0.8.1/package 0.3 corrects
 the logical form labels but fails focused visual confirmation because the
 generated selected Authentication item remains light. Version 0.8.2/package 0.4
 styles and checks that rendered selection, and its focused Windows 7 visual
-confirmation passes. Typed SSH remains off pending overlay integration.
+confirmation passes. Version 0.9.2/package 0.3 completes and target-accepts the
+typed SSH overlay integration.
+`Test-VT7KnownHosts.ps1` runs the disconnected KH01.1 parser, matcher, raw-key
+trust resolver, deterministic arbitrary-byte corpus and disposable
+`ssh-keygen -F/-H/-R` differential oracle. `Package-VT7KnownHosts.ps1` creates
+the refuse-overwrite package and exercises its CMD launcher from a path with
+spaces. `Verify-VT7KnownHostsPackage.ps1` independently checks ZIP safety,
+manifest fields, every staged SHA256, PE/dependency policy and a fresh extracted
+run. Package 0.1 is locally verified against `ssh-keygen.exe` 9.5.5.2; its
+launcher requires file version 10.0.0.0 on the Windows 7 target, where the owner
+reports a clean pass. The diagnostic does not read real trust files, connect to
+a server or change production SSH.
 These opt-in host CLI controls
 are documented in the [stability record](../doc/vt7/validation/2026-09-13-atlas-stability.md);
 the stability runner does not expose a resource-isolation parameter. The separate

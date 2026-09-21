@@ -51,6 +51,12 @@ namespace VT7.Host
             }
             Require(rejected, "An invalid host-key fingerprint was accepted.");
             report.AppendLine("PASS: structured SSH options require an explicit valid SHA256 trust fingerprint before authentication.");
+            using (var secret = Secret("test-only"))
+            using (var forced = new SshConnectionOptions("127.0.0.1", 22, "user", fingerprint,
+                SshAuthenticationKind.Password, null, secret, SshAddressFamily.IPv4))
+                Require(forced.AddressFamily == SshAddressFamily.IPv4,
+                    "The typed -4 address-family constraint was not retained.");
+            report.AppendLine("PASS: typed -4/-6 address-family constraints remain structured transport input.");
 
             var dialog = new SshConnectionDialog();
             var dialogBackground = Solid(dialog.Background, "SSH dialog background");
