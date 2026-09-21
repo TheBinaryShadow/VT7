@@ -11,13 +11,20 @@ namespace VT7.Host
         Password,
     }
 
+    internal enum SshAddressFamily
+    {
+        Any,
+        IPv4,
+        IPv6,
+    }
+
     internal sealed class SshConnectionOptions : IDisposable
     {
         private SecureString? _secret;
 
         internal SshConnectionOptions(string host, int port, string username,
             string expectedHostKeyFingerprint, SshAuthenticationKind authentication,
-            string? privateKeyPath, SecureString? secret)
+            string? privateKeyPath, SecureString? secret, SshAddressFamily addressFamily = SshAddressFamily.Any)
         {
             Host = (host ?? string.Empty).Trim();
             Port = port;
@@ -25,6 +32,7 @@ namespace VT7.Host
             ExpectedHostKeyFingerprint = NormalizeFingerprint(expectedHostKeyFingerprint);
             Authentication = authentication;
             PrivateKeyPath = string.IsNullOrWhiteSpace(privateKeyPath) ? null : Path.GetFullPath(privateKeyPath!.Trim());
+            AddressFamily = addressFamily;
             var ownedSecret = secret?.Copy() ?? new SecureString();
             ownedSecret.MakeReadOnly();
             _secret = ownedSecret;
@@ -37,6 +45,7 @@ namespace VT7.Host
         internal string ExpectedHostKeyFingerprint { get; }
         internal SshAuthenticationKind Authentication { get; }
         internal string? PrivateKeyPath { get; }
+        internal SshAddressFamily AddressFamily { get; }
 
         internal SecureString CopySecret()
         {
@@ -67,6 +76,8 @@ namespace VT7.Host
             {
                 throw new ArgumentOutOfRangeException(nameof(Authentication));
             }
+            if (AddressFamily != SshAddressFamily.Any && AddressFamily != SshAddressFamily.IPv4 && AddressFamily != SshAddressFamily.IPv6)
+                throw new ArgumentOutOfRangeException(nameof(AddressFamily));
         }
 
         internal static string NormalizeFingerprint(string value)

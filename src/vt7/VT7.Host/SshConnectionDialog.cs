@@ -23,9 +23,12 @@ namespace VT7.Host
         private readonly Button _browse = new Button { Content = "Browse...", Margin = new Thickness(6, 0, 0, 0) };
         private readonly TextBlock _secretLabel = new TextBlock();
         private readonly PasswordBox _secret = new PasswordBox();
+        private readonly SshAddressFamily _addressFamily;
 
-        internal SshConnectionDialog()
+        internal SshConnectionDialog(SshInvocation? invocation = null)
         {
+            _addressFamily = invocation?.ForceIpv4 == true ? SshAddressFamily.IPv4 :
+                invocation?.ForceIpv6 == true ? SshAddressFamily.IPv6 : SshAddressFamily.Any;
             Title = "Start SSH.NET session";
             Width = 590;
             Height = 490;
@@ -53,6 +56,17 @@ namespace VT7.Host
             _authentication.SelectionChanged += (_, __) => RefreshAuthentication();
             _browse.Click += Browse_Click;
             _keyPath.Text = DefaultKeyPath();
+            if (invocation != null)
+            {
+                _host.Text = invocation.Destination;
+                _port.Text = invocation.Port.ToString(CultureInfo.InvariantCulture);
+                _username.Text = invocation.User ?? string.Empty;
+                if (!string.IsNullOrWhiteSpace(invocation.KeyPath))
+                {
+                    _keyPath.Text = invocation.KeyPath;
+                    _authentication.SelectedIndex = 0;
+                }
+            }
 
             var root = new Grid { Margin = new Thickness(20) };
             root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(170) });
@@ -85,7 +99,9 @@ namespace VT7.Host
 
             var note = new TextBlock
             {
-                Text = "The fingerprint must come from a trusted path. VT7 will reject a different host key before authentication. Values and credentials are not written to diagnostics. This direct profile is the staged SSH.NET path; typed ssh remains disabled.",
+                Text = invocation == null
+                    ? "The fingerprint must come from a trusted path. VT7 will reject a different host key before authentication. Values and credentials are not written to diagnostics."
+                    : "This request came from the active local shell. Confirm the destination and provide a fingerprint from a trusted path. VT7 will reject a different host key before authentication. Values and credentials are not written to diagnostics.",
                 TextWrapping = TextWrapping.Wrap,
                 Foreground = System.Windows.Media.Brushes.DimGray,
                 Margin = new Thickness(0, 12, 0, 12),
@@ -167,7 +183,7 @@ namespace VT7.Host
                 {
                     Result = new SshConnectionOptions(_host.Text, port, _username.Text, _fingerprint.Text,
                         _authentication.SelectedIndex == 0 ? SshAuthenticationKind.PrivateKey : SshAuthenticationKind.Password,
-                        _keyPath.Text, secret);
+                        _keyPath.Text, secret, _addressFamily);
                 }
                 DialogResult = true;
             }

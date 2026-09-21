@@ -90,10 +90,10 @@ $report = Get-Item -LiteralPath $reportPath
 if ($report.LastWriteTime -lt $started.AddSeconds(-2)) { throw 'VT7 H01 test left a stale report.' }
 $text = [IO.File]::ReadAllText($reportPath)
 $required = @(
-    'Build: VT7 0.8.2',
+    'Build: VT7 0.9.2',
     'Native: ABI 11, expected 11',
     'PASS: H01 grammar admits only interactive -4/-6/-l/-p/-i forms and sends ambiguous or unsupported syntax to exact fallback.',
-    'PASS: Command Prompt resolved ordinary ssh through the authenticated shim and committed the visible WinPTY barrier in order.',
+    'PASS: Command Prompt resolved ordinary ssh through the authenticated shim, committed the visible WinPTY barrier in order, and kept the accepted shim waiting beyond the five-second handshake timeout until embedded completion.',
     'PASS: Windows PowerShell 5.1 preserved Croatian HR Latin input, command precedence and the authenticated WinPTY barrier.',
     'PASS: unsupported syntax selected the exact absolute fallback, preserved quoted argv and exit 37, and removed capability, pipe and shim PATH state.',
     'PASS: a wrong session capability was denied before embedded acceptance and fell back once without a duplicate connection.',

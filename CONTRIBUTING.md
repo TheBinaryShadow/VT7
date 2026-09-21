@@ -37,7 +37,7 @@ of required workflows remain immediate concerns, not optional polish.
 
 Start with [BUILDING.md](BUILDING.md) and the current
 [stability record](doc/vt7/validation/2026-09-13-atlas-stability.md).
-The working source is 0.8.2/ABI 11. It combines the accepted document/session/
+The working source is 0.9.2/ABI 11. It combines the accepted document/session/
 view ownership and bounded inbound/outbound paths with Command Prompt, Windows
 PowerShell 5.1 and versioned PowerShell 7 profiles through pinned WinPTY 0.4.3.
 Local Debug/Release, lifecycle and clean-profile PowerShell 5.1 checks pass. The
@@ -70,8 +70,17 @@ closure and local regressions pass. Package 0.2 passes the complete Windows 7
 controlled-server matrix plus `htop` and `nano`. Package 0.3 corrects the form
 labels but leaves the selected Authentication item too light; version 0.8.2/
 package 0.4 explicitly styles and checks that generated selector text, and its
-focused Windows 7 visual confirmation passes. Typed `ssh` remains disabled until
-overlay coordination passes. Start with the
+focused Windows 7 visual confirmation passes. Version 0.9.0 implements the
+session-scoped typed `ssh` overlay, structured prompt, committed-barrier switch
+and return to the original shell. Package 0.1 passed the target automation but
+failed real typed connections when its broker worker read dispatcher-owned
+geometry. Version 0.9.1/package 0.2 fixes that boundary and connects on Windows
+7, but its shim times out while the accepted remote session remains active and
+the later completion cannot reopen root input. Version 0.9.2/package 0.3 gives
+accepted completion the session lifetime, guarantees root recovery after a lost
+shim and passes its delayed-shim regression. Package 0.3 passes the complete
+controlled Windows 7 overlay matrix. Start with the
+[accepted overlay record](doc/vt7/validation/2026-09-21-typed-ssh-overlay.md),
 [direct-profile validation record](doc/vt7/validation/2026-09-19-sshnet-direct-profile.md),
 [session stream contract](doc/vt7/architecture/2026-09-14-session-stream-foundation.md)
 and [session outbound contract](doc/vt7/architecture/2026-09-14-session-outbound-foundation.md).
@@ -97,9 +106,9 @@ automatic recovery, and session acceptance.
   lifetime and resize hardening.
 - Windows 7 acceptance of the implemented PowerShell 5.1/7.2.24 profiles and
   their ordinary PSReadLine/native-child corpus under the P01 fidelity limits.
-- SSH overlay integration and typed-command handoff on top of the accepted
-  SSH.NET direct profile. S00 rejected unmodified redirected OpenSSH for
-  interactive PTY sessions.
+- Hardening of the Windows 7-accepted typed-command SSH.NET overlay. S00 rejected
+  unmodified redirected OpenSSH for interactive PTY sessions; 0.9.2 keeps it as
+  the exact fallback for unsupported syntax.
 - Dependency, imported-API, and behavior-level compatibility audits.
 - Automated tests that protect Windows 7-specific behavior.
 - Physical Windows 7 testing with precise system and driver information.

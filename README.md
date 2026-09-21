@@ -22,7 +22,7 @@ independent open-source engineering effort to create a real terminal
 application for Windows 7.
 
 > [!IMPORTANT]
-> VT7 is currently in pre-alpha development. Version 0.8.2 retains selectable
+> VT7 is currently in pre-alpha development. Version 0.9.2 retains selectable
 > Command Prompt, Windows PowerShell 5.1 and versioned PowerShell 7 profiles to
 > the accepted local transport. The exact PowerShell 5.1/7.2.24 transport,
 > Unicode, resize, lifecycle and keyboard corpus passes on Windows 7. The 0.7.3
@@ -34,7 +34,16 @@ application for Windows 7.
 > Package 0.3 corrects the form labels but its Windows 7 visual check finds the
 > selected Authentication item still too light. Version 0.8.2/package 0.4 gives
 > that generated selector text an explicit dark template and passes focused
-> Windows 7 confirmation; typed `ssh` remains disabled pending overlay integration.
+> Windows 7 confirmation. Version 0.9.0 implements the session-scoped typed
+> `ssh` overlay, structured trust/authentication prompt, committed-barrier switch
+> and return to the originating shell. Package 0.1 passed its automated Windows
+> 7 corpus but failed every real typed connection before network startup because
+> its broker worker accessed WPF-owned geometry directly. Version 0.9.1/package
+> 0.2 fixes that boundary and connects successfully on Windows 7, but rejects
+> after its shim applies the five-second handshake timeout to the full remote
+> session and leaves root input closed. Version 0.9.2/package 0.3 gives accepted
+> completion the remote-session lifetime and guarantees root recovery after a
+> lost shim. Package 0.3 passes the complete controlled Windows 7 overlay matrix.
 > Other
 > features described here remain project goals until implemented and verified.
 
@@ -153,7 +162,7 @@ build the best terminal we can for the platform we love.
 
 ## Project status
 
-Current working source: **0.8.2, native ABI 11**. It retains the accepted 3A
+Current working source: **0.9.2, native ABI 11**. It retains the accepted 3A
 document/session/view ownership and Command Prompt path, then adds explicit
 Windows PowerShell 5.1 and versioned PowerShell 7 profiles through the same
 production `WinPtyTransport`. Ordinary PowerShell launches preserve user
@@ -187,8 +196,23 @@ finds its closed Authentication selection still light-on-light. Version
 0.8.2/package 0.4 adds an explicit dark authentication-item template, verifies
 the rendered selected text at 4.5:1 and passes focused Windows 7 confirmation. The
 [direct-profile record](doc/vt7/validation/2026-09-19-sshnet-direct-profile.md)
-defines the exact boundary and evidence. Typed `ssh` remains disabled until the
-overlay coordinator and structured prompt ownership are implemented and accepted.
+defines the accepted direct-root boundary and evidence. Version 0.9.0 connects
+the accepted H01 and SSH.NET paths: eligible typed `ssh` commands now open a
+structured WPF prompt, switch the shared document to an SSH.NET overlay only
+after the WinPTY barrier commits, and return to the same local shell. Package
+0.1 proved the shim/barrier/return path on Windows 7 but rejected the production
+connection: worker-thread startup touched dispatcher-owned geometry before
+SSH.NET could connect. Version 0.9.1/package 0.2 routes that capture through the
+document dispatcher and proves a real Windows 7 connection, but its accepted
+shim times out after five seconds and returns the local prompt before the remote
+session ends; later remote exit stalls root recovery. Version 0.9.2/package 0.3
+separates bounded handshake I/O from session-lifetime completion, makes root
+recovery unconditional after completion delivery, and adds a real delayed-shim
+regression. The
+[accepted overlay record](doc/vt7/validation/2026-09-21-typed-ssh-overlay.md)
+documents the failures, corrections, exact package identity and complete
+controlled Windows 7 result. Typed `ssh` now passes normal exit, sequential
+handoff, explicit disconnect, all three local shells and exact fallback checks.
 The exact 0.5.0 Windows 7 package also passes all three runners; manual
 Command Prompt use, Croatian text and a Unicode filename pass. Ctrl+C interrupts
 a running command; empty or partial prompt-line cancellation has the known
@@ -455,7 +479,9 @@ keyboard-sink implementation and passes focused target confirmation. The
 implements the separate direct SSH.NET root profile; package 0.2 passes its full
 Windows 7 network matrix plus `htop` and `nano`. Version 0.8.1/package 0.3
 corrects the form labels but misses the selected Authentication item; version
-0.8.2/package 0.4 corrects and checks that generated text. Typed SSH remains disabled. The broader input corpus remains open. Build 0.3.5
+0.8.2/package 0.4 corrects and checks that generated text. Version 0.9.2/package
+0.3 enables the accepted typed SSH.NET overlay. The broader SSH and input corpus
+remains open. Build 0.3.5
 implements synchronized-output, idle CPU and shutdown checks after the accepted
 0.3.4 scaling matrix. Its WARP resource concern remains recorded under REL01.
 The recreate/reuse comparison, ownership trace and retirement diagnostic now

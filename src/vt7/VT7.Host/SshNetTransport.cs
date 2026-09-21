@@ -3,6 +3,8 @@ using Renci.SshNet.Common;
 using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Net;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
@@ -125,7 +127,8 @@ namespace VT7.Host
             try
             {
                 _stage = "authentication setup";
-                var connection = CreateConnectionInfo();
+                var connectionHost = await ResolveConnectionHostAsync(cancellationToken).ConfigureAwait(false);
+                var connection = CreateConnectionInfo(connectionHost);
                 var client = new SshClient(connection) { KeepAliveInterval = TimeSpan.FromSeconds(5) };
                 client.HostKeyReceived += OnHostKeyReceived;
                 _client = client;
@@ -238,7 +241,7 @@ namespace VT7.Host
             await FinishAsync(new TerminalTransportResult(kind), failed: !readerStopped, disconnectClient: true).ConfigureAwait(false);
         }
 
-        private ConnectionInfo CreateConnectionInfo()
+        private ConnectionInfo CreateConnectionInfo(string connectionHost)
         {
             AuthenticationMethod method;
             using (var secret = _options.CopySecret())
@@ -263,12 +266,32 @@ namespace VT7.Host
                     value = string.Empty;
                 }
             }
-            return new ConnectionInfo(_options.Host, _options.Port, _options.Username, method)
+            return new ConnectionInfo(connectionHost, _options.Port, _options.Username, method)
             {
                 Timeout = TimeSpan.FromSeconds(15),
                 ChannelCloseTimeout = TimeSpan.FromSeconds(5),
                 Encoding = Utf8,
             };
+        }
+
+        private async Task<string> ResolveConnectionHostAsync(CancellationToken cancellationToken)
+        {
+            if (_options.AddressFamily == SshAddressFamily.Any) return _options.Host;
+            var host = _options.Host;
+            if (host.Length > 2 && host[0] == '[' && host[host.Length - 1] == ']')
+                host = host.Substring(1, host.Length - 2);
+            var required = _options.AddressFamily == SshAddressFamily.IPv4
+                ? AddressFamily.InterNetwork : AddressFamily.InterNetworkV6;
+            if (IPAddress.TryParse(host, out var literal))
+            {
+                if (literal.AddressFamily != required)
+                    throw new SshTransportException("address-family resolution");
+                return literal.ToString();
+            }
+            var addresses = await Task.Run(() => Dns.GetHostAddresses(host), cancellationToken).ConfigureAwait(false);
+            var selected = addresses.FirstOrDefault(address => address.AddressFamily == required);
+            if (selected == null) throw new SshTransportException("address-family resolution");
+            return selected.ToString();
         }
 
         private void OnHostKeyReceived(object? sender, HostKeyEventArgs eventArgs)

@@ -18,7 +18,7 @@
 namespace
 {
     constexpr uint16_t ProtocolVersion = 1;
-    constexpr DWORD IoTimeoutMilliseconds = 5000;
+    constexpr DWORD HandshakeIoTimeoutMilliseconds = 5000;
     constexpr uint32_t MaximumFrame = 64 * 1024;
     constexpr uint32_t ConsoleHandleFlag = 0x10000;
 
@@ -101,7 +101,8 @@ namespace
         size_t _offset{};
     };
 
-    void Transfer(const HANDLE pipe, void* buffer, const DWORD count, const bool write)
+    void Transfer(const HANDLE pipe, void* buffer, const DWORD count, const bool write,
+        const DWORD timeout = HandshakeIoTimeoutMilliseconds)
     {
         auto* cursor = static_cast<uint8_t*>(buffer);
         DWORD total{};
@@ -119,7 +120,7 @@ namespace
             {
                 const auto error = GetLastError();
                 Check(error == ERROR_IO_PENDING, write ? "pipe WriteFile failed" : "pipe ReadFile failed");
-                const auto wait = WaitForSingleObject(event.get(), IoTimeoutMilliseconds);
+                const auto wait = WaitForSingleObject(event.get(), timeout);
                 if (wait != WAIT_OBJECT_0)
                 {
                     CancelIo(pipe);
@@ -141,13 +142,14 @@ namespace
         Transfer(pipe, const_cast<uint8_t*>(body.data()), size, true);
     }
 
-    std::vector<uint8_t> ReadFrame(const HANDLE pipe)
+    std::vector<uint8_t> ReadFrame(const HANDLE pipe,
+        const DWORD timeout = HandshakeIoTimeoutMilliseconds)
     {
         uint32_t size{};
-        Transfer(pipe, &size, sizeof(size), false);
+        Transfer(pipe, &size, sizeof(size), false, timeout);
         Check(size != 0 && size <= MaximumFrame, "invalid incoming frame size");
         std::vector<uint8_t> body(size);
-        Transfer(pipe, body.data(), size, false);
+        Transfer(pipe, body.data(), size, false, timeout);
         return body;
     }
 
@@ -467,7 +469,7 @@ namespace
 
         const auto capability = Base64UrlDecode(capabilityText);
         Check(capability.size() == 32, "invalid capability length");
-        if (!WaitNamedPipeW(pipeName.c_str(), IoTimeoutMilliseconds)) return LaunchSystem(arguments, external, externalHash);
+        if (!WaitNamedPipeW(pipeName.c_str(), HandshakeIoTimeoutMilliseconds)) return LaunchSystem(arguments, external, externalHash);
         Handle pipe(CreateFileW(pipeName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, nullptr));
         if (!pipe) return LaunchSystem(arguments, external, externalHash);
 
@@ -556,7 +558,11 @@ namespace
         barrier.insert(barrier.end(), barrierMac.begin(), barrierMac.end());
         WriteFrame(pipe.get(), barrier);
 
-        const auto completeBody = ReadFrame(pipe.get());
+        // Once the host accepts an embedded request, this process represents the
+        // interactive ssh command in the originating shell. Its completion wait
+        // must last for the remote session, while a closed host pipe still wakes
+        // the overlapped read immediately.
+        const auto completeBody = ReadFrame(pipe.get(), INFINITE);
         Reader complete(completeBody);
         Check(complete.U8() == static_cast<uint8_t>(Message::Complete), "invalid host completion");
         const auto status = static_cast<int32_t>(complete.U32());

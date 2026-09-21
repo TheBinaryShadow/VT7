@@ -91,11 +91,32 @@ namespace VT7.Host
                 _owner.AcceptOutputAsync(block, cancellationToken);
         }
 
+        private sealed class OverlayOutboundSink : ISessionOutboundSink
+        {
+            private readonly ITerminalTransport _root;
+            private readonly ITerminalTransport _overlay;
+            internal OverlayOutboundSink(ITerminalTransport root, ITerminalTransport overlay)
+            {
+                _root = root;
+                _overlay = overlay;
+            }
+            public async Task WriteAsync(SessionOutboundOperation operation, CancellationToken cancellationToken)
+            {
+                if (operation.Kind == SessionOutboundKind.Resize)
+                    await _root.WriteAsync(operation, cancellationToken);
+                await _overlay.WriteAsync(operation, cancellationToken);
+            }
+            public Task CompleteAsync(CancellationToken cancellationToken) =>
+                _overlay.CompleteAsync(cancellationToken);
+        }
+
         private readonly object _gate = new object();
         private readonly CancellationTokenSource _lifetime = new CancellationTokenSource();
         private readonly Dictionary<long, long> _producerSequences = new Dictionary<long, long>();
         private readonly HashSet<long> _producerGenerations = new HashSet<long>();
         private readonly Dictionary<long, ITerminalTransport> _producerTransports = new Dictionary<long, ITerminalTransport>();
+        private readonly Dictionary<long, List<byte>> _committedTails = new Dictionary<long, List<byte>>();
+        private readonly Dictionary<long, CommittedOutputWaiter> _committedWaiters = new Dictionary<long, CommittedOutputWaiter>();
         private readonly ITerminalTransport _root;
         private readonly Func<TerminalPixelSize>? _pixelSize;
         private readonly SessionOutputPump _output;
@@ -107,6 +128,17 @@ namespace VT7.Host
         private readonly TaskCompletionSource<TerminalTransportResult> _completion =
             new TaskCompletionSource<TerminalTransportResult>(TaskCreationOptions.RunContinuationsAsynchronously);
         private bool _disposed;
+
+        private sealed class CommittedOutputWaiter
+        {
+            internal CommittedOutputWaiter(byte[] marker)
+            {
+                Marker = marker;
+                Completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            }
+            internal byte[] Marker { get; }
+            internal TaskCompletionSource<bool> Completion { get; }
+        }
 
         internal TerminalSession(TerminalDocument document, ITerminalTransport root,
             Func<TerminalPixelSize>? pixelSize = null)
@@ -123,6 +155,7 @@ namespace VT7.Host
         internal TerminalSessionState State { get; private set; } = TerminalSessionState.Created;
         internal SessionOutboundQueue Outbound => _outbound ?? throw new InvalidOperationException("The session has not started.");
         internal Task<TerminalTransportResult> Completion => _completion.Task;
+        internal long RootGeneration { get; private set; }
         internal event Action<SessionOutboundQueue>? ActiveOutboundChanged;
 
         internal async Task StartAsync()
@@ -132,15 +165,14 @@ namespace VT7.Host
             try
             {
                 var generation = NextGeneration();
+                RootGeneration = generation;
                 lock (_gate)
                 {
                     _producerGenerations.Add(generation);
                     _producerTransports.Add(generation, _root);
                 }
-                var info = Document.ReadInfo();
-                var pixels = _pixelSize?.Invoke() ?? default;
-                await _root.StartAsync(new TerminalStartContext(SessionId, generation, info.Columns, info.Rows,
-                    pixels.Width, pixels.Height),
+                var context = await CreateStartContextAsync(generation);
+                await _root.StartAsync(context,
                     new OutputSink(this), _lifetime.Token);
                 _outbound = new SessionOutboundQueue(generation, _root);
                 State = TerminalSessionState.RunningRoot;
@@ -171,24 +203,32 @@ namespace VT7.Host
                     _producerGenerations.Add(generation);
                     _producerTransports.Add(generation, overlay);
                 }
-                var info = Document.ReadInfo();
-                var pixels = _pixelSize?.Invoke() ?? default;
-                await overlay.StartAsync(new TerminalStartContext(SessionId, generation, info.Columns, info.Rows,
-                    pixels.Width, pixels.Height),
+                var context = await CreateStartContextAsync(generation);
+                await overlay.StartAsync(context,
                     new OutputSink(this), _lifetime.Token);
                 _overlay = overlay;
-                _outbound = new SessionOutboundQueue(generation, overlay);
+                _outbound = new SessionOutboundQueue(generation, new OverlayOutboundSink(_root, overlay));
                 State = TerminalSessionState.RunningOverlay;
                 ActiveOutboundChanged?.Invoke(_outbound);
             }
             catch
             {
-                State = TerminalSessionState.Failed;
+                lock (_gate)
+                {
+                    if (_overlay == overlay) _overlay = null;
+                    _producerGenerations.Remove(overlay.Generation);
+                    _producerTransports.Remove(overlay.Generation);
+                }
+                overlay.Dispose();
+                var generation = NextGeneration();
+                _outbound = new SessionOutboundQueue(generation, _root);
+                State = TerminalSessionState.RunningRoot;
+                ActiveOutboundChanged?.Invoke(_outbound);
                 throw;
             }
         }
 
-        internal async Task StopOverlayAsync(TerminalCloseReason reason = TerminalCloseReason.Normal)
+        internal async Task StopOverlayAsync(TerminalCloseReason reason = TerminalCloseReason.Normal, bool resumeRoot = true)
         {
             RequireState(TerminalSessionState.RunningOverlay);
             State = TerminalSessionState.StoppingOverlay;
@@ -200,10 +240,57 @@ namespace VT7.Host
             await overlay.CloseAsync(reason, _lifetime.Token);
             await overlay.Completion;
             _overlay = null;
+            if (!resumeRoot) return;
+            ResumeRoot();
+        }
+
+        internal Task ResumeRootAsync()
+        {
+            RequireState(TerminalSessionState.StoppingOverlay);
+            ResumeRoot();
+            return Task.CompletedTask;
+        }
+
+        private void ResumeRoot()
+        {
             var generation = NextGeneration();
             _outbound = new SessionOutboundQueue(generation, _root);
             State = TerminalSessionState.RunningRoot;
             ActiveOutboundChanged?.Invoke(_outbound);
+        }
+
+        internal Task WaitForCommittedOutputAsync(long generation, string marker)
+        {
+            if (generation <= 0) throw new ArgumentOutOfRangeException(nameof(generation));
+            if (string.IsNullOrEmpty(marker)) throw new ArgumentException("A committed-output marker is required.", nameof(marker));
+            var bytes = Encoding.UTF8.GetBytes(marker);
+            lock (_gate)
+            {
+                if (_disposed || State == TerminalSessionState.Closing || State == TerminalSessionState.Closed || State == TerminalSessionState.Failed)
+                    throw new InvalidOperationException("The terminal session cannot accept a committed-output waiter.");
+                if (_committedWaiters.ContainsKey(generation))
+                    throw new InvalidOperationException("A committed-output waiter already exists for this generation.");
+                if (_committedTails.TryGetValue(generation, out var tail) && Contains(tail, bytes))
+                    return Task.CompletedTask;
+                var waiter = new CommittedOutputWaiter(bytes);
+                _committedWaiters.Add(generation, waiter);
+                return waiter.Completion.Task;
+            }
+        }
+
+        internal async Task AppendHostLineAsync(string text, CancellationToken cancellationToken = default)
+        {
+            if (text == null) throw new ArgumentNullException(nameof(text));
+            cancellationToken.ThrowIfCancellationRequested();
+            var generation = NextGeneration();
+            lock (_gate)
+            {
+                if (_disposed || State == TerminalSessionState.Closing || State == TerminalSessionState.Closed || State == TerminalSessionState.Failed)
+                    throw new InvalidOperationException("The terminal session no longer accepts host output.");
+                _producerGenerations.Add(generation);
+                _producerTransports.Add(generation, _root);
+            }
+            await _output.WriteAsync(Encoding.UTF8.GetBytes(text + "\r\n"), checked((ulong)generation), 1, cancellationToken);
         }
 
         internal Task CloseAsync(TerminalCloseReason reason = TerminalCloseReason.Normal)
@@ -280,6 +367,7 @@ namespace VT7.Host
                 _producerSequences[block.Generation] = block.Sequence;
             }
             await _output.WriteAsync(block.Bytes, checked((ulong)block.Generation), checked((ulong)block.Sequence), cancellationToken);
+            RecordCommittedOutput(block.Generation, block.Bytes);
             var replies = Document.Dispatcher.CheckAccess()
                 ? Document.DrainReplies()
                 : await Document.Dispatcher.InvokeAsync(Document.DrainReplies).Task;
@@ -297,7 +385,56 @@ namespace VT7.Host
             }
         }
 
+        private void RecordCommittedOutput(long generation, byte[] bytes)
+        {
+            const int maximumTail = 8192;
+            lock (_gate)
+            {
+                if (!_committedTails.TryGetValue(generation, out var tail))
+                {
+                    tail = new List<byte>(Math.Min(maximumTail, bytes.Length));
+                    _committedTails.Add(generation, tail);
+                }
+                tail.AddRange(bytes);
+                if (tail.Count > maximumTail) tail.RemoveRange(0, tail.Count - maximumTail);
+                if (_committedWaiters.TryGetValue(generation, out var waiter) && Contains(tail, waiter.Marker))
+                {
+                    _committedWaiters.Remove(generation);
+                    waiter.Completion.TrySetResult(true);
+                }
+            }
+        }
+
+        private static bool Contains(List<byte> haystack, byte[] needle)
+        {
+            if (needle.Length == 0 || needle.Length > haystack.Count) return false;
+            for (var start = 0; start <= haystack.Count - needle.Length; ++start)
+            {
+                var match = true;
+                for (var index = 0; index < needle.Length; ++index)
+                    if (haystack[start + index] != needle[index]) { match = false; break; }
+                if (match) return true;
+            }
+            return false;
+        }
+
         private long NextGeneration() => Interlocked.Increment(ref _activeGeneration);
+
+        private Task<TerminalStartContext> CreateStartContextAsync(long generation)
+        {
+            if (Document.Dispatcher.CheckAccess())
+                return Task.FromResult(CreateStartContext(generation));
+            return Document.Dispatcher.InvokeAsync(() => CreateStartContext(generation)).Task;
+        }
+
+        private TerminalStartContext CreateStartContext(long generation)
+        {
+            var info = Document.ReadInfo();
+            var pixels = _pixelSize?.Invoke() ?? default;
+            return new TerminalStartContext(SessionId, generation, info.Columns, info.Rows,
+                pixels.Width, pixels.Height);
+        }
+
         private void RequireState(TerminalSessionState expected)
         {
             if (State != expected) throw new InvalidOperationException($"Session state {State}; expected {expected}.");
@@ -311,6 +448,12 @@ namespace VT7.Host
                 _disposed = true;
             }
             _lifetime.Cancel();
+            lock (_gate)
+            {
+                foreach (var waiter in _committedWaiters.Values)
+                    waiter.Completion.TrySetCanceled();
+                _committedWaiters.Clear();
+            }
             _outbound?.Dispose();
             _output.Dispose();
             _overlay?.Dispose();

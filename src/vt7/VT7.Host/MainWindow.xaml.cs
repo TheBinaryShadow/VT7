@@ -17,6 +17,7 @@ namespace VT7.Host
         private TerminalDocument? _document;
         private TerminalSession? _session;
         private ITerminalTransport? _rootTransport;
+        private SshOverlayCoordinator? _sshOverlayCoordinator;
         private TerminalProfile? _activeProfile;
         private string? _activeSessionName;
         private bool _switchingProfile;
@@ -65,6 +66,8 @@ namespace VT7.Host
             _closed = true;
             ++_statusGeneration;
             Viewport?.DetachSessionInput();
+            _sshOverlayCoordinator?.Dispose();
+            _sshOverlayCoordinator = null;
             if (_session != null)
             {
                 try { await _session.CloseAsync(); }
@@ -141,35 +144,51 @@ namespace VT7.Host
             if (_switchingProfile || _closed) return;
             var dialog = new SshConnectionDialog { Owner = this };
             if (dialog.ShowDialog() != true || dialog.Result == null) return;
-            await StartTransportAsync(new SshNetTransport(dialog.Result), "SSH.NET direct profile", null);
+            await StartTransportAsync(new SshNetTransport(dialog.Result), "SSH.NET direct profile", null, null);
+        }
+
+        private async void DisconnectSsh_Click(object sender, RoutedEventArgs e)
+        {
+            if (_sshOverlayCoordinator == null || !_sshOverlayCoordinator.IsOverlayRunning) return;
+            DisconnectSshButton.IsEnabled = false;
+            SurfaceStatus.Text = "Disconnecting the SSH.NET overlay...";
+            try { await _sshOverlayCoordinator.DisconnectAsync(); }
+            catch (Exception ex) when (!_closed) { SurfaceStatus.Text = "SSH disconnect failed: " + ex.Message; }
         }
 
         private async System.Threading.Tasks.Task StartProfileAsync(TerminalProfile profile)
         {
             if (_switchingProfile || _closed || _document == null || Viewport == null) return;
-            await StartTransportAsync(new WinPtyTransport(profile), profile.DisplayName, profile);
+            var coordinator = SshOverlayCoordinator.TryCreate(profile, PromptForTypedSshAsync);
+            var configured = coordinator?.Configure(profile) ?? profile;
+            await StartTransportAsync(new WinPtyTransport(configured), profile.DisplayName, profile, coordinator);
         }
 
         private async System.Threading.Tasks.Task StartTransportAsync(ITerminalTransport transport, string sessionName,
-            TerminalProfile? localProfile)
+            TerminalProfile? localProfile, SshOverlayCoordinator? pendingCoordinator)
         {
             if (_switchingProfile || _closed || _document == null || Viewport == null)
             {
                 transport.Dispose();
+                pendingCoordinator?.Dispose();
                 return;
             }
             _switchingProfile = true;
             StartProfileButton.IsEnabled = false;
             StartSshButton.IsEnabled = false;
+            DisconnectSshButton.IsEnabled = false;
             TerminalSession? pendingSession = null;
             try
             {
                 Viewport.DetachSessionInput();
                 var previous = _session;
+                var previousCoordinator = _sshOverlayCoordinator;
                 _session = null;
+                _sshOverlayCoordinator = null;
                 _rootTransport = null;
                 _activeProfile = null;
                 _activeSessionName = null;
+                previousCoordinator?.Dispose();
                 if (previous != null)
                 {
                     try { await previous.CloseAsync(TerminalCloseReason.Replaced); }
@@ -184,8 +203,16 @@ namespace VT7.Host
                     return new TerminalPixelSize(checked(info.Columns * info.CellWidth), checked(info.Rows * info.CellHeight));
                 });
                 await pendingSession.StartAsync();
+                if (pendingCoordinator != null)
+                {
+                    if (!(transport is WinPtyTransport winPty))
+                        throw new InvalidOperationException("An SSH overlay coordinator requires a WinPTY root.");
+                    pendingCoordinator.Attach(pendingSession, winPty.Snapshot.ProcessId);
+                    pendingCoordinator.OverlayStateChanged += OnOverlayStateChanged;
+                }
                 _rootTransport = transport;
                 _session = pendingSession;
+                _sshOverlayCoordinator = pendingCoordinator;
                 _activeProfile = localProfile;
                 _activeSessionName = sessionName;
                 AttachSession(pendingSession);
@@ -201,11 +228,13 @@ namespace VT7.Host
                     Viewport?.DetachSessionInput();
                     _session = null;
                     _rootTransport = null;
+                    _sshOverlayCoordinator = null;
                     _activeProfile = null;
                     _activeSessionName = null;
                 }
                 if (pendingSession != null) pendingSession.Dispose();
                 else transport.Dispose();
+                pendingCoordinator?.Dispose();
                 if (!_closed) SurfaceStatus.Text = sessionName + " could not start: " + ex.Message;
             }
             finally
@@ -215,8 +244,31 @@ namespace VT7.Host
                 {
                     StartProfileButton.IsEnabled = true;
                     StartSshButton.IsEnabled = true;
+                    DisconnectSshButton.IsEnabled = _sshOverlayCoordinator?.IsOverlayRunning == true;
                 }
             }
+        }
+
+        private async System.Threading.Tasks.Task<SshConnectionOptions?> PromptForTypedSshAsync(SshInvocation invocation)
+        {
+            if (_closed) return null;
+            return await Dispatcher.InvokeAsync(() =>
+            {
+                if (_closed) return null;
+                var dialog = new SshConnectionDialog(invocation) { Owner = this };
+                return dialog.ShowDialog() == true ? dialog.Result : null;
+            }).Task;
+        }
+
+        private void OnOverlayStateChanged(bool active, string status)
+        {
+            _ = Dispatcher.BeginInvoke(new System.Action(() =>
+            {
+                if (_closed) return;
+                DisconnectSshButton.IsEnabled = active;
+                SurfaceStatus.Text = status;
+                if (_session != null) QueueTerminalFocus(_session);
+            }));
         }
 
         private void AttachSession(TerminalSession session)
@@ -224,9 +276,13 @@ namespace VT7.Host
             if (Viewport == null) throw new InvalidOperationException("The terminal viewport is unavailable.");
             session.ActiveOutboundChanged += queue =>
             {
-                if (_closed || Viewport == null || _session != session) return;
-                Viewport.DetachSessionInput();
-                Viewport.AttachSessionInput(queue, queue.Generation, message => SurfaceStatus.Text = "Input stopped: " + message);
+                _ = Dispatcher.BeginInvoke(new System.Action(() =>
+                {
+                    if (_closed || Viewport == null || _session != session) return;
+                    Viewport.DetachSessionInput();
+                    Viewport.AttachSessionInput(queue, queue.Generation, message => SurfaceStatus.Text = "Input stopped: " + message);
+                    QueueTerminalFocus(session);
+                }), DispatcherPriority.Input);
             };
             var outbound = session.Outbound;
             Viewport.AttachSessionInput(outbound, outbound.Generation, message =>

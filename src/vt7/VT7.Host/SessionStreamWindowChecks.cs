@@ -131,13 +131,25 @@ namespace VT7.Host
             var document = new TerminalDocument(false);
             var root = new FakeTerminalTransport("root");
             var overlay = new FakeTerminalTransport("overlay");
-            var session = new TerminalSession(document, root);
+            var geometryReads = 0;
+            var session = new TerminalSession(document, root, () =>
+            {
+                Require(document.Dispatcher.CheckAccess(),
+                    "Session geometry was read outside the TerminalDocument dispatcher.");
+                ++geometryReads;
+                return new TerminalPixelSize(640, 384);
+            });
             try
             {
                 await session.StartAsync();
                 Require(session.State == TerminalSessionState.RunningRoot && session.Outbound.Generation == 1,
                     "The fake root session did not reach RunningRoot generation 1.");
                 await Task.Run(() => root.EmitAsync("root-one\r\n"));
+                await session.WaitForCommittedOutputAsync(session.RootGeneration, "root-one");
+                var splitBarrier = session.WaitForCommittedOutputAsync(session.RootGeneration, "VT7-BARRIER");
+                await root.EmitAsync("VT7-BA");
+                await root.EmitAsync("RRIER\r\n");
+                await splitBarrier;
                 await Task.Run(() => root.EmitAsync(new byte[] { 0x1B, (byte)'[', (byte)'c' }));
                 var rootInput = session.Outbound.TryEnqueue(session.Outbound.Generation,
                     SessionOutboundOperation.Input(SessionOutboundKind.InputBytes, new byte[] { 0x41 }));
@@ -146,28 +158,42 @@ namespace VT7.Host
                 Require(Array.Exists(root.Received, item => item.Kind == SessionOutboundKind.TerminalReply && item.Bytes.Length > 0),
                     "The TerminalCore device-attributes reply was not returned to its originating transport.");
 
-                await session.StartOverlayAsync(overlay);
+                await Task.Run(() => session.StartOverlayAsync(overlay));
                 Require(session.State == TerminalSessionState.RunningOverlay && session.Outbound.Generation == 2,
                     "The fake overlay did not become generation 2.");
+                Require(geometryReads == 2 && overlay.StartContext != null &&
+                    overlay.StartContext.PixelWidth == 640 && overlay.StartContext.PixelHeight == 384,
+                    "The worker-thread overlay did not capture geometry on the document dispatcher.");
                 await root.EmitAsync("root-background\r\n");
                 await overlay.EmitAsync("overlay\r\n");
                 var overlayInput = session.Outbound.TryEnqueue(session.Outbound.Generation,
                     SessionOutboundOperation.Input(SessionOutboundKind.InputBytes, new byte[] { 0x42 }));
                 Require(overlayInput == SessionEnqueueResult.Accepted, "Overlay input was not admitted.");
-                await WaitForOperations(overlay, 1);
+                var overlayResize = session.Outbound.TryEnqueue(session.Outbound.Generation,
+                    SessionOutboundOperation.Resize(117, 39));
+                Require(overlayResize == SessionEnqueueResult.Accepted, "Overlay resize was not admitted.");
+                await WaitForOperations(overlay, 2);
+                await WaitForOperations(root, 3);
 
-                await session.StopOverlayAsync();
+                await session.StopOverlayAsync(resumeRoot: false);
+                Require(session.State == TerminalSessionState.StoppingOverlay,
+                    "The root input boundary reopened before shim completion.");
+                await session.ResumeRootAsync();
                 Require(session.State == TerminalSessionState.RunningRoot && session.Outbound.Generation == 3,
                     "The root transport did not resume under a fresh input generation.");
                 await root.EmitAsync("root-two\r\n");
                 await session.CloseAsync();
                 var info = document.ReadInfo();
-                var expected = Encoding.UTF8.GetByteCount("root-one\r\nroot-background\r\noverlay\r\nroot-two\r\n") + 3;
+                var expected = Encoding.UTF8.GetByteCount("root-one\r\nVT7-BARRIER\r\nroot-background\r\noverlay\r\nroot-two\r\n") + 3;
                 Require(session.State == TerminalSessionState.Closed && info.ReceivedBytes == (ulong)expected && info.Ended == 1,
                     "The fake root/overlay lifecycle did not drain one continuous document stream.");
-                Require(root.Received.Length == 2 && overlay.Received.Length == 1,
-                    "Input was not routed exclusively to the active fake transport.");
+                Require(root.Received.Length == 3 && overlay.Received.Length == 2 &&
+                    Array.Exists(root.Received, item => item.Kind == SessionOutboundKind.Resize) &&
+                    Array.Exists(overlay.Received, item => item.Kind == SessionOutboundKind.Resize),
+                    "Input was not routed exclusively to the active transport or resize did not reach both transports.");
                 report.AppendLine("PASS: TerminalSession switched fake root/overlay input generations 1/2/3, returned TerminalCore replies to their origin, drained both transports into one document stream, and closed exactly once.");
+                report.AppendLine("PASS: TerminalSession recognized a split committed-output barrier, kept root input closed until explicit resume, and routed overlay resize to both live transports.");
+                report.AppendLine("PASS: worker-thread overlay startup captured document and pixel geometry on the WPF dispatcher.");
             }
             finally
             {
