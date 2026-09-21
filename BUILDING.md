@@ -307,8 +307,8 @@ cipher and disconnect assertions. Corrected package 0.6 passes its local checks
 and both Windows 7 controlled-server runs. S01 is accepted as recorded in the
 [validation record](doc/vt7/validation/2026-09-14-sshnet-s01.md).
 
-The production host consumes the same locked closure. Build and package the
-0.8.2 direct-profile slice with:
+The production host consumes the same locked closure. The commands below retain
+the accepted 0.8.2 direct-profile reproduction path:
 
 ```powershell
 .\tools\Restore-VT7SshNet.ps1
@@ -321,6 +321,23 @@ The package performs a recursive image/import audit, preserves every dependency
 notice, runs its offline foundation check and independently verifies the ZIP.
 The [direct-profile record](doc/vt7/validation/2026-09-19-sshnet-direct-profile.md)
 contains the Windows 7 controlled-server procedure.
+
+KH01.1 adds a disconnected known-host parser, matcher, raw-key resolver and
+OpenSSH differential oracle without changing production trust. Build, test,
+package and independently verify its candidate with:
+
+```powershell
+.\tools\Build-VT7.ps1 -Configuration Release
+.\tools\Test-VT7KnownHosts.ps1 -Configuration Release
+.\tools\Package-VT7KnownHosts.ps1 -NoBuild
+.\tools\Verify-VT7KnownHostsPackage.ps1
+```
+
+The package launcher pins the Windows 7 oracle to `ssh-keygen.exe` file version
+10.0.0.0. The local runner records rather than assumes the installed version.
+Package 0.1 has passed on the Windows 7 target through that exact-version gate;
+the success procedure intentionally returned no Logs directory.
+See the [KH01.1 record](doc/vt7/validation/2026-09-22-known-hosts-kh01.md).
 
 Run the P01 local-console characterization after building either configuration:
 
@@ -404,6 +421,7 @@ identity. See the [I01 record](doc/vt7/validation/2026-09-14-input-i01.md).
 | `Package-VT7OpenSsh.ps1` | `vt7/packages/VT7-OpenSSH-S00-Preflight-0.2-x64` / matching ZIP; refuses replacement and contains no OpenSSH binary. |
 | `Package-VT7OpenSshNetwork.ps1` | Next identity `vt7/packages/VT7-OpenSSH-S00-Network-0.2-x64` / matching ZIP; refuses replacement and contains no OpenSSH binary or secret. Issued target evidence remains package 0.1. |
 | `Package-VT7SshNetDirect.ps1` | Current accepted `vt7/packages/VT7-SSHNET-Direct-0.4-x64` / matching ZIP; refuses replacement. It validates the actual Windows PowerShell 5.1 CMD launcher from a path containing spaces, every dialog label and the rendered Authentication selection at 4.5:1. Package 0.1 is rejected for its launcher defect; 0.2 is transport-accepted; 0.3 fixes labels but fails the focused selector visual check; 0.4 passes that check. Application 0.8.2/ABI 11, exact SSH.NET closure, 82 verified files. |
+| `Package-VT7KnownHosts.ps1` | `vt7/packages/VT7-KnownHosts-KH01-0.1-x64` / matching ZIP; refuses replacement. It stages the disconnected KH01.1 foundation, exercises the PowerShell 5.1 CMD launcher from a path containing spaces and records the exact `ssh-keygen` oracle. `Verify-VT7KnownHostsPackage.ps1` repeats ZIP, binary and extracted-launcher validation independently. |
 
 Issued P01 package 0.3 used a culture-sensitive PowerShell row comparison that
 ignored embedded NULs in the two Windows 7 raw-VT cases. The retained strings

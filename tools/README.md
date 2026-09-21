@@ -129,6 +129,16 @@ generated selected Authentication item remains light. Version 0.8.2/package 0.4
 styles and checks that rendered selection, and its focused Windows 7 visual
 confirmation passes. Version 0.9.2/package 0.3 completes and target-accepts the
 typed SSH overlay integration.
+`Test-VT7KnownHosts.ps1` runs the disconnected KH01.1 parser, matcher, raw-key
+trust resolver, deterministic arbitrary-byte corpus and disposable
+`ssh-keygen -F/-H/-R` differential oracle. `Package-VT7KnownHosts.ps1` creates
+the refuse-overwrite package and exercises its CMD launcher from a path with
+spaces. `Verify-VT7KnownHostsPackage.ps1` independently checks ZIP safety,
+manifest fields, every staged SHA256, PE/dependency policy and a fresh extracted
+run. Package 0.1 is locally verified against `ssh-keygen.exe` 9.5.5.2; its
+launcher requires file version 10.0.0.0 on the Windows 7 target, where the owner
+reports a clean pass. The diagnostic does not read real trust files, connect to
+a server or change production SSH.
 These opt-in host CLI controls
 are documented in the [stability record](../doc/vt7/validation/2026-09-13-atlas-stability.md);
 the stability runner does not expose a resource-isolation parameter. The separate

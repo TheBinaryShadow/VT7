@@ -1,6 +1,6 @@
 # VT7 development handoff
 
-Updated: 2026-09-21. Version 0.6.6/native ABI 11 remains accepted across the
+Updated: 2026-09-22. Version 0.6.6/native ABI 11 remains accepted across the
 Windows 7 PowerShell/profile and keyboard matrix. H01 packages 0.1 through 0.3
 pass the Command Prompt, PowerShell 5.1 and PowerShell 7.2.24 embedded/barrier
 paths while successively exposing the Windows 7 fallback restrictions: timeout,
@@ -67,9 +67,11 @@ document/transport/view contract now forms the 0.4.0/ABI 11 ownership boundary.
 The first shared output boundary is implemented and S00 has rejected redirected
 external OpenSSH for interactive PTY sessions.
 Neither WARP attribution nor the earlier Arabic/geometry experiment chain is the
-default next task. The typed overlay gate is accepted. The next bounded feature
-task is recoverable known-host management with explicit unknown, matching,
-changed and unreadable trust states while preserving strict mismatch rejection.
+default next task. The typed overlay gate is accepted. The
+[OpenSSH-compatible known-host management specification](architecture/2026-09-21-openssh-known-hosts-management-spec.md)
+is complete. KH01.1 is implemented and passes local Debug, Release and package
+verification. Package 0.1 also passes on Windows 7 through the mandatory 10.0p2
+oracle gate. The next bounded task is KH01.2 read-only production trust.
 
 | Item | Current state |
 | --- | --- |
@@ -127,9 +129,13 @@ changed and unreadable trust states while preserving strict mismatch rejection.
 | Typed SSH overlay rejected package 0.1 | `VT7-SSHNET-Overlay-0.1-x64.zip`, SHA256 `F53326B898B6544798E10D30E895D1D389BECC1C590C3D1B9961508E51262A5E`, 15,230,388 bytes, 91 verified files. Its Windows 7 automation passed, and each typed attempt proved authenticated H01 entry, committed barrier, status 255 and return to the original prompt. Every real connection failed before network startup because the broker worker directly read dispatcher-owned document/viewport geometry; direct **Start SSH...** remained successful. Evidence: `artifacts/vt7/evidence/sshnet-overlay-win7-0.1-rejected`. |
 | Typed SSH overlay rejected package 0.2 | `VT7-SSHNET-Overlay-0.2-x64.zip`, version 0.9.1, SHA256 `65FF2E09F83758D8E86A78CC08B3409D2D18BE04B85BA901799A318DBE34AD7C`, 15,194,306 bytes, 91 verified files. Its automated Windows 7 corpus passes and a typed SSH.NET overlay connects successfully, accepting the package 0.1 dispatcher correction. The shim then times out reading completion after five seconds, returns the local prompt while the overlay remains active and leaves root input closed after remote exit because completion delivery fails before the resume callback. Evidence: `artifacts/vt7/evidence/sshnet-overlay-win7-0.2-rejected`. |
 | Typed SSH overlay accepted package 0.3 | `VT7-SSHNET-Overlay-0.3-x64.zip`, version 0.9.2, SHA256 `CAF09834CA1F7F025D96CC07D5F60AF8663C2F2167AA964EAB98D3AF3865B0DB`, 15,196,580 bytes, 91 verified files. The shim retains bounded handshake I/O but waits for accepted embedded completion for the remote-session lifetime; a closed host pipe still wakes it. The broker resumes root input in a `finally` path even if completion delivery loses the shim. H01 holds a real accepted shim for six seconds to exercise the former failure. Debug/Release, combined staged batch launch and independent ZIP verification pass locally. The complete controlled Windows 7 matrix passes without a reported defect: delayed connection, exit/root recovery, sequential handoff, explicit disconnect/status 255, three shells and external fallback. Review copy: `artifacts/VT7-SSHNET-Overlay-0.3-x64.zip`. |
-| Next bounded task | Specify and implement the first recoverable known-host management slice: durable host/port/algorithm/key identity, explicit unknown/matching/changed/unreadable states, atomic storage and strict mismatch rejection. Preserve the current out-of-band fingerprint path as the secure fallback. |
+| Known-host management specification | Complete on 2026-09-21. The design shares the default OpenSSH user/system files, pins Win32-OpenSSH 10.0p2 as the behavior oracle, compares exact key blobs, handles hashes/markers/certificates, aborts unknown discovery before authentication, retries through a fresh connection, preserves the fingerprint fallback and defines byte-preserving Windows mutation/recovery. KH01.1 is accepted; production integration remains pending. |
+| KH01.1 local implementation | `OpenSshKnownHosts` implements bounded byte-preserving parsing, host tokens, literal/pattern/negated/hashed matching, exact RFC 4253 blob identity and raw-key trust precedence. `KnownHostsFoundationChecks` covers all six trust results, deterministic hash properties, 1,024 arbitrary-byte inputs and disposable `ssh-keygen -F/-H/-R` comparisons. Certificates are policy-rejected until KH01.4. No production callback changed. |
+| KH01.1 candidate package | `VT7-KnownHosts-KH01-0.1-x64.zip`, SHA256 `D367B5F7C81304F6FBC9056FD10E501B95EF93FFB5A662E370FCC4ECE16C76A7`, 14,483,182 bytes, 81 verified files. Debug/Release, local `ssh-keygen.exe` 9.5.5.2 differential checks, path-with-spaces batch launch, binary/dependency inspection, exact ZIP hashing and an independent extracted-package rerun pass. Review copy: `artifacts/VT7-KnownHosts-KH01-0.1-x64.zip`. |
+| KH01.1 target result | Accepted on 2026-09-22. The owner reports all tests passed on Windows 7. The launcher could reach the test only after requiring the installed `ssh-keygen.exe` file version 10.0.0.0, the 10.0p2 oracle boundary. No target Logs directory is archived because the procedure requested it only on failure. |
+| Next bounded task | Implement KH01.2 read-only production trust: load the four default OpenSSH sources before connection, apply matching/changed/revoked/unreadable outcomes in `HostKeyReceived`, and retain mandatory fingerprint verification for unknown hosts. |
 | Milestone 2 | Open. Theme/high-contrast, broader device/environment and milestone-level ESU coverage also remain. |
-| Development sequence | Continue Milestone 5 from the accepted 0.9.2 typed handoff into recoverable known-host management and later lifecycle/TUI hardening. Remaining C3/Milestone 2 qualification stays recorded without a blanket serial dependency. |
+| Development sequence | Continue Milestone 5 with KH01.2 through KH01.5, then later lifecycle/TUI hardening. Remaining C3/Milestone 2 qualification stays recorded without a blanket serial dependency. |
 
 ## Resume safely
 
@@ -454,6 +460,19 @@ only when evidence or release review requires it. Follow the
 [September 14 decision](architecture/2026-09-14-warp-development-deferral.md)
 and [REL01](../../ROADMAP.md#deferred-reliability-review). Do not resume the
 dedicated tracing campaign or request another diagnostic/soak as a prerequisite.
+
+The technical design for recoverable trust is now frozen in the
+[OpenSSH-compatible known-host management specification](architecture/2026-09-21-openssh-known-hosts-management-spec.md).
+It replaces a private VT7 store with the user's default OpenSSH files, defines
+the exact 10.0p2 compatibility boundary and retains the accepted out-of-band
+fingerprint route. KH01.1 now implements the disconnected parser, matcher, raw
+key identity, trust precedence and differential `ssh-keygen` oracle. Its package
+0.1 passes all local gates against `ssh-keygen.exe` 9.5.5.2 and is accepted on
+Windows 7 through the launcher's mandatory 10.0.0.0 file-version gate for the
+10.0p2 oracle. The success procedure requested Logs only on failure, so no
+target report is archived. The [KH01.1 validation record](validation/2026-09-22-known-hosts-kh01.md)
+contains the exact evidence boundary. Implement KH01.2 read-only production
+trust next, then continue the remaining stages in the specification.
 
 The exact 0.3.7 Windows 7 run is accepted and archived. The
 [S00 evaluation](validation/2026-09-14-openssh-s00.md) is complete on Windows 7

@@ -49,7 +49,12 @@ application for Windows 7.
 
 Picking up development? Start with the [development handoff](doc/vt7/HANDOFF.md)
 and [documentation index](doc/vt7/README.md). They distinguish current source,
-issued test packages, accepted checkpoints and the next unresolved task.
+issued test packages, accepted checkpoints and the next unresolved task. The
+next Milestone 5 feature is governed by the completed
+[OpenSSH-compatible known-host management specification](doc/vt7/architecture/2026-09-21-openssh-known-hosts-management-spec.md);
+its disconnected [KH01.1 foundation](doc/vt7/validation/2026-09-22-known-hosts-kh01.md)
+is accepted on Windows 7 against the required 10.0p2 oracle. KH01.2 read-only
+production integration is the next bounded task.
 
 ## What we are building
 

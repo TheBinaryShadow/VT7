@@ -812,6 +812,13 @@ its content. This policy is consistent with the broader
 
 ## Trust, authentication, and privacy
 
+The specialized
+[OpenSSH-compatible known-host management specification](2026-09-21-openssh-known-hosts-management-spec.md)
+supersedes this section's generic trust-store details. It defines the exact
+OpenSSH 10.0p2 file grammar, source precedence, certificate and revocation
+policy, SSH.NET retry state machine, Windows mutation rules and acceptance
+matrix. The invariants below remain binding.
+
 Host-key trust is resolved before authentication. VT7 distinguishes unknown,
 matching, changed, revoked/policy-rejected, and unreadable trust records. Unknown
 keys require an explicit structured UI decision. Changed keys block by default

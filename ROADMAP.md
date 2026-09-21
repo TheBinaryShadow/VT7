@@ -1076,6 +1076,16 @@ interactive candidate on the tested Windows 7 configuration.
 - [ ] Implement recoverable known-host management.
   Separate unknown, changed, matching, and unreadable trust records; never
   silently accept a mismatch or continue authentication past a failed decision.
+  The [OpenSSH-compatible technical specification](doc/vt7/architecture/2026-09-21-openssh-known-hosts-management-spec.md)
+  is complete. It selects the user's default OpenSSH files, pins 10.0p2 as the
+  differential oracle, defines raw-key/certificate/revocation precedence,
+  fresh-connection first-contact decisions and byte-preserving Windows writes.
+  KH01.1 parser/oracle package 0.1 passes Debug, Release, path-with-spaces and
+  independent ZIP verification locally against `ssh-keygen.exe` 9.5.5.2. The
+  owner reports a clean Windows 7 pass through the launcher's mandatory
+  10.0.0.0 file-version gate for the 10.0p2 oracle. The production path is
+  unchanged and this item remains open until KH01.2-KH01.5 and the complete
+  target matrix pass.
 - [x] Support ephemeral password, private-key and passphrase authentication in
   the direct-profile dialog without persistence or default-log disclosure.
 - [ ] Add agent and keyboard-interactive authentication where

@@ -22,6 +22,7 @@ namespace VT7.Host
         internal static bool PowerShellProfileTest { get; private set; }
         internal static bool H01Test { get; private set; }
         internal static bool SshNetFoundationTest { get; private set; }
+        internal static bool KnownHostsTest { get; private set; }
         internal static bool AllowMissingPowerShell7 { get; private set; }
         internal static string RequestedProfileId { get; private set; } = "command-prompt";
         internal static uint ExpectedSystemDpi { get; private set; }
@@ -52,6 +53,7 @@ namespace VT7.Host
             PowerShellProfileTest = HasArgument(e.Args, "--powershell-profile-test");
             H01Test = HasArgument(e.Args, "--h01-test");
             SshNetFoundationTest = HasArgument(e.Args, "--sshnet-foundation-test");
+            KnownHostsTest = HasArgument(e.Args, "--known-hosts-test");
             AllowMissingPowerShell7 = HasArgument(e.Args, "--allow-missing-powershell-7");
             var profileIndex = Array.IndexOf(e.Args, "--profile");
             if (profileIndex >= 0)
@@ -104,7 +106,7 @@ namespace VT7.Host
                 (InjectRepaintFailure && !RepaintTest)) { Shutdown(2); return; }
             var sessionTestCount = (SessionStreamTest ? 1 : 0) + (SessionOutboundTest ? 1 : 0) +
                 (WinPtySessionTest ? 1 : 0) + (PowerShellProfileTest ? 1 : 0) + (H01Test ? 1 : 0) +
-                (SshNetFoundationTest ? 1 : 0);
+                (SshNetFoundationTest ? 1 : 0) + (KnownHostsTest ? 1 : 0);
             if (sessionTestCount > 0 && (RendererMode == 0 || diagnostics || smokeTest || RepaintTest ||
                 RecoveryScenario != null || SettingsTest || StabilityTest || sessionTestCount != 1))
             { Shutdown(2); return; }
@@ -114,6 +116,7 @@ namespace VT7.Host
             CaptureFrames = smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest || StabilityTest ||
                 SessionStreamTest || SessionOutboundTest || WinPtySessionTest || PowerShellProfileTest || H01Test;
             CaptureFrames = CaptureFrames || SshNetFoundationTest;
+            CaptureFrames = CaptureFrames || KnownHostsTest;
             var injectBlank = HasArgument(e.Args, "--inject-blank-frame");
             if (injectBlank && (!smokeTest || RendererMode == 0)) { Shutdown(2); return; }
             SurfaceOptions = RendererMode | (CaptureFrames ? 0x100u : 0u) | (injectBlank ? 0x200u : 0u);
@@ -122,6 +125,7 @@ namespace VT7.Host
             LaunchLocalSession = !(diagnostics || smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest ||
                 StabilityTest || SessionStreamTest || SessionOutboundTest || WinPtySessionTest || PowerShellProfileTest || H01Test);
             LaunchLocalSession = LaunchLocalSession && !SshNetFoundationTest;
+            LaunchLocalSession = LaunchLocalSession && !KnownHostsTest;
             if (!LaunchLocalSession)
             {
                 ShutdownMode = ShutdownMode.OnExplicitShutdown;
@@ -192,6 +196,13 @@ namespace VT7.Host
                     await SshNetFoundationChecks.Run(report);
                     snapshot.SurfaceDisplay = report.ToString();
                     snapshot.Summary = "The direct SSH.NET root transport foundation, trust input and geometry contracts passed without a network connection.";
+                }
+                if (KnownHostsTest)
+                {
+                    if (!snapshot.Passed) throw new InvalidOperationException("Core or platform checks failed before known-host testing.");
+                    await KnownHostsFoundationChecks.Run(report);
+                    snapshot.SurfaceDisplay = report.ToString();
+                    snapshot.Summary = "The disconnected OpenSSH known-host parser, matcher, raw-key trust resolver and differential oracle passed.";
                 }
                 if (SettingsTest)
                 {
