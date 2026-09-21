@@ -22,3 +22,18 @@ EXPORTS
     VT7_InjectSurfaceFailure
     VT7_GetSurfaceSettings
     VT7_SetSurfaceFont
+    VT7_CreateTerminalDocument
+    VT7_DestroyTerminalDocument
+    VT7_GetTerminalDocumentInfo
+    VT7_BeginDocumentStream
+    VT7_WriteDocumentUtf8
+    VT7_EndDocumentStream
+    VT7_ReadDocumentReply
+    VT7_CreateTerminalView
+    VT7_DetachTerminalView
+    VT7_DestroyTerminalView
+    VT7_GetTerminalViewInfo
+    VT7_ResizeTerminalDocument
+    VT7_EncodeTerminalKey
+    VT7_EncodeTerminalChar
+    VT7_EncodeTerminalFocus

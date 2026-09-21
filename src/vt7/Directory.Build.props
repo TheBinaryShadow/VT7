@@ -13,11 +13,11 @@
     <Company>VT7 contributors</Company>
     <Authors>VT7 contributors</Authors>
     <Copyright>Copyright (c) 2026 VT7 contributors</Copyright>
-    <Version>0.3.7</Version>
-    <VersionPrefix>0.3.7</VersionPrefix>
-    <AssemblyVersion>0.3.7.0</AssemblyVersion>
-    <FileVersion>0.3.7.0</FileVersion>
-    <InformationalVersion>0.3.7-session-outbound-foundation</InformationalVersion>
+    <Version>0.8.2</Version>
+    <VersionPrefix>0.8.2</VersionPrefix>
+    <AssemblyVersion>0.8.2.0</AssemblyVersion>
+    <FileVersion>0.8.2.0</FileVersion>
+    <InformationalVersion>0.8.2-ssh-selector-contrast</InformationalVersion>
 
     <PlatformTarget>x64</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>

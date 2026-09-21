@@ -19,6 +19,8 @@ Project("{BC8A1FFA-BEE3-4634-8014-F334798102B3}") = "VT7.AtlasProof", "src\vt7\V
 EndProject
 Project("{BC8A1FFA-BEE3-4634-8014-F334798102B3}") = "VT7.WinPtyFixture", "src\vt7\VT7.WinPtyFixture\VT7.WinPtyFixture.vcxproj", "{B45D2857-2D83-4CFB-95E4-827D5601D1B6}"
 EndProject
+Project("{BC8A1FFA-BEE3-4634-8014-F334798102B3}") = "VT7.SshShim", "src\vt7\VT7.SshShim\VT7.SshShim.vcxproj", "{A7157CE8-4A32-49AE-9657-C76F3EF697D0}"
+EndProject
 Project("{BC8A1FFA-BEE3-4634-8014-F334798102B3}") = "VT7.WinPtyProbe", "src\vt7\VT7.WinPtyProbe\VT7.WinPtyProbe.vcxproj", "{7C6AD4E2-E2AB-4C6F-9E1B-2038847E8A7E}"
 EndProject
 Project("{BC8A1FFA-BEE3-4634-8014-F334798102B3}") = "VT7.InputProbe", "src\vt7\VT7.InputProbe\VT7.InputProbe.vcxproj", "{A4E9CD10-37C2-46FC-A1E1-D6489239D06A}"
@@ -31,6 +33,10 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A7157CE8-4A32-49AE-9657-C76F3EF697D0}.Debug|x64.ActiveCfg = Debug|x64
+		{A7157CE8-4A32-49AE-9657-C76F3EF697D0}.Debug|x64.Build.0 = Debug|x64
+		{A7157CE8-4A32-49AE-9657-C76F3EF697D0}.Release|x64.ActiveCfg = Release|x64
+		{A7157CE8-4A32-49AE-9657-C76F3EF697D0}.Release|x64.Build.0 = Release|x64
 		{09E49057-A97E-473E-9C15-FBA92BB13B41}.Debug|x64.ActiveCfg = Debug|x64
 		{09E49057-A97E-473E-9C15-FBA92BB13B41}.Debug|x64.Build.0 = Debug|x64
 		{09E49057-A97E-473E-9C15-FBA92BB13B41}.Release|x64.ActiveCfg = Release|x64

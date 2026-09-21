@@ -73,3 +73,4 @@ foreach ($file in $winPtyFiles) {
     }
 }
 Write-Host 'VT7 dependencies verified.'
+& (Join-Path $PSScriptRoot 'Restore-VT7SshNet.ps1')

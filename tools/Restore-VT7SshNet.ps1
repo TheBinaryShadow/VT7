@@ -5,7 +5,10 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3.0
 
 $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
-$projectPath = Join-Path $repositoryRoot 'src\vt7\VT7.SshNetProbe\VT7.SshNetProbe.csproj'
+$projectPaths = @(
+    (Join-Path $repositoryRoot 'src\vt7\VT7.SshNetProbe\VT7.SshNetProbe.csproj'),
+    (Join-Path $repositoryRoot 'src\vt7\VT7.Host\VT7.Host.csproj')
+)
 $configPath = Join-Path $repositoryRoot 'NuGet.Config'
 $packageRoot = Join-Path $repositoryRoot 'artifacts\vt7\deps\nuget'
 $noticeRoot = Join-Path $repositoryRoot 'artifacts\vt7\deps\sshnet-source-notices-7b2fd3dbf2c86a80a7b06cea020aa5f821c9902e'
@@ -27,8 +30,10 @@ $packages = @(
 )
 
 foreach ($configuration in @('Debug', 'Release')) {
-    & dotnet restore $projectPath --configfile $configPath --source 'https://api.nuget.org/v3/index.json' --packages $packageRoot --locked-mode -p:Configuration=$configuration
-    if ($LASTEXITCODE -ne 0) { throw "S01 locked NuGet restore failed for $configuration." }
+    foreach ($projectPath in $projectPaths) {
+        & dotnet restore $projectPath --configfile $configPath --source 'https://api.nuget.org/v3/index.json' --packages $packageRoot --locked-mode -p:Configuration=$configuration
+        if ($LASTEXITCODE -ne 0) { throw "SSH.NET locked NuGet restore failed for $configuration in $projectPath." }
+    }
 }
 
 foreach ($package in $packages) {

@@ -98,6 +98,20 @@ int32_t __cdecl VT7_RunCoreTests(wchar_t* report, uint32_t reportCharacters)
             Check(f.core.GetViewport().Width() == 100 && f.core.GetViewport().Height() == 30, "grow failed");
             Check(f.Row(0).substr(0,100) + f.Row(1).substr(0,50) == content, "reflow changed buffer content");
         });
+        run(L"Scrollback navigation, output retention and input snap", [](Fixture& f) {
+            for (int index = 0; index < 80; ++index)
+                f.core.Write(fmt::format(L"line {:02}\r\n", index));
+            const auto liveTop = f.core.ViewStartIndex();
+            Check(liveTop > 10 && f.core.GetScrollOffset() == liveTop, "fixture did not reach live scrollback");
+            f.core.UserScrollViewport(liveTop - 7);
+            const auto retainedTop = f.core.GetScrollOffset();
+            Check(retainedTop == liveTop - 7, "user scroll did not move to older output");
+            f.core.Write(L"after-scroll\r\n");
+            Check(f.core.GetScrollOffset() == retainedTop, "new output moved a user-scrolled viewport");
+            const auto encoded = f.core.SendCharEvent(L'x', 0, {});
+            Check(encoded.has_value() && *encoded == L"x", "printable input did not encode");
+            Check(f.core.GetScrollOffset() == f.core.ViewStartIndex(), "printable input did not return to live output");
+        });
         run(L"VT sequence split across writes", [](Fixture& f) {
             f.core.Write(L"\x1b[38;2;10;");
             f.core.Write(L"20;30mS");

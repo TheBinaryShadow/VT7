@@ -4,19 +4,23 @@ using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 using System.Threading;
+using System.Linq;
 
 namespace VT7.Host
 {
     public partial class MainWindow : Window
     {
-        private static long _nextSessionGeneration;
         private string? _lastLogPath;
         private int _statusGeneration;
         private bool _closed;
-        private SessionOutputPump? _sessionOutput;
-        private SessionOutboundQueue? _sessionOutbound;
         private SessionOutboundAuditSink? _outboundAudit;
-        internal SessionOutboundQueue? SessionOutbound => _sessionOutbound;
+        private TerminalDocument? _document;
+        private TerminalSession? _session;
+        private ITerminalTransport? _rootTransport;
+        private TerminalProfile? _activeProfile;
+        private string? _activeSessionName;
+        private bool _switchingProfile;
+        internal SessionOutboundQueue? SessionOutbound => _session?.State == TerminalSessionState.RunningRoot ? _session.Outbound : null;
         internal SessionOutboundAuditSink? OutboundAudit => _outboundAudit;
         internal TerminalSurface? Viewport { get; private set; }
         internal ProbeSnapshot? LastSnapshot { get; private set; }
@@ -36,77 +40,235 @@ namespace VT7.Host
             InitializeComponent();
         }
 
-        protected override void OnClosed(EventArgs e)
+        internal TerminalDocument DetachViewportForTest()
+        {
+            if (_document == null || Viewport == null) throw new InvalidOperationException("No terminal view is attached.");
+            var document = _document;
+            SurfaceContainer.Child = null;
+            Viewport.DetachSessionInput();
+            Viewport.Dispose();
+            Viewport = null;
+            return document;
+        }
+
+        internal TerminalSurface AttachViewportForTest(TerminalDocument document)
+        {
+            if (Viewport != null || _document != document) throw new InvalidOperationException("The test document is not detached from this window.");
+            var surface = new TerminalSurface(document);
+            Viewport = surface;
+            SurfaceContainer.Child = surface;
+            return surface;
+        }
+
+        protected override async void OnClosed(EventArgs e)
         {
             _closed = true;
             ++_statusGeneration;
-            _sessionOutput?.Dispose();
-            _sessionOutput = null;
             Viewport?.DetachSessionInput();
-            _sessionOutbound?.Dispose();
-            _sessionOutbound = null;
+            if (_session != null)
+            {
+                try { await _session.CloseAsync(); }
+                finally { _session.Dispose(); _session = null; }
+            }
+            _rootTransport = null;
             _outboundAudit = null;
             // HwndHost can reparent a detached child to retain it for reuse.
             // Explicit disposal gives the native surface a deterministic lifetime.
             Viewport?.Dispose();
             Viewport = null;
+            _document?.Dispose();
+            _document = null;
             base.OnClosed(e);
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             RunProbes();
             if (LastSnapshot?.Passed == true)
             {
-                Viewport = new TerminalSurface();
+                _document = new TerminalDocument(loadDemonstration: !App.LaunchLocalSession);
+                Viewport = new TerminalSurface(_document);
                 Viewport.RecoveryStatusChanged += () => { if (!_closed) RefreshSurfaceStatus(); };
                 SurfaceContainer.Child = Viewport;
-                _outboundAudit = new SessionOutboundAuditSink();
-                _sessionOutbound = new SessionOutboundQueue(Interlocked.Increment(ref _nextSessionGeneration), _outboundAudit);
-                Viewport.AttachSessionInput(_sessionOutbound, _sessionOutbound.Generation, message =>
+                if (!App.SessionStreamTest)
                 {
-                    if (!_closed) SurfaceStatus.Text = "Input stopped: " + message;
-                });
+                    try
+                    {
+                        if (App.LaunchLocalSession)
+                        {
+                            var profiles = TerminalProfileCatalog.Discover();
+                            ProfileSelector.ItemsSource = profiles;
+                            var requested = profiles.FirstOrDefault(profile =>
+                                string.Equals(profile.Id, App.RequestedProfileId, StringComparison.OrdinalIgnoreCase));
+                            if (requested == null)
+                                throw new InvalidOperationException($"The requested profile '{App.RequestedProfileId}' is not installed.");
+                            ProfileSelector.SelectedItem = requested;
+                            await StartProfileAsync(requested);
+                        }
+                        else
+                        {
+                            ProfileControls.Visibility = Visibility.Collapsed;
+                            _outboundAudit = new SessionOutboundAuditSink();
+                            _rootTransport = new FakeTerminalTransport("diagnostic-root", _outboundAudit);
+                            _session = new TerminalSession(_document, _rootTransport);
+                            await _session.StartAsync();
+                            AttachSession(_session);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _session?.Dispose();
+                        _session = null;
+                        _rootTransport = null;
+                        _activeProfile = null;
+                        SurfaceStatus.Text = "Terminal profile could not start: " + ex.Message;
+                    }
+                }
                 Viewport.SizeChanged += (_, __) => QueueSurfaceStatusRefresh();
                 QueueSurfaceStatusRefresh();
-                if (App.ShowSessionFixture) _ = StreamFixtureAsync(Viewport);
             }
             else SurfaceStatus.Text = "Startup checks failed. See Diagnostics and the log.";
         }
 
+        private async void StartProfile_Click(object sender, RoutedEventArgs e)
+        {
+            if (ProfileSelector.SelectedItem is TerminalProfile profile)
+                await StartProfileAsync(profile);
+        }
+
+        private async void StartSsh_Click(object sender, RoutedEventArgs e)
+        {
+            if (_switchingProfile || _closed) return;
+            var dialog = new SshConnectionDialog { Owner = this };
+            if (dialog.ShowDialog() != true || dialog.Result == null) return;
+            await StartTransportAsync(new SshNetTransport(dialog.Result), "SSH.NET direct profile", null);
+        }
+
+        private async System.Threading.Tasks.Task StartProfileAsync(TerminalProfile profile)
+        {
+            if (_switchingProfile || _closed || _document == null || Viewport == null) return;
+            await StartTransportAsync(new WinPtyTransport(profile), profile.DisplayName, profile);
+        }
+
+        private async System.Threading.Tasks.Task StartTransportAsync(ITerminalTransport transport, string sessionName,
+            TerminalProfile? localProfile)
+        {
+            if (_switchingProfile || _closed || _document == null || Viewport == null)
+            {
+                transport.Dispose();
+                return;
+            }
+            _switchingProfile = true;
+            StartProfileButton.IsEnabled = false;
+            StartSshButton.IsEnabled = false;
+            TerminalSession? pendingSession = null;
+            try
+            {
+                Viewport.DetachSessionInput();
+                var previous = _session;
+                _session = null;
+                _rootTransport = null;
+                _activeProfile = null;
+                _activeSessionName = null;
+                if (previous != null)
+                {
+                    try { await previous.CloseAsync(TerminalCloseReason.Replaced); }
+                    finally { previous.Dispose(); }
+                }
+
+                SurfaceStatus.Text = "Starting " + sessionName + "...";
+                pendingSession = new TerminalSession(_document, transport, () =>
+                {
+                    if (Viewport == null) return default;
+                    var info = Viewport.ReadInfo();
+                    return new TerminalPixelSize(checked(info.Columns * info.CellWidth), checked(info.Rows * info.CellHeight));
+                });
+                await pendingSession.StartAsync();
+                _rootTransport = transport;
+                _session = pendingSession;
+                _activeProfile = localProfile;
+                _activeSessionName = sessionName;
+                AttachSession(pendingSession);
+                Title = "VT7 - " + sessionName;
+                SurfaceStatus.Text = sessionName + " is running.";
+                QueueTerminalFocus(pendingSession);
+                QueueSurfaceStatusRefresh();
+            }
+            catch (Exception ex)
+            {
+                if (_session == pendingSession)
+                {
+                    Viewport?.DetachSessionInput();
+                    _session = null;
+                    _rootTransport = null;
+                    _activeProfile = null;
+                    _activeSessionName = null;
+                }
+                if (pendingSession != null) pendingSession.Dispose();
+                else transport.Dispose();
+                if (!_closed) SurfaceStatus.Text = sessionName + " could not start: " + ex.Message;
+            }
+            finally
+            {
+                _switchingProfile = false;
+                if (!_closed)
+                {
+                    StartProfileButton.IsEnabled = true;
+                    StartSshButton.IsEnabled = true;
+                }
+            }
+        }
+
+        private void AttachSession(TerminalSession session)
+        {
+            if (Viewport == null) throw new InvalidOperationException("The terminal viewport is unavailable.");
+            session.ActiveOutboundChanged += queue =>
+            {
+                if (_closed || Viewport == null || _session != session) return;
+                Viewport.DetachSessionInput();
+                Viewport.AttachSessionInput(queue, queue.Generation, message => SurfaceStatus.Text = "Input stopped: " + message);
+            };
+            var outbound = session.Outbound;
+            Viewport.AttachSessionInput(outbound, outbound.Generation, message =>
+            {
+                if (!_closed && _session == session) SurfaceStatus.Text = "Input stopped: " + message;
+            });
+            _ = ObserveSessionCompletionAsync(session);
+        }
+
+        private void QueueTerminalFocus(TerminalSession session)
+        {
+            _ = Dispatcher.BeginInvoke(new System.Action(() =>
+            {
+                if (!_closed && _session == session) Viewport?.FocusTerminal();
+            }), DispatcherPriority.Input);
+        }
+
         private void ResetSample_Click(object sender, RoutedEventArgs e)
         {
-            _sessionOutput?.Dispose();
-            _sessionOutput = null;
+            if (_session != null)
+            {
+                SurfaceStatus.Text = "Reset is unavailable while a terminal session is running.";
+                return;
+            }
             Viewport?.ResetDemo();
             QueueSurfaceStatusRefresh();
         }
 
-        private async System.Threading.Tasks.Task StreamFixtureAsync(TerminalSurface surface)
+        private async System.Threading.Tasks.Task ObserveSessionCompletionAsync(TerminalSession session)
         {
             try
             {
-                _sessionOutput = new SessionOutputPump(surface);
-                var pump = _sessionOutput;
-                await System.Threading.Tasks.Task.Run(async () =>
-                {
-                    foreach (var chunk in SessionStreamFixture.Split(SessionStreamFixture.Bytes, new[] { 1, 2, 3, 5, 8, 13 }))
-                        await pump.WriteAsync(chunk);
-                    await pump.CompleteAsync();
-                });
-                if (!_closed) QueueSurfaceStatusRefresh();
+                var result = await session.Completion;
+                if (_closed || _session != session) return;
+                Viewport?.DetachSessionInput();
+                var exit = result.ExitCode.HasValue ? $", exit {result.ExitCode.Value}" : string.Empty;
+                var name = _activeSessionName ?? _activeProfile?.DisplayName ?? "Terminal";
+                SurfaceStatus.Text = $"{name} session ended: {result.Kind}{exit}. Scrollback remains available; Start profile or Start SSH opens a new session.";
             }
-            catch (ObjectDisposedException) when (_closed)
+            catch (Exception ex) when (!_closed)
             {
-            }
-            catch (Exception ex)
-            {
-                if (!_closed) SurfaceStatus.Text = "Session fixture failed: " + ex.Message;
-            }
-            finally
-            {
-                _sessionOutput?.Dispose();
-                _sessionOutput = null;
+                SurfaceStatus.Text = "Terminal session failed: " + ex.Message;
             }
         }
 
@@ -145,7 +307,9 @@ namespace VT7.Host
             var backend = new[] { "GDI reference", "Atlas D3D11 hardware", "Atlas D3D11 WARP", "Atlas D2D hardware", "Atlas D2D WARP", "Atlas automatic", "Atlas awaiting first frame" };
             SurfaceStatus.Text = $"TerminalCore | {backend[info.RendererMode]} | {info.Columns} x {info.Rows} cells | " +
                 $"{info.CellWidth} x {info.CellHeight} px | frames (snapshot) {info.PaintCount}, resizes {info.ResizeCount}";
-            if (_sessionOutbound != null) SurfaceStatus.Text += $" | input generation {_sessionOutbound.Generation}, backend pending";
+            if (_session != null && (_session.State == TerminalSessionState.RunningRoot || _session.State == TerminalSessionState.RunningOverlay))
+                SurfaceStatus.Text += $" | input generation {_session.Outbound.Generation}, {_session.State}";
+            if (_activeProfile != null) SurfaceStatus.Text += " | " + _activeProfile.DisplayName;
             SurfaceStatus.Text += $" | system DPI {font.SystemDpi}";
             if (info.LastHResult < 0)
                 SurfaceStatus.Text += $" | FAILED 0x{unchecked((uint)info.LastHResult):X8}";

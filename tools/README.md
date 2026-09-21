@@ -17,8 +17,8 @@ existing evidence before a relevant regression run.
 | Script | Purpose and relevant options |
 | --- | --- |
 | `Build-VT7.ps1` | Builds `VT7.sln` for x64; `-Configuration` selects `Debug` or `Release`; `-NoRestore` uses a verified dependency restore. |
-| `Restore-VT7Dependencies.ps1` | Verifies pinned WIL/GSL/fmt archive hashes and re-extracts their headers. |
-| `Verify-VT7.ps1` | x64 PE/version/import audit; `-Configuration`, `-BinaryDirectory`, and mutually exclusive `-RendererProbeOnly`, `-AtlasProofOnly`, `-WinPtyProbeOnly` or `-InputProbeOnly`. |
+| `Restore-VT7Dependencies.ps1` | Verifies pinned WIL/GSL/fmt archive hashes, re-extracts their headers, and restores the exact audited SSH.NET closure used by the diagnostic and host. |
+| `Verify-VT7.ps1` | x64 PE/version/import audit; `-Configuration`, `-BinaryDirectory`, and mutually exclusive `-RendererProbeOnly`, `-AtlasProofOnly`, `-WinPtyProbeOnly` or `-InputProbeOnly`. Package assembly may use `-AllowAnyCpuManaged`; it accepts the x86 PE machine field only with a nonzero CLR COM descriptor and keeps all OS/import checks. |
 | `Verify-VT7Fonts.ps1` | Verifies pinned fonts/licenses; `-FontDirectory` selects the asset folder. |
 | `Test-VT7.ps1` | Native/core diagnostics and viewport checks; `-Configuration`, `-BinaryDirectory`, `-Renderers`, `-SkipNegative`. |
 | `Test-VT7SessionStream.ps1` | ABI 9 UTF-8/VT session ingress, exact chunk-boundary raster, EOF recovery and HWND teardown; `-Configuration`, `-BinaryDirectory`. |
@@ -29,6 +29,8 @@ existing evidence before a relevant regression run.
 | `Build-VT7SshNet.ps1` | Builds only the isolated net48/x64 S01 diagnostic; `-Configuration` selects Debug or Release and `-NoRestore` uses the verified lock result. |
 | `Test-VT7SshNet.ps1` | Runs S01 from a build or package directory. `-SelfTest` checks loads, modern algorithms, encrypted-key parsing and credential redaction without a server; network mode runs the controlled trust/authentication/PTY/lifecycle matrix. |
 | `Package-VT7SshNet.ps1` | Builds and self-tests the non-overwriting S01 package, preserves all exact dependency notices and metadata, verifies recursive hashes and ZIP entries, and emits the Windows 7 artifact. |
+| `Test-VT7SshNetFoundation.ps1` | Runs the application-host 0.8.2 offline direct-profile contract: exact runtime closure, strict fingerprint validation, direct-root ownership, actual cell/pixel start and resize geometry, credential-owner disposal, and at least 4.5:1 contrast for every SSH-dialog label and the rendered Authentication selection. It makes no network connection. |
+| `Package-VT7SshNetDirect.ps1` | Creates the non-overwriting 0.8.2/ABI 11 direct-profile package, stages the accepted SSH.NET 2026.0.0 closure and every required notice, audits every native or managed image, runs the actual PowerShell 5.1 CMD launcher from a package path containing spaces, and independently verifies every ZIP entry. Package 0.2 is transport-accepted on Windows 7; package 0.3 fixes labels but misses selected Authentication text; package 0.4 corrects it and passes focused visual confirmation. Typed `ssh` remains disabled. |
 | `Test-VT7AtlasRepaint.ps1` | Exact repaint/cursor checks; `-Configuration`, `-BinaryDirectory`, `-Renderers`; retains its expected-failure control. |
 | `Test-VT7AtlasRecovery.ps1` | Controlled recovery scenarios; `-Configuration`, `-BinaryDirectory`. |
 | `Test-VT7AtlasSettings.ps1` | Font/settings checks; `-Configuration`, `-BinaryDirectory`, `-ExpectedSystemDpi` accepts `0`, `96`, `120` or `144`. Zero leaves the actual DPI unasserted. |
@@ -45,9 +47,16 @@ existing evidence before a relevant regression run.
 | `Test-VT7ReactivationRunner.ps1` | `-BinaryDirectory`, new `-OutputDirectory`; PS2-compatible CLI, timeout, exit-code, checksum and protocol-override rejection controls. |
 | `Package-VT7ResourceReactivation.ps1` | Requires `-BuildDirectory`, `-QualificationDirectory`; checks qualified sources/evidence, preserves inherited bytes and refuses existing 0.1 outputs. |
 | `Test-VT7WinPty.ps1` | Runs the eighteen-case P01 child/WinPTY/TerminalCore comparison. Fidelity and unavailable code pages are recorded; dependency, lifecycle, UTF-8, timeout and evidence failures abort. Supports standalone package paths and collision-resistant run identities. |
+| `Test-VT7WinPtySession.ps1` | Runs the production `WinPtyTransport` and explicit Command Prompt profile through `TerminalSession`: Unicode environment, generation-1 input, authoritative resize, output drain, exit code and cancellation. |
+| `Test-VT7PowerShellProfiles.ps1` | Runs 0.6.6 clean-profile Windows PowerShell 5.1 and exact PowerShell 7.2.24 contracts through production WinPTY. Windows PowerShell accepts its legacy ConsoleHost editor when PSReadLine is not auto-loaded; PowerShell 7 still requires PSReadLine prediction capability. Visible editing behavior remains manual. `-AllowMissingPowerShell7` is for local development only; the distributed target runner is strict. |
+| `Test-VT7H01.ps1` | Runs the 0.7.3 H01 grammar, authenticated local shim/broker, exact fallback, wrong-capability and committed WinPTY barrier checks. The distributed runner strictly requires Command Prompt, Windows PowerShell 5.1 and PowerShell 7.2.24; `-AllowMissingPowerShell7` is local-development only. |
 | `Package-VT7WinPty.ps1` | Builds and verifies the Release x64 P01 diagnostic, stages the pinned WinPTY native runtime, MIT license and app-local VC runtime, then creates a non-overwriting ZIP. |
+| `Package-VT7WinPtyRoot.ps1` | Creates the non-overwriting 0.5.2/ABI 11 3B.1 Command Prompt candidate, runs the 3A regressions and real WinPTY transport check from staged bytes, includes native wheel scrollback and committed-character snap-to-live, and validates every ZIP entry. The candidate is 11,161,619 bytes with SHA256 `BDB12430AF3325EA4ED4AAE153CF7AF355411BF57E3DD4E4303132C372499A87`. |
+| `Package-VT7PowerShellProfiles.ps1` | Creates the non-overwriting 0.6.6/ABI 11 3B.2 HwndHost keyboard-sink candidate with three local launchers, strict Windows 7 5.1/7.2.24 validation, ordinary-profile instructions and retained dependency notices. Local staging may explicitly skip absent or unqualified PowerShell 7; the issued CMD runner cannot. |
+| `Package-VT7H01.ps1` | Creates the non-overwriting 0.7.3/ABI 11 H01 package 0.4, stages the shim under both command and explicit-system names, runs local staged checks, preserves notices and symbols, then independently validates every ZIP entry. That package is accepted on Windows 7. It enables no embedded SSH backend and makes no network connection. |
 | `Test-VT7Input.ps1` | Runs the I01 native keyboard-layout and TerminalInput characterization, then opens the WPF/native-focus recorder. `-NonInteractive` performs the local automation-safe smoke test; target acceptance requires the guided interactive run. |
 | `Package-VT7SessionOutbound.ps1` | Creates the non-overwriting 0.3.7 x64 target candidate whose exact Windows 7 run is accepted, verifies its native images and licenses, tests staged hashes, and validates every ZIP entry. |
+| `Package-VT7SessionOwnership.ps1` | Creates the non-overwriting 0.4.0/ABI 11 3A target candidate whose exact Windows 7 run is accepted, runs document/view, fake-transport and prior outbound checks from staged bytes, and validates every ZIP entry. |
 | `Package-VT7OpenSsh.ps1` | Creates the non-overwriting MIT-only S00 preflight package. It does not include OpenSSH; the target runner verifies itself and discovers the installed client under Program Files or on `PATH`. |
 | `Package-VT7OpenSshNetwork.ps1` | Creates the non-overwriting controlled-server S00 package. It contains no OpenSSH binary or secret, pins the accepted client hash and verifies the packaged files before prompting for runtime-only connection values. |
 | `Package-VT7Input.ps1` | Builds and verifies the Release x64 I01 diagnostic, stages its two probes with the existing license notices and app-local VC runtime, then creates a non-overwriting ZIP. |
@@ -86,15 +95,38 @@ that redirected `ssh.exe` cannot obtain VT7's PTY size or observe VT7 resize
 events through its Windows console path. S00 is complete: the external client is
 accepted for non-PTY command transport and rejected for interactive VT7 SSH.
 The owner approved SSH.NET 2026.0.0 and its permissive supplier notices for S01.
-The locked closure is now incorporated only by the isolated diagnostic. Its
+The locked closure is now incorporated by both the isolated diagnostic and the
+0.8.2 application host. Its
 0.5 target run proved the trust, authentication, command, PTY, resize, drain,
 cancellation and isolation paths. Corrected 0.6 passes local checks plus both
 Windows 7 controlled-Debian runs and is the accepted S01 package.
 See the [S01 record](../doc/vt7/validation/2026-09-14-sshnet-s01.md).
 
-The current application source reports 0.3.7/ABI 10 and includes the session-stream
-and native-HWND outbound foundation plus resource-isolation
-diagnostics absent from the issued 0.3.5 archive. These opt-in host CLI controls
+The current application source reports 0.8.2/ABI 11 and includes the native
+document/view split, managed session/transport foundation, real Command Prompt
+WinPTY root plus resource-isolation diagnostics absent from the issued 0.3.5
+archive. The exact 0.5.0 Windows 7 package passes its automated runners and
+manual Unicode workflow. Active-command Ctrl+C works; prompt-line cancellation
+is a known WinPTY limit. Version 0.5.1 proves native wheel movement and retained
+history on Windows 7. Version 0.5.2 corrects printable-character snap-to-live,
+and the supplied checks pass. Version 0.6.6 retains the explicit selectable
+PowerShell profiles and adds a tested WPF keyboard-sink path after 0.6.5 proved
+that direct Win32 focus alone did not retain terminal navigation keys. Version
+0.7.0 added the H01 typed-command shim and passed all embedded target paths, but
+package 0.1 failed Windows 7 external fallback with duplicated console handles.
+Package 0.2 shows the original handles reject inheritance-flag changes there.
+Package 0.3 then proves Windows 7 rejects traditional console handles inside the
+explicit handle list at `CreateProcessW`. Version 0.7.3 uses the documented
+Windows 7 standard-handle transfer and retains the handle list on Windows 8+;
+package 0.4 passes the strict Windows 7 three-shell run. H01 is accepted for its
+bounded diagnostic scope. Version 0.8.0 adds the separate direct SSH.NET root
+profile; corrected package 0.2 passes its complete Windows 7 controlled-server
+matrix plus separate `htop` and `nano` runs. Version 0.8.1/package 0.3 corrects
+the logical form labels but fails focused visual confirmation because the
+generated selected Authentication item remains light. Version 0.8.2/package 0.4
+styles and checks that rendered selection, and its focused Windows 7 visual
+confirmation passes. Typed SSH remains off pending overlay integration.
+These opt-in host CLI controls
 are documented in the [stability record](../doc/vt7/validation/2026-09-13-atlas-stability.md);
 the stability runner does not expose a resource-isolation parameter. The separate
 native comparison 0.1 has its own packaged launcher and reuses the issued native

@@ -9,7 +9,7 @@ extern "C"
 
     enum : uint32_t
     {
-        VT7_NATIVE_ABI_VERSION = 10,
+        VT7_NATIVE_ABI_VERSION = 11,
         VT7_TEXT_SHORT = 32,
         VT7_TEXT_MEDIUM = 64,
         VT7_TEXT_LONG = 128,
@@ -113,6 +113,50 @@ extern "C"
         int32_t last_hresult;
     } VT7_SURFACE_STREAM_INFO;
 
+    typedef struct VT7_TERMINAL_DOCUMENT_SETTINGS
+    {
+        uint32_t struct_size;
+        uint32_t columns;
+        uint32_t rows;
+        uint32_t scrollback_lines;
+        uint32_t load_demonstration;
+    } VT7_TERMINAL_DOCUMENT_SETTINGS;
+
+    typedef struct VT7_TERMINAL_DOCUMENT_INFO
+    {
+        uint32_t struct_size;
+        uint32_t columns;
+        uint32_t rows;
+        uint32_t attached;
+        uint64_t attachment_generation;
+        uint64_t mutation_sequence;
+        uint64_t stream_generation;
+        uint64_t received_bytes;
+        uint64_t decoded_utf16_units;
+        uint32_t write_count;
+        uint32_t pending_utf8_bytes;
+        uint32_t ended;
+        int32_t last_hresult;
+    } VT7_TERMINAL_DOCUMENT_INFO;
+
+    typedef struct VT7_TERMINAL_VIEW_INFO
+    {
+        uint32_t struct_size;
+        uint32_t attached;
+        uint64_t attachment_generation;
+        void* child_window;
+    } VT7_TERMINAL_VIEW_INFO;
+
+    enum : uint32_t { VT7_TERMINAL_REPLY_BYTES = 4096 };
+    typedef struct VT7_TERMINAL_REPLY
+    {
+        uint32_t struct_size;
+        uint32_t byte_count;
+        uint64_t origin_transport_generation;
+        uint64_t sequence;
+        uint8_t bytes[VT7_TERMINAL_REPLY_BYTES];
+    } VT7_TERMINAL_REPLY;
+
     enum : uint32_t
     {
         VT7_INPUT_RESULT_BYTES = 256,
@@ -126,6 +170,31 @@ extern "C"
         uint32_t reserved;
         uint8_t bytes[VT7_INPUT_RESULT_BYTES];
     } VT7_INPUT_RESULT;
+
+    // ABI 11: a document owns TerminalCore, scrollback and the incremental
+    // decoder. A view owns only presentation state and may be recreated while
+    // its document remains live. Both handles are opaque and are never HWNDs.
+    int32_t __cdecl VT7_CreateTerminalDocument(const VT7_TERMINAL_DOCUMENT_SETTINGS* settings, void** document);
+    int32_t __cdecl VT7_DestroyTerminalDocument(void* document);
+    int32_t __cdecl VT7_GetTerminalDocumentInfo(void* document, VT7_TERMINAL_DOCUMENT_INFO* info);
+    int32_t __cdecl VT7_BeginDocumentStream(void* document, uint64_t stream_generation);
+    int32_t __cdecl VT7_WriteDocumentUtf8(void* document, uint64_t stream_generation,
+        uint64_t origin_transport_generation, uint64_t sequence, const uint8_t* bytes, uint32_t length);
+    int32_t __cdecl VT7_EndDocumentStream(void* document, uint64_t stream_generation, uint32_t eof_kind);
+    // S_FALSE means the bounded reply queue is empty.
+    int32_t __cdecl VT7_ReadDocumentReply(void* document, VT7_TERMINAL_REPLY* reply);
+    int32_t __cdecl VT7_CreateTerminalView(void* parent, void* document, uint32_t renderer_mode,
+        void** view, void** child_window);
+    int32_t __cdecl VT7_DetachTerminalView(void* view);
+    int32_t __cdecl VT7_DestroyTerminalView(void* view);
+    int32_t __cdecl VT7_GetTerminalViewInfo(void* view, VT7_TERMINAL_VIEW_INFO* info);
+    int32_t __cdecl VT7_ResizeTerminalDocument(void* document, uint64_t attachment_generation,
+        uint32_t columns, uint32_t rows);
+    int32_t __cdecl VT7_EncodeTerminalKey(void* document, uint32_t virtual_key, uint32_t scan_code,
+        uint32_t control_key_state, uint32_t key_down, uint32_t repeat_count, VT7_INPUT_RESULT* result);
+    int32_t __cdecl VT7_EncodeTerminalChar(void* document, uint32_t character, uint32_t scan_code,
+        uint32_t control_key_state, uint32_t repeat_count, VT7_INPUT_RESULT* result);
+    int32_t __cdecl VT7_EncodeTerminalFocus(void* document, uint32_t focused, VT7_INPUT_RESULT* result);
 
     int32_t __cdecl VT7_GetSurfaceSettings(void* window, VT7_SURFACE_SETTINGS* settings);
     typedef struct VT7_SCHEDULING_INFO

@@ -1,7 +1,7 @@
 <Window x:Class="VT7.Host.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="VT7 Session Stream Foundation"
+        Title="VT7"
         Width="1040"
         Height="800"
         MinWidth="720"
@@ -33,7 +33,7 @@
                                Foreground="#D4E9F8" />
                 </StackPanel>
                 <Border Grid.Column="1" Background="#102B45" BorderBrush="#5DAEEA" BorderThickness="1" Padding="12,7" VerticalAlignment="Center">
-                    <TextBlock Text="SESSION I/O 0.3.7" FontSize="11" FontWeight="Bold" Foreground="#8FD0FF" />
+                    <TextBlock Text="SSH.NET DIRECT 0.8.2" FontSize="11" FontWeight="Bold" Foreground="#8FD0FF" />
                 </Border>
             </Grid>
         </Border>
@@ -51,7 +51,20 @@
                     <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <Border x:Name="SurfaceContainer" Background="{StaticResource WindowBackground}" ClipToBounds="True" />
                     <DockPanel Grid.Row="1" Margin="0,10,0,0">
-                        <Button Content="Reset sample" Click="ResetSample_Click" DockPanel.Dock="Right" Margin="12,0,0,0" />
+                        <StackPanel x:Name="ProfileControls" Orientation="Horizontal" DockPanel.Dock="Right" Margin="12,0,0,0">
+                            <TextBlock Text="Profile" VerticalAlignment="Center" Margin="0,0,7,0" Foreground="{StaticResource MutedBrush}" />
+                            <ComboBox x:Name="ProfileSelector" Width="250" VerticalAlignment="Center"
+                                      Foreground="#10202E" Background="#F3F7FA" BorderBrush="#79C7FF">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Foreground="#10202E" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button x:Name="StartProfileButton" Content="Start profile" Click="StartProfile_Click" Margin="7,0,0,0" />
+                            <Button x:Name="StartSshButton" Content="Start SSH..." Click="StartSsh_Click" Margin="7,0,0,0" />
+                            <Button Content="Reset sample" Click="ResetSample_Click" Margin="7,0,0,0" />
+                        </StackPanel>
                         <TextBlock x:Name="SurfaceStatus" Text="Starting TerminalCore..." TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Foreground="{StaticResource MutedBrush}" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" />
                     </DockPanel>
                 </Grid>

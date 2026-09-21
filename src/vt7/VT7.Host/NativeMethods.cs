@@ -6,7 +6,73 @@ namespace VT7.Host
 {
     internal static class NativeMethods
     {
-        internal const uint ExpectedAbiVersion = 10;
+        internal const uint ExpectedAbiVersion = 11;
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct TerminalDocumentSettings
+        {
+            internal uint StructSize, Columns, Rows, ScrollbackLines, LoadDemonstration;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct TerminalDocumentInfo
+        {
+            internal uint StructSize, Columns, Rows, Attached;
+            internal ulong AttachmentGeneration, MutationSequence, StreamGeneration;
+            internal ulong ReceivedBytes, DecodedUtf16Units;
+            internal uint WriteCount, PendingUtf8Bytes, Ended;
+            internal int LastHResult;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct TerminalViewInfo
+        {
+            internal uint StructSize, Attached;
+            internal ulong AttachmentGeneration;
+            internal IntPtr ChildWindow;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct TerminalReply
+        {
+            internal uint StructSize, ByteCount;
+            internal ulong OriginTransportGeneration, Sequence;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4096)]
+            internal byte[] Bytes;
+        }
+
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_CreateTerminalDocument(ref TerminalDocumentSettings settings, out IntPtr document);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_DestroyTerminalDocument(IntPtr document);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_GetTerminalDocumentInfo(IntPtr document, ref TerminalDocumentInfo info);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_BeginDocumentStream(IntPtr document, ulong streamGeneration);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_WriteDocumentUtf8(IntPtr document, ulong streamGeneration,
+            ulong originTransportGeneration, ulong sequence, [In] byte[] bytes, uint length);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_EndDocumentStream(IntPtr document, ulong streamGeneration, uint eofKind);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_ReadDocumentReply(IntPtr document, ref TerminalReply reply);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_CreateTerminalView(IntPtr parent, IntPtr document, uint rendererMode,
+            out IntPtr view, out IntPtr childWindow);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_DetachTerminalView(IntPtr view);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_DestroyTerminalView(IntPtr view);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_GetTerminalViewInfo(IntPtr view, ref TerminalViewInfo info);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_EncodeTerminalKey(IntPtr document, uint virtualKey, uint scanCode,
+            uint controlKeyState, uint keyDown, uint repeatCount, ref InputResult result);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_EncodeTerminalChar(IntPtr document, uint character, uint scanCode,
+            uint controlKeyState, uint repeatCount, ref InputResult result);
+        [DllImport("VT7.Native.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int VT7_EncodeTerminalFocus(IntPtr document, uint focused, ref InputResult result);
 
         [StructLayout(LayoutKind.Sequential)]
         internal struct SchedulingInfo
@@ -23,6 +89,10 @@ namespace VT7.Host
         internal static extern short GetKeyState(int virtualKey);
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         internal static extern IntPtr SendMessage(IntPtr window, uint message, IntPtr wParam, IntPtr lParam);
+        [DllImport("user32.dll")]
+        internal static extern IntPtr SetFocus(IntPtr window);
+        [DllImport("user32.dll")]
+        internal static extern IntPtr GetFocus();
         [DllImport("user32.dll", SetLastError = true)]
         internal static extern bool MoveWindow(IntPtr window, int x, int y, int width, int height, bool repaint);
         [DllImport("user32.dll")]

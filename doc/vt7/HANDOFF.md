@@ -1,7 +1,20 @@
 # VT7 development handoff
 
-Updated: 2026-09-14, after accepting SSH.NET S01 and recording the project-wide
-permissive dependency policy.
+Updated: 2026-09-21. Version 0.6.6/native ABI 11 remains accepted across the
+Windows 7 PowerShell/profile and keyboard matrix. H01 packages 0.1 through 0.3
+pass the Command Prompt, PowerShell 5.1 and PowerShell 7.2.24 embedded/barrier
+paths while successively exposing the Windows 7 fallback restrictions: timeout,
+`SetHandleInformation` error 87, then `CreateProcessW` error 1450 when traditional
+console handles enter the extended handle list. Version 0.7.3 uses the native
+Windows 7 standard-handle inheritance rule and keeps the explicit handle list on
+Windows 8 or later. Package 0.4 passes the strict Windows 7 three-shell run and
+H01 is accepted. Version 0.8.0 integrates the S01-accepted SSH.NET closure and
+adds the first direct remote root profile. Corrected package 0.2 passes its full
+Windows 7 controlled-server matrix, and separate `htop` and `nano` runs expose
+no issue. Version 0.8.1/package 0.3 corrects the form labels, but its focused
+visual check finds the selected Authentication item still light-on-light.
+Version 0.8.2/package 0.4 gives that generated text an explicit dark template;
+its focused Windows 7 visual confirmation passes. Typed SSH remains disabled.
 This is the current resumption guide. Start with the [documentation index](README.md)
 if unfamiliar with the repository. The [roadmap](../../ROADMAP.md) owns gates;
 dated validation records own test claims.
@@ -18,13 +31,24 @@ term still requires a separate compatibility review. The
 [standing licensing policy](architecture/2026-09-14-third-party-licensing-policy.md)
 owns this decision. `NOTICE.md` now combines legal disclosure, upstream
 references and human thanks.
-The current application streams a deterministic UTF-8/VT fixture through a
-bounded session output queue into the TerminalCore-backed Atlas viewport inside
-a .NET Framework 4.8 WPF host. It has no interactive local shell, SSH session,
-production tabs/panes/profiles, selection or session-input implementation yet.
-The visible viewport/Diagnostics tabs belong to the proof host, not the finished
-multi-session UI. Planned PowerShell 7 coverage through 7.2.24 is not a tested
-VT7 session claim.
+The current application starts Command Prompt, Windows PowerShell 5.1 or a
+versioned PowerShell 7 through pinned WinPTY 0.4.3, bounded session queues and
+the TerminalCore-backed Atlas viewport inside a .NET Framework 4.8 WPF host.
+The viewport selector deterministically replaces the active root session. Normal
+PowerShell launches preserve user profiles and settings; only controlled tests
+use `-NoProfile`. The accepted Command Prompt transport, Croatian text, Unicode
+filename, child GUI, scrollback and printable-input snap behavior remain intact.
+The exact 5.1/7.2.24 clean-profile transport and ordinary-profile corpus passes
+on Windows 7. VT7 0.8.0 also has an accepted direct SSH.NET root session with
+mandatory pinned-fingerprint trust, private-key/password authentication, remote
+PTY geometry and live resize. The full required Windows 7 matrix passes, as do
+separate `htop` and `nano` runs. VT7 has no production tabs/panes, final profile management,
+selection implementation or typed SSH overlay yet.
+The visible viewport/Diagnostics tabs and profile selector belong to the proof
+host, not the finished multi-session UI. Version 0.6.5 returns Win32 focus to the
+native HWND after shell startup/replacement and applies explicit selector colors,
+but its navigation keys still escape into WPF. Version 0.6.6 handles them at the
+`HwndHost` keyboard-sink boundary and passes the focused Windows 7 retest.
 
 Port first. Preserve pinned upstream behavior wherever possible and adapt the
 Windows 7 boundaries. Required correctness, security, accessibility and resource
@@ -32,15 +56,18 @@ lifetime are blockers when affected; optional typography and refinements belong
 in Milestone 7. The owner-approved
 [WARP development deferral](architecture/2026-09-14-warp-development-deferral.md)
 moves the known resource concern to REL01 release-readiness review and stops
-the dedicated tracing campaign. C4/3A is active; its first shared output
-boundary is implemented and S00 has rejected redirected external OpenSSH for
-interactive PTY sessions.
-Neither WARP attribution nor
-the earlier Arabic/geometry experiment chain is the default next task.
+the dedicated tracing campaign. C4/3A is implemented and target accepted; its
+document/transport/view contract now forms the 0.4.0/ABI 11 ownership boundary.
+The first shared output boundary is implemented and S00 has rejected redirected
+external OpenSSH for interactive PTY sessions.
+Neither WARP attribution nor the earlier Arabic/geometry experiment chain is the
+default next task. The immediate development task is the SSH overlay coordinator
+and structured trust/authentication prompt ownership. The typed shim allowlist
+remains disabled until that ordering and return-to-local-shell work passes.
 
 | Item | Current state |
 | --- | --- |
-| Working application version | 0.3.7, native ABI 10, x64. The latest issued full viewport artifact remains 0.3.5/ABI 8; the focused 0.3.7 target candidate has a distinct identity. |
+| Working application version | 0.8.2, native ABI 11, x64. It retains the accepted Command Prompt, PowerShell profile/keyboard, H01 and direct SSH.NET transport behavior. Package 0.2 passes the full Windows 7 direct-profile matrix. Version 0.8.2 adds an explicit dark authentication-item template and verifies the rendered selection at 4.5:1 after package 0.3's focused check exposed the prior logical-label test gap. Typed SSH remains disabled. |
 | Milestone 1 | Complete on the tested configurations, with the evidence limits in its record. |
 | C1 minimum font boundary and C2 Atlas integration | Accepted on the supplied Windows 7 setup in 0.3.0. |
 | C3 repaint, controlled recovery, scaling | Bounded 0.3.1/0.3.2 results and actual 0.3.4 96/120/144 DPI matrix accepted. |
@@ -50,7 +77,30 @@ the earlier Arabic/geometry experiment chain is the default next task.
 | Remaining lifetime question | The two late integrated counts repeat, but individual handle identities/owners and a permanent bound are unproven. Final WPF handles remain 1,090 above pre-warm-up; this includes initialization and diagnostic effects. The previous native-only residual is 54 and is not directly comparable. |
 | Latest local diagnostic | WPF resource reactivation 0.1 completes two 100-lifecycle batches and closed +10/+90/+180s observations after each, in one process. All 16 checkpoints validate and all eight immediate budget failures remain. The native 0.3.5 DLL is unchanged. |
 | Session stream foundation | Implemented and locally validated in Debug and Release. Ordered transport-thread output reaches a per-surface decoder and TerminalCore through a bounded dispatcher queue; incomplete EOF and recovery are explicit. |
-| Session ownership review | The supplied pushed-commit analysis was reconciled with the current tree. UTF-8 streaming and P01 are already complete; the remaining architecture requirement is to separate production session/TerminalCore identity from HWND/WPF presentation identity, with generation-safe callbacks and two-sided core/backend resize. |
+| Session ownership review | The supplied pushed-commit analysis was reconciled with the tree and its remaining 3A requirement is implemented and target accepted: production session/TerminalCore identity is separate from HWND/WPF presentation, with generation-safe transports and originating-transport replies. Version 0.5.0 now routes production resize to WinPTY for the Command Prompt slice. |
+| 3A implementation specification | Implemented through 3A.1 and 3A.2 in 0.4.0. The [terminal document/transport/typed-SSH design](architecture/2026-09-14-terminal-document-and-ssh-handoff-spec.md) defines the wider handoff path; ABI 11 typed identities, managed transport lifecycle, bounded per-origin replies and fake root/overlay generations pass locally and on Windows 7. The first production local transport is implemented in 0.5.0, H01 is accepted in 0.7.3, and the direct remote root is implemented in 0.8.0. |
+| 3A validation | Debug and Release builds pass the six-renderer smoke matrix, injected blank negative, session outbound and session stream checks. The exact Windows 7 run destroys the first HWND, drains 388 bytes with no attached view, reattaches generation 2 to raster `D90BE1DA17351A44`, switches fake root/overlay input generations 1/2/3, returns a TerminalCore device reply to its originating transport, and closes once. |
+| 3A target package | Accepted `VT7-Session-Ownership-0.4.0-x64.zip`, SHA256 `93DFB2B35D94DE6610C8734889D837594D593F3584F0FAE78F4679853AAE0449`, 10,642,845 bytes, 27 verified files. Both target reports pass with package-matching host/native hashes. The three supplied files and independent analysis are archived under `artifacts/vt7/evidence/session-ownership-win7-0.4.0`. |
+| 3B.1 implementation | `WinPtyTransport` owns the exact WinPTY 0.4.3 runtime, pipes, child handle, read loop and cancellation. The explicit Command Prompt profile pins executable, arguments, working directory and Unicode environment. Input and resize retain the 3A queue; EOF drains before child exit reporting. Local Debug and Release pass real spawn/input/100x30 resize/drain/exit 37, cancellation, 3A regressions and the full renderer/host suite. |
+| 3B.1 accepted target package | `VT7-WinPty-Root-0.5.0-x64.zip`, SHA256 `5BC66EB5149301140BCB916EC270349DB1BC955309FEB3949B5C65E2185E5F3E`, 11,158,230 bytes, 33 verified files. All three target runners pass with package-matching hashes. Manual Croatian text, Notepad launch and `ććć.txt` creation pass. Active-command Ctrl+C works; prompt-line cancellation has the known WinPTY limitation. Ctrl+V/Ctrl+A retain classic control-character behavior. |
+| 3B.1 scrollback result | `VT7-WinPty-Root-0.5.1-x64.zip`, SHA256 `2A0532EDA35B1B9D4CF805830C72DB8E82FC01941D96F87CEC1B5D57B68B46C0`, 11,193,875 bytes, 33 verified files. Windows 7 accepts wheel movement and retained history during output. Printable characters fail snap-to-live while Backspace, Delete and arrows pass. |
+| 3B.1 accepted input-snap package | `VT7-WinPty-Root-0.5.2-x64.zip`, SHA256 `BDB12430AF3325EA4ED4AAE153CF7AF355411BF57E3DD4E4303132C372499A87`, 11,161,619 bytes, 33 verified files. Debug/Release verification and all three staged package runners pass locally. The supplied test-machine checks confirm printable input snaps to live output with no further issue. |
+| 3B.1 target evidence | Seven supplied files plus `ARCHIVE-VERIFICATION.json` are preserved under `artifacts/vt7/evidence/winpty-root-win7-0.5.0`, 13,016 bytes. Target: Windows 7 SP1 x64, .NET 4.8.4795.0, PowerShell 5.1.14409.1005, `hr-HR`, RX 6800 XT. |
+| 3B.2 implementation | Typed profiles pin executable, arguments, environment, working directory and discovered version. Ordinary PowerShell preserves user profiles; clean diagnostics verify 5.1/7.2.24 runtime, PSReadLine, completion, multiline input, Croatian text, native child, 108x32 resize, drain and exit. The UI and CLI select profiles and deterministic replacement closes the prior root. |
+| 3B.2 rejected 0.6.0 candidate | `VT7-PowerShell-Profiles-0.6.0-x64.zip`, SHA256 `20EE217D36A9F7808DF0A289FD4DF5C0EFA8DEE2C717FCF079692939D770E596`, 11,185,489 bytes. Its first three runners pass on Windows 7, then the clean Windows PowerShell 5.1 case times out after a one-write multiline submission. Runtime discovery is correct: 5.1.14409.1005 and 7.2.24. Manual checks were paused. |
+| 3B.2 rejected 0.6.1 candidate | `VT7-PowerShell-Profiles-0.6.1-x64.zip`, SHA256 `8D3B880E91A999A6A8954BA4CE0E7839A0E4E7E45E72C5C125F89C909A22A06F`, 11,192,382 bytes. Two target runs again pass the first three runners and time out in clean 5.1. Splitting the block did not fix the retained CRLF input terminator. Manual checks remain paused. |
+| 3B.2 rejected 0.6.2 candidate | `VT7-PowerShell-Profiles-0.6.2-x64.zip`, SHA256 `469ED3F3C1ED914D7A89D3AF5D7C4036AE0121E0F84DB4D7976F01DBE27F949C`, 11,048,234 bytes. Its target counters record all four writes, 575 input bytes and output after every line, including the final exit expression, but the interactive continuation construct remains alive. Manual checks stayed paused. |
+| 3B.2 rejected 0.6.3 candidate | `VT7-PowerShell-Profiles-0.6.3-x64.zip`, SHA256 `ECE1E0980B85506063324F523CC6F571FA0004D18F95384B8987A0050D43439D`, 11,044,543 bytes. The target exits normally with code 84, proving the Windows PowerShell 5.1 runtime, input and process lifecycle while identifying that PSReadLine is not auto-loaded. Requiring that optional editor was the remaining gate error. |
+| 3B.2 accepted 0.6.4 candidate | `VT7-PowerShell-Profiles-0.6.4-x64.zip`, SHA256 `3B961B0E31ABD208C056A3B846C68F3BAF9899BFD91FDCD98AADD23A8E35BE46`, 11,043,866 bytes, 36 verified files. All four Windows 7 stages pass. Windows PowerShell 5.1 uses its accepted legacy editor; PowerShell 7.2.24 loads PSReadLine 2.1.0 with prediction capability. Ordinary Unicode, multiline, native child, resize, scrollback and lifecycle behavior passes. The run exposed WPF focus retention and selector contrast defects. |
+| 3B.2 rejected 0.6.5 keyboard correction | `VT7-PowerShell-Profiles-0.6.5-x64.zip`, SHA256 `265165882549FE1BC8A67BAA3AD50046FC82A0793BFEA3E37E3551724E3BAB59`, 11,147,565 bytes, 36 verified files. Returns Win32 focus to the child HWND, implements `TabIntoCore`, verifies `WM_GETDLGCODE`, and gives the selector explicit colors. All automated checks and Windows 7 startup/replacement/shutdown pass, but Tab, Down and End still escape through WPF; Home returns from Diagnostics to the viewport tab after End moves focus out. The regression checked native focus and dialog codes but omitted `IKeyboardInputSink`. |
+| 3B.2 accepted 0.6.6 keyboard-sink correction | `VT7-PowerShell-Profiles-0.6.6-x64.zip`, SHA256 `AB3B0C644674FE3B9C33EF11CAAE53E6D584E2957CF339E3D1B80E2E40F32B93`, 11,150,252 bytes, 36 verified files. Overrides `HwndHost.TranslateAcceleratorCore` and `TranslateCharCore` so terminal keys cross the WPF/native boundary before control traversal. The focused regression exercises Tab, Down, End and printable-text ownership through `IKeyboardInputSink`. Debug/Release, all four Windows 7 stages, all-profile manual keys and independent ZIP verification pass. No ABI, transport or dependency changed. |
+| 3B.2 target evidence | The accepted 0.6.4 Logs folder, manual notes and screenshots are preserved under `artifacts/vt7/evidence/powershell-profiles-win7-0.6.4`. The passing 0.6.5 automated logs and failed manual-key disposition are under `artifacts/vt7/evidence/powershell-profiles-win7-0.6.5`. The accepted 0.6.6 automated logs and manual-key disposition are under `artifacts/vt7/evidence/powershell-profiles-win7-0.6.6`. Every archive has per-file SHA-256 metadata. |
+| H01 implementation | Accepted for its bounded diagnostic scope. The native Windows 7-subsystem shim and managed broker implement the restricted typed grammar, per-session authenticated named pipe, PID/creation-time/ancestry/console checks, exact hashed fallback and a visible marker recognized only after WinPTY bytes commit through `SessionOutputPump`. Version 0.7.3 detects the real OS version: Windows 7 launches fallback with its native standard-handle inheritance behavior, while Windows 8 or later uses the explicit child handle list. Embedded SSH is not enabled. |
+| H01 rejected package 0.1 | `VT7-H01-0.1-x64.zip`, SHA256 `6428C10B3D446BD735D3E4E2F4596FAD7423E97EC6ACD1E40C2899EB09930820`, 11,938,989 bytes, 35 verified files. Two Windows 7 runs pass grammar and all three embedded/barrier paths, including exact PowerShell 7.2.24, then time out waiting for the external fixture. Evidence is archived under `artifacts/vt7/evidence/h01-win7-0.1-rejected`. |
+| H01 rejected package 0.2 | `VT7-H01-0.2-x64.zip`, SHA256 `CF26FE708C844E3A764C89C766F6EF974A115E5921ADD688C15EA2B6D5784362`, 11,923,429 bytes, 35 verified files. Two Windows 7 runs again pass all embedded paths, then external fallback reports `SetHandleInformation failed ... (Win32 87)`. Evidence is archived under `artifacts/vt7/evidence/h01-win7-0.2-rejected`. |
+| H01 rejected package 0.3 | `VT7-H01-0.3-x64.zip`, SHA256 `4EBED0D43DC516E7B5211467F941EB419B134CA8F924C4013E30853AD2BEC79C`, 11,915,112 bytes, 35 verified files. The target again passes all embedded paths, then external fallback reports `CreateProcessW external SSH failed (Win32 1450)`. Traditional Windows 7 console handles cannot be placed reliably in `PROC_THREAD_ATTRIBUTE_HANDLE_LIST`. Evidence is archived under `artifacts/vt7/evidence/h01-win7-0.3-rejected`. |
+| H01 accepted package | `VT7-H01-0.4-x64.zip`, SHA256 `8B38721372CBCE51A8DC9EDC451756491A9FA742F3AD164F9EB3FB2F8375DA24`, 11,925,339 bytes, 35 verified files. Debug, Release, staged H01 and independent ZIP verification pass locally. The strict Windows 7 run passes grammar, all three embedded/barrier shell paths, exact fallback argv/exit/sanitization and wrong-capability denial. |
+| H01 accepted evidence | The two returned files plus `ARCHIVE-VERIFICATION.json` are preserved under `artifacts/vt7/evidence/h01-win7-0.4-accepted`. Target: Windows 7 SP1 x64, .NET 4.8.4795.0, PowerShell 5.1.14409.1005, PowerShell 7.2.24, `hr-HR`, RX 6800 XT. |
 | P01 WinPTY characterization | Complete. The official 0.4.3 native x64 artifacts are pinned. Debug, Release and all eighteen Windows 7 package 0.3 cases complete with verified evidence. WinPTY is selected for Windows 7 local legacy-console sessions behind the replaceable session boundary; raw VT, code-page, cursor-width and intermediate-state limits are explicit. |
 | P01 target package | `VT7-WinPTY-P01-0.3-x64.zip`, SHA256 `6DD8560EDE4B4FEE9CCA3BC972F0437DAD216D9D0FE168E29989D96012CFDBCF`, 959,977 bytes, 15 verified files. Same-hash copy at `K:\VT7_work\VT7-WinPTY-P01-0.3-x64.zip`. Its complete target run has 109 files and 1,062,782 bytes. |
 | I01 input characterization | Complete for the Windows 7 Croatian HR Latin 3A decision. Both controls receive required Croatian/AltGr text. Flags 1 and 5 both mutate `ToUnicodeEx` dead state. Native key/character, focus and resize ordering define the input adapter contract; broader layouts, printable repeat and IME remain in 3C. |
@@ -60,11 +110,16 @@ the earlier Arabic/geometry experiment chain is the default next task.
 | S00 OpenSSH evaluation | Complete. Preflight and controlled Debian cases accept exact Microsoft 10.0p2 x64 `ssh.exe` command bytes, strict trust, key authentication, negotiation, drain and cancellation. Forced PTY reports 0 by 0. Exact source proves its Windows geometry path requires console output and input events that VT7's redirected pipes cannot supply. External OpenSSH is accepted for non-PTY command transport and rejected for interactive VT7 SSH. |
 | S00 preflight package | `VT7-OpenSSH-S00-Preflight-0.2-x64.zip`, SHA256 `1F8FE67D0E388D82248B6383035BE03E848D8FB3E71F85EE27C297ADF4149395`, 12,248 bytes, 8 verified files. It contains no OpenSSH binary. Both complete target runs are archived byte-identically as 44 files and 35,558 bytes. |
 | S00 network package | Issued 0.1 is `VT7-OpenSSH-S00-Network-0.1-x64.zip`, SHA256 `8029CC9CF48F9BAEA839F16F3E104A552F848AB17A4A12636C966145B421B7FA`, 16,203 bytes, 8 verified top-level files. Its complete target run has 16 files and 149,987 bytes. The changed-host diagnostic retained a public host fingerprint and temporary profile path despite its privacy claim; raw evidence is restricted and a safe copy is archived. Corrected source advances any reissue to 0.2. |
-| S01 candidate | Accepted. The isolated [SSH.NET 2026.0.0 diagnostic](validation/2026-09-14-sshnet-s01.md) passes its exact locked thirteen-package net48 closure and both Windows 7 controlled-Debian runs. Product incorporation has not started. |
+| S01 candidate | Accepted. The isolated [SSH.NET 2026.0.0 diagnostic](validation/2026-09-14-sshnet-s01.md) passes its exact locked thirteen-package net48 closure and both Windows 7 controlled-Debian runs. Version 0.8.0 now incorporates that exact closure in the product host. |
 | S01 target package | Accepted `VT7-SSHNET-S01-0.6-x64.zip`, SHA256 `7200827585B88E337AC3CD2074DDF34D1E6B5EF433A4FD4A305395DBF869292E`, 3,258,501 bytes, 62 verified files. Public-key-only and optional-password runs both pass; no credential fields are retained. The three sanitized manifests and verification metadata are archived under `artifacts/vt7/evidence/sshnet-s01-win7-0.6`. |
-| Next bounded task | Complete the 3A session-identity/lifetime split and security contracts, carrying S01's stream-dispose-before-client-disconnect rule into the production design. No S00/S01 rerun or WARP attribution test is a prerequisite. |
+| Direct SSH.NET implementation | [Version 0.8.0](validation/2026-09-19-sshnet-direct-profile.md) implements `SshNetTransport`, ephemeral connection UI, mandatory SHA256 fingerprint verification, root PTY creation, ordered byte ingress, actual pixel/cell resize and stream-first shutdown through ABI 11. Debug/Release and all affected local regressions pass. |
+| Direct SSH.NET rejected package 0.1 | `VT7-SSHNET-Direct-0.1-x64.zip`, SHA256 `764840E82E9979A82BC1C58850E0961B14B67556568FA89157BD56540A95724B`, 14,458,736 bytes, 82 verified files. Its first Windows 7 attempt stopped before log creation because quoted trailing `%~dp0` corrupted the following PowerShell 5.1 argument. No VT7 executable or network path ran. |
+| Direct SSH.NET accepted transport package | `VT7-SSHNET-Direct-0.2-x64.zip`, SHA256 `5D11B42D94835C946E45D8ED8D9D261B2F3812E49FA293AB7EE9FB9430BB78D5`, 14,458,800 bytes, 82 verified files. The Windows 7 foundation and controlled Debian matrix pass, including trust/authentication, PTY/resize, Unicode/output, scrollback, EOF/idle-close, reconnect and local-profile isolation. Separate `htop` and `nano` runs also pass. The sole reported defect is low connection-dialog text contrast. |
+| Direct SSH.NET rejected contrast package 0.3 | `VT7-SSHNET-Direct-0.3-x64.zip`, SHA256 `04C56F61FF3A23C52DB89E70A153A61932C37E4C59DE3323B9D2B376E8721D96`, 14,465,404 bytes, 82 verified files. Its Windows 7 foundation test passes and its ordinary form labels are readable, but the selected **Private key** Authentication item remains light-on-light. The logical-label assertion did not inspect the generated selector visual. Supplied evidence is archived under `artifacts/vt7/evidence/sshnet-direct-win7-0.3-contrast-rejected`. |
+| Direct SSH.NET accepted contrast package 0.4 | `VT7-SSHNET-Direct-0.4-x64.zip`, SHA256 `FA4B2054EA9B68D4E78EE43FB838F358F2CD87D13F5B06A385ACC497B0D1BD46`, 14,459,542 bytes, 82 verified files. Version 0.8.2 gives the authentication choices an explicit dark template; the foundation check lays out the real selector and verifies its rendered selected text at 4.5:1. Debug/Release, all affected regressions, staged CMD launch, binary audit and ZIP verification pass. The owner confirms the closed selection and opened choices are readable and look correct on Windows 7. |
+| Next bounded task | Implement the overlay coordinator and structured prompt ownership, then validate ordering and return-to-local-shell behavior before enabling the typed shim allowlist. |
 | Milestone 2 | Open. Theme/high-contrast, broader device/environment and milestone-level ESU coverage also remain. |
-| Development sequence | Complete the session-identity split before 3B, then integrate production local and remote transports under the accepted P01/S01 boundaries. Remaining C3/Milestone 2 qualification stays recorded without a blanket serial dependency. |
+| Development sequence | Implement and validate overlay coordination and state normalization before enabling typed handoff. Remaining C3/Milestone 2 qualification stays recorded without a blanket serial dependency. |
 
 ## Resume safely
 
@@ -85,6 +140,56 @@ the earlier Arabic/geometry experiment chain is the default next task.
    its fixed 0.3.5 directory and ZIP. Do not run it over retained evidence.
    The 0.3.7 source has a focused issued target candidate, not a complete application package. A later full candidate
    needs a new artifact identity and paths that preserve old evidence.
+
+## What 0.5.0 changed
+
+- `WinPtyTransport` implements the real local root behind `ITerminalTransport`
+  and owns WinPTY, its pipes, child handle, output loop and cancellation.
+- One explicit Command Prompt profile pins `%SystemRoot%\System32\cmd.exe`,
+  `/d /q /k`, an absolute working directory and a Unicode environment block.
+- The visible host now opens that real session. Hidden smoke and lifecycle tests
+  retain deterministic fake transports.
+- Natural EOF drains through TerminalCore before preserving the child exit code.
+  Owner cancellation closes input, joins the reader and shuts down the agent.
+- `TaskCompletionSource` continuations in the outbound queue run asynchronously,
+  preventing natural child exit from synchronously joining its own worker.
+- Debug and Release pass the real transport check and 3A regressions. The full
+  Release renderer/host suite and a visible one-agent launch/close check pass.
+- The exact Windows 7 package also passes all three runners. Manual Croatian
+  text, child Notepad launch and Unicode filename creation pass. Ctrl+C aborts
+  a running command; prompt-line cancellation remains an explicit 3C fidelity
+  item because WinPTY 0.4.3 cannot provide it.
+- Version 0.5.1 adds native child-HWND mouse-wheel handling. It honors the
+  Windows row/page setting and high-resolution deltas, uses TerminalCore's
+  user-scroll state and retains history position during new output. Windows 7
+  confirms those behaviors but finds printable characters do not snap to live.
+- Version 0.5.2 adds VT7-scoped snap-on-input to TerminalCore's committed-
+  character boundary. This preserves `WM_CHAR` ownership of Croatian, dead-key
+  and AltGr text. ABI 11 is unchanged; local and supplied target checks pass.
+- Exact identities, evidence and limits are in the
+  [3B.1 validation record](validation/2026-09-17-winpty-root-3b.md).
+
+## What 0.4.0 changed
+
+- ABI 11 splits `TerminalDocument` from `TerminalView`/HWND identity. Documents
+  validate attachment and producer generations, reject attached destruction,
+  retain core/decoder state headlessly, and queue bounded originating-transport
+  replies outside the TerminalCore callback lock.
+- `TerminalSurface` is now a WPF attachment facade over a separately owned
+  managed `TerminalDocument`. `SessionOutputPump` targets the document dispatcher,
+  so destroying an `HwndHost` cannot terminate or redirect its byte stream.
+- `TerminalSession` and `ITerminalTransport` define explicit root/overlay states,
+  transport completion results, close reasons and generation-checked input/output.
+  `MainWindow` owns this session rather than a backend queue and HWND directly.
+- The focused test destroys the first HWND after a stream prefix, drains the
+  remaining deterministic bytes while detached, reattaches generation 2 and
+  matches the always-attached raster. Fake root/overlay/root generations 1/2/3
+  share one stream and return a TerminalCore device reply to its origin.
+- Debug and Release builds, session stream/outbound suites, all six renderer
+  smoke modes and the injected blank-frame negative pass locally. The exact
+  0.4.0 package also passes its focused Windows 7 outbound and ownership runs
+  with package-matching binaries; see the
+  [3A validation record](validation/2026-09-17-session-ownership-3a.md).
 
 ## What 0.3.7 changed
 
@@ -108,8 +213,9 @@ the earlier Arabic/geometry experiment chain is the default next task.
   checks with exact package host/native hashes.
 
 See the [session outbound foundation](architecture/2026-09-14-session-outbound-foundation.md).
-The backend remains an audit sink. TerminalCore/session identity is not yet
-separate from the HWND-backed surface, and no shell or SSH transport is wired.
+At the 0.3.7 checkpoint the backend remained an audit sink, TerminalCore/session
+identity was not yet separate from the HWND-backed surface, and no shell or SSH
+transport was wired. Versions 0.4.0 and 0.5.0 supersede those limitations.
 
 ## What 0.3.6 changed
 
@@ -131,9 +237,9 @@ separate from the HWND-backed surface, and no shell or SSH transport is wired.
 
 The detailed contract, evidence and remaining limits are in the
 [session stream foundation](architecture/2026-09-14-session-stream-foundation.md).
-The application source does not yet instantiate the selected WinPTY backend or
-implement OpenSSH or terminal replies. Input and resize now have the 0.3.7
-backend-neutral queue boundary.
+At the 0.3.6 checkpoint the application did not instantiate WinPTY, implement
+OpenSSH or return terminal replies. The later 0.3.7 queue, 0.4.0 document/session
+owner and 0.5.0 Command Prompt transport supersede those local-session limits.
 
 ## P01 WinPTY diagnostic
 
@@ -358,15 +464,43 @@ explicit PTY resize and structured trust/authentication. The owner accepted its 
 permissive Apache-2.0, ISC-style and supplier terms as a standing project-wide
 policy. Corrected package 0.6 passes public-key-only and optional-password runs
 on Windows 7 against controlled Debian, so S01 accepts SSH.NET as the embedded
-interactive candidate. Complete the session ownership and security contracts
-next, carrying the stream-first shutdown rule into production. Apply the
-[session ownership and external source review](architecture/2026-09-14-session-ownership-and-source-review.md):
-do not let a real transport grow into the current HWND-owned `Surface`, and keep
-TerminalCore/session identity separate from presentation identity before 3B.
-Reuse the
-existing renderer and accepted evidence; preserve native HWND destruction before
-presentation-worker cleanup/join. Full local sessions and the daily-driver UI
-follow the 3A choices and contracts, not another renderer research campaign.
+interactive candidate. Version 0.8.0 now carries the exact locked closure and
+stream-first shutdown rule into the production transport boundary. Package 0.1
+is rejected only for its pre-launch batch quoting defect. Corrected package 0.2
+passes the full Windows 7 direct-profile matrix and separate `htop` and `nano`
+runs. Version 0.8.1/package 0.3 corrects the form labels but its target visual
+check exposes the generated selected Authentication text as still light.
+Version 0.8.2/package 0.4 corrects and checks that selector; its focused Windows
+7 visual confirmation passes. Continue to
+apply the ownership and security contracts in the
+[session ownership and external source review](architecture/2026-09-14-session-ownership-and-source-review.md)
+and the implementation-ready
+[terminal document/transport/handoff specification](architecture/2026-09-14-terminal-document-and-ssh-handoff-spec.md).
+Version 0.4.0 realizes the 3A document/view and managed fake-transport boundary.
+Version 0.5.0 implements `WinPtyTransport` behind that interface for one
+explicit Command Prompt root, without moving backend handles into `MainWindow`
+or the view. It reuses P01's accepted WinPTY artifacts and preserves its
+final-drain, child-process, grid and reconstruction limits. Versions 0.5.1 and
+0.5.2 add and target-qualify wheel scrollback, retained history and printable-
+character snap-to-live. Version 0.6.4 adds typed PowerShell profiles, visible root
+replacement and an editor-aware 5.1/7.2.24 contract after 0.6.3 identified the
+target's legacy Windows PowerShell editor; its Windows 7 profile/transport corpus
+is accepted. Version 0.6.5 preserves the contract but fails its manual
+navigation-key correction. Version 0.6.6 adds the WPF keyboard-sink path and
+passes the complete target retest.
+Version 0.7.0 adds the H01 native shim and authenticated managed broker without
+enabling embedded SSH. Packages 0.1 through 0.3 pass the three embedded shell
+paths and identify the successive Windows 7 console-handle restrictions. Version
+0.7.3 uses Windows 7's native standard-handle inheritance and preserves the
+explicit handle list on Windows 8 or later; package 0.4 passes the strict Windows
+7 three-shell run and H01 is accepted.
+Version 0.8.0 adds the direct SSH.NET root, ephemeral connection dialog, pinned
+host-key trust, remote PTY geometry and live resize. Corrected package 0.2 passes
+the complete controlled-server Windows 7 matrix plus `htop` and `nano`. Version
+0.8.1/package 0.3 fixes the form labels but fails its focused selector check.
+Version 0.8.2/package 0.4 corrects and verifies the rendered Authentication item,
+and its focused Windows 7 visual confirmation passes. Overlay coordination,
+typed handoff and the daily-driver UI follow.
 
 The two S00 preflight runs are preserved byte-identically under
 `artifacts/vt7/evidence/openssh-s00-win7-preflight-0.2/`. They contain 44 raw
@@ -538,8 +672,11 @@ this diagnostic does not close C3 or establish a long-term bound.
 
 User test context: Croatian HR Latin is the primary input layout. The user
 reports Windows PowerShell 5.1 and PowerShell 7.2.24 installed side-by-side on
-the Windows 7 target. The trace launcher uses powershell.exe, hence 5.1 there;
-this is an installed-tool inventory, not a VT7 session-backend qualification.
+the Windows 7 target. The strict 0.6.4 run qualifies that exact environment;
+0.6.5 failed its focused navigation-key correction and 0.6.6 passes the same
+bounded confirmation across every local profile. Corrected H01 0.7.3 passes its
+focused run in that environment; it did not use the Debian server, OpenSSH
+installation, keys or passwords.
 The user also reports Visual Studio 2022 Enterprise 17.6 with needed features
 installed on the target. This does not replace the pinned modern-host build tools.
 Immediately available hardware includes GTX 580, i7-9700, i7-6700, Athlon II and FX-8350.
@@ -556,9 +693,13 @@ Windows 7 setup rather than requesting a hardware matrix now.
 | Managed lifecycle workload | [StabilityWindowChecks.cs](../../src/vt7/VT7.Host/StabilityWindowChecks.cs). |
 | Integrated reactivation diagnostic | [Protocol and qualification](diagnostics/2026-09-14-resource-reactivation.md), [two-round controller](../../src/vt7/VT7.ResourceReactivation/ReactivationChecks.cs), [thread identities](../../src/vt7/VT7.ResourceReactivation/ReactivationThreads.cs), [validator](../../src/vt7/VT7.ResourceReactivation/Validate-ResourceReactivation.ps1), [launcher](../../src/vt7/VT7.ResourceReactivation/Run-ResourceReactivation.ps1). Separate managed project, shared actual host workload, unchanged native payload. |
 | Process/thread samples | [ResourceDiagnostics.cs](../../src/vt7/VT7.Host/ResourceDiagnostics.cs). |
-| WPF/native lifetime | [TerminalSurface.cs](../../src/vt7/VT7.Host/TerminalSurface.cs), [surface.cpp](../../src/vt7/VT7.Native/surface.cpp). |
+| Native document/view lifetime | [TerminalDocument.cs](../../src/vt7/VT7.Host/TerminalDocument.cs), [TerminalSurface.cs](../../src/vt7/VT7.Host/TerminalSurface.cs), [ABI declarations](../../src/vt7/VT7.Native/include/vt7_native.h), [surface.cpp](../../src/vt7/VT7.Native/surface.cpp). |
 | C ABI agreement | [vt7_native.h](../../src/vt7/VT7.Native/include/vt7_native.h), [exports.def](../../src/vt7/VT7.Native/exports.def), [NativeMethods.cs](../../src/vt7/VT7.Host/NativeMethods.cs). |
-| Session byte path | [native decoder](../../src/vt7/VT7.Native/utf8_terminal_stream.hpp), [bounded managed pump](../../src/vt7/VT7.Host/SessionOutputPump.cs), [visible fixture](../../src/vt7/VT7.Host/SessionStreamFixture.cs), [focused integration check](../../src/vt7/VT7.Host/SessionStreamWindowChecks.cs), [runner](../../tools/Test-VT7SessionStream.ps1). |
+| Session byte/transport path | [native decoder](../../src/vt7/VT7.Native/utf8_terminal_stream.hpp), [bounded managed pump](../../src/vt7/VT7.Host/SessionOutputPump.cs), [session/transport contract](../../src/vt7/VT7.Host/TerminalSession.cs), [visible fixture](../../src/vt7/VT7.Host/SessionStreamFixture.cs), [focused integration check](../../src/vt7/VT7.Host/SessionStreamWindowChecks.cs), [runner](../../tools/Test-VT7SessionStream.ps1). |
+| Local profile model and UI | [TerminalProfile.cs](../../src/vt7/VT7.Host/TerminalProfile.cs), [MainWindow.xaml](../../src/vt7/VT7.Host/MainWindow.xaml), [MainWindow.xaml.cs](../../src/vt7/VT7.Host/MainWindow.xaml.cs). Explicit discovery, ordinary/clean policy, selection and root replacement. |
+| PowerShell 3B.2 checks | [PowerShellProfileChecks.cs](../../src/vt7/VT7.Host/PowerShellProfileChecks.cs), [runner](../../tools/Test-VT7PowerShellProfiles.ps1), [package helper](../../tools/Package-VT7PowerShellProfiles.ps1), [validation record](validation/2026-09-17-powershell-profiles-3b2.md). |
+| H01 shim and broker | [native shim](../../src/vt7/VT7.SshShim/main.cpp), [protocol](../../src/vt7/VT7.Host/SshShimProtocol.cs), [broker](../../src/vt7/VT7.Host/SshShimBroker.cs), [checks](../../src/vt7/VT7.Host/H01Checks.cs), [runner](../../tools/Test-VT7H01.ps1), [package helper](../../tools/Package-VT7H01.ps1), [validation record](validation/2026-09-19-typed-ssh-h01.md). |
+| Direct SSH.NET root | [transport](../../src/vt7/VT7.Host/SshNetTransport.cs), [ephemeral options](../../src/vt7/VT7.Host/SshConnectionOptions.cs), [connection dialog](../../src/vt7/VT7.Host/SshConnectionDialog.cs), [offline checks](../../src/vt7/VT7.Host/SshNetFoundationChecks.cs), [runner](../../tools/Test-VT7SshNetFoundation.ps1), [package helper](../../tools/Package-VT7SshNetDirect.ps1), [validation record](validation/2026-09-19-sshnet-direct-profile.md). |
 | Renderer worker/timers | [renderer.cpp](../../src/renderer/base/renderer.cpp), [renderer.hpp](../../src/renderer/base/renderer.hpp), VT7 compatibility branches. |
 | Atlas/presentation | [AtlasEngine.cpp](../../src/renderer/atlas/AtlasEngine.cpp), [Win7Presentation.cpp](../../src/vt7/VT7.Renderer/Win7Presentation.cpp). |
 | Font boundary, not current task | [Renderer README](../../src/vt7/VT7.Renderer/README.md), Win7TextMapper and private font fallback. Experimental fitters are not automatic production policy. |

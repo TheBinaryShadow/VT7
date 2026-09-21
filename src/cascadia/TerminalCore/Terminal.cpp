@@ -747,6 +747,14 @@ TerminalInput::OutputType Terminal::SendMouseEvent(til::point viewportPos, const
 // - false otherwise.
 TerminalInput::OutputType Terminal::SendCharEvent(const wchar_t ch, const WORD scanCode, const ControlKeyStates states)
 {
+#ifdef VT7_CORE
+    // Upstream hosts call SendKeyEvent before CharacterReceived, which performs
+    // the snap there. VT7 deliberately takes printable text only from WM_CHAR
+    // so Windows owns layout, dead-key and AltGr composition. Preserve the same
+    // snap-on-input behavior at the committed-character boundary.
+    TrySnapOnInput();
+#endif
+
     auto vkey = _TakeVirtualKeyFromLastKeyEvent(scanCode);
     if (vkey == 0 && scanCode != 0)
     {

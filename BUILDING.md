@@ -1,11 +1,22 @@
 # Building VT7
 
-VT7 currently builds a session I/O Atlas viewport (0.3.7): a WPF desktop
-host, native HWND surface, the real Microsoft Terminal core/VT parser, AtlasEngine
-and renderer controller with a minimum Windows 7 font adapter.
-Normal startup streams a deterministic UTF-8/VT fixture and attaches the
-generation-checked bounded outbound/native-HWND input boundary; the reset action retains the earlier fixed demonstration.
-It does not yet run shells or SSH sessions.
+VT7 currently builds the 0.8.2/ABI 11 application: a WPF desktop
+host, native HWND view, separate TerminalCore document/session owner, AtlasEngine
+and renderer controller, a real pinned WinPTY 0.4.3 local root transport, and the
+first direct SSH.NET 2026.0.0 remote root transport. Normal startup launches an
+explicit `%SystemRoot%\System32\cmd.exe` profile; **Start SSH...** opens the
+ephemeral direct connection dialog.
+Hidden regression modes retain deterministic fixtures and fake transports. The
+Command Prompt transport, Unicode and lifecycle scope passes locally and on the
+supplied Windows 7 target. Active-command Ctrl+C passes; prompt-line cancellation
+is a known WinPTY 0.4.3 limit. Native mouse-wheel scrollback and the 0.5.2
+printable-character snap-to-live correction pass on the supplied test machines.
+The PowerShell profiles and H01 diagnostic are target accepted. SSH.NET direct
+package 0.2 passes its complete controlled-server Windows 7 run. Package 0.3
+corrects the ordinary dialog labels but leaves the generated Authentication
+selection light-on-light. Version 0.8.2/package 0.4 adds an explicit item
+template, verifies the rendered selection at 4.5:1 and passes focused Windows 7
+visual confirmation; typed SSH remains disabled.
 
 The solution also builds an independent capability probe and an Atlas backend
 proof (0.1). The latter renders fixed glyphs through real Atlas backends and
@@ -17,7 +28,7 @@ renderer acceptance remains separate.
 
 Start with the [documentation index](doc/vt7/README.md) and
 [current handoff](doc/vt7/HANDOFF.md) for package identities, evidence and the
-current C4/3A development checkpoint. The [session stream contract](doc/vt7/architecture/2026-09-14-session-stream-foundation.md)
+current 3B.1 development checkpoint. The [session stream contract](doc/vt7/architecture/2026-09-14-session-stream-foundation.md)
 records ABI 9 ingress. The [session outbound contract](doc/vt7/architecture/2026-09-14-session-outbound-foundation.md)
 records ABI 10 input/resize ordering and its focused test. The [port-first checkpoints](doc/vt7/architecture/2026-09-12-port-first-plan.md)
 and [roadmap](ROADMAP.md) retain the broader implementation order.
@@ -202,7 +213,7 @@ in [the core boundary notes](src/vt7/VT7.Core/README.md). After a verified resto
 `-NoRestore` permits an offline build using the existing extracted sources.
 
 Build output is written under `artifacts\vt7\bin\<configuration>`. Current source
-reports 0.3.7/ABI 10. The latest issued viewport archive remains 0.3.5/ABI 8 and
+reports 0.5.2/ABI 11. The latest issued viewport archive remains 0.3.5/ABI 8 and
 the later standalone diagnostics intentionally retain that exact payload. Use
 the issued archive hash and package manifest when referring to its evidence.
 
@@ -296,6 +307,21 @@ cipher and disconnect assertions. Corrected package 0.6 passes its local checks
 and both Windows 7 controlled-server runs. S01 is accepted as recorded in the
 [validation record](doc/vt7/validation/2026-09-14-sshnet-s01.md).
 
+The production host consumes the same locked closure. Build and package the
+0.8.2 direct-profile slice with:
+
+```powershell
+.\tools\Restore-VT7SshNet.ps1
+.\tools\Build-VT7.ps1 -Configuration Release -NoRestore
+.\tools\Test-VT7SshNetFoundation.ps1 -Configuration Release
+.\tools\Package-VT7SshNetDirect.ps1 -NoBuild
+```
+
+The package performs a recursive image/import audit, preserves every dependency
+notice, runs its offline foundation check and independently verifies the ZIP.
+The [direct-profile record](doc/vt7/validation/2026-09-19-sshnet-direct-profile.md)
+contains the Windows 7 controlled-server procedure.
+
 Run the P01 local-console characterization after building either configuration:
 
 ```powershell
@@ -324,13 +350,35 @@ cannot select is recorded with `IsValidCodePage`, the set result, exact error an
 actual code page; the runner then continues without sending bytes under the wrong
 mapping.
 
+Run the production Command Prompt transport regression after either integrated
+build:
+
+```powershell
+.\tools\Test-VT7WinPtySession.ps1 -Configuration Debug
+.\tools\Test-VT7WinPtySession.ps1 -Configuration Release
+```
+
+It verifies the exact pinned WinPTY DLL, agent and license, then proves explicit
+profile construction, root generation 1, real input, one authoritative resize,
+final output drain, child exit reporting and deterministic cancellation. Create
+the non-overwriting 3B.1 Windows 7 candidate with:
+
+```powershell
+.\tools\Package-VT7WinPtyRoot.ps1
+```
+
+The package runs the 3A regressions and new real transport check from staged,
+hash-verified bytes before writing and reopening the ZIP. On Windows 7 run
+`RUN-WINPTY-ROOT.cmd`, return all `Logs`, then use
+`RUN-VT7-COMMAND-PROMPT.cmd` for the manual interaction check documented in its
+README. See the [3B.1 record](doc/vt7/validation/2026-09-17-winpty-root-3b.md).
+
 The older integrated packaging scripts retain fixed output paths and delete/recreate those
 folders and ZIPs. `-SkipBuild` skips compilation only; it does not preserve an
 existing package. Do not run them over issued artifacts. `Package-VT7Proof.ps1`
-is still pinned to 0.3.5 and intentionally rejects the 0.3.7 build.
-A future application distribution needs distinct paths and an explicit package
-identity before packaging. The separate P01 diagnostic uses a new non-overwriting
-package path.
+is still pinned to 0.3.5 and intentionally rejects later application builds.
+The P01 diagnostic and 0.5.2 WinPTY-root candidate use separate non-overwriting
+package paths.
 
 Run the I01 input characterization locally after building either configuration:
 
@@ -351,9 +399,11 @@ identity. See the [I01 record](doc/vt7/validation/2026-09-14-input-i01.md).
 | `Package-VT7RendererProbe.ps1` | `renderer-probe-0.13` / `VT7-renderer-probe-0.13-x64` |
 | `Package-VT7AtlasProof.ps1` | `atlas-backend-proof-0.1` / `VT7-atlas-backend-proof-0.1-x64` |
 | `Package-VT7WinPty.ps1` | Next identity `vt7/packages/VT7-WinPTY-P01-0.4-x64` / matching ZIP; refuses replacement. Issued target evidence remains package 0.3. |
+| `Package-VT7WinPtyRoot.ps1` | `vt7/packages/VT7-WinPty-Root-0.5.2-x64` / matching ZIP; refuses replacement. Local package checks pass. Version 0.5.1 establishes Windows 7 wheel movement and retained history; the 0.5.2 printable-character snap-to-live correction passes on the supplied test machines. |
 | `Package-VT7Input.ps1` | `vt7/packages/VT7-Input-I01-0.2-x64` / matching ZIP; refuses replacement. Package 0.2 completed on the target and is preserved. |
 | `Package-VT7OpenSsh.ps1` | `vt7/packages/VT7-OpenSSH-S00-Preflight-0.2-x64` / matching ZIP; refuses replacement and contains no OpenSSH binary. |
 | `Package-VT7OpenSshNetwork.ps1` | Next identity `vt7/packages/VT7-OpenSSH-S00-Network-0.2-x64` / matching ZIP; refuses replacement and contains no OpenSSH binary or secret. Issued target evidence remains package 0.1. |
+| `Package-VT7SshNetDirect.ps1` | Current accepted `vt7/packages/VT7-SSHNET-Direct-0.4-x64` / matching ZIP; refuses replacement. It validates the actual Windows PowerShell 5.1 CMD launcher from a path containing spaces, every dialog label and the rendered Authentication selection at 4.5:1. Package 0.1 is rejected for its launcher defect; 0.2 is transport-accepted; 0.3 fixes labels but fails the focused selector visual check; 0.4 passes that check. Application 0.8.2/ABI 11, exact SSH.NET closure, 82 verified files. |
 
 Issued P01 package 0.3 used a culture-sensitive PowerShell row comparison that
 ignored embedded NULs in the two Windows 7 raw-VT cases. The retained strings

@@ -76,9 +76,9 @@ into the application. The notices below are retained from Microsoft Terminal.
 
 ## WinPTY 0.4.3 (VT7 local legacy-console transport)
 
-VT7's P01 diagnostic packages include the unmodified official WinPTY 0.4.3 x64
-library and agent. Production local-session integration will retain this notice
-and the separate `winpty-LICENSE.txt` file.
+VT7's P01 diagnostic and 0.5.0 local-session packages include the unmodified
+official WinPTY 0.4.3 x64 library and agent. Production local-session builds
+retain this notice and the separate `winpty-LICENSE.txt` file.
 
 Source: https://github.com/rprichard/winpty/tree/0.4.3
 
@@ -106,9 +106,10 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 ```
 
-## SSH.NET 2026.0.0 (VT7 S01 diagnostic)
+## SSH.NET 2026.0.0 (VT7 S01 diagnostic and application transport)
 
-The bounded S01 diagnostic includes SSH.NET 2026.0.0 from exact source commit
+The bounded S01 diagnostic and VT7 0.8.0 application host include SSH.NET
+2026.0.0 from exact source commit
 `7b2fd3dbf2c86a80a7b06cea020aa5f821c9902e` and its locked .NET Framework
 dependency closure. SSH.NET is licensed under the MIT License. The closure also
 includes BouncyCastle.Cryptography 2.7.0 and Microsoft compatibility packages.
@@ -124,7 +125,9 @@ third-party notices from the exact source commit, the Bouncy Castle license and
 BZip2 disclosure, the Microsoft MIT license, each available supplier notice,
 and each package's NuGet metadata. These files govern their respective
 components. S01 target evidence accepts SSH.NET as the embedded interactive
-candidate. It remains isolated from the application until production integration.
+candidate. VT7 0.8.0 integrates the same exact locked closure as its first direct
+SSH root transport; the corresponding portable package carries the same notices
+and package provenance.
 
 ## Microsoft Visual C++ app-local runtime
 

@@ -6,7 +6,8 @@ param(
     [switch]$RendererProbeOnly,
     [switch]$AtlasProofOnly,
     [switch]$WinPtyProbeOnly,
-    [switch]$InputProbeOnly
+    [switch]$InputProbeOnly,
+    [switch]$AllowAnyCpuManaged
 )
 
 $ErrorActionPreference = "Stop"
@@ -118,7 +119,11 @@ function Assert-VT7Binary {
         $imports,
         [System.Text.UTF8Encoding]::new($false))
 
-    if ($headers -notmatch "(?im)^\s*8664 machine \(x64\)") {
+    $isX64 = $headers -match "(?im)^\s*8664 machine \(x64\)"
+    $isAnyCpuManaged = $AllowAnyCpuManaged -and
+        $headers -match "(?im)^\s*14C machine \(x86\)" -and
+        $headers -match "(?im)^\s*[1-9A-F][0-9A-F]* \[\s*[1-9A-F][0-9A-F]*\] RVA \[size\] of COM Descriptor Directory"
+    if (-not $isX64 -and -not $isAnyCpuManaged) {
         throw "$name is not an x64 image."
     }
 

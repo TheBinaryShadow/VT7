@@ -3,6 +3,16 @@
 Decision date: 2026-09-14. Status: accepted architecture constraints and
 research references. No third-party source was incorporated by this review.
 
+The later
+[terminal document, transport, and typed-SSH handoff specification](2026-09-14-terminal-document-and-ssh-handoff-spec.md)
+turned these constraints into the implementation target. Version 0.4.0/ABI 11
+now implements its distinct document, session, transport, and view identities
+and passes the fake-transport lifecycle locally and on Windows 7; use that
+specification and the
+[3A validation record](../validation/2026-09-17-session-ownership-3a.md) for
+current construction while retaining this record for the source-analysis
+disposition and license ledger.
+
 This note evaluates the external `VT7-architecture-review.md` supplied on
 2026-09-14 against the current working tree. The supplied file has SHA256
 `2F30DA4A9D27057657A89C23A001442A9FC9B429C456C1D9A8757BE0450D54E0`.

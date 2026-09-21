@@ -415,12 +415,54 @@ namespace
             Fail("report WriteFile failed");
         }
     }
+
+    std::wstring Environment(const wchar_t* name)
+    {
+        const auto count = GetEnvironmentVariableW(name, nullptr, 0);
+        if (!count) return {};
+        std::wstring value(count - 1, L'\0');
+        if (GetEnvironmentVariableW(name, value.data(), count) != count - 1)
+        {
+            Fail("GetEnvironmentVariableW failed");
+        }
+        return value;
+    }
+
+    int RunH01SystemFixture(const int argc, wchar_t** argv, const std::wstring& reportPath)
+    {
+        const auto capabilityPresent = !Environment(L"VT7_SSH_CAPABILITY").empty();
+        const auto pipePresent = !Environment(L"VT7_SSH_PIPE").empty();
+        const auto shimDirectory = Environment(L"VT7_H01_SHIM_DIRECTORY");
+        const auto path = Environment(L"PATH");
+        const auto shimPathPresent = !shimDirectory.empty() &&
+            path.find(shimDirectory) != std::wstring::npos;
+        std::string json = "{\n  \"schema\": \"vt7-h01-system-fixture-v1\",\n  \"arguments\": [";
+        for (int index = 0; index < argc; ++index)
+        {
+            if (index) json += ',';
+            json += "\n    " + JsonString(argv[index]);
+        }
+        json += "\n  ],\n  \"capabilityPresent\": ";
+        json += capabilityPresent ? "true" : "false";
+        json += ",\n  \"pipePresent\": ";
+        json += pipePresent ? "true" : "false";
+        json += ",\n  \"shimPathPresent\": ";
+        json += shimPathPresent ? "true" : "false";
+        json += "\n}\n";
+        Save(reportPath, json);
+        std::fputws(L"VT7_H01_SYSTEM_FIXTURE\n", stdout);
+        const auto exitText = Environment(L"VT7_H01_FIXTURE_EXIT");
+        return exitText.empty() ? 37 : _wtoi(exitText.c_str());
+    }
 }
 
 int wmain(int argc, wchar_t** argv)
 {
     try
     {
+        const auto h01Report = Environment(L"VT7_H01_FIXTURE_REPORT");
+        if (!h01Report.empty()) return RunH01SystemFixture(argc, argv, h01Report);
+
         std::wstring name;
         std::wstring reportPath;
         for (int index = 1; index + 1 < argc; index += 2)
