@@ -22,7 +22,7 @@ independent open-source engineering effort to create a real terminal
 application for Windows 7.
 
 > [!IMPORTANT]
-> VT7 is currently in pre-alpha development. Version 0.9.2 retains selectable
+> VT7 is currently in pre-alpha development. Version 0.10.1 retains selectable
 > Command Prompt, Windows PowerShell 5.1 and versioned PowerShell 7 profiles to
 > the accepted local transport. The exact PowerShell 5.1/7.2.24 transport,
 > Unicode, resize, lifecycle and keyboard corpus passes on Windows 7. The 0.7.3
@@ -44,6 +44,13 @@ application for Windows 7.
 > session and leaves root input closed. Version 0.9.2/package 0.3 gives accepted
 > completion the remote-session lifetime and guarantees root recovery after a
 > lost shim. Package 0.3 passes the complete controlled Windows 7 overlay matrix.
+> Version 0.10.0 adds KH01.2 read-only OpenSSH known-host trust to both direct
+> and typed SSH.NET paths. Its package 0.2 passes on the primary Windows 7 host
+> but exposes upstream SSH.NET issue 1829 on the NESSY non-ESU runtime. Version
+> 0.10.1/package 0.3 pins the publisher-built SSH.NET
+> 2026.0.1-prerelease.6/f099365 correction. Its automated corpus and both live
+> SSH paths pass on TURTLE and the non-ESU NESSY machine, accepting KH01.2 across
+> both Windows 7 .NET Framework 4.8 servicing tiers.
 > Other
 > features described here remain project goals until implemented and verified.
 
@@ -53,8 +60,10 @@ issued test packages, accepted checkpoints and the next unresolved task. The
 next Milestone 5 feature is governed by the completed
 [OpenSSH-compatible known-host management specification](doc/vt7/architecture/2026-09-21-openssh-known-hosts-management-spec.md);
 its disconnected [KH01.1 foundation](doc/vt7/validation/2026-09-22-known-hosts-kh01.md)
-is accepted on Windows 7 against the required 10.0p2 oracle. KH01.2 read-only
-production integration is the next bounded task.
+is accepted on Windows 7 against the required 10.0p2 oracle. The
+[KH01.2 read-only integration](doc/vt7/validation/2026-09-22-known-hosts-kh01-2.md)
+is accepted on both Windows 7 runtime tiers. KH01.3 generation-safe first
+contact and durable user-store addition is next.
 
 ## What we are building
 
@@ -133,6 +142,19 @@ The primary target is Windows 7 SP1 x64 with the Platform Update and the normal
 runtime prerequisites documented in the [roadmap](ROADMAP.md). The required
 baseline will not depend on unofficial post-EOL operating-system packages.
 
+The current VT7 0.10.1 candidate retains ordinary .NET Framework 4.8 as the
+runtime floor. It pins publisher-built SSH.NET `2026.0.1-prerelease.6`, whose
+upstream `f099365` change resets receive-MAC state for older .NET Framework
+implementations. The previous 2026.0.0 package connected on `mscorlib.dll`
+`4.8.4795.0` but failed on a genuine non-ESU `4.8.4110.0` machine. That older
+servicing level is now an explicit acceptance target instead of a forbidden
+configuration.
+
+Package 0.3 now passes the complete automated and stored-key live-path checks on
+both tiers. NESSY proves the ordinary non-ESU `4.8.4110.0` floor; TURTLE proves
+the newer `4.8.4795.0` configuration. KH01.3 generation-safe first contact and
+durable user-store addition is the next bounded known-host slice.
+
 We also intend to test systems that have later Windows Server 2008 R2-derived
 NT 6.1 updates. Those systems are an additional compatibility tier, not the
 minimum requirement and not an officially supported Windows 7 update path.
@@ -167,7 +189,7 @@ build the best terminal we can for the platform we love.
 
 ## Project status
 
-Current working source: **0.9.2, native ABI 11**. It retains the accepted 3A
+Current working source: **0.10.1, native ABI 11**. It retains the accepted 3A
 document/session/view ownership and Command Prompt path, then adds explicit
 Windows PowerShell 5.1 and versioned PowerShell 7 profiles through the same
 production `WinPtyTransport`. Ordinary PowerShell launches preserve user
@@ -218,6 +240,17 @@ regression. The
 documents the failures, corrections, exact package identity and complete
 controlled Windows 7 result. Typed `ssh` now passes normal exit, sequential
 handoff, explicit disconnect, all three local shells and exact fallback checks.
+Version 0.10.0 loads immutable snapshots of the four default OpenSSH known-host
+sources before either direct or typed SSH.NET connection. Stored raw-key matches
+need no fingerprint re-entry; unknown hosts retain the exact fingerprint route,
+and changed, revoked, unreadable or policy-rejected states fail before
+authentication. Package 0.2 passes the primary machine but fails both SSH.NET
+entry paths on NESSY because 2026.0.0 does not reset the receive HMAC after a
+packet on the older .NET Framework implementation. Version 0.10.1/package 0.3
+changes only this dependency boundary to publisher-built SSH.NET
+2026.0.1-prerelease.6 from upstream commit `f099365`. The automated corpus and
+both stored-key live paths pass on NESSY (`4.8.4110.0`) and TURTLE
+(`4.8.4795.0`), accepting the correction and KH01.2 production read path.
 The exact 0.5.0 Windows 7 package also passes all three runners; manual
 Command Prompt use, Croatian text and a Unicode filename pass. Ctrl+C interrupts
 a running command; empty or partial prompt-line cancellation has the known

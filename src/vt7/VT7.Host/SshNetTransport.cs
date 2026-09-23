@@ -91,6 +91,9 @@ namespace VT7.Host
         private string _serverCipher = string.Empty;
         private bool _hostKeySeen;
         private bool _hostKeyTrusted;
+        private KnownHostsStoreSnapshot? _knownHosts;
+        private string? _knownHostToken;
+        private KnownHostTrustDecision? _trustDecision;
         private bool _disposed;
 
         internal SshNetTransport(SshConnectionOptions options)
@@ -126,6 +129,9 @@ namespace VT7.Host
 
             try
             {
+                _stage = "known-host store loading";
+                _knownHostToken = OpenSshHostToken.Create(_options.Host, _options.Port);
+                _knownHosts = OpenSshKnownHostsStore.LoadDefault();
                 _stage = "authentication setup";
                 var connectionHost = await ResolveConnectionHostAsync(cancellationToken).ConfigureAwait(false);
                 var connection = CreateConnectionInfo(connectionHost);
@@ -297,8 +303,25 @@ namespace VT7.Host
         private void OnHostKeyReceived(object? sender, HostKeyEventArgs eventArgs)
         {
             _hostKeySeen = true;
-            _hostKeyTrusted = FixedTimeEquals(SshConnectionOptions.NormalizeFingerprint(eventArgs.FingerPrintSHA256),
-                _options.ExpectedHostKeyFingerprint);
+            try
+            {
+                var snapshot = _knownHosts ?? throw new InvalidOperationException("The known-host snapshot is unavailable.");
+                var token = _knownHostToken ?? throw new InvalidOperationException("The known-host token is unavailable.");
+                var presented = PresentedHostKey.Parse(eventArgs.HostKey);
+                _trustDecision = KnownHostTrustPolicy.Decide(token, presented, snapshot,
+                    _options.ExpectedHostKeyFingerprint);
+                _hostKeyTrusted = _trustDecision.CanTrust;
+            }
+            catch (Exception error) when (error is FormatException || error is ArgumentException ||
+                error is InvalidOperationException || error is CryptographicException)
+            {
+                _trustDecision = new KnownHostTrustDecision(
+                    new KnownHostTrustResult(KnownHostTrustState.PolicyRejected,
+                        "presented-host-key-invalid", Array.Empty<string>()),
+                    _options.ExpectedHostKeyFingerprint.Length != 0, false, false,
+                    "presented-key-policy-block");
+                _hostKeyTrusted = false;
+            }
             eventArgs.CanTrust = _hostKeyTrusted;
         }
 
@@ -377,7 +400,7 @@ namespace VT7.Host
         {
             while (error is AggregateException aggregate && aggregate.InnerExceptions.Count == 1)
                 error = aggregate.InnerExceptions[0];
-            if (!_hostKeyTrusted && _hostKeySeen) return "host-key verification";
+            if (!_hostKeyTrusted && _hostKeySeen) return HostKeyFailureCategory();
             if (error is SshTransportException transport) return transport.Category;
             if (error is SshAuthenticationException) return "authentication";
             if (error is SshConnectionException) return "SSH connection";
@@ -388,27 +411,28 @@ namespace VT7.Host
             return _stage;
         }
 
+        private string HostKeyFailureCategory()
+        {
+            var decision = _trustDecision;
+            if (decision == null) return "host-key verification";
+            if (decision.Authorization == "explicit-fingerprint-mismatch") return "host-key fingerprint mismatch";
+            switch (decision.Result.State)
+            {
+                case KnownHostTrustState.Unknown: return "unknown host-key verification";
+                case KnownHostTrustState.Changed: return "changed host key";
+                case KnownHostTrustState.Revoked: return "revoked host key";
+                case KnownHostTrustState.Unreadable: return "known-host store";
+                case KnownHostTrustState.PolicyRejected: return "host-key policy";
+                default: return "host-key verification";
+            }
+        }
+
         private static string SecretToString(SecureString secret)
         {
             if (secret.Length == 0) return string.Empty;
             var pointer = Marshal.SecureStringToBSTR(secret);
             try { return Marshal.PtrToStringBSTR(pointer); }
             finally { Marshal.ZeroFreeBSTR(pointer); }
-        }
-
-        private static bool FixedTimeEquals(string left, string right)
-        {
-            var a = Encoding.ASCII.GetBytes(left ?? string.Empty);
-            var b = Encoding.ASCII.GetBytes(right ?? string.Empty);
-            var difference = a.Length ^ b.Length;
-            var length = Math.Max(a.Length, b.Length);
-            for (var index = 0; index < length; index++)
-            {
-                var x = index < a.Length ? a[index] : (byte)0;
-                var y = index < b.Length ? b[index] : (byte)0;
-                difference |= x ^ y;
-            }
-            return difference == 0;
         }
 
         public void Dispose()

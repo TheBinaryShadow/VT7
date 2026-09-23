@@ -161,6 +161,9 @@ PublishScripts/
 **/packages/*
 # except build/, which is used as an MSBuild target.
 !**/packages/build/
+!dep/packages/
+!dep/packages/README.md
+!dep/packages/SSH.NET.2026.0.1-prerelease.6.nupkg
 # Uncomment if necessary however generally it will be regenerated when needed
 #!**/packages/repositories.config
 # NuGet v3's project.json files produces more ignorable files

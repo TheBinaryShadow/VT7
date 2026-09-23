@@ -1,8 +1,8 @@
 # OpenSSH-compatible known-host management specification
 
 Decision date: 2026-09-21. Status: implementation specification approved;
-KH01.1 is implemented and accepted on Windows 7 against the exact 10.0p2
-oracle; KH01.2 production integration remains pending.
+KH01.1 is accepted on Windows 7 against the exact 10.0p2 oracle. KH01.2 is
+accepted on NESSY and TURTLE. KH01.3 is the next implementation slice.
 
 This specification defines VT7's first durable SSH host-trust subsystem. It
 replaces the generic trust-store wording in the broader
@@ -560,6 +560,11 @@ exact Windows 7 10.0p2 oracle. See the
 - Make no production connection-path change.
 
 ### KH01.2: read-only production trust
+
+Implementation status: complete and target accepted in VT7 0.10.1/package 0.3.
+Local Debug, Release, typed-overlay, packaged-path and independent ZIP checks
+pass, as do the automated and live direct/typed SSH paths on NESSY and TURTLE.
+See the [KH01.2 validation record](../validation/2026-09-22-known-hosts-kh01-2.md).
 
 - Load the four default sources before connection.
 - Integrate raw-key and revocation evaluation into `HostKeyReceived`.

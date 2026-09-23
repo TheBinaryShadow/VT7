@@ -36,6 +36,10 @@ namespace VT7.Host
             CheckTrustStates(first, second, certificateBlob);
             report.AppendLine("PASS: raw-key trust resolves matching, unknown, changed, revoked, unreadable and certificate-policy states.");
 
+            CheckStoreLoadingAndPolicy(first, second);
+            report.AppendLine("PASS: four-source OpenSSH loading is immutable, bounded and fail-closed for missing, changed, revoked and unreadable stores.");
+            report.AppendLine("PASS: stored matches need no fingerprint, unknown hosts require an exact pin and explicit pin mismatches remain blocked.");
+
             CheckPropertiesAndFuzz();
             report.AppendLine("PASS: deterministic hash properties and 1024 bounded arbitrary-byte parser cases passed.");
 
@@ -164,6 +168,91 @@ namespace VT7.Host
                 random.NextBytes(bytes);
                 var document = OpenSshKnownHostsParser.Parse("fuzz", bytes);
                 Require(document.Lines.Count <= bytes.Length + 1, "Arbitrary input produced an impossible line count.");
+            }
+        }
+
+        private static void CheckStoreLoadingAndPolicy(PresentedHostKey first, PresentedHostKey second)
+        {
+            var root = Path.Combine(Path.GetTempPath(), "VT7 known hosts read only " + Guid.NewGuid().ToString("N"));
+            var user = Path.Combine(root, "user");
+            var programData = Path.Combine(root, "program data");
+            var definitions = OpenSshKnownHostsStore.CreateDefaultDefinitions(user, programData);
+            try
+            {
+                Require(definitions.Count == 4 &&
+                    definitions.Select(item => item.SourceId).SequenceEqual(new[]
+                    {
+                        "user-known-hosts", "user-known-hosts2", "system-known-hosts", "system-known-hosts2"
+                    }), "The default known-host source order changed.");
+                Require(definitions.All(item => Path.IsPathRooted(item.Path)),
+                    "A default known-host source was not resolved to an absolute path.");
+
+                Directory.CreateDirectory(Path.GetDirectoryName(definitions[0].Path));
+                Directory.CreateDirectory(Path.GetDirectoryName(definitions[2].Path));
+                File.WriteAllText(definitions[0].Path,
+                    "primary.example ssh-ed25519 " + Convert.ToBase64String(first.Blob) + "\n" +
+                    "changed.example ssh-ed25519 " + Convert.ToBase64String(second.Blob) + "\n" +
+                    "@revoked revoked.example ssh-ed25519 " + Convert.ToBase64String(first.Blob) + "\n", Utf8);
+                File.WriteAllText(definitions[1].Path,
+                    "secondary.example ssh-ed25519 " + Convert.ToBase64String(first.Blob) + "\n", Utf8);
+                File.WriteAllText(definitions[2].Path,
+                    "system.example ssh-ed25519 " + Convert.ToBase64String(first.Blob) + "\n", Utf8);
+                File.WriteAllText(definitions[3].Path,
+                    "[system-port.example]:2222 ssh-ed25519 " + Convert.ToBase64String(first.Blob) + "\n", Utf8);
+
+                var snapshot = OpenSshKnownHostsStore.Load(definitions);
+                Require(snapshot.Sources.Count == 4 && snapshot.Sources.All(source => source.Exists &&
+                    source.Document != null && source.Document.FatalError == null && source.ContentHash.Length == 64),
+                    "The four default known-host sources were not loaded into a stable snapshot.");
+                foreach (var token in new[] { "primary.example", "secondary.example", "system.example", "[system-port.example]:2222" })
+                    Require(KnownHostTrustPolicy.Decide(token, first, snapshot, string.Empty).CanTrust,
+                        "A matching default known-host source did not authorize the presented key.");
+
+                var normalizedFirst = SshConnectionOptions.NormalizeFingerprint(first.Fingerprint);
+                var normalizedSecond = SshConnectionOptions.NormalizeFingerprint(second.Fingerprint);
+                var unknown = KnownHostTrustPolicy.Decide("unknown.example", first, snapshot, string.Empty);
+                Require(unknown.Result.State == KnownHostTrustState.Unknown && !unknown.CanTrust,
+                    "An unknown host was accepted without a fingerprint.");
+                var pinned = KnownHostTrustPolicy.Decide("unknown.example", first, snapshot, normalizedFirst);
+                Require(pinned.Result.State == KnownHostTrustState.Unknown && pinned.FingerprintMatched && pinned.CanTrust,
+                    "An exact unknown-host fingerprint did not authorize one connection.");
+                Require(!KnownHostTrustPolicy.Decide("unknown.example", first, snapshot, normalizedSecond).CanTrust,
+                    "A wrong unknown-host fingerprint was accepted.");
+                Require(!KnownHostTrustPolicy.Decide("primary.example", first, snapshot, normalizedSecond).CanTrust,
+                    "A supplied fingerprint mismatch was hidden by a stored match.");
+
+                var changed = KnownHostTrustPolicy.Decide("changed.example", first, snapshot, normalizedFirst);
+                Require(changed.Result.State == KnownHostTrustState.Changed && !changed.CanTrust,
+                    "An explicit fingerprint overrode a changed stored key.");
+                var revoked = KnownHostTrustPolicy.Decide("revoked.example", first, snapshot, normalizedFirst);
+                Require(revoked.Result.State == KnownHostTrustState.Revoked && !revoked.CanTrust,
+                    "An explicit fingerprint overrode a revoked stored key.");
+
+                File.WriteAllText(definitions[0].Path,
+                    "primary.example ssh-ed25519 " + Convert.ToBase64String(second.Blob) + "\n", Utf8);
+                Require(KnownHostTrustPolicy.Decide("primary.example", first, snapshot, string.Empty).CanTrust,
+                    "A connection snapshot changed after its source file was replaced.");
+
+                var missingDefinitions = OpenSshKnownHostsStore.CreateDefaultDefinitions(
+                    Path.Combine(root, "missing-user"), Path.Combine(root, "missing-program-data"));
+                var missing = OpenSshKnownHostsStore.Load(missingDefinitions);
+                Require(missing.Sources.All(source => !source.Exists && source.Document == null) &&
+                    KnownHostTrustPolicy.Decide("missing.example", first, missing, string.Empty).Result.State == KnownHostTrustState.Unknown,
+                    "A missing optional known-host file became an unreadable store.");
+
+                var blockedPath = Path.Combine(root, "not-a-file");
+                Directory.CreateDirectory(blockedPath);
+                var blocked = OpenSshKnownHostsStore.Load(new[]
+                {
+                    new KnownHostsSourceDefinition("blocked-source", blockedPath)
+                });
+                var unreadable = KnownHostTrustPolicy.Decide("blocked.example", first, blocked, normalizedFirst);
+                Require(unreadable.Result.State == KnownHostTrustState.Unreadable && !unreadable.CanTrust,
+                    "An unreadable source did not block an otherwise matching fingerprint.");
+            }
+            finally
+            {
+                if (Directory.Exists(root)) Directory.Delete(root, true);
             }
         }
 

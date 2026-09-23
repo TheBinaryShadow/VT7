@@ -4,9 +4,9 @@
     ".NETFramework,Version=v4.8": {
       "SSH.NET": {
         "type": "Direct",
-        "requested": "[2026.0.0, 2026.0.0]",
-        "resolved": "2026.0.0",
-        "contentHash": "Yu9dirPq8l3oaat0+OQ7K0nUf5MmYltpia5UGqsApTG4zTPvBC1cxbNnC3NERij26dUST0A3Ef1QdHSn5ArbWQ==",
+        "requested": "[2026.0.1-prerelease.6, 2026.0.1-prerelease.6]",
+        "resolved": "2026.0.1-prerelease.6",
+        "contentHash": "UujGBeCpEiH3RTdXg3JwLtVU1Jtgb5D+c2XHegS2u/0JAT93s1pPb7f5O/TKYcjlRT4/hp5S8Bf5KUaCD4vmIg==",
         "dependencies": {
           "BouncyCastle.Cryptography": "2.7.0",
           "Microsoft.Bcl.Cryptography": "10.0.10",

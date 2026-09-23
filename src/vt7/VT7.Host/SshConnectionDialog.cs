@@ -77,7 +77,7 @@ namespace VT7.Host
             AddField(root, 0, "Host", _host);
             AddField(root, 1, "Port", _port);
             AddField(root, 2, "Username", _username);
-            AddField(root, 3, "Trusted SHA256 fingerprint", _fingerprint);
+            AddField(root, 3, "SHA256 fingerprint (if unknown)", _fingerprint);
             AddField(root, 4, "Authentication", _authentication);
 
             var keyPanel = new Grid();
@@ -100,8 +100,8 @@ namespace VT7.Host
             var note = new TextBlock
             {
                 Text = invocation == null
-                    ? "The fingerprint must come from a trusted path. VT7 will reject a different host key before authentication. Values and credentials are not written to diagnostics."
-                    : "This request came from the active local shell. Confirm the destination and provide a fingerprint from a trusted path. VT7 will reject a different host key before authentication. Values and credentials are not written to diagnostics.",
+                    ? "VT7 reads your OpenSSH known-host files. A stored matching key needs no fingerprint; an unknown host still requires a fingerprint obtained through a trusted path. Changed, revoked, or unreadable trust is blocked before authentication."
+                    : "This request came from the active local shell. VT7 reads your OpenSSH known-host files. A stored matching key needs no fingerprint; an unknown host still requires a fingerprint obtained through a trusted path. Changed, revoked, or unreadable trust is blocked before authentication.",
                 TextWrapping = TextWrapping.Wrap,
                 Foreground = System.Windows.Media.Brushes.DimGray,
                 Margin = new Thickness(0, 12, 0, 12),

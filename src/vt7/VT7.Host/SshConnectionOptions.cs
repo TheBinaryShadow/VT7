@@ -60,8 +60,9 @@ namespace VT7.Host
             if (Port < 1 || Port > 65535) throw new ArgumentOutOfRangeException(nameof(Port));
             if (Username.Length == 0 || Username.Length > 255 || HasControl(Username))
                 throw new ArgumentException("SSH username must be non-empty.");
-            if (!Regex.IsMatch(ExpectedHostKeyFingerprint, "^[A-Za-z0-9+/]{43}$", RegexOptions.CultureInvariant))
-                throw new FormatException("Trusted host-key fingerprint must be a SHA256 fingerprint.");
+            if (ExpectedHostKeyFingerprint.Length != 0 &&
+                !Regex.IsMatch(ExpectedHostKeyFingerprint, "^[A-Za-z0-9+/]{43}$", RegexOptions.CultureInvariant))
+                throw new FormatException("Trusted host-key fingerprint must be empty or a SHA256 fingerprint.");
             if (Authentication == SshAuthenticationKind.PrivateKey)
             {
                 if (PrivateKeyPath == null || !File.Exists(PrivateKeyPath))

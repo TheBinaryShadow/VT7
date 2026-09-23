@@ -1,7 +1,9 @@
 VT7 SSH.NET S01 controlled-server diagnostic
 
-This package contains the exact SSH.NET 2026.0.0 .NET Framework closure approved
-for evaluation. It is a diagnostic and does not install or modify VT7.
+This probe currently contains the exact SSH.NET 2026.0.1-prerelease.6 .NET
+Framework closure from upstream fix commit f099365 for evaluation. The original
+S01 acceptance used SSH.NET 2026.0.0; the prerelease replaces it for the Windows
+7 receive-MAC correction. It is a diagnostic and does not install or modify VT7.
 
 Server prerequisites:
 

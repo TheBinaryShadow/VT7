@@ -50,7 +50,7 @@ actually included.
 | GNU Unifont and Unifont Upper 17.0.05 | SIL Open Font License 1.1 private fallback assets | Included with pinned hashes, provenance and full font licenses. |
 | WinPTY 0.4.3 | MIT Windows 7 local legacy-console runtime | Selected by P01; exact official binaries and license are pinned and packaged. |
 | Microsoft Visual C++ runtime 14.44.35112 | Microsoft app-local redistributable code | Included in current packages from the licensed Visual Studio redist directory and disclosed in `NOTICE.md`. |
-| SSH.NET 2026.0.0 closure | MIT metadata plus permissive Apache-2.0, ISC-style and supplier notices | Restored under a lock file and accepted by S01 package 0.6 on Windows 7. Production incorporation has not started and must preserve this exact notice closure. |
+| SSH.NET closure | MIT metadata plus permissive Apache-2.0, ISC-style and supplier notices | 2026.0.0 was accepted by S01 package 0.6. VT7 0.10.1 pins publisher-built 2026.0.1-prerelease.6/f099365 for the Windows 7 receive-MAC correction; dependency versions and notice obligations are unchanged and remain hash-locked. |
 | Microsoft Win32-OpenSSH 10.0p2 | Mixed permissive external installed executable | Characterized by S00 and retained as a non-PTY command option; not bundled. |
 
 The full inherited component notices and human acknowledgements are in
@@ -65,4 +65,6 @@ NuGet hashes and supplier license/notice files and proves Windows 7 loading,
 modern negotiation, trust and prompt behavior, initial/live PTY resize, byte
 fidelity, drain, cancellation, session isolation and owned shutdown. Production
 integration may now follow that accepted evidence and must retain the approved
-licenses and supplier notices.
+licenses and supplier notices. The 2026.0.1-prerelease.6/f099365 correction uses
+the same permissive closure; its exact publisher nupkg, upstream commit and hash
+are retained for VT7 0.10.1 pending replacement by a stable fixed release.

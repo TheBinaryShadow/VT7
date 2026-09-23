@@ -113,7 +113,7 @@ $report = Get-Item -LiteralPath $reportPath
 if ($report.LastWriteTime -lt $started.AddSeconds(-2)) { throw 'VT7 PowerShell profile test left a stale report.' }
 $text = [IO.File]::ReadAllText($reportPath)
 $required = @(
-    'Build: VT7 0.9.2',
+    'Build: VT7 0.10.1',
     'Native: ABI 11, expected 11',
     'PASS: Windows PowerShell 5.1 uses an explicit System32 executable, preserves ordinary user profiles, and reserves -NoProfile for controlled diagnostics.',
     'Error: None'

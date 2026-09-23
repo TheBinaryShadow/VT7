@@ -32,9 +32,10 @@ namespace VT7.Host
 
             var assembly = typeof(SshClient).Assembly;
             var informational = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
-            Require(string.Equals(assembly.GetName().Version?.ToString(), "2026.0.0.1", StringComparison.Ordinal) &&
-                informational.StartsWith("2026.0.0", StringComparison.Ordinal), "SSH.NET 2026.0.0 was not loaded.");
-            report.AppendLine("PASS: exact SSH.NET 2026.0.0 and its twelve-file net48 runtime closure loaded.");
+            Require(string.Equals(assembly.GetName().Version?.ToString(), "2026.0.1.0", StringComparison.Ordinal) &&
+                informational.StartsWith("2026.0.1-prerelease.6+f099365c9d", StringComparison.Ordinal),
+                "SSH.NET 2026.0.1-prerelease.6 from f099365 was not loaded.");
+            report.AppendLine("PASS: exact SSH.NET 2026.0.1-prerelease.6 f099365 and its twelve-file net48 runtime closure loaded.");
 
             const string fingerprint = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
             Require(SshConnectionOptions.NormalizeFingerprint(" SHA256:" + fingerprint + "= ") == fingerprint,
@@ -50,7 +51,12 @@ namespace VT7.Host
                 catch (FormatException) { rejected = true; }
             }
             Require(rejected, "An invalid host-key fingerprint was accepted.");
-            report.AppendLine("PASS: structured SSH options require an explicit valid SHA256 trust fingerprint before authentication.");
+            using (var secret = Secret("test-only"))
+            using (var knownHost = new SshConnectionOptions("host.invalid", 22, "user", string.Empty,
+                SshAuthenticationKind.Password, null, secret))
+                Require(knownHost.ExpectedHostKeyFingerprint.Length == 0,
+                    "A known-host connection could not omit the fallback fingerprint.");
+            report.AppendLine("PASS: structured SSH options accept an absent known-host fallback and reject malformed SHA256 fingerprints.");
             using (var secret = Secret("test-only"))
             using (var forced = new SshConnectionOptions("127.0.0.1", 22, "user", fingerprint,
                 SshAuthenticationKind.Password, null, secret, SshAddressFamily.IPv4))

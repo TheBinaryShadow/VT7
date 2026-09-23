@@ -83,10 +83,10 @@ $report = Get-Item -LiteralPath $reportPath
 if ($report.LastWriteTime -lt $started.AddSeconds(-2)) { throw 'VT7 SSH.NET foundation test left a stale report.' }
 $text = [IO.File]::ReadAllText($reportPath)
 $required = @(
-    'Build: VT7 0.9.2',
+    'Build: VT7 0.10.1',
     'Native: ABI 11, expected 11',
-    'PASS: exact SSH.NET 2026.0.0 and its twelve-file net48 runtime closure loaded.',
-    'PASS: structured SSH options require an explicit valid SHA256 trust fingerprint before authentication.',
+    'PASS: exact SSH.NET 2026.0.1-prerelease.6 f099365 and its twelve-file net48 runtime closure loaded.',
+    'PASS: structured SSH options accept an absent known-host fallback and reject malformed SHA256 fingerprints.',
     'PASS: typed -4/-6 address-family constraints remain structured transport input.',
     'PASS: every SSH connection-dialog label and the selected authentication item have explicit WCAG AA contrast.',
     'PASS: direct-root session startup and serialized resize preserve authoritative cell and pixel dimensions.',

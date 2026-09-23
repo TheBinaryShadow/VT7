@@ -11,10 +11,10 @@ $projectPaths = @(
 )
 $configPath = Join-Path $repositoryRoot 'NuGet.Config'
 $packageRoot = Join-Path $repositoryRoot 'artifacts\vt7\deps\nuget'
-$noticeRoot = Join-Path $repositoryRoot 'artifacts\vt7\deps\sshnet-source-notices-7b2fd3dbf2c86a80a7b06cea020aa5f821c9902e'
+$noticeRoot = Join-Path $repositoryRoot 'artifacts\vt7\deps\sshnet-source-notices-f099365c9d4cf2ade92b92c203bbb2b345d2cd74'
 
 $packages = @(
-    @{ Id = 'ssh.net'; Version = '2026.0.0'; Sha256 = 'B2515DE616821198F5CF5530F5EA198912730BBE3504EF4C6AEE00A661FECAC2' },
+    @{ Id = 'ssh.net'; Version = '2026.0.1-prerelease.6'; Sha256 = '3981BA4F5A36DADFFDAC19BA8B8F207F594F57B3BA043A794277678669FBC35C' },
     @{ Id = 'bouncycastle.cryptography'; Version = '2.7.0'; Sha256 = 'F091FFCCAB4D03993E660BACE277659A79DEE0972F54D7F1F4BD46D680966241' },
     @{ Id = 'microsoft.bcl.cryptography'; Version = '10.0.10'; Sha256 = '4B8EB4562DDC2066E352C0BE51325D5536DF2EE75A15C76DAF809B0B4B19B22D' },
     @{ Id = 'microsoft.extensions.logging.abstractions'; Version = '8.0.3'; Sha256 = 'E4C498D5A13051B4577A148F1D8C3470167215C507E2392069B75DC61322BB74' },
@@ -31,7 +31,7 @@ $packages = @(
 
 foreach ($configuration in @('Debug', 'Release')) {
     foreach ($projectPath in $projectPaths) {
-        & dotnet restore $projectPath --configfile $configPath --source 'https://api.nuget.org/v3/index.json' --packages $packageRoot --locked-mode -p:Configuration=$configuration
+        & dotnet restore $projectPath --configfile $configPath --packages $packageRoot --locked-mode -p:Configuration=$configuration
         if ($LASTEXITCODE -ne 0) { throw "SSH.NET locked NuGet restore failed for $configuration in $projectPath." }
     }
 }
@@ -43,8 +43,8 @@ foreach ($package in $packages) {
 }
 
 $notices = @(
-    @{ Name = 'SSH.NET-LICENSE.txt'; Uri = 'https://raw.githubusercontent.com/sshnet/SSH.NET/7b2fd3dbf2c86a80a7b06cea020aa5f821c9902e/LICENSE'; Sha256 = '84C79A38515DE2833A7C353395E04056C0CBD77545D450FE216D569E1570B78E' },
-    @{ Name = 'SSH.NET-THIRD-PARTY-NOTICES.txt'; Uri = 'https://raw.githubusercontent.com/sshnet/SSH.NET/7b2fd3dbf2c86a80a7b06cea020aa5f821c9902e/THIRD-PARTY-NOTICES.TXT'; Sha256 = '9CE436C5811F18BA3DEB9442DACDBAD4FADA7923CBA5A582A4250A5E4B195426' }
+    @{ Name = 'SSH.NET-LICENSE.txt'; Uri = 'https://raw.githubusercontent.com/sshnet/SSH.NET/f099365c9d4cf2ade92b92c203bbb2b345d2cd74/LICENSE'; Sha256 = '84C79A38515DE2833A7C353395E04056C0CBD77545D450FE216D569E1570B78E' },
+    @{ Name = 'SSH.NET-THIRD-PARTY-NOTICES.txt'; Uri = 'https://raw.githubusercontent.com/sshnet/SSH.NET/f099365c9d4cf2ade92b92c203bbb2b345d2cd74/THIRD-PARTY-NOTICES.TXT'; Sha256 = '9CE436C5811F18BA3DEB9442DACDBAD4FADA7923CBA5A582A4250A5E4B195426' }
 )
 New-Item -ItemType Directory -Path $noticeRoot -Force | Out-Null
 foreach ($notice in $notices) {
@@ -53,4 +53,4 @@ foreach ($notice in $notices) {
     if ((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $notice.Sha256) { throw "S01 source notice hash mismatch: $($notice.Name)" }
 }
 
-Write-Host 'SSH.NET 2026.0.0 locked closure and source notices verified.'
+Write-Host 'SSH.NET 2026.0.1-prerelease.6 (f099365) locked closure and source notices verified.'

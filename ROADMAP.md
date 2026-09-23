@@ -186,6 +186,10 @@ The planned minimum target is:
   where applicable.
 - The Universal C Runtime, KB2999226.
 - .NET Framework 4.8 if the WPF host remains the selected application shell.
+  VT7 0.10.1 pins SSH.NET `2026.0.1-prerelease.6` from upstream commit
+  `f099365`, which resets receive-MAC state on older .NET Framework builds. The
+  non-ESU `mscorlib.dll` `4.8.4110.0` configuration is an explicit Tier A test,
+  not an excluded servicing level.
 - A working Direct3D 11 graphics driver, with WARP used as a fallback where
   practical.
 
@@ -204,6 +208,14 @@ entry point or DLL error.
 
 A release must pass Tier A. Other tiers expand confidence but do not silently
 raise the minimum requirement.
+
+The KH01.2 package 0.2 comparison found that local VT7 operation and the complete
+offline known-host corpus pass on both tiers, while SSH.NET 2026.0.0 fails during
+MAC-protected connection setup on `mscorlib.dll` `4.8.4110.0`. The same machine
+connects with Win32-OpenSSH. This matches upstream issue 1829. Package 0.3 adopts
+the publisher-built `.6`/`f099365` correction. Its automated corpus and both
+stored-key live paths pass on NESSY (`4.8.4110.0`) and TURTLE (`4.8.4795.0`),
+accepting ordinary .NET Framework 4.8 as the compatibility boundary.
 
 Proofs 0.2.0 and 0.2.1 have been tested on fully updated non-ESU and fully ESU-updated
 Windows 7 SP1 x64 setups. The non-ESU run has supplied logs and screenshots;
@@ -1083,9 +1095,17 @@ interactive candidate on the tested Windows 7 configuration.
   KH01.1 parser/oracle package 0.1 passes Debug, Release, path-with-spaces and
   independent ZIP verification locally against `ssh-keygen.exe` 9.5.5.2. The
   owner reports a clean Windows 7 pass through the launcher's mandatory
-  10.0.0.0 file-version gate for the 10.0p2 oracle. The production path is
-  unchanged and this item remains open until KH01.2-KH01.5 and the complete
-  target matrix pass.
+  10.0.0.0 file-version gate for the 10.0p2 oracle. KH01.2 is implemented in
+  version 0.10.0: both SSH.NET paths load immutable snapshots of the four default
+  OpenSSH sources, stored matches skip fingerprint re-entry, unknown hosts retain
+  the exact pin, and changed/revoked/unreadable/policy states fail closed. Local
+  Debug, Release, overlay, packaged-path and independent ZIP checks pass. Package
+  0.2 passes the primary live run but fails both SSH.NET paths on NESSY because
+  its 2026.0.0 dependency hits upstream issue 1829. Version 0.10.1/package 0.3
+  pins publisher-built SSH.NET `2026.0.1-prerelease.6` from fix commit `f099365`.
+  Its automated corpus and direct/typed stored-key paths pass on both NESSY and
+  TURTLE, accepting KH01.2 across the two Windows 7 runtime tiers. This item
+  remains open until KH01.3-KH01.5 and the complete target matrix pass.
 - [x] Support ephemeral password, private-key and passphrase authentication in
   the direct-profile dialog without persistence or default-log disclosure.
 - [ ] Add agent and keyboard-interactive authentication where
