@@ -2,8 +2,8 @@
 
 Decision date: 2026-09-21. Status: implementation specification approved;
 KH01.1 is accepted on Windows 7 against the exact 10.0p2 oracle. KH01.2 is
-accepted on NESSY and TURTLE. KH01.3 is locally implemented in VT7 0.11.0 and
-awaiting package and two-tier Windows 7 acceptance.
+accepted on NESSY and TURTLE. KH01.3 is locally implemented and package-verified
+in VT7 0.11.0 and awaits two-tier Windows 7 acceptance.
 
 This specification defines VT7's first durable SSH host-trust subsystem. It
 replaces the generic trust-store wording in the broader

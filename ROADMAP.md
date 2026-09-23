@@ -1107,10 +1107,11 @@ interactive candidate on the tested Windows 7 configuration.
   TURTLE, accepting KH01.2 across the two Windows 7 runtime tiers. Version
   0.11.0 implements KH01.3 generation-scoped first-contact UI, exact
   Connect-once retry pins and mutex/exclusive durable addition to the primary
-  user file with flush and exact read-back. Debug foundation checks pass;
-  Release/package and the NESSY/TURTLE live matrix are the current acceptance
-  work. This item remains open until KH01.3-KH01.5 and the complete target
-  matrix pass.
+  user file with flush and exact read-back. Package 0.4 passes Debug/Release,
+  overlay, path-with-spaces and independent archive verification at SHA256
+  `531B4A1D43894408F7AA38AC6E0BC22C6EBA1394519C3A70C1C9A83AA64B2C83`.
+  The NESSY/TURTLE live matrix is the current acceptance work. This item remains
+  open until KH01.3-KH01.5 and the complete target matrix pass.
 - [x] Support ephemeral password, private-key and passphrase authentication in
   the direct-profile dialog without persistence or default-log disclosure.
 - [ ] Add agent and keyboard-interactive authentication where

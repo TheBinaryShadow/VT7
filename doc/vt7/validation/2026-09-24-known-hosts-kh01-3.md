@@ -1,6 +1,6 @@
 # OpenSSH-compatible first-contact trust KH01.3
 
-Date: 2026-09-24. Implementation state: complete and locally validated in VT7
+Date: 2026-09-24. Implementation state: complete, packaged and locally validated in VT7
 0.11.0/native ABI 11. Windows 7 target acceptance is pending.
 
 ## Result
@@ -97,12 +97,21 @@ The following checks pass on the development host:
 - owner-only creation ACLs and existing ACL preservation; and
 - explicit 4.5:1 text contrast plus all three prompt actions.
 
-Packaged path-with-spaces and independent archive verification will be recorded
-with the candidate identity below after packaging.
+The staged PowerShell 5.1 CMD launchers pass from a path containing spaces. The
+independent verifier reopens the archive, rejects unsafe or duplicate paths,
+recomputes all 94 entry hashes, checks the write-enabled manifest and PE/runtime
+closure, extracts into a fresh directory and reruns the packaged KH01.3 launcher.
 
 ## Candidate and Windows 7 procedure
 
-The non-overwriting candidate name is `VT7-KnownHosts-KH01-0.4-x64.zip`.
+The non-overwriting candidate is `VT7-KnownHosts-KH01-0.4-x64.zip`:
+
+- source commit: `750bbca99` (`sourceGitDirty: false` in the manifest);
+- SHA256: `531B4A1D43894408F7AA38AC6E0BC22C6EBA1394519C3A70C1C9A83AA64B2C83`;
+- size: 15,262,430 bytes;
+- files: 94 verified archive entries; and
+- review copy: `artifacts/VT7-KnownHosts-KH01-0.4-x64.zip`.
+
 `RUN-KNOWN-HOSTS-KH01-3.cmd` runs only disposable offline fixtures. The package
 README then asks for controlled unknown-host checks on both NESSY
 (`mscorlib.dll` 4.8.4110.0) and TURTLE (4.8.4795.0): Cancel, Connect once without

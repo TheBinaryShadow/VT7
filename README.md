@@ -54,8 +54,9 @@ application for Windows 7.
 > Version 0.11.0 now implements KH01.3 first-contact trust: an unknown raw key
 > is captured before authentication, then Cancel, Connect once, or Trust and
 > connect drives a fresh SSH client. Durable trust safely appends and verifies
-> the primary user `known_hosts` record. Local diagnostics pass; the new package
-> and two-machine Windows 7 live matrix are pending.
+> the primary user `known_hosts` record. Package 0.4 passes local Debug/Release,
+> staged and independent archive checks; the two-machine Windows 7 live matrix
+> is pending.
 > Other
 > features described here remain project goals until implemented and verified.
 

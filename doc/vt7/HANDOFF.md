@@ -28,9 +28,10 @@ NESSY non-ESU .NET runtime. Version 0.10.1/package 0.3 pins upstream
 paths pass on NESSY and TURTLE, accepting KH01.2 across both Windows 7 runtime
 tiers.
 Version 0.11.0 implements KH01.3 generation-safe unknown-host decisions and
-durable primary-user-file addition for both SSH entry paths. Local focused
-checks pass. Package 0.4 and the NESSY/TURTLE live matrix are pending, so KH01.2
-remains the latest target-accepted known-host checkpoint.
+durable primary-user-file addition for both SSH entry paths. Package 0.4 passes
+local Release, staged path-with-spaces and independent extracted verification.
+The NESSY/TURTLE live matrix is pending, so KH01.2 remains the latest
+target-accepted known-host checkpoint.
 This is the current resumption guide. Start with the [documentation index](README.md)
 if unfamiliar with the repository. The [roadmap](../../ROADMAP.md) owns gates;
 dated validation records own test claims.
@@ -86,8 +87,9 @@ default next task. The typed overlay gate is accepted. The
 is complete. KH01.1 is implemented and passes local Debug, Release and package
 verification. Package 0.1 also passes on Windows 7 through the mandatory 10.0p2
 oracle gate. KH01.2 package 0.2 exposed the upstream SSH.NET 2026.0.0 failure on
-NESSY; corrected package 0.3 passes on NESSY and TURTLE. KH01.3 is implemented
-locally; packaging and its two-machine acceptance matrix are the current task.
+NESSY; corrected package 0.3 passes on NESSY and TURTLE. KH01.3 package 0.4 is
+locally and independently verified; its two-machine acceptance matrix is the
+current task.
 
 | Item | Current state |
 | --- | --- |
@@ -155,6 +157,7 @@ locally; packaging and its two-machine acceptance matrix are the current task.
 | KH01.2 accepted package | `VT7-KnownHosts-KH01-0.3-x64.zip`, version 0.10.1, SHA256 `B046A3CA97D7EE138D59AB1742C964ACC791B501C10AA32DFD045A37429200A4`, 15,235,578 bytes, 94 verified files. It pins the publisher-built SSH.NET `2026.0.1-prerelease.6` nupkg, SHA256 `3981BA4F5A36DADFFDAC19BA8B8F207F594F57B3BA043A794277678669FBC35C`, whose nuspec and assembly both identify `f099365`. Debug/Release, overlay, packaged path-with-spaces and independent extracted checks pass. NESSY and TURTLE both pass the automated launcher and owner-confirmed typed/direct stored-key connections. Review copy: `artifacts/VT7-KnownHosts-KH01-0.3-x64.zip`. |
 | KH01.2 accepted evidence | Four returned files plus `ARCHIVE-VERIFICATION.json` are preserved under `artifacts/vt7/evidence/known-hosts-kh01-2-win7-0.3`. Both machines use the same host/native and OpenSSH 10.0p2 hashes. NESSY reports .NET Framework `4.8.4110.0`; TURTLE reports `4.8.4795.0`. Both automated reports pass, and the owner confirms both stored-key live paths pass on each machine. No credentials are retained. |
 | KH01.3 implementation | Version 0.11.0 aborts unknown discovery before authentication, presents generation-scoped **Cancel**, **Connect once** and **Trust and connect** actions, and retries through a fresh `SshClient`. Connect once binds exact host/key/store identities. Durable trust serializes writers, excludes new competing writers, preserves existing bytes and ACLs, creates missing paths owner-only, flushes and verifies the exact read-back. Changed/revoked/unreadable/mismatch/certificate states remain blocked. Local Debug foundation and UI checks pass. See the [KH01.3 record](validation/2026-09-24-known-hosts-kh01-3.md). |
+| KH01.3 candidate package | `VT7-KnownHosts-KH01-0.4-x64.zip`, version 0.11.0, SHA256 `531B4A1D43894408F7AA38AC6E0BC22C6EBA1394519C3A70C1C9A83AA64B2C83`, 15,262,430 bytes, 94 verified files. Manifest source is clean commit `750bbca99`. Debug/Release, overlay, durable-writer, path-with-spaces and independent extracted checks pass. Review copy: `artifacts/VT7-KnownHosts-KH01-0.4-x64.zip`. Target acceptance is pending. |
 | Next bounded task | Build and independently verify non-overwriting KH01.3 package 0.4, then run its automated and controlled unknown-host matrix on NESSY and TURTLE. Do not mark KH01.3 accepted until both runtime tiers pass. |
 | Milestone 2 | Open. Theme/high-contrast, broader device/environment and milestone-level ESU coverage also remain. |
 | Development sequence | Continue Milestone 5 through KH01.3-KH01.5 and later lifecycle/TUI hardening. Remaining C3/Milestone 2 qualification stays recorded without a blanket serial dependency. |
