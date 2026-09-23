@@ -202,7 +202,7 @@ namespace VT7.Host
                     if (!snapshot.Passed) throw new InvalidOperationException("Core or platform checks failed before known-host testing.");
                     await KnownHostsFoundationChecks.Run(report);
                     snapshot.SurfaceDisplay = report.ToString();
-                    snapshot.Summary = "The OpenSSH known-host parser, four-source immutable loader, read-only trust policy and differential oracle passed.";
+                    snapshot.Summary = "The OpenSSH known-host parser, four-source loader, generation-bound first-contact policy, durable writer and differential oracle passed.";
                 }
                 if (SettingsTest)
                 {

@@ -91,6 +91,28 @@ namespace VT7.Host
                 "The selected SSH authentication text is below the 4.5:1 contrast requirement.");
             report.AppendLine("PASS: every SSH connection-dialog label and the selected authentication item have explicit WCAG AA contrast.");
 
+            var trustRequest = new HostTrustPromptRequest(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
+                7, 3, 1, "[unknown.example]:2222", "test-user",
+                PresentedHostKey.Parse(Ed25519Blob()), true, true, "fixture-generation",
+                Path.Combine(Path.GetTempPath(), ".ssh", "known_hosts"));
+            var trustDialog = new HostTrustDialog(trustRequest);
+            var trustBackground = Solid(trustDialog.Background, "host-trust dialog background");
+            var trustLabels = Descendants(trustDialog.FormContent).OfType<TextBlock>().ToArray();
+            Require(trustLabels.Length >= 7, "The host-trust dialog contrast check did not find every text element.");
+            foreach (var label in trustLabels)
+            {
+                var foreground = Solid(label.Foreground, "host-trust dialog text");
+                Require(ContrastRatio(foreground, trustBackground) >= 4.5,
+                    "The host-trust dialog contains text below the 4.5:1 contrast requirement.");
+            }
+            var trustActions = Descendants(trustDialog.FormContent).OfType<Button>()
+                .Select(button => Convert.ToString(button.Content) ?? string.Empty).ToArray();
+            Require(trustActions.Any(value => value.Contains("Cancel")) &&
+                trustActions.Any(value => value.Contains("once")) &&
+                trustActions.Any(value => value.Contains("Trust and connect")),
+                "The host-trust dialog did not expose all three first-contact actions.");
+            report.AppendLine("PASS: the generation-bound host-trust dialog exposes cancel, connect-once and durable-trust actions with WCAG AA text contrast.");
+
             var document = new TerminalDocument(loadDemonstration: false);
             var fake = new FakeTerminalTransport("sshnet-foundation-root");
             var session = new TerminalSession(document, fake, () => new TerminalPixelSize(720, 456));
@@ -134,6 +156,26 @@ namespace VT7.Host
             foreach (var character in value) secret.AppendChar(character);
             secret.MakeReadOnly();
             return secret;
+        }
+
+        private static byte[] Ed25519Blob()
+        {
+            var type = Encoding.ASCII.GetBytes("ssh-ed25519");
+            var blob = new byte[4 + type.Length + 4 + 32];
+            WriteUInt32(blob, 0, (uint)type.Length);
+            Buffer.BlockCopy(type, 0, blob, 4, type.Length);
+            WriteUInt32(blob, 4 + type.Length, 32);
+            for (var index = 0; index < 32; ++index)
+                blob[8 + type.Length + index] = (byte)(index + 1);
+            return blob;
+        }
+
+        private static void WriteUInt32(byte[] destination, int offset, uint value)
+        {
+            destination[offset] = (byte)(value >> 24);
+            destination[offset + 1] = (byte)(value >> 16);
+            destination[offset + 2] = (byte)(value >> 8);
+            destination[offset + 3] = (byte)value;
         }
 
         private static void Require(bool condition, string message)

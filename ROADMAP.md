@@ -1104,8 +1104,13 @@ interactive candidate on the tested Windows 7 configuration.
   its 2026.0.0 dependency hits upstream issue 1829. Version 0.10.1/package 0.3
   pins publisher-built SSH.NET `2026.0.1-prerelease.6` from fix commit `f099365`.
   Its automated corpus and direct/typed stored-key paths pass on both NESSY and
-  TURTLE, accepting KH01.2 across the two Windows 7 runtime tiers. This item
-  remains open until KH01.3-KH01.5 and the complete target matrix pass.
+  TURTLE, accepting KH01.2 across the two Windows 7 runtime tiers. Version
+  0.11.0 implements KH01.3 generation-scoped first-contact UI, exact
+  Connect-once retry pins and mutex/exclusive durable addition to the primary
+  user file with flush and exact read-back. Debug foundation checks pass;
+  Release/package and the NESSY/TURTLE live matrix are the current acceptance
+  work. This item remains open until KH01.3-KH01.5 and the complete target
+  matrix pass.
 - [x] Support ephemeral password, private-key and passphrase authentication in
   the direct-profile dialog without persistence or default-log disclosure.
 - [ ] Add agent and keyboard-interactive authentication where

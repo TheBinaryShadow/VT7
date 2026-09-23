@@ -77,7 +77,7 @@ namespace VT7.Host
             AddField(root, 0, "Host", _host);
             AddField(root, 1, "Port", _port);
             AddField(root, 2, "Username", _username);
-            AddField(root, 3, "SHA256 fingerprint (if unknown)", _fingerprint);
+            AddField(root, 3, "Expected SHA256 fingerprint (optional)", _fingerprint);
             AddField(root, 4, "Authentication", _authentication);
 
             var keyPanel = new Grid();
@@ -100,8 +100,8 @@ namespace VT7.Host
             var note = new TextBlock
             {
                 Text = invocation == null
-                    ? "VT7 reads your OpenSSH known-host files. A stored matching key needs no fingerprint; an unknown host still requires a fingerprint obtained through a trusted path. Changed, revoked, or unreadable trust is blocked before authentication."
-                    : "This request came from the active local shell. VT7 reads your OpenSSH known-host files. A stored matching key needs no fingerprint; an unknown host still requires a fingerprint obtained through a trusted path. Changed, revoked, or unreadable trust is blocked before authentication.",
+                    ? "VT7 reads your OpenSSH known-host files. A stored matching key connects directly. For an unknown host, VT7 stops before authentication and asks you to compare the presented fingerprint, connect once, or save the key. Changed, revoked, unreadable, or mismatched trust is blocked."
+                    : "This request came from the active local shell. VT7 reads your OpenSSH known-host files. A stored matching key connects directly. For an unknown host, VT7 stops before authentication and asks you to compare the presented fingerprint, connect once, or save the key. Changed, revoked, unreadable, or mismatched trust is blocked.",
                 TextWrapping = TextWrapping.Wrap,
                 Foreground = System.Windows.Media.Brushes.DimGray,
                 Margin = new Thickness(0, 12, 0, 12),

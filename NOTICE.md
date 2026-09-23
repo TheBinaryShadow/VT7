@@ -129,7 +129,7 @@ candidate. VT7 0.8.0 integrates the same exact locked closure as its first direc
 SSH root transport; the corresponding portable package carries the same notices
 and package provenance.
 
-VT7 0.10.1 replaces the direct SSH.NET package with publisher-built
+VT7 0.10.1 and later use the publisher-built
 `2026.0.1-prerelease.6` from the official GitHub Packages feed, exact upstream
 commit `f099365c9d4cf2ade92b92c203bbb2b345d2cd74`. That MIT-licensed update carries
 the .NET Framework receive-MAC reset required by the non-ESU Windows 7 test tier.

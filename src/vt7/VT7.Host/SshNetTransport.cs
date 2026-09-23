@@ -69,6 +69,7 @@ namespace VT7.Host
         private readonly TaskCompletionSource<TerminalTransportResult> _completion =
             new TaskCompletionSource<TerminalTransportResult>(TaskCreationOptions.RunContinuationsAsynchronously);
         private readonly SshConnectionOptions _options;
+        private readonly HostTrustPromptHandler? _trustPrompt;
         private ITerminalOutputSink? _output;
         private SshClient? _client;
         private ShellStream? _stream;
@@ -94,11 +95,17 @@ namespace VT7.Host
         private KnownHostsStoreSnapshot? _knownHosts;
         private string? _knownHostToken;
         private KnownHostTrustDecision? _trustDecision;
+        private PresentedHostKey? _presentedHostKey;
+        private KnownHostConnectionPin? _oneConnectionPin;
+        private Guid _sessionId;
+        private long _connectionGeneration;
+        private long _promptGeneration;
         private bool _disposed;
 
-        internal SshNetTransport(SshConnectionOptions options)
+        internal SshNetTransport(SshConnectionOptions options, HostTrustPromptHandler? trustPrompt = null)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
+            _trustPrompt = trustPrompt;
         }
 
         public Guid TransportId { get; } = Guid.NewGuid();
@@ -122,6 +129,7 @@ namespace VT7.Host
                 if (State != TerminalTransportState.Created) throw new InvalidOperationException("Transport already started.");
                 State = TerminalTransportState.Starting;
                 Generation = context.Generation;
+                _sessionId = context.SessionId;
                 _columns = context.Columns;
                 _rows = context.Rows;
                 _output = output;
@@ -129,30 +137,79 @@ namespace VT7.Host
 
             try
             {
-                _stage = "known-host store loading";
                 _knownHostToken = OpenSshHostToken.Create(_options.Host, _options.Port);
-                _knownHosts = OpenSshKnownHostsStore.LoadDefault();
-                _stage = "authentication setup";
                 var connectionHost = await ResolveConnectionHostAsync(cancellationToken).ConfigureAwait(false);
-                var connection = CreateConnectionInfo(connectionHost);
-                var client = new SshClient(connection) { KeepAliveInterval = TimeSpan.FromSeconds(5) };
-                client.HostKeyReceived += OnHostKeyReceived;
-                _client = client;
+                var prompted = false;
+                while (true)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    _stage = "known-host store loading";
+                    _knownHosts = OpenSshKnownHostsStore.LoadDefault();
+                    ResetAttemptState();
+                    ++_connectionGeneration;
+                    Exception? attemptError = null;
+                    try
+                    {
+                        _stage = "authentication setup";
+                        var connection = CreateConnectionInfo(connectionHost);
+                        var client = new SshClient(connection) { KeepAliveInterval = TimeSpan.FromSeconds(5) };
+                        client.HostKeyReceived += OnHostKeyReceived;
+                        _client = client;
 
-                _stage = "connection and host-key verification";
-                await client.ConnectAsync(cancellationToken).ConfigureAwait(false);
-                if (!_hostKeySeen || !_hostKeyTrusted || !client.IsConnected || !client.ConnectionInfo.IsAuthenticated)
-                    throw new SshTransportException(!_hostKeyTrusted ? "host-key verification" : "authentication");
+                        _stage = "connection and host-key verification";
+                        await client.ConnectAsync(cancellationToken).ConfigureAwait(false);
+                        if (!_hostKeySeen || !_hostKeyTrusted || !client.IsConnected || !client.ConnectionInfo.IsAuthenticated)
+                            throw new SshTransportException(!_hostKeyTrusted ? "host-key verification" : "authentication");
+                        break;
+                    }
+                    catch (Exception error)
+                    {
+                        attemptError = error;
+                    }
 
-                _keyExchange = client.ConnectionInfo.CurrentKeyExchangeAlgorithm ?? string.Empty;
-                _hostKey = client.ConnectionInfo.CurrentHostKeyAlgorithm ?? string.Empty;
-                _clientCipher = client.ConnectionInfo.CurrentClientEncryption ?? string.Empty;
-                _serverCipher = client.ConnectionInfo.CurrentServerEncryption ?? string.Empty;
+                    if (!prompted && CanPromptForUnknownHost())
+                    {
+                        var request = CreateTrustPromptRequest();
+                        DisposeConnectionAttempt();
+                        var response = await _trustPrompt!(request, cancellationToken).ConfigureAwait(false);
+                        ValidateTrustPromptResponse(request, response, cancellationToken);
+                        if (response.Action == HostTrustPromptAction.Cancel)
+                            throw new SshTransportException("host-key verification cancelled", attemptError);
+                        if (response.Action == HostTrustPromptAction.ConnectOnce)
+                        {
+                            var current = OpenSshKnownHostsStore.Load(
+                                _knownHosts!.Sources.Select(source => source.Definition));
+                            if (!string.Equals(current.Identity, request.StoreIdentity, StringComparison.Ordinal))
+                                throw new SshTransportException("stale host-key decision");
+                            _oneConnectionPin = new KnownHostConnectionPin(request.HostToken,
+                                request.Presented, request.StoreIdentity);
+                        }
+                        else if (response.Action == HostTrustPromptAction.TrustAndConnect)
+                        {
+                            _stage = "known-host durable addition";
+                            OpenSshKnownHostsWriter.AddPrimaryUserRecord(_knownHosts!,
+                                request.HostToken, request.Presented);
+                            _oneConnectionPin = null;
+                        }
+                        else throw new SshTransportException("host-key decision");
+                        prompted = true;
+                        continue;
+                    }
+
+                    throw attemptError ?? new SshTransportException("SSH connection");
+                }
+
+                var connectedClient = _client ?? throw new InvalidOperationException("The connected SSH client is unavailable.");
+
+                _keyExchange = connectedClient.ConnectionInfo.CurrentKeyExchangeAlgorithm ?? string.Empty;
+                _hostKey = connectedClient.ConnectionInfo.CurrentHostKeyAlgorithm ?? string.Empty;
+                _clientCipher = connectedClient.ConnectionInfo.CurrentClientEncryption ?? string.Empty;
+                _serverCipher = connectedClient.ConnectionInfo.CurrentServerEncryption ?? string.Empty;
 
                 _stage = "remote PTY allocation";
                 var pixelWidth = context.PixelWidth == 0 ? checked(context.Columns * 8u) : context.PixelWidth;
                 var pixelHeight = context.PixelHeight == 0 ? checked(context.Rows * 16u) : context.PixelHeight;
-                _stream = client.CreateShellStream("xterm-256color", context.Columns, context.Rows,
+                _stream = connectedClient.CreateShellStream("xterm-256color", context.Columns, context.Rows,
                     pixelWidth, pixelHeight, ShellBufferSize);
                 lock (_gate) State = TerminalTransportState.Running;
                 _stage = "running";
@@ -247,6 +304,67 @@ namespace VT7.Host
             await FinishAsync(new TerminalTransportResult(kind), failed: !readerStopped, disconnectClient: true).ConfigureAwait(false);
         }
 
+        private void ResetAttemptState()
+        {
+            _hostKeySeen = false;
+            _hostKeyTrusted = false;
+            _trustDecision = null;
+            _presentedHostKey = null;
+        }
+
+        private bool CanPromptForUnknownHost()
+        {
+            var decision = _trustDecision;
+            return _trustPrompt != null && _presentedHostKey != null && decision != null &&
+                decision.Result.State == KnownHostTrustState.Unknown &&
+                (!decision.FingerprintSupplied || decision.FingerprintMatched);
+        }
+
+        private HostTrustPromptRequest CreateTrustPromptRequest()
+        {
+            var snapshot = _knownHosts ?? throw new InvalidOperationException("The known-host snapshot is unavailable.");
+            var token = _knownHostToken ?? throw new InvalidOperationException("The known-host token is unavailable.");
+            var presented = _presentedHostKey ?? throw new InvalidOperationException("The presented host key is unavailable.");
+            var decision = _trustDecision ?? throw new InvalidOperationException("The host-trust decision is unavailable.");
+            if (snapshot.Sources.Count == 0) throw new InvalidOperationException("The primary known-host source is unavailable.");
+            var promptGeneration = ++_promptGeneration;
+            return new HostTrustPromptRequest(Guid.NewGuid(), TransportId, _sessionId, Generation,
+                _connectionGeneration, promptGeneration, token, _options.Username, presented,
+                decision.FingerprintSupplied, decision.FingerprintMatched, snapshot.Identity,
+                snapshot.Sources[0].Definition.Path);
+        }
+
+        private void ValidateTrustPromptResponse(HostTrustPromptRequest request,
+            HostTrustPromptResponse response, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            lock (_gate)
+            {
+                if (_disposed || State != TerminalTransportState.Starting ||
+                    request.TransportId != TransportId || request.SessionId != _sessionId ||
+                    request.TransportGeneration != Generation ||
+                    request.ConnectionGeneration != _connectionGeneration ||
+                    request.PromptGeneration != _promptGeneration ||
+                    response == null || response.RequestId != request.RequestId)
+                    throw new SshTransportException("stale host-key decision");
+            }
+        }
+
+        private void DisposeConnectionAttempt()
+        {
+            var client = _client;
+            _client = null;
+            if (client != null)
+            {
+                client.HostKeyReceived -= OnHostKeyReceived;
+                try { if (client.IsConnected) client.Disconnect(); }
+                catch { }
+                client.Dispose();
+            }
+            _privateKey?.Dispose();
+            _privateKey = null;
+        }
+
         private ConnectionInfo CreateConnectionInfo(string connectionHost)
         {
             AuthenticationMethod method;
@@ -308,8 +426,9 @@ namespace VT7.Host
                 var snapshot = _knownHosts ?? throw new InvalidOperationException("The known-host snapshot is unavailable.");
                 var token = _knownHostToken ?? throw new InvalidOperationException("The known-host token is unavailable.");
                 var presented = PresentedHostKey.Parse(eventArgs.HostKey);
+                _presentedHostKey = presented;
                 _trustDecision = KnownHostTrustPolicy.Decide(token, presented, snapshot,
-                    _options.ExpectedHostKeyFingerprint);
+                    _options.ExpectedHostKeyFingerprint, _oneConnectionPin);
                 _hostKeyTrusted = _trustDecision.CanTrust;
             }
             catch (Exception error) when (error is FormatException || error is ArgumentException ||
@@ -378,6 +497,7 @@ namespace VT7.Host
                     _client = null;
                     if (client != null)
                     {
+                        client.HostKeyReceived -= OnHostKeyReceived;
                         try { if (client.IsConnected) client.Disconnect(); }
                         catch { failed = true; }
                         client.Dispose();
@@ -400,6 +520,8 @@ namespace VT7.Host
         {
             while (error is AggregateException aggregate && aggregate.InnerExceptions.Count == 1)
                 error = aggregate.InnerExceptions[0];
+            if (error is KnownHostsMutationException mutation)
+                return "known-host update " + mutation.Category;
             if (!_hostKeyTrusted && _hostKeySeen) return HostKeyFailureCategory();
             if (error is SshTransportException transport) return transport.Category;
             if (error is SshAuthenticationException) return "authentication";

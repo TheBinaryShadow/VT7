@@ -49,10 +49,30 @@ namespace VT7.Host
             Sources = new List<KnownHostsSourceSnapshot>(sources ?? throw new ArgumentNullException(nameof(sources))).AsReadOnly();
             Documents = Sources.Where(source => source.Document != null)
                 .Select(source => source.Document!).ToArray();
+            Identity = ComputeIdentity(Sources);
         }
 
         internal IReadOnlyList<KnownHostsSourceSnapshot> Sources { get; }
         internal IReadOnlyList<KnownHostsDocument> Documents { get; }
+        internal string Identity { get; }
+
+        private static string ComputeIdentity(IEnumerable<KnownHostsSourceSnapshot> sources)
+        {
+            var builder = new StringBuilder();
+            foreach (var source in sources)
+            {
+                builder.Append(source.Definition.SourceId).Append('\n')
+                    .Append(source.Definition.Path.ToUpperInvariant()).Append('\n')
+                    .Append(source.Exists ? '1' : '0').Append('\n')
+                    .Append(source.Length).Append('\n')
+                    .Append(source.LastWriteUtc.Ticks).Append('\n')
+                    .Append(source.ContentHash).Append('\n')
+                    .Append(source.Document?.FatalError ?? string.Empty).Append('\n');
+            }
+            using var sha = SHA256.Create();
+            return BitConverter.ToString(sha.ComputeHash(Encoding.UTF8.GetBytes(builder.ToString())))
+                .Replace("-", string.Empty);
+        }
     }
 
     internal sealed class KnownHostTrustDecision
@@ -72,6 +92,23 @@ namespace VT7.Host
         internal bool FingerprintMatched { get; }
         internal bool CanTrust { get; }
         internal string Authorization { get; }
+    }
+
+    internal sealed class KnownHostConnectionPin
+    {
+        private readonly byte[] _keyBlob;
+
+        internal KnownHostConnectionPin(string hostToken, PresentedHostKey presented, string storeIdentity)
+        {
+            HostToken = hostToken ?? throw new ArgumentNullException(nameof(hostToken));
+            if (presented == null) throw new ArgumentNullException(nameof(presented));
+            _keyBlob = presented.Blob;
+            StoreIdentity = storeIdentity ?? throw new ArgumentNullException(nameof(storeIdentity));
+        }
+
+        internal string HostToken { get; }
+        internal byte[] KeyBlob => (byte[])_keyBlob.Clone();
+        internal string StoreIdentity { get; }
     }
 
     internal static class OpenSshKnownHostsStore
@@ -152,11 +189,7 @@ namespace VT7.Host
                     content.LongLength != beforeLength)
                     return Failed(definition, "source-changed-during-load", content.LongLength, beforeWrite);
 
-                string hash;
-                using (var sha = SHA256.Create())
-                    hash = BitConverter.ToString(sha.ComputeHash(content)).Replace("-", string.Empty);
-                var document = OpenSshKnownHostsParser.Parse(definition.SourceId, content);
-                return new KnownHostsSourceSnapshot(definition, true, content.LongLength, beforeWrite, hash, document);
+                return CreateSourceSnapshot(definition, content, beforeWrite);
             }
             catch (Exception error) when (IsSourceFailure(error))
             {
@@ -175,12 +208,26 @@ namespace VT7.Host
             long length = 0, DateTime lastWriteUtc = default) =>
             new KnownHostsSourceSnapshot(definition, true, length, lastWriteUtc, string.Empty,
                 new KnownHostsDocument(definition.SourceId, Array.Empty<KnownHostsLine>(), reason));
+
+        internal static KnownHostsSourceSnapshot CreateSourceSnapshot(KnownHostsSourceDefinition definition,
+            byte[] content, DateTime lastWriteUtc)
+        {
+            if (definition == null) throw new ArgumentNullException(nameof(definition));
+            if (content == null) throw new ArgumentNullException(nameof(content));
+            string hash;
+            using (var sha = SHA256.Create())
+                hash = BitConverter.ToString(sha.ComputeHash(content)).Replace("-", string.Empty);
+            var document = OpenSshKnownHostsParser.Parse(definition.SourceId, content);
+            return new KnownHostsSourceSnapshot(definition, true, content.LongLength,
+                lastWriteUtc, hash, document);
+        }
     }
 
     internal static class KnownHostTrustPolicy
     {
         internal static KnownHostTrustDecision Decide(string hostToken, PresentedHostKey presented,
-            KnownHostsStoreSnapshot snapshot, string expectedFingerprint)
+            KnownHostsStoreSnapshot snapshot, string expectedFingerprint,
+            KnownHostConnectionPin? oneConnectionPin = null)
         {
             if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
             var result = KnownHostTrustResolver.Resolve(hostToken, presented, snapshot.Documents);
@@ -196,10 +243,15 @@ namespace VT7.Host
                     return new KnownHostTrustDecision(result, true, false, false, "explicit-fingerprint-mismatch");
                 return new KnownHostTrustDecision(result, supplied, matched, true, "stored-key-match");
             }
-            if (result.State == KnownHostTrustState.Unknown && matched)
-                return new KnownHostTrustDecision(result, true, true, true, "one-connection-fingerprint");
+            if (result.State == KnownHostTrustState.Unknown && supplied && !matched)
+                return new KnownHostTrustDecision(result, true, false, false, "explicit-fingerprint-mismatch");
+            if (result.State == KnownHostTrustState.Unknown && oneConnectionPin != null &&
+                string.Equals(oneConnectionPin.HostToken, hostToken, StringComparison.Ordinal) &&
+                string.Equals(oneConnectionPin.StoreIdentity, snapshot.Identity, StringComparison.Ordinal) &&
+                FixedEquals(oneConnectionPin.KeyBlob, presented.Blob))
+                return new KnownHostTrustDecision(result, supplied, matched, true, "one-connection-prompt-pin");
             return new KnownHostTrustDecision(result, supplied, matched, false,
-                result.State == KnownHostTrustState.Unknown ? "unknown-fingerprint-required" : "stored-policy-block");
+                result.State == KnownHostTrustState.Unknown ? "unknown-decision-required" : "stored-policy-block");
         }
 
         private static bool FixedEquals(string first, string second)
@@ -210,6 +262,16 @@ namespace VT7.Host
             var maximum = Math.Max(left.Length, right.Length);
             for (var index = 0; index < maximum; ++index)
                 difference |= (index < left.Length ? left[index] : 0) ^ (index < right.Length ? right[index] : 0);
+            return difference == 0;
+        }
+
+        private static bool FixedEquals(byte[] first, byte[] second)
+        {
+            var difference = first.Length ^ second.Length;
+            var maximum = Math.Max(first.Length, second.Length);
+            for (var index = 0; index < maximum; ++index)
+                difference |= (index < first.Length ? first[index] : 0) ^
+                    (index < second.Length ? second[index] : 0);
             return difference == 0;
         }
     }

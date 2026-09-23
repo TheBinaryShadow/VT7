@@ -20,8 +20,11 @@ Version 0.10.0 implements KH01.2 read-only OpenSSH known-host trust. Package
 SSH.NET issue 1829 on NESSY. Version 0.10.1/package 0.3 pins the upstream
 prerelease.6/f099365 correction and passes the automated and live SSH checks on
 both NESSY and TURTLE. KH01.2 is accepted across both Windows 7 runtime tiers.
+Version 0.11.0 implements KH01.3 first-contact prompting, fresh-client retry and
+verified primary-user-file addition. Local checks pass; Windows 7 acceptance is
+pending.
 
-VT7 is the terminal application Windows 7 always deserved. Version 0.10.1 keeps
+VT7 is the terminal application Windows 7 always deserved. Version 0.11.0 keeps
 the accepted Command Prompt/WinPTY path and adds explicit Windows PowerShell 5.1
 and versioned PowerShell 7 profiles through the 3A document/session/view
 boundary. Exact Windows 7 5.1/7.2.24 automation passes, as do the applicable
@@ -70,40 +73,43 @@ polish/release triage.
     four default source snapshots, direct/typed callback policy, the rejected
     2026.0.0 two-machine result, upstream f099365 correction, candidate identity
     and corrected Windows 7 procedure.
-13. [WinPTY root transport 3B.1](validation/2026-09-17-winpty-root-3b.md):
+13. [Known-host first-contact trust KH01.3](validation/2026-09-24-known-hosts-kh01-3.md):
+    generation-bound prompt decisions, exact Connect-once pins, durable
+    byte-preserving addition, local adversarial checks and pending target matrix.
+14. [WinPTY root transport 3B.1](validation/2026-09-17-winpty-root-3b.md):
     0.5.0 implementation, exact runtime/package identities, local results,
     Windows 7 procedure and remaining shell scope.
-14. [PowerShell profiles 3B.2](validation/2026-09-17-powershell-profiles-3b2.md):
+15. [PowerShell profiles 3B.2](validation/2026-09-17-powershell-profiles-3b2.md):
     explicit profile/version discovery, ordinary versus clean policy, visible
      root replacement, accepted Windows 7 5.1/7.2.24 evidence, candidate identity
      and the rejected 0.6.5/accepted 0.6.6 keyboard follow-up.
-15. [Input I01 characterization](validation/2026-09-14-input-i01.md): exact
+16. [Input I01 characterization](validation/2026-09-14-input-i01.md): exact
    package and verified Windows 7 Croatian HR Latin evidence, the downlevel
    `ToUnicodeEx` result and the accepted native-HWND input/resize contract.
-16. [H01 typed-command shim and barrier](validation/2026-09-19-typed-ssh-h01.md):
+17. [H01 typed-command shim and barrier](validation/2026-09-19-typed-ssh-h01.md):
     0.7.0-0.7.3 implementation, returned target results, corrected candidate identity, strict target
     procedure and the boundary that keeps embedded SSH disabled.
-17. [Session outbound foundation](architecture/2026-09-14-session-outbound-foundation.md):
+18. [Session outbound foundation](architecture/2026-09-14-session-outbound-foundation.md):
     ABI 10 input encoding, bounded generation ordering, control suppression,
     focus/resize ownership and accepted Windows 7 evidence.
-18. [OpenSSH S00 evaluation](validation/2026-09-14-openssh-s00.md): accepted
+19. [OpenSSH S00 evaluation](validation/2026-09-14-openssh-s00.md): accepted
     Windows 7 command transport, trust and lifecycle evidence; exact-source
     rejection of redirected interactive PTY geometry; and the S01-accepted
     SSH.NET candidate.
-19. [SSH.NET dependency and license audit](research/2026-09-14-sshnet-license-audit.md):
+20. [SSH.NET dependency and license audit](research/2026-09-14-sshnet-license-audit.md):
     exact 2026.0.0 net48 closure, package hashes, third-party terms and the
     project-wide permissive dependency decision.
-20. [SSH.NET S01 evaluation](validation/2026-09-14-sshnet-s01.md): isolated
+21. [SSH.NET S01 evaluation](validation/2026-09-14-sshnet-s01.md): isolated
     diagnostic design, 0.5 assertion findings, accepted 0.6 Windows 7 results,
     credential boundary and production teardown contract.
-21. [SSH.NET direct-profile transport](validation/2026-09-19-sshnet-direct-profile.md):
+22. [SSH.NET direct-profile transport](validation/2026-09-19-sshnet-direct-profile.md):
     0.8.0 production transport boundary, accepted package 0.2 Windows 7 result,
     the rejected 0.8.1/package 0.3 selector result, and the corrected 0.8.2/
     package 0.4 candidate.
-22. [Typed SSH.NET overlay coordinator](validation/2026-09-21-typed-ssh-overlay.md):
+23. [Typed SSH.NET overlay coordinator](validation/2026-09-21-typed-ssh-overlay.md):
     0.9.0 production handoff, 0.9.1 dispatcher correction, 0.9.2 lifetime
     correction, exact package identity and accepted Windows 7 result.
-23. [Third-party licensing policy](architecture/2026-09-14-third-party-licensing-policy.md):
+24. [Third-party licensing policy](architecture/2026-09-14-third-party-licensing-policy.md):
     standing owner decision, review triggers, packaging requirements, current
     component inventory and acknowledgement rule.
 
@@ -190,7 +196,7 @@ focused Windows 7 confirmation of the corrected Authentication selector.
 | C3 repaint/recovery | [0.3.1 repaint](validation/2026-09-12-atlas-repaint.md), [0.3.2 recovery](validation/2026-09-12-atlas-recovery.md) | Bounded target passes; injected recovery is not real driver-loss evidence. |
 | C3 scaling | [0.3.3 failures](validation/2026-09-12-atlas-settings.md), [0.3.4 correction](validation/2026-09-12-atlas-scaling-correction.md) | Actual Windows 7 96/120/144 DPI matrix accepted for 0.3.4 on the supplied setup. |
 | Deferred reliability concern | [REL01 decision](architecture/2026-09-14-warp-development-deferral.md) | Hardware lifecycle passes; WARP resource failures remain. Accepted risk for continued development; conditional Milestone 7 review. |
-| Current development | [KH01.2 read-only trust](validation/2026-09-22-known-hosts-kh01-2.md), [accepted typed SSH overlay](validation/2026-09-21-typed-ssh-overlay.md), [known-host specification](architecture/2026-09-21-openssh-known-hosts-management-spec.md), [KH01.1 foundation](validation/2026-09-22-known-hosts-kh01.md), [Milestone 5](../../ROADMAP.md#milestone-5-first-class-ssh) | Version 0.10.1/ABI 11 retains the accepted local, direct SSH.NET and typed-overlay baselines. KH01.2 loads the four default OpenSSH sources before both connection paths, accepts stored matches without fingerprint re-entry, preserves the exact unknown-host pin, and blocks changed/revoked/unreadable/policy states. Package 0.2 passed TURTLE but was rejected after both live SSH paths failed on NESSY. Package 0.3 pins publisher-built SSH.NET `2026.0.1-prerelease.6`, which contains the upstream Windows 7/.NET Framework MAC-reset fix. Its automated and live-path checks pass on NESSY and TURTLE, accepting KH01.2; KH01.3 durable first-contact trust is next. |
+| Current development | [KH01.3 first-contact trust](validation/2026-09-24-known-hosts-kh01-3.md), [KH01.2 read-only trust](validation/2026-09-22-known-hosts-kh01-2.md), [accepted typed SSH overlay](validation/2026-09-21-typed-ssh-overlay.md), [known-host specification](architecture/2026-09-21-openssh-known-hosts-management-spec.md), [Milestone 5](../../ROADMAP.md#milestone-5-first-class-ssh) | Version 0.11.0/ABI 11 retains every accepted local and SSH baseline and implements KH01.3 for direct and typed paths. Unknown discovery stops before authentication; Cancel, generation-bound Connect once and durable Trust and connect all preserve fresh-client verification. The writer serializes additions, preserves existing bytes/ACLs, uses owner-only creation and requires exact read-back. Local checks pass; package and NESSY/TURTLE acceptance remain. |
 | Previous native target result | [Windows 7 resource retirement 0.1](diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result) | Supported capture completes; workers retire by 90 seconds and USER returns to 4, but 54 process handles above pre-warmup remain. No C3 or timed-soak acceptance. |
 | Latest resource target result | [WPF reactivation 0.1](diagnostics/2026-09-14-resource-reactivation.md#supplied-windows-7-result) | Two integrated rounds complete, with 16 valid samples and three immediate failures. Both +180s handle/thread/GDI/USER counts match; private bytes rise 220 KiB. No permanent bound or C3 acceptance. |
 

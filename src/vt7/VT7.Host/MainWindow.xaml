@@ -33,7 +33,7 @@
                                Foreground="#D4E9F8" />
                 </StackPanel>
                 <Border Grid.Column="1" Background="#102B45" BorderBrush="#5DAEEA" BorderThickness="1" Padding="12,7" VerticalAlignment="Center">
-                    <TextBlock Text="KNOWN HOSTS READ-ONLY 0.10.1" FontSize="11" FontWeight="Bold" Foreground="#8FD0FF" />
+                    <TextBlock Text="FIRST-CONTACT TRUST 0.11.0" FontSize="11" FontWeight="Bold" Foreground="#8FD0FF" />
                 </Border>
             </Grid>
         </Border>

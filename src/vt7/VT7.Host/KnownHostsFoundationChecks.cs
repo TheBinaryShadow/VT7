@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -38,7 +40,10 @@ namespace VT7.Host
 
             CheckStoreLoadingAndPolicy(first, second);
             report.AppendLine("PASS: four-source OpenSSH loading is immutable, bounded and fail-closed for missing, changed, revoked and unreadable stores.");
-            report.AppendLine("PASS: stored matches need no fingerprint, unknown hosts require an exact pin and explicit pin mismatches remain blocked.");
+            report.AppendLine("PASS: stored matches need no fingerprint, unknown hosts require a generation-bound prompt pin and explicit fingerprint mismatches remain blocked.");
+
+            CheckDurableAddition(first, second);
+            report.AppendLine("PASS: durable first-contact writes preserve existing bytes, reject stale decisions, serialize writers and verify read-back.");
 
             CheckPropertiesAndFuzz();
             report.AppendLine("PASS: deterministic hash properties and 1024 bounded arbitrary-byte parser cases passed.");
@@ -214,8 +219,19 @@ namespace VT7.Host
                 Require(unknown.Result.State == KnownHostTrustState.Unknown && !unknown.CanTrust,
                     "An unknown host was accepted without a fingerprint.");
                 var pinned = KnownHostTrustPolicy.Decide("unknown.example", first, snapshot, normalizedFirst);
-                Require(pinned.Result.State == KnownHostTrustState.Unknown && pinned.FingerprintMatched && pinned.CanTrust,
-                    "An exact unknown-host fingerprint did not authorize one connection.");
+                Require(pinned.Result.State == KnownHostTrustState.Unknown && pinned.FingerprintMatched && !pinned.CanTrust,
+                    "An exact unknown-host fingerprint bypassed the first-contact decision.");
+                var connectionPin = new KnownHostConnectionPin("unknown.example", first, snapshot.Identity);
+                var prompted = KnownHostTrustPolicy.Decide("unknown.example", first, snapshot,
+                    normalizedFirst, connectionPin);
+                Require(prompted.CanTrust && prompted.Authorization == "one-connection-prompt-pin",
+                    "A generation-bound prompt pin did not authorize its fresh retry.");
+                Require(!KnownHostTrustPolicy.Decide("other.example", first, snapshot,
+                    normalizedFirst, connectionPin).CanTrust,
+                    "A one-connection prompt pin authorized a different host token.");
+                Require(!KnownHostTrustPolicy.Decide("unknown.example", second, snapshot,
+                    normalizedSecond, connectionPin).CanTrust,
+                    "A one-connection prompt pin authorized a different key blob.");
                 Require(!KnownHostTrustPolicy.Decide("unknown.example", first, snapshot, normalizedSecond).CanTrust,
                     "A wrong unknown-host fingerprint was accepted.");
                 Require(!KnownHostTrustPolicy.Decide("primary.example", first, snapshot, normalizedSecond).CanTrust,
@@ -254,6 +270,120 @@ namespace VT7.Host
             {
                 if (Directory.Exists(root)) Directory.Delete(root, true);
             }
+        }
+
+        private static void CheckDurableAddition(PresentedHostKey first, PresentedHostKey second)
+        {
+            var root = Path.Combine(Path.GetTempPath(), "VT7 known hosts writer " + Guid.NewGuid().ToString("N"));
+            var user = Path.Combine(root, "user");
+            var programData = Path.Combine(root, "program data");
+            Directory.CreateDirectory(user);
+            Directory.CreateDirectory(programData);
+            var definitions = OpenSshKnownHostsStore.CreateDefaultDefinitions(user, programData);
+            var primary = definitions[0].Path;
+            try
+            {
+                var missing = OpenSshKnownHostsStore.Load(definitions);
+                var verified = OpenSshKnownHostsWriter.AddPrimaryUserRecord(missing, "new.example", first);
+                Require(KnownHostTrustResolver.Resolve("new.example", first, verified.Documents).State ==
+                    KnownHostTrustState.Matching, "A new primary known_hosts file did not verify after append.");
+                var expectedNew = "new.example ssh-ed25519 " + Convert.ToBase64String(first.Blob) + "\n";
+                Require(File.ReadAllText(primary, Utf8) == expectedNew,
+                    "A new primary known_hosts file did not contain exactly one canonical record.");
+                RequireOwnerOnly(Path.GetDirectoryName(primary)!, directory: true);
+                RequireOwnerOnly(primary, directory: false);
+
+                var preserved = "# retained CRLF\r\n# retained tail";
+                File.WriteAllText(primary, preserved, Utf8);
+                var originalSecurity = File.GetAccessControl(primary).GetSecurityDescriptorSddlForm(
+                    AccessControlSections.Access | AccessControlSections.Owner);
+                var preservationSnapshot = OpenSshKnownHostsStore.Load(definitions);
+                OpenSshKnownHostsWriter.AddPrimaryUserRecord(preservationSnapshot, "preserved.example", first);
+                var expectedPreserved = preserved + "\r\npreserved.example ssh-ed25519 " +
+                    Convert.ToBase64String(first.Blob) + "\r\n";
+                Require(File.ReadAllText(primary, Utf8) == expectedPreserved,
+                    "The writer changed existing bytes or failed to preserve the dominant newline.");
+                Require(File.GetAccessControl(primary).GetSecurityDescriptorSddlForm(
+                    AccessControlSections.Access | AccessControlSections.Owner) == originalSecurity,
+                    "Appending to an existing known_hosts file changed its owner or ACL.");
+
+                var staleSnapshot = OpenSshKnownHostsStore.Load(definitions);
+                File.AppendAllText(primary, "# external change\r\n", Utf8);
+                var staleBytes = File.ReadAllBytes(primary);
+                ExpectMutation("store-generation-changed", () =>
+                    OpenSshKnownHostsWriter.AddPrimaryUserRecord(staleSnapshot, "stale.example", first));
+                Require(staleBytes.SequenceEqual(File.ReadAllBytes(primary)),
+                    "A stale decision changed the known-host file.");
+
+                File.WriteAllText(primary, "changed.example ssh-ed25519 " +
+                    Convert.ToBase64String(second.Blob) + "\n", Utf8);
+                var changedSnapshot = OpenSshKnownHostsStore.Load(definitions);
+                var changedBytes = File.ReadAllBytes(primary);
+                ExpectMutation("trust-state-changed-changed", () =>
+                    OpenSshKnownHostsWriter.AddPrimaryUserRecord(changedSnapshot, "changed.example", first));
+                Require(changedBytes.SequenceEqual(File.ReadAllBytes(primary)),
+                    "A changed stored key was modified by first-contact trust.");
+
+                File.WriteAllText(primary, "# concurrency fixture\n", Utf8);
+                var concurrentSnapshot = OpenSshKnownHostsStore.Load(definitions);
+                var outcomes = new string[2];
+                Parallel.Invoke(
+                    () => outcomes[0] = AddConcurrent(concurrentSnapshot, "race-one.example", first),
+                    () => outcomes[1] = AddConcurrent(concurrentSnapshot, "race-two.example", first));
+                Require(outcomes.Count(value => value == "success") == 1 &&
+                    outcomes.Count(value => value == "store-generation-changed") == 1,
+                    "Concurrent first-contact writers did not serialize with one stale loser.");
+                var final = OpenSshKnownHostsStore.Load(definitions);
+                var raceMatches = new[] { "race-one.example", "race-two.example" }.Count(token =>
+                    KnownHostTrustResolver.Resolve(token, first, final.Documents).State == KnownHostTrustState.Matching);
+                Require(raceMatches == 1, "Concurrent writers committed more than one captured generation.");
+            }
+            finally
+            {
+                if (Directory.Exists(root)) Directory.Delete(root, true);
+            }
+        }
+
+        private static string AddConcurrent(KnownHostsStoreSnapshot snapshot, string token, PresentedHostKey key)
+        {
+            try
+            {
+                OpenSshKnownHostsWriter.AddPrimaryUserRecord(snapshot, token, key);
+                return "success";
+            }
+            catch (KnownHostsMutationException error)
+            {
+                return error.Category;
+            }
+        }
+
+        private static void RequireOwnerOnly(string path, bool directory)
+        {
+            FileSystemSecurity security = directory
+                ? (FileSystemSecurity)Directory.GetAccessControl(path)
+                : File.GetAccessControl(path);
+            var owner = (SecurityIdentifier)security.GetOwner(typeof(SecurityIdentifier));
+            var current = WindowsIdentity.GetCurrent().User ??
+                throw new InvalidOperationException("The current Windows user SID is unavailable.");
+            Require(owner.Equals(current) && security.AreAccessRulesProtected,
+                "A newly created known-host path was not protected and owned by the current user.");
+            var rules = security.GetAccessRules(true, true, typeof(SecurityIdentifier))
+                .Cast<FileSystemAccessRule>().Where(rule => rule.AccessControlType == AccessControlType.Allow).ToArray();
+            Require(rules.Length != 0 && rules.All(rule =>
+                ((SecurityIdentifier)rule.IdentityReference).Equals(current)),
+                "A newly created known-host path grants access beyond the current user.");
+        }
+
+        private static void ExpectMutation(string category, Action action)
+        {
+            try { action(); }
+            catch (KnownHostsMutationException error)
+            {
+                Require(error.Category == category, "Expected mutation category " + category +
+                    ", received " + error.Category + ".");
+                return;
+            }
+            throw new InvalidOperationException("Expected known-host mutation failure: " + category + ".");
         }
 
         private static string CheckOpenSshOracle(byte[] keyBlob)

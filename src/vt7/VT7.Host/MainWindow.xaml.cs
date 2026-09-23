@@ -21,6 +21,7 @@ namespace VT7.Host
         private TerminalProfile? _activeProfile;
         private string? _activeSessionName;
         private bool _switchingProfile;
+        private long _trustPromptGeneration;
         internal SessionOutboundQueue? SessionOutbound => _session?.State == TerminalSessionState.RunningRoot ? _session.Outbound : null;
         internal SessionOutboundAuditSink? OutboundAudit => _outboundAudit;
         internal TerminalSurface? Viewport { get; private set; }
@@ -65,6 +66,7 @@ namespace VT7.Host
         {
             _closed = true;
             ++_statusGeneration;
+            Interlocked.Increment(ref _trustPromptGeneration);
             Viewport?.DetachSessionInput();
             _sshOverlayCoordinator?.Dispose();
             _sshOverlayCoordinator = null;
@@ -144,7 +146,8 @@ namespace VT7.Host
             if (_switchingProfile || _closed) return;
             var dialog = new SshConnectionDialog { Owner = this };
             if (dialog.ShowDialog() != true || dialog.Result == null) return;
-            await StartTransportAsync(new SshNetTransport(dialog.Result), "SSH.NET direct profile", null, null);
+            await StartTransportAsync(new SshNetTransport(dialog.Result, PromptForHostTrustAsync),
+                "SSH.NET direct profile", null, null);
         }
 
         private async void DisconnectSsh_Click(object sender, RoutedEventArgs e)
@@ -159,7 +162,8 @@ namespace VT7.Host
         private async System.Threading.Tasks.Task StartProfileAsync(TerminalProfile profile)
         {
             if (_switchingProfile || _closed || _document == null || Viewport == null) return;
-            var coordinator = SshOverlayCoordinator.TryCreate(profile, PromptForTypedSshAsync);
+            var coordinator = SshOverlayCoordinator.TryCreate(profile, PromptForTypedSshAsync,
+                PromptForHostTrustAsync);
             var configured = coordinator?.Configure(profile) ?? profile;
             await StartTransportAsync(new WinPtyTransport(configured), profile.DisplayName, profile, coordinator);
         }
@@ -257,6 +261,35 @@ namespace VT7.Host
                 if (_closed) return null;
                 var dialog = new SshConnectionDialog(invocation) { Owner = this };
                 return dialog.ShowDialog() == true ? dialog.Result : null;
+            }).Task;
+        }
+
+        private async System.Threading.Tasks.Task<HostTrustPromptResponse> PromptForHostTrustAsync(
+            HostTrustPromptRequest request, CancellationToken cancellationToken)
+        {
+            if (_closed || cancellationToken.IsCancellationRequested)
+                return new HostTrustPromptResponse(request.RequestId, HostTrustPromptAction.Cancel);
+
+            var windowGeneration = Interlocked.Increment(ref _trustPromptGeneration);
+            return await Dispatcher.InvokeAsync(() =>
+            {
+                if (_closed || cancellationToken.IsCancellationRequested ||
+                    windowGeneration != Interlocked.Read(ref _trustPromptGeneration))
+                    return new HostTrustPromptResponse(request.RequestId, HostTrustPromptAction.Cancel);
+
+                var dialog = new HostTrustDialog(request) { Owner = this };
+                using (cancellationToken.Register(() =>
+                    _ = Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        if (dialog.IsVisible) dialog.Close();
+                    }))))
+                {
+                    var accepted = dialog.ShowDialog() == true;
+                    if (!accepted || _closed || cancellationToken.IsCancellationRequested ||
+                        windowGeneration != Interlocked.Read(ref _trustPromptGeneration))
+                        return new HostTrustPromptResponse(request.RequestId, HostTrustPromptAction.Cancel);
+                    return dialog.Result;
+                }
             }).Task;
         }
 
