@@ -14,7 +14,7 @@ $noticeRoot = Join-Path $dependencyRoot 'sshnet-source-notices-f099365c9d4cf2ade
 $packageParent = Join-Path $repositoryRoot 'artifacts\vt7\packages'
 $packageRoot = Join-Path $packageParent $PackageName
 $archivePath = Join-Path $packageParent ($PackageName + '.zip')
-if ($PackageName -notmatch '^VT7-KnownHosts-KH01-0\.4-x64$') { throw "Invalid KH01.4 package name: $PackageName" }
+if ($PackageName -notmatch '^VT7-KnownHosts-KH01-0\.5-x64$') { throw "Invalid KH01.4 package name: $PackageName" }
 foreach ($path in @($packageRoot, $archivePath)) {
     if (Test-Path -LiteralPath $path) { throw "Refusing to replace an existing KH01.4 package: $path" }
 }
