@@ -41,7 +41,7 @@ int32_t __cdecl VT7_GetBuildInfo(VT7_BUILD_INFO* info)
     info->abi_version = VT7_NATIVE_ABI_VERSION;
     info->version_major = 0;
     info->version_minor = 12;
-    info->version_patch = 2;
+    info->version_patch = 3;
 
     copy_text(info->product, L"VT7");
 

@@ -480,17 +480,16 @@ namespace VT7.Host
                 var inheritedAcl = File.GetAccessControl(primary);
                 Require(!inheritedAcl.AreAccessRulesProtected,
                     "The inherited-DACL removal fixture is unexpectedly protected.");
-                var inheritedSddl = inheritedAcl.GetSecurityDescriptorSddlForm(
-                    AccessControlSections.Owner | AccessControlSections.Group | AccessControlSections.Access);
                 reviewed = OpenSshKnownHostsStore.Load(definitions);
                 OpenSshKnownHostsWriter.RemovePrimaryUserRecords(reviewed, "changed.example", new[] { 2 });
                 Require(File.ReadAllBytes(primary).SequenceEqual(retained),
                     "Inherited-DACL removal changed retained raw lines.");
                 Require(File.ReadAllBytes(primary + ".old").SequenceEqual(original),
                     "Inherited-DACL removal lost the exact backup.");
-                Require(File.GetAccessControl(primary).GetSecurityDescriptorSddlForm(
-                    AccessControlSections.Owner | AccessControlSections.Group | AccessControlSections.Access) == inheritedSddl,
-                    "Inherited-DACL removal changed the primary file's security descriptor.");
+                var inheritedMismatch = OpenSshKnownHostsWriter.SecurityMismatch(
+                    inheritedAcl, File.GetAccessControl(primary));
+                Require(inheritedMismatch == null,
+                    "Inherited-DACL removal changed primary file security: " + inheritedMismatch);
 
                 File.WriteAllBytes(primary, original);
                 reviewed = OpenSshKnownHostsStore.Load(definitions);

@@ -261,7 +261,7 @@ namespace VT7.Host
             if (found != selected.Count) throw new KnownHostsMutationException("removal-selection");
         }
 
-        private static string? SecurityMismatch(FileSecurity expected, FileSecurity actual)
+        internal static string? SecurityMismatch(FileSecurity expected, FileSecurity actual)
         {
             // The auto-inheritance control bits can differ when Windows writes
             // a copied descriptor, even if owner, group and every DACL entry

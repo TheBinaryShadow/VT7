@@ -1,7 +1,7 @@
 # OpenSSH-compatible known-host management KH01.4
 
-Date: 2026-09-24. Implementation state: VT7 0.12.2/native ABI 11 live-removal
-correction candidate. Package 0.5 is rejected on NESSY and TURTLE. Package 0.6
+Date: 2026-09-24. Implementation state: VT7 0.12.3/native ABI 11 inherited-ACL
+test correction candidate. Package 0.5 is rejected on NESSY and TURTLE. Package 0.6
 passes the automated corpus on both, but live removal stops safely before
 mutation at `temporary-security` and its key-row contrast is poor. KH01.3 package 0.4 remains the accepted
 first-contact baseline.
@@ -132,10 +132,19 @@ dialog's faint text. The issued package is
 `cf27e25a5e9f793611f4b64449cb0c139f84e51f`. Debug and Release focused
 known-host and SSH.NET checks, Release typed overlay, staged path-with-spaces
 and independent extracted launcher checks pass locally. Review copy:
-`artifacts/VT7-KnownHosts-KH01-0.7-x64.zip`. Windows 7 live acceptance remains
-pending.
+`artifacts/VT7-KnownHosts-KH01-0.7-x64.zip`. Its NESSY automated run fails
+after removal at the inherited-ACL fixture's *old exact SDDL assertion*, even
+though the production writer's structural owner/group/DACL check succeeded.
+The complete privacy-checked log and hash are preserved under
+`artifacts/vt7/evidence/known-hosts-kh01-4-win7-0.7-rejected`. Package 0.7
+is rejected before live testing.
 
-Run the package 0.7 automated launcher on both NESSY (`mscorlib.dll`
+Version 0.12.3/package 0.8 makes that inherited-ACL assertion use the same
+structural comparison as production and reports which component differs if
+it fails. The actual owner-file live removal is still unverified on Windows 7.
+Package 0.8 awaits issuance and target testing.
+
+Run the package 0.8 automated launcher on both NESSY (`mscorlib.dll`
 `4.8.4110.0`) and TURTLE (`4.8.4795.0`). Then follow its controlled live
 changed-key, removal, backup, fresh-reconnect and direct/typed path procedure.
 Return a complete `Logs` directory only for failed automated runs. Do not

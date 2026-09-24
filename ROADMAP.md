@@ -1122,7 +1122,9 @@ interactive candidate on the tested Windows 7 configuration.
   Package 0.6 passes the automated corpus on both machines, but owner-tested
   live removal stops at `temporary-security` with no file change and exposes
   faint key-row text. Version 0.12.2 compares the actual security components
-  and fixes that contrast; package 0.7 awaits target validation. This item remains open
+  and fixes that contrast. Package 0.7 failed the new inherited-ACL test's
+  obsolete exact-SDDL assertion on NESSY. Version 0.12.3 aligns that assertion
+  with the production security check; package 0.8 awaits validation. This item remains open
   through KH01.5.
 - [x] Support ephemeral password, private-key and passphrase authentication in
   the direct-profile dialog without persistence or default-log disclosure.

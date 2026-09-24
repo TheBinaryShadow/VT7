@@ -37,7 +37,7 @@ of required workflows remain immediate concerns, not optional polish.
 
 Start with [BUILDING.md](BUILDING.md) and the current
 [stability record](doc/vt7/validation/2026-09-13-atlas-stability.md).
-The working source is 0.12.2/ABI 11. It combines the accepted document/session/
+The working source is 0.12.3/ABI 11. It combines the accepted document/session/
 view ownership and bounded inbound/outbound paths with Command Prompt, Windows
 PowerShell 5.1 and versioned PowerShell 7 profiles through pinned WinPTY 0.4.3.
 Local Debug/Release, lifecycle and clean-profile PowerShell 5.1 checks pass. The
@@ -85,7 +85,9 @@ for the current known-host work: the 0.12.0/package 0.5 candidate failed
 security read-back on both Windows 7 machines. Version 0.12.1/package 0.6
 passes the automated corpus on both, but live removal stops before mutation
 at `temporary-security`. Version 0.12.2 adds structural security comparison
-and legible key rows; package 0.7 requires target acceptance.
+and legible key rows. Package 0.7 exposed an obsolete exact-SDDL assertion
+in its inherited-ACL fixture on Windows 7. Version 0.12.3 corrects that test;
+package 0.8 requires target acceptance.
 Also read the
 [accepted overlay record](doc/vt7/validation/2026-09-21-typed-ssh-overlay.md),
 [direct-profile validation record](doc/vt7/validation/2026-09-19-sshnet-direct-profile.md),

@@ -1,6 +1,6 @@
 # VT7 development handoff
 
-Updated: 2026-09-24. Current source is version 0.12.2/native ABI 11. Version
+Updated: 2026-09-24. Current source is version 0.12.3/native ABI 11. Version
 0.6.6 remains accepted across the
 Windows 7 PowerShell/profile and keyboard matrix. H01 packages 0.1 through 0.3
 pass the Command Prompt, PowerShell 5.1 and PowerShell 7.2.24 embedded/barrier
@@ -41,7 +41,10 @@ and verifies the replacement file's security descriptor before mutation.
 Corrected package 0.6 passes local staged and independent extracted checks and
 the automated KH01.4 corpus on NESSY and TURTLE. Live record removal stops
 before mutation at `temporary-security`; key-row contrast is poor. Version
-0.12.2 addresses both in package 0.7, pending target validation. Accepted
+0.12.2 addresses both in package 0.7, but NESSY automation exposes an
+inconsistent inherited-ACL fixture that still asserts exact SDDL. Version
+0.12.3 aligns the fixture with the structural security check for package 0.8.
+Live target acceptance remains pending. Accepted
 KH01.3 is unchanged.
 This is the current resumption guide. Start with the [documentation index](README.md)
 if unfamiliar with the repository. The [roadmap](../../ROADMAP.md) owns gates;
@@ -104,7 +107,7 @@ KH01.4 live-removal package 0.7 and its two-tier validation are current.
 
 | Item | Current state |
 | --- | --- |
-| Working application version | 0.12.2, native ABI 11, x64. It retains target-accepted KH01.2/KH01.3 and the publisher-built SSH.NET prerelease.6/f099365 fix, adds KH01.4 changed-key review and host-certificate policy, and compares owner/group/DACL structurally before deliberate record removal. KH01.4 awaits Windows 7 live acceptance. |
+| Working application version | 0.12.3, native ABI 11, x64. It retains target-accepted KH01.2/KH01.3 and the publisher-built SSH.NET prerelease.6/f099365 fix, adds KH01.4 changed-key review and host-certificate policy, and compares owner/group/DACL structurally before deliberate record removal. The inherited-ACL fixture now uses the same contract. KH01.4 awaits Windows 7 live acceptance. |
 | Milestone 1 | Complete on the tested configurations, with the evidence limits in its record. |
 | C1 minimum font boundary and C2 Atlas integration | Accepted on the supplied Windows 7 setup in 0.3.0. |
 | C3 repaint, controlled recovery, scaling | Bounded 0.3.1/0.3.2 results and actual 0.3.4 96/120/144 DPI matrix accepted. |
@@ -175,8 +178,9 @@ KH01.4 live-removal package 0.7 and its two-tier validation are current.
 | KH01.4 correction | Version 0.12.1 copies the reviewed security descriptor to a fresh `FileSecurity` object, applies it to the temporary file and verifies owner/group/DACL before replacing the primary user file. The disposable corpus now uses a protected ACL distinct from the inherited temporary ACL. Debug/Release, focused known-host, SSH.NET and typed-overlay checks pass locally. |
 | KH01.4 corrected package | `VT7-KnownHosts-KH01-0.6-x64.zip`, version 0.12.1, SHA256 `DF56400ACB1B0266CD8BB5E99757BB8F08411B058799B1E028BDF5B3D8B218EF`, 15,247,563 bytes, 94 verified files. Manifest source is clean commit `3dfd3664a`. Release, focused known-host and SSH.NET, typed overlay, staged path-with-spaces and independent extracted launcher checks pass. NESSY and TURTLE pass the automated corpus. Live removal stops at `temporary-security` with original file intact and no `.old`; key-row text is too faint. Review copy: `artifacts/VT7-KnownHosts-KH01-0.6-x64.zip`. Not accepted for live removal. |
 | KH01.4 live correction | Version 0.12.2 compares owner/group, inheritance protection and exact DACL entries instead of full serialized SDDL, keeps pre-replacement fail-closed behavior, adds an inherited-ACL fixture and explicitly darkens key-row text. |
-| KH01.4 live candidate | `VT7-KnownHosts-KH01-0.7-x64.zip`, version 0.12.2, SHA256 `402F077ACF230943554C50D964EE9100A02569B4359C1F17C8F254A1B0AF5FC5`, 15,264,946 bytes, 94 verified files. Manifest source is clean commit `cf27e25a5`. Debug/Release focused, Release overlay, staged path-with-spaces and independent extracted checks pass. Review copy: `artifacts/VT7-KnownHosts-KH01-0.7-x64.zip`. Windows 7 live acceptance is pending. |
-| Next bounded task | Run package 0.7 automated checks and controlled changed-key/removal/reconnect on NESSY and TURTLE. If removal stops, record the safe `temporary-security-*` category without sharing the real trust file. A controlled certificate-serving host remains a separate KH01.5 network acceptance gate. |
+| KH01.4 rejected live candidate | `VT7-KnownHosts-KH01-0.7-x64.zip`, version 0.12.2, SHA256 `402F077ACF230943554C50D964EE9100A02569B4359C1F17C8F254A1B0AF5FC5`, 15,264,946 bytes, 94 verified files. Manifest source is clean commit `cf27e25a5`. Local checks pass, but NESSY automation fails the inherited-ACL fixture's obsolete exact SDDL assertion after a structurally verified removal. The privacy-checked log is archived under `artifacts/vt7/evidence/known-hosts-kh01-4-win7-0.7-rejected`. No live test was run. |
+| KH01.4 fixture correction | Version 0.12.3 uses the production structural owner/group/DACL comparison in the inherited-ACL assertion. Package 0.8 awaits issuance. |
+| Next bounded task | Issue package 0.8, then run its automated checks and controlled changed-key/removal/reconnect on NESSY and TURTLE. If live removal stops, record the safe `temporary-security-*` category without sharing the real trust file. A controlled certificate-serving host remains a separate KH01.5 network acceptance gate. |
 | Milestone 2 | Open. Theme/high-contrast, broader device/environment and milestone-level ESU coverage also remain. |
 | Development sequence | Continue Milestone 5 through KH01.4-KH01.5 and later lifecycle/TUI hardening. Remaining C3/Milestone 2 qualification stays recorded without a blanket serial dependency. |
 
