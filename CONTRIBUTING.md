@@ -37,7 +37,7 @@ of required workflows remain immediate concerns, not optional polish.
 
 Start with [BUILDING.md](BUILDING.md) and the current
 [stability record](doc/vt7/validation/2026-09-13-atlas-stability.md).
-The working source is 0.11.0/ABI 11. It combines the accepted document/session/
+The working source is 0.12.1/ABI 11. It combines the accepted document/session/
 view ownership and bounded inbound/outbound paths with Command Prompt, Windows
 PowerShell 5.1 and versioned PowerShell 7 profiles through pinned WinPTY 0.4.3.
 Local Debug/Release, lifecycle and clean-profile PowerShell 5.1 checks pass. The
@@ -80,6 +80,11 @@ the later completion cannot reopen root input. Version 0.9.2/package 0.3 gives
 accepted completion the session lifetime, guarantees root recovery after a lost
 shim and passes its delayed-shim regression. Package 0.3 passes the complete
 controlled Windows 7 overlay matrix. Start with the
+[KH01.4 validation record](doc/vt7/validation/2026-09-24-known-hosts-kh01-4.md)
+for the current known-host work: the 0.12.0/package 0.5 candidate failed
+security read-back on both Windows 7 machines. Version 0.12.1 corrects the
+descriptor copy before replacement; package 0.6 requires target acceptance.
+Also read the
 [accepted overlay record](doc/vt7/validation/2026-09-21-typed-ssh-overlay.md),
 [direct-profile validation record](doc/vt7/validation/2026-09-19-sshnet-direct-profile.md),
 [session stream contract](doc/vt7/architecture/2026-09-14-session-stream-foundation.md)

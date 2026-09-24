@@ -83,7 +83,7 @@ $report = Get-Item -LiteralPath $reportPath
 if ($report.LastWriteTime -lt $started.AddSeconds(-2)) { throw 'VT7 SSH.NET foundation test left a stale report.' }
 $text = [IO.File]::ReadAllText($reportPath)
 $required = @(
-    'Build: VT7 0.12.0',
+    'Build: VT7 0.12.1',
     'Native: ABI 11, expected 11',
     'PASS: exact SSH.NET 2026.0.1-prerelease.6 f099365 and its twelve-file net48 runtime closure loaded.',
     'PASS: structured SSH options accept an absent known-host fallback and reject malformed SHA256 fingerprints.',

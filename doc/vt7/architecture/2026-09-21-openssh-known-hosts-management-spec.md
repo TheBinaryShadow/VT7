@@ -4,8 +4,9 @@ Decision date: 2026-09-21. Status: implementation specification approved;
 KH01.1 is accepted on Windows 7 against the exact 10.0p2 oracle. KH01.2 is
 accepted on NESSY and TURTLE. KH01.3 is implemented, package-verified and
 target accepted on both machines in VT7 0.11.0. KH01.4 is implemented locally
-in VT7 0.12.0; package 0.5 passes local verification and its Windows 7 live
-matrix remains pending.
+in VT7 0.12.0. Package 0.5 passed local verification but failed ACL read-back
+on both Windows 7 machines. VT7 0.12.1 corrects the security copy; package 0.6
+awaits target validation.
 
 This specification defines VT7's first durable SSH host-trust subsystem. It
 replaces the generic trust-store wording in the broader
@@ -590,8 +591,9 @@ on both Windows 7 runtime tiers. See the
 
 ### KH01.4: management and certificates
 
-Implementation status: VT7 0.12.0/package 0.5 local candidate; Debug, Release,
-staged and independent ZIP checks pass. See the
+Implementation status: VT7 0.12.0/package 0.5 rejected on NESSY and TURTLE
+after local checks passed. VT7 0.12.1 corrects the `FileSecurity` copy and
+verifies the temporary file's ACL before replacement. See the
 [KH01.4 validation record](../validation/2026-09-24-known-hosts-kh01-4.md).
 Windows 7 target acceptance remains open.
 

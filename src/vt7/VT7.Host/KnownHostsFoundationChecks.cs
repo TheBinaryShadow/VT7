@@ -440,6 +440,16 @@ namespace VT7.Host
                     "changed.example ssh-ed25519 " + Convert.ToBase64String(first.Blob) + " old key\r\n" +
                     "other.example ssh-ed25519 " + Convert.ToBase64String(second.Blob) + " keep me\n");
                 File.WriteAllBytes(primary, original);
+                // Give the reviewed file a protected DACL distinct from the
+                // directory-inherited ACL of the same-directory temporary file.
+                // This catches an unchanged FileSecurity copy that was never
+                // persisted by File.SetAccessControl.
+                var restricted = File.GetAccessControl(primary);
+                restricted.SetAccessRuleProtection(true, false);
+                restricted.AddAccessRule(new FileSystemAccessRule(
+                    WindowsIdentity.GetCurrent().User ?? throw new InvalidOperationException("No test user SID."),
+                    FileSystemRights.FullControl, AccessControlType.Allow));
+                File.SetAccessControl(primary, restricted);
                 var originalAcl = File.GetAccessControl(primary).GetSecurityDescriptorSddlForm(
                     AccessControlSections.Owner | AccessControlSections.Group | AccessControlSections.Access);
                 var reviewed = OpenSshKnownHostsStore.Load(definitions);

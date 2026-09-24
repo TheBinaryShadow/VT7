@@ -1115,9 +1115,12 @@ interactive candidate on the tested Windows 7 configuration.
   SSH paths and terminal interaction are accepted. Version 0.12.0 implements
   KH01.4 changed-key review, selected primary-user record removal with a
   verified `.old` copy, and CA-signed host-certificate policy. Local regression
-  and OpenSSH-generated certificate checks pass. Package 0.5 passes local
-  staged and independent ZIP verification; live Windows 7 validation is still
-  pending. This item remains open through KH01.5.
+  and OpenSSH-generated certificate checks pass. Package 0.5 passed local
+  staged and independent ZIP verification but fails ACL read-back in its
+  disposable removal check on NESSY and TURTLE. Version 0.12.1 explicitly
+  copies and verifies the replacement file's descriptor before mutation;
+  corrected package 0.6 awaits Windows 7 validation. This item remains open
+  through KH01.5.
 - [x] Support ephemeral password, private-key and passphrase authentication in
   the direct-profile dialog without persistence or default-log disclosure.
 - [ ] Add agent and keyboard-interactive authentication where

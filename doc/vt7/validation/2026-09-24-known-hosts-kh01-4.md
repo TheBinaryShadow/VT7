@@ -1,8 +1,9 @@
 # OpenSSH-compatible known-host management KH01.4
 
-Date: 2026-09-24. Implementation state: local VT7 0.12.0/native ABI 11
-candidate. Windows 7 NESSY/TURTLE acceptance is pending. KH01.3 package 0.4
-remains the accepted first-contact baseline.
+Date: 2026-09-24. Implementation state: VT7 0.12.1/native ABI 11 correction
+candidate. Package 0.5 is rejected on NESSY and TURTLE; corrected package 0.6
+awaits Windows 7 acceptance. KH01.3 package 0.4 remains the accepted
+first-contact baseline.
 
 ## Behavior and security boundary
 
@@ -20,8 +21,10 @@ Removal takes the reviewed four-source snapshot, acquires VT7's per-file
 writer mutex, validates selected line identities, checks all source generations
 and opens the primary file with competing writes excluded. Retained physical
 lines are copied byte for byte to a unique same-directory temporary file.
-VT7 flushes it, applies the original file security descriptor, rechecks the
-source generation and uses `File.Replace` to install the replacement and
+VT7 flushes it, copies the original file security descriptor into a fresh
+`FileSecurity` object, applies and verifies its owner/group/DACL on the
+temporary file, rechecks the source generation and uses `File.Replace` to
+install the replacement and
 produce `known_hosts.old`. It reloads the store and verifies the retained
 content hash, exact backup hash and owner/group/DACL. Changed files, unsafe
 paths, stale reviews, malformed sources and invalid selections stop the
@@ -48,8 +51,10 @@ exact-certificate revocation check.
 - Debug and Release builds, `Test-VT7KnownHosts.ps1`,
   `Test-VT7SshNetFoundation.ps1` and the Release typed-overlay regression pass
   on the development host.
-- The disposable corpus checks selected removal, retained bytes/newlines, ACL
-  preservation, exact `.old` backup, stale review, backup replacement,
+- The disposable corpus gives the original a protected ACL distinct from the
+  directory-inherited temporary-file ACL, then checks selected removal,
+  retained bytes/newlines, exact ACL preservation, exact `.old` backup, stale
+  review, backup replacement,
   revocation exclusion, unsafe targets and two competing VT7 removals.
 - Certificate policy fixtures cover exact CA, wildcard and case-sensitive
   principals, empty/wrong principal, wrong certificate type, expiry, critical
@@ -71,18 +76,34 @@ No OpenSSH implementation code was copied; KH01.4 code is VT7-authored under
 the repository MIT license. Existing SSH.NET and other supplier notices remain
 in the distribution.
 
-## Package and remaining acceptance
+## Rejected Windows 7 package 0.5
 
-Candidate identity: `VT7-KnownHosts-KH01-0.5-x64.zip`, application 0.12.0,
+The archived NESSY and TURTLE reports both fail at `read-back-security` after
+the disposable removal. All preceding parser, certificate policy, source
+loading and durable-addition checks pass. NESSY uses .NET Framework
+`4.8.4110.0`; TURTLE uses `4.8.4795.0`; both use the same package host/native
+hashes and OpenSSH 10.0p2 oracle. Package 0.5 had passed local and independent
+ZIP checks, but the Windows 7 result rejects it. Four privacy-checked files
+plus hashes are retained under
+`artifacts/vt7/evidence/known-hosts-kh01-4-win7-0.5-rejected`.
+
+The cause is a .NET Framework API contract: `File.SetAccessControl` does not
+persist an unchanged `FileSecurity` object retrieved from another file. The
+temporary replacement therefore kept its creation-time security. The code
+now creates a fresh descriptor via `SetSecurityDescriptorSddlForm`, applies
+it to the temporary file and checks the exact owner/group/DACL *before*
+`File.Replace`. The strengthened disposable fixture exercises a protected
+ACL that cannot accidentally match the inherited temporary ACL.
+[Microsoft documents this copy requirement](https://learn.microsoft.com/en-us/dotnet/api/system.io.file.setaccesscontrol?view=netframework-4.8.1).
+
+## Corrected package and remaining acceptance
+
+Corrected candidate identity: `VT7-KnownHosts-KH01-0.6-x64.zip`, application 0.12.1,
 native ABI 11, publisher-built SSH.NET `2026.0.1-prerelease.6`/`f099365`.
 The non-overwriting packager and independent verifier are
-`tools/Package-VT7KnownHostsManagement.ps1` and
-`tools/Verify-VT7KnownHostsManagementPackage.ps1`. It passes local staged
-path-with-spaces checks and independent extracted ZIP verification. The archive
-is 15,255,144 bytes and contains 94 verified files. SHA256:
-`13175567C37E0566C8601E790A1451902796D4AB3AD5309E2303A0DB5137E814`.
-The manifest identifies clean source commit `8bb8834bc3226f71074ed2b9719386f302e5ebb3`.
-Review copy: `artifacts/VT7-KnownHosts-KH01-0.5-x64.zip`.
+`tools/Package-VT7KnownHostsManagementAcl.ps1` and
+`tools/Verify-VT7KnownHostsManagementAclPackage.ps1`. Record its exact ZIP
+hash, size, file count and clean source commit after package verification.
 
 Run the packaged automated launcher on both NESSY (`mscorlib.dll`
 `4.8.4110.0`) and TURTLE (`4.8.4795.0`). Then follow its controlled live

@@ -29,13 +29,14 @@ existing evidence before a relevant regression run.
 | `Build-VT7SshNet.ps1` | Builds only the isolated net48/x64 S01 diagnostic; `-Configuration` selects Debug or Release and `-NoRestore` uses the verified lock result. |
 | `Test-VT7SshNet.ps1` | Runs S01 from a build or package directory. `-SelfTest` checks loads, modern algorithms, encrypted-key parsing and credential redaction without a server; network mode runs the controlled trust/authentication/PTY/lifecycle matrix. |
 | `Package-VT7SshNet.ps1` | Builds and self-tests the non-overwriting S01 package, preserves all exact dependency notices and metadata, verifies recursive hashes and ZIP entries, and emits the Windows 7 artifact. |
-| `Test-VT7SshNetFoundation.ps1` | Runs the application-host 0.12.0 offline SSH.NET contract: exact prerelease.6/f099365 runtime closure, structured address-family validation, direct-root ownership, geometry, credential-owner disposal, connection-dialog contrast, generation-bound first-contact UI and changed-key management dialog text contrast. It makes no network connection. |
+| `Test-VT7SshNetFoundation.ps1` | Runs the application-host 0.12.1 offline SSH.NET contract: exact prerelease.6/f099365 runtime closure, structured address-family validation, direct-root ownership, geometry, credential-owner disposal, connection-dialog contrast, generation-bound first-contact UI and changed-key management dialog text contrast. It makes no network connection. |
 | `Package-VT7SshNetDirect.ps1` | Creates the non-overwriting 0.8.2/ABI 11 direct-profile package, stages the accepted SSH.NET 2026.0.0 closure and every required notice, audits every native or managed image, runs the actual PowerShell 5.1 CMD launcher from a package path containing spaces, and independently verifies every ZIP entry. Package 0.2 is transport-accepted on Windows 7; package 0.3 fixes labels but misses selected Authentication text; package 0.4 corrects it and passes focused visual confirmation. Typed `ssh` remains disabled. |
-| `Test-VT7SshOverlay.ps1` | Runs the current 0.12.0 combined session stream/input, SSH.NET foundation and H01 corpus, retaining the accepted typed-overlay lifecycle case with a real shim held beyond the five-second handshake timeout, then records the exact installed external OpenSSH identity. The distributed runner strictly requires PowerShell 7.2.24; `-AllowMissingPowerShell7` is local-development only. |
+| `Test-VT7SshOverlay.ps1` | Runs the current 0.12.1 combined session stream/input, SSH.NET foundation and H01 corpus, retaining the accepted typed-overlay lifecycle case with a real shim held beyond the five-second handshake timeout, then records the exact installed external OpenSSH identity. The distributed runner strictly requires PowerShell 7.2.24; `-AllowMissingPowerShell7` is local-development only. |
 | `Package-VT7SshOverlay.ps1` | Creates the non-overwriting 0.9.2/ABI 11 typed-overlay package, stages the shim and SSH.NET closure with all notices, runs the real Windows PowerShell batch path from a directory containing spaces, and independently verifies every ZIP entry. Package 0.1 exposed worker-thread WPF geometry access. Package 0.2 connects after that correction but applies the handshake timeout to the remote-session completion wait. Package 0.3 corrects both boundaries and passes the complete controlled Windows 7 matrix. |
 | `Package-VT7KnownHostsReadOnly.ps1` | Creates the non-overwriting 0.10.1/ABI 11 KH01.2 package 0.3 with the full direct and typed SSH.NET application, publisher-built prerelease.6/f099365 dependency, read-only four-source known-host policy, complete license closure and two-tier Windows 7 procedure. Package 0.2 is preserved as the primary-pass/NESSY-rejected result. It runs overlay and KH01 diagnostics from a path containing spaces. `Verify-VT7KnownHostsReadOnlyPackage.ps1` independently verifies hashes, manifest policy, images and a fresh extracted run. |
 | `Package-VT7KnownHostsFirstContact.ps1` | Creates the non-overwriting 0.11.0/ABI 11 KH01.3 package 0.4. It stages both SSH entry paths, the pinned prerelease.6/f099365 closure and complete notices; runs overlay and durable known-host diagnostics from a path containing spaces; and emits a write-enabled manifest plus a controlled NESSY/TURTLE procedure. `Verify-VT7KnownHostsFirstContactPackage.ps1` independently checks hashes, policy fields, images and a fresh extracted run. |
 | `Package-VT7KnownHostsManagement.ps1` | Creates non-overwriting 0.12.0/ABI 11 KH01.4 package 0.5 with deliberate removal, `.old` recovery and certificate policy. It stages all notices, runs both focused and overlay checks from a path with spaces, and emits a separate controlled Windows 7 procedure. `Verify-VT7KnownHostsManagementPackage.ps1` checks every staged hash, manifest field, binary image and an extracted launcher. |
+| `Package-VT7KnownHostsManagementAcl.ps1` | Creates non-overwriting 0.12.1/ABI 11 KH01.4 package 0.6 with an explicit fresh `FileSecurity` copy and exact pre-replacement ACL verification. Package 0.5 is rejected by both Windows 7 machines at security read-back. `Verify-VT7KnownHostsManagementAclPackage.ps1` checks every staged hash, manifest field, binary image and an extracted launcher. |
 | `Test-VT7AtlasRepaint.ps1` | Exact repaint/cursor checks; `-Configuration`, `-BinaryDirectory`, `-Renderers`; retains its expected-failure control. |
 | `Test-VT7AtlasRecovery.ps1` | Controlled recovery scenarios; `-Configuration`, `-BinaryDirectory`. |
 | `Test-VT7AtlasSettings.ps1` | Font/settings checks; `-Configuration`, `-BinaryDirectory`, `-ExpectedSystemDpi` accepts `0`, `96`, `120` or `144`. Zero leaves the actual DPI unasserted. |
@@ -107,7 +108,7 @@ cancellation and isolation paths. Corrected 0.6 passes local checks plus both
 Windows 7 controlled-Debian runs and is the accepted S01 package.
 See the [S01 record](../doc/vt7/validation/2026-09-14-sshnet-s01.md).
 
-The current application source reports 0.12.0/ABI 11 and includes the native
+The current application source reports 0.12.1/ABI 11 and includes the native
 document/view split, managed session/transport foundation, real Command Prompt
 WinPTY root plus resource-isolation diagnostics absent from the issued 0.3.5
 archive. The exact 0.5.0 Windows 7 package passes its automated runners and
@@ -157,7 +158,10 @@ unchanged rerun.
 Version 0.12.0/KH01.4 adds selected ordinary user-record removal with an exact
 `.old` copy and host-certificate CA/principal/validity/revocation checks. Its
 automated tests use disposable files and a newly signed OpenSSH host
-certificate; live Windows 7 acceptance is tracked separately.
+certificate. Package 0.5 fails ACL read-back on both Windows 7 tiers because
+an unmodified `FileSecurity` object did not persist. Version 0.12.1 copies the
+descriptor into a fresh object and verifies it before replacement; target
+acceptance is tracked separately.
 These opt-in host CLI controls
 are documented in the [stability record](../doc/vt7/validation/2026-09-13-atlas-stability.md);
 the stability runner does not expose a resource-isolation parameter. The separate

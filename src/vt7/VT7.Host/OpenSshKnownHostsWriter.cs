@@ -184,7 +184,20 @@ namespace VT7.Host
                             target.Write(retained, 0, retained.Length);
                             target.Flush(true);
                         }
-                        File.SetAccessControl(temporary, security);
+                        // File.SetAccessControl does not persist an unmodified
+                        // FileSecurity returned by GetAccessControl. Copy the
+                        // reviewed descriptor into a fresh, modified object and
+                        // verify it before replacing any trusted file. Windows 7
+                        // does not always leave the replacement with the same
+                        // owner/group/DACL if this step is skipped.
+                        var replacementSecurity = new FileSecurity();
+                        replacementSecurity.SetSecurityDescriptorSddlForm(expectedSecurity,
+                            AccessControlSections.Owner | AccessControlSections.Group | AccessControlSections.Access);
+                        File.SetAccessControl(temporary, replacementSecurity);
+                        if (!string.Equals(File.GetAccessControl(temporary).GetSecurityDescriptorSddlForm(
+                            AccessControlSections.Owner | AccessControlSections.Group | AccessControlSections.Access),
+                            expectedSecurity, StringComparison.Ordinal))
+                            throw new KnownHostsMutationException("temporary-security");
 
                         // The final source check catches edits while the retained file is being
                         // built. File.Replace commits the new file and the .old backup together.

@@ -85,7 +85,7 @@ $report = Get-Item -LiteralPath $reportPath
 if ($report.LastWriteTime -lt $started.AddSeconds(-2)) { throw 'VT7 KH01 test left a stale report.' }
 $text = [IO.File]::ReadAllText($reportPath)
 $required = @(
-    'Build: VT7 0.12.0'
+    'Build: VT7 0.12.1'
     'Native: ABI 11, expected 11'
     'PASS: OpenSSH host tokens preserve default-port identity and bracket every non-default port.'
     'PASS: presented host keys use the exact RFC 4253 blob type, RSA key identity and canonical SHA256 fingerprint.'
