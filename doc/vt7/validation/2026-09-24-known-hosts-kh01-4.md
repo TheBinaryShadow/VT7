@@ -109,8 +109,11 @@ SHA256 `DF56400ACB1B0266CD8BB5E99757BB8F08411B058799B1E028BDF5B3D8B218EF`,
 15,247,563 bytes and 94 verified files. Its manifest names clean source commit
 `3dfd3664a32672d60e28734623c71af0de8a73e7`. Release build, focused
 known-host and SSH.NET checks, typed overlay, path-with-spaces staging and the
-independent extracted launcher pass locally. NESSY and TURTLE also pass the
-automated KH01.4 launcher; owner-confirmed live removal fails at
+independent extracted launcher pass locally. NESSY (`4.8.4110.0`) and TURTLE
+(`4.8.4795.0`) also pass the automated KH01.4 launcher. Four privacy-checked
+files and their hashes are archived under
+`artifacts/vt7/evidence/known-hosts-kh01-4-win7-0.6-automated`.
+Owner-confirmed live removal fails at
 `temporary-security` without changing the real file or creating `.old`.
 The real-file descriptor has not been collected, so the precise difference
 is unproven. The current exact SDDL-string comparison can reject differences
@@ -122,7 +125,15 @@ Version 0.12.2/package 0.7 compares those security components structurally,
 retains a fail-closed check before replacement, and reports the mismatched
 component if one remains. The corpus now exercises both protected and
 inherited file ACLs. An explicit dark key-row `TextBlock` corrects the white
-dialog's faint text. Package 0.7 awaits issuance and target validation.
+dialog's faint text. The issued package is
+`VT7-KnownHosts-KH01-0.7-x64.zip`, SHA256
+`402F077ACF230943554C50D964EE9100A02569B4359C1F17C8F254A1B0AF5FC5`,
+15,264,946 bytes, 94 verified files. Its manifest names clean source commit
+`cf27e25a5e9f793611f4b64449cb0c139f84e51f`. Debug and Release focused
+known-host and SSH.NET checks, Release typed overlay, staged path-with-spaces
+and independent extracted launcher checks pass locally. Review copy:
+`artifacts/VT7-KnownHosts-KH01-0.7-x64.zip`. Windows 7 live acceptance remains
+pending.
 
 Run the package 0.7 automated launcher on both NESSY (`mscorlib.dll`
 `4.8.4110.0`) and TURTLE (`4.8.4795.0`). Then follow its controlled live
