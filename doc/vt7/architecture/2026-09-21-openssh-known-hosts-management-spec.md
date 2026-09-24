@@ -2,8 +2,8 @@
 
 Decision date: 2026-09-21. Status: implementation specification approved;
 KH01.1 is accepted on Windows 7 against the exact 10.0p2 oracle. KH01.2 is
-accepted on NESSY and TURTLE. KH01.3 is locally implemented and package-verified
-in VT7 0.11.0 and awaits two-tier Windows 7 acceptance.
+accepted on NESSY and TURTLE. KH01.3 is implemented, package-verified and
+target accepted on both machines in VT7 0.11.0. KH01.4 is next.
 
 This specification defines VT7's first durable SSH host-trust subsystem. It
 replaces the generic trust-store wording in the broader
@@ -575,8 +575,8 @@ See the [KH01.2 validation record](../validation/2026-09-22-known-hosts-kh01-2.m
 
 ### KH01.3: first-contact and durable addition
 
-Implementation status: complete and locally validated in VT7 0.11.0/package
-0.4 candidate. Windows 7 target acceptance is pending. See the
+Implementation status: complete and target accepted in VT7 0.11.0/package 0.4
+on both Windows 7 runtime tiers. See the
 [KH01.3 validation record](../validation/2026-09-24-known-hosts-kh01-3.md).
 
 - Add generation-safe unknown-host UI, Connect once and Trust and connect.
@@ -758,7 +758,6 @@ the [roadmap](../../../ROADMAP.md), [development handoff](../HANDOFF.md),
 records, `NOTICE.md` if any upstream code is ported, and a dated KH01 validation
 record containing exact package and target evidence.
 
-This document authorizes engineering work within its boundaries. KH01.1 and
-KH01.2 are target accepted; KH01.3 is locally implemented and awaiting target
-acceptance. Complete known-host management is not claimed until KH01.4 and
-KH01.5 close their remaining behavior and matrix.
+This document authorizes engineering work within its boundaries. KH01.1 through
+KH01.3 are target accepted. Complete known-host management is not claimed until
+KH01.4 and KH01.5 close their remaining behavior and matrix.

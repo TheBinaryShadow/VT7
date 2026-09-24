@@ -55,8 +55,9 @@ application for Windows 7.
 > is captured before authentication, then Cancel, Connect once, or Trust and
 > connect drives a fresh SSH client. Durable trust safely appends and verifies
 > the primary user `known_hosts` record. Package 0.4 passes local Debug/Release,
-> staged and independent archive checks; the two-machine Windows 7 live matrix
-> is pending.
+> staged and independent archive checks plus the complete automated and live
+> matrix on non-ESU NESSY and newer-serviced TURTLE. KH01.3 is accepted across
+> both Windows 7 .NET Framework 4.8 tiers.
 > Other
 > features described here remain project goals until implemented and verified.
 
@@ -70,8 +71,8 @@ is accepted on Windows 7 against the required 10.0p2 oracle. The
 [KH01.2 read-only integration](doc/vt7/validation/2026-09-22-known-hosts-kh01-2.md)
 is accepted on both Windows 7 runtime tiers. The
 [KH01.3 implementation record](doc/vt7/validation/2026-09-24-known-hosts-kh01-3.md)
-documents the locally complete first-contact and durable-addition candidate;
-Windows 7 acceptance is next.
+documents the accepted first-contact and durable-addition package and its
+two-machine evidence. KH01.4 removal/replacement and certificate policy is next.
 
 ## What we are building
 
@@ -158,11 +159,10 @@ implementations. The previous 2026.0.0 package connected on `mscorlib.dll`
 servicing level is now an explicit acceptance target instead of a forbidden
 configuration.
 
-Package 0.3 now passes the complete automated and stored-key live-path checks on
-both tiers. NESSY proves the ordinary non-ESU `4.8.4110.0` floor; TURTLE proves
-the newer `4.8.4795.0` configuration. KH01.3 is now implemented locally; its
-generation-safe first-contact and durable user-store behavior must pass the same
-two-tier target matrix before acceptance.
+Packages 0.3 and 0.4 pass the complete automated and live-path checks on both
+tiers. NESSY proves the ordinary non-ESU `4.8.4110.0` floor; TURTLE proves the
+newer `4.8.4795.0` configuration. Package 0.4 accepts KH01.3's generation-safe
+first-contact and durable user-store behavior on the same two-tier matrix.
 
 We also intend to test systems that have later Windows Server 2008 R2-derived
 NT 6.1 updates. Those systems are an additional compatibility tier, not the
@@ -266,7 +266,8 @@ the exact captured host/key/store generation for one fresh client; Trust and
 connect safely appends the primary user record, flushes, reloads and verifies it
 before another fresh client. Changed, revoked, unreadable, fingerprint-mismatch
 and certificate cases remain fail-closed. Local Debug diagnostics pass; target
-acceptance is pending.
+acceptance now passes on NESSY and TURTLE, including all three first-contact
+choices, durable reconnect through both SSH paths and terminal interaction.
 The exact 0.5.0 Windows 7 package also passes all three runners; manual
 Command Prompt use, Croatian text and a Unicode filename pass. Ctrl+C interrupts
 a running command; empty or partial prompt-line cancellation has the known

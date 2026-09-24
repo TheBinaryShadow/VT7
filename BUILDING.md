@@ -372,7 +372,9 @@ independently verify it with:
 Package 0.4 is non-overwriting and leaves accepted package 0.3 intact. Its
 offline corpus uses disposable trust files. Only the controlled live **Trust
 and connect** action writes the tester's primary user `known_hosts`. See the
-[KH01.3 record](doc/vt7/validation/2026-09-24-known-hosts-kh01-3.md).
+[KH01.3 record](doc/vt7/validation/2026-09-24-known-hosts-kh01-3.md). The exact
+package and complete controlled matrix are accepted on NESSY and TURTLE; keep
+the archived evidence and do not request an unchanged rerun.
 
 Run the P01 local-console characterization after building either configuration:
 
@@ -795,8 +797,9 @@ not a minimum-version gate for package 0.3.
 
 KH01.2 package 0.3 passes its automated corpus and both stored-key live SSH
 paths on NESSY (`4.8.4110.0`) and TURTLE (`4.8.4795.0`). Preserve that accepted
-evidence. KH01.3 is implemented in 0.11.0 and awaits package 0.4 automation and
-controlled first-contact runs on both machines.
+evidence. KH01.3 package 0.4 also passes its automation and controlled
+first-contact, persistence, reconnect and interaction matrix on both machines.
+Preserve its accepted evidence; KH01.4 is the next known-host slice.
 
 Copy and extract the entire 0.3.5 zip, including `fonts/`, on that machine.
 Run `RUN-DIAGNOSTICS.cmd` and `RUN-VIEWPORT-TEST.cmd`, retaining

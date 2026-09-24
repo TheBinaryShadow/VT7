@@ -1,7 +1,7 @@
 # OpenSSH-compatible first-contact trust KH01.3
 
-Date: 2026-09-24. Implementation state: complete, packaged and locally validated in VT7
-0.11.0/native ABI 11. Windows 7 target acceptance is pending.
+Date: 2026-09-24. Implementation state: target accepted in VT7 0.11.0/native
+ABI 11 on both Windows 7 runtime tiers.
 
 ## Result
 
@@ -102,9 +102,9 @@ independent verifier reopens the archive, rejects unsafe or duplicate paths,
 recomputes all 94 entry hashes, checks the write-enabled manifest and PE/runtime
 closure, extracts into a fresh directory and reruns the packaged KH01.3 launcher.
 
-## Candidate and Windows 7 procedure
+## Accepted package and Windows 7 result
 
-The non-overwriting candidate is `VT7-KnownHosts-KH01-0.4-x64.zip`:
+The accepted non-overwriting package is `VT7-KnownHosts-KH01-0.4-x64.zip`:
 
 - source commit: `750bbca99` (`sourceGitDirty: false` in the manifest);
 - SHA256: `531B4A1D43894408F7AA38AC6E0BC22C6EBA1394519C3A70C1C9A83AA64B2C83`;
@@ -112,13 +112,34 @@ The non-overwriting candidate is `VT7-KnownHosts-KH01-0.4-x64.zip`:
 - files: 94 verified archive entries; and
 - review copy: `artifacts/VT7-KnownHosts-KH01-0.4-x64.zip`.
 
-`RUN-KNOWN-HOSTS-KH01-3.cmd` runs only disposable offline fixtures. The package
-README then asks for controlled unknown-host checks on both NESSY
-(`mscorlib.dll` 4.8.4110.0) and TURTLE (4.8.4795.0): Cancel, Connect once without
-persistence, Trust and connect with one saved record, prompt-free stored-key
-reconnect from typed and direct paths, Unicode/input/resize/scrollback and clean
-remote exit.
+Both target machines pass the exact packaged automated runner. Each report
+identifies Windows NT 6.1.7601 SP1 x64, Croatian regional settings,
+PowerShell 5.1.14409.1005, the same VT7 host/native hashes and the required
+Win32-OpenSSH 10.0p2 `ssh-keygen.exe` oracle. NESSY exercises the ordinary
+non-ESU .NET Framework `mscorlib.dll` 4.8.4110.0 tier with VMware SVGA 3D;
+TURTLE exercises 4.8.4795.0 with an AMD Radeon RX 6800 XT. Both reports record
+VT7 0.11.0 Release, ABI 11, all 1,024 parser cases, the `ssh-keygen` differential
+oracle and the durable KH01.3 writer corpus as passed with no error.
 
-This record must not call KH01.3 target accepted until that two-machine live
-matrix passes. KH01.2 remains the latest accepted known-host checkpoint until
-then.
+The owner then completed the package README's controlled live matrix on both
+machines: Cancel, Connect once without persistence, Trust and connect with one
+saved record, prompt-free stored-key reconnect through typed and direct paths,
+Unicode/input/resize/scrollback and clean remote exit all pass. The automated
+logs establish the offline contracts; the owner report establishes the live
+network/UI behavior. No credential is retained in either evidence set.
+
+The four returned files and `ARCHIVE-VERIFICATION.json` are preserved under
+`artifacts/vt7/evidence/known-hosts-kh01-3-win7-0.4`. The verification record
+binds them to the accepted package identity and records these SHA256 values:
+
+| Machine | File | SHA256 |
+| --- | --- | --- |
+| NESSY | `known-hosts.log` | `CF4C87FB1C077422C44483B13459E507F0E358DEB84E405438B1E0AA3CDDE7B5` |
+| NESSY | `RUN-ENVIRONMENT.txt` | `8D2093CD253791E68184783487569A931603EAA2178CBC03A651FB678F289B9F` |
+| TURTLE | `known-hosts.log` | `98F5EB6A98F4E80A0DA47D8A9ECDA313847380A775A7A350F935CB5150A52F2B` |
+| TURTLE | `RUN-ENVIRONMENT.txt` | `7B924270EBD3B00A29DB00038C0D200BAFB9582429AAD549FD80E507261B2008` |
+
+KH01.3 is target accepted. KH01.4 is the next bounded slice: deliberate
+user-record removal/replacement with recovery, followed by the declared
+certificate and marker policy. Complete known-host management remains open
+until KH01.4 and the final KH01.5 matrix close.

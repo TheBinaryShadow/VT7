@@ -149,7 +149,10 @@ on NESSY and TURTLE, accepting KH01.2 across the two runtime tiers. Version
 primary-user addition, ACL and byte preservation, stale-store rejection,
 concurrent writers and exact read-back. The diagnostics never read real trust
 files or connect to a server; only an explicit live **Trust and connect** choice
-writes the production primary user file.
+writes the production primary user file. Package 0.4 and its complete controlled
+matrix pass on NESSY and TURTLE; preserve the accepted evidence under
+`artifacts/vt7/evidence/known-hosts-kh01-3-win7-0.4` and do not request an
+unchanged rerun.
 These opt-in host CLI controls
 are documented in the [stability record](../doc/vt7/validation/2026-09-13-atlas-stability.md);
 the stability runner does not expose a resource-isolation parameter. The separate

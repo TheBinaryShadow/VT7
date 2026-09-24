@@ -1110,8 +1110,10 @@ interactive candidate on the tested Windows 7 configuration.
   user file with flush and exact read-back. Package 0.4 passes Debug/Release,
   overlay, path-with-spaces and independent archive verification at SHA256
   `531B4A1D43894408F7AA38AC6E0BC22C6EBA1394519C3A70C1C9A83AA64B2C83`.
-  The NESSY/TURTLE live matrix is the current acceptance work. This item remains
-  open until KH01.3-KH01.5 and the complete target matrix pass.
+  Its automated and controlled live matrix passes on NESSY and TURTLE: Cancel,
+  Connect once, durable Trust and connect, prompt-free reconnect through both
+  SSH paths and terminal interaction are accepted. This item remains open until
+  KH01.4-KH01.5 and the complete management matrix pass.
 - [x] Support ephemeral password, private-key and passphrase authentication in
   the direct-profile dialog without persistence or default-log disclosure.
 - [ ] Add agent and keyboard-interactive authentication where
