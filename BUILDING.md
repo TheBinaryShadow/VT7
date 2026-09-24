@@ -185,8 +185,10 @@ machine with .NET Framework 4.8 and Windows PowerShell 2.0 is the legacy test ti
 [the pre-WMF 5.1 assessment](doc/vt7/validation/2026-09-24-pre-wmf51-windows7.md)
 for a PowerShell-2-compatible prerequisite check and the separate test scope.
 Candidate `VT7-Legacy-Win7-0.1-x64.zip` passed LEOPARD's `cmd.exe` baseline but
-exposed the absent-OpenSSH typed-shim gate. Corrected candidate 0.2 adds a
-no-external-shim stage; its LEOPARD live SSH result is pending.
+exposed the absent-OpenSSH typed-shim gate. Corrected candidate 0.2 passes all
+six LEOPARD baseline stages, including the no-external-shim check. Its live
+SSH server result remains pending. The older KH01.4 PowerShell test runner
+cannot validate the PowerShell 2.0 tier; current source rejects it explicitly.
 
 These are development-host requirements. VS 2022 17.7 and later cannot install
 on Windows 7; build with the pinned 17.14 on the modern development machine
@@ -500,7 +502,7 @@ identity. See the [I01 record](doc/vt7/validation/2026-09-14-input-i01.md).
 | `Package-VT7KnownHostsManagementLiveAcl.ps1` | Issued non-overwriting `vt7/packages/VT7-KnownHosts-KH01-0.7-x64` / matching ZIP. It stages VT7 0.12.2 with structural owner/group/DACL comparison and legible changed-key rows. `Verify-VT7KnownHostsManagementLiveAclPackage.ps1` independently checks the archive and extracted launcher. SHA256 `402F077ACF230943554C50D964EE9100A02569B4359C1F17C8F254A1B0AF5FC5` (15,264,946 bytes, 94 files); rejected after NESSY's inherited-ACL test fails an obsolete exact-SDDL assertion. |
 | `Package-VT7KnownHostsManagementInheritedAcl.ps1` | Issued non-overwriting `vt7/packages/VT7-KnownHosts-KH01-0.8-x64` / matching ZIP. It stages VT7 0.12.3 with the inherited-ACL test aligned to production's structural security check. `Verify-VT7KnownHostsManagementInheritedAclPackage.ps1` independently checks the archive and extracted launcher. SHA256 `16509A782C8EE629E74F8CE4D4FE11E265C93763BB2E75036AC3C5FEE6920AEE` (15,283,778 bytes, 94 files); automated and controlled live known-host management pass on both Windows 7 machines. |
 | `Package-VT7LegacyWin7.ps1` | LEOPARD candidate 0.1, application 0.12.4; five-stage `cmd.exe` baseline passes on Windows 7 with PowerShell 2.0. Typed SSH is rejected because there is no system OpenSSH client, so this candidate does not establish the full SSH path. |
-| `Package-VT7LegacySshNoExternal.ps1` | Corrected LEOPARD candidate 0.2, application 0.12.5; stages the accepted dependency/notice closure and a six-stage `cmd.exe` baseline including bundled typed SSH without external OpenSSH. `Verify-VT7LegacySshNoExternalPackage.ps1` verifies ZIP hashes, manifest, binary closure and a fresh extracted run. SHA256 `5DB55BB730A242958FDB32EF0DC6F47702BFF43883142435B2E78C27CE9E1450` (15,289,723 bytes, 97 files). LEOPARD live SSH result pending. |
+| `Package-VT7LegacySshNoExternal.ps1` | Corrected LEOPARD candidate 0.2, application 0.12.5; stages the accepted dependency/notice closure and a six-stage `cmd.exe` baseline including bundled typed SSH without external OpenSSH. `Verify-VT7LegacySshNoExternalPackage.ps1` verifies ZIP hashes, manifest, binary closure and a fresh extracted run. SHA256 `5DB55BB730A242958FDB32EF0DC6F47702BFF43883142435B2E78C27CE9E1450` (15,289,723 bytes, 97 files). All six baseline stages pass on LEOPARD; live server SSH is pending. |
 
 Issued P01 package 0.3 used a culture-sensitive PowerShell row comparison that
 ignored embedded NULs in the two Windows 7 raw-VT cases. The retained strings

@@ -189,7 +189,7 @@ Planned shell coverage:
 | --- | --- |
 | Command Prompt | First-class local support |
 | Windows PowerShell 5.1 | First-class local support |
-| Earlier installed Windows PowerShell versions | Detected and displayed by version; PowerShell 2.0 on Windows 7 remains unqualified pending the [pre-WMF 5.1 test](doc/vt7/validation/2026-09-24-pre-wmf51-windows7.md) |
+| Earlier installed Windows PowerShell versions | Detected and displayed by version; the PowerShell 2.0 interactive profile remains unqualified under the [pre-WMF 5.1 test](doc/vt7/validation/2026-09-24-pre-wmf51-windows7.md) |
 | PowerShell 7 up-to version 7.2.24 | First-class local support |
 | Native Windows console applications | Support through the local PTY backend |
 | SSH | First-class remote support |
@@ -197,8 +197,9 @@ Planned shell coverage:
 The separate pre-WMF 5.1 candidate 0.1 passes LEOPARD's Windows 7/PowerShell
 2.0 baseline. It exposed that typed SSH was unavailable when no system
 OpenSSH client was installed. Candidate 0.2 carries the corrected bundled
-shim path and awaits LEOPARD's live SSH retest. PowerShell 2.0 remains an
-unqualified interactive profile.
+shim path, and all six built-in baseline stages now pass on LEOPARD without
+installed OpenSSH. A live server connection remains to be validated there;
+PowerShell 2.0 remains an unqualified interactive profile.
 
 PowerShell 7.3 and newer depend on .NET versions that dropped Windows 7 support.
 They are outside of the initial compatibility promise.

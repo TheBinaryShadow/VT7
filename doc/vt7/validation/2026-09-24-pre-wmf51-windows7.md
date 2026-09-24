@@ -1,8 +1,8 @@
 # Windows 7 SP1 without WMF 5.1: compatibility assessment
 
-Status: candidate 0.1 baseline passes on LEOPARD; typed SSH defect found.
-Corrected candidate 0.2 is issued for LEOPARD's live SSH retest. PowerShell
-2.0 remains unqualified.
+Status: corrected candidate 0.2 passes all six LEOPARD baseline stages,
+including the bundled typed-SSH handoff without installed OpenSSH. Live server
+connection and the interactive PowerShell 2.0 profile remain unqualified.
 
 KB3191566 installs Windows Management Framework (WMF) 5.1, including Windows
 PowerShell 5.1. It is **not** .NET Framework 5.1. VT7's x64 WPF host targets
@@ -97,6 +97,30 @@ spaces both pass. This does not yet prove LEOPARD's actual SSH connection.
 The seven supplied LEOPARD 0.1 baseline files, including the startup capture,
 are hash-verified under `artifacts/vt7/evidence/legacy-win7-0.1-leopard`;
 they contain no SSH session credentials or trust records.
+
+LEOPARD ran candidate 0.2 on 2026-09-24. Its prerequisite record again shows
+Windows `6.1.7601`, .NET Framework release `0x80eb1` and Windows PowerShell
+`2.0`. All six built-in logs report `Passed: True`: window smoke, Command
+Prompt WinPTY, session stream, session outbound, SSH.NET foundation, and the
+new no-external typed-SSH overlay. That last check completed an authenticated
+local shim handoff without an external `ssh.exe` and rejected unsupported
+syntax with status 255. It is an offline diagnostic, not a live connection to
+the owner's Debian server. The logs' `Build: VT7 0.12.3` line comes from the
+unchanged native component; the candidate's managed host file version and
+manifest identify application 0.12.5. The eight supplied files, including
+the startup capture, were reviewed for credentials and trust material and
+hash-verified under `artifacts/vt7/evidence/legacy-win7-0.2-leopard`.
+
+The owner initially ran `RUN-KNOWN-HOSTS-KH01-4.cmd` on PowerShell 2.0. That
+incompatible launcher printed `passed` after PowerShell rejected
+`Set-StrictMode -Version 3.0`, so its output is **not** a KH01.4 result.
+The source launchers and scripts now explicitly reject PowerShell older than
+5.1 with exit code 2 and point to `RUN-VT7-LEGACY-BASELINE.cmd`. Candidate 0.2
+predates that guard and retains the misleading KH01.4 launcher; its six-stage
+legacy baseline result is unaffected. The guard will ship with the next
+package. LEOPARD's live typed SSH, remote input/resize/exit and direct SSH.NET
+connection still require a controlled server run before the full pre-WMF
+runtime tier is accepted.
 
 Sources: [Microsoft's WMF 5.1 KB3191566 description](https://support.microsoft.com/en-au/topic/update-for-windows-management-framework-5-1-for-windows-7-and-windows-server-2008-r2-918077a1-ebc1-289f-bc04-8cc4546eafd0),
 [.NET Framework version detection](https://learn.microsoft.com/en-us/dotnet/framework/install/how-to-determine-which-versions-are-installed),

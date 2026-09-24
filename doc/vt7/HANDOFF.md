@@ -54,7 +54,10 @@ external `ssh.exe` before exposing VT7's bundled shim. Version 0.12.5/candidate
 0.2 removes that gate, preserves exact external fallback when installed, and
 returns status 255 for unsupported syntax when no fallback exists. The new
 no-external diagnostic, complete H01 corpus and independent extracted package
-checks pass locally. LEOPARD's live SSH retest is pending; see the
+checks pass locally. LEOPARD also passes all six candidate 0.2 baseline stages
+on PowerShell 2.0 without installed OpenSSH. Live server SSH remains pending;
+the older KH01.4 launcher falsely reported success on PowerShell 2.0, so
+current source rejects that incompatible runner explicitly. See the
 [pre-WMF validation record](validation/2026-09-24-pre-wmf51-windows7.md).
 This is the current resumption guide. Start with the [documentation index](README.md)
 if unfamiliar with the repository. The [roadmap](../../ROADMAP.md) owns gates;

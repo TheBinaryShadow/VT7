@@ -6,6 +6,10 @@ param(
     [string]$ExpectedSshKeygenFileVersion
 )
 $ErrorActionPreference = 'Stop'
+if ($PSVersionTable.PSVersion -lt [version]'5.1') {
+    [Console]::Error.WriteLine('VT7 KH01.4 test requires Windows PowerShell 5.1 or newer; run RUN-VT7-LEGACY-BASELINE.cmd on PowerShell 2.0.')
+    exit 2
+}
 Set-StrictMode -Version 3.0
 
 function Get-VT7Sha256 {
