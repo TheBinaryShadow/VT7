@@ -80,6 +80,8 @@ namespace VT7.Host
             report.AppendLine("PASS: Command Prompt resolved ordinary ssh through the authenticated shim, committed the visible WinPTY barrier in order, and kept the accepted shim waiting beyond the five-second handshake timeout until embedded completion.");
 
             var windowsPowerShell = TerminalProfile.CreateWindowsPowerShell(cleanProfile: true);
+            if (!windowsPowerShell.IsWindows7Qualified)
+                throw new InvalidOperationException("The H01 PowerShell path requires Windows PowerShell 5.1; discovered " + windowsPowerShell.DisplayName + ".");
             await RunEmbedded(windowsPowerShell, "Windows PowerShell 5.1", 62, true);
             report.AppendLine("PASS: Windows PowerShell 5.1 preserved Croatian HR Latin input, command precedence and the authenticated WinPTY barrier.");
 

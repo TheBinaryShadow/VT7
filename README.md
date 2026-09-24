@@ -189,6 +189,7 @@ Planned shell coverage:
 | --- | --- |
 | Command Prompt | First-class local support |
 | Windows PowerShell 5.1 | First-class local support |
+| Earlier installed Windows PowerShell versions | Detected and displayed by version; PowerShell 2.0 on Windows 7 remains unqualified pending the [pre-WMF 5.1 test](doc/vt7/validation/2026-09-24-pre-wmf51-windows7.md) |
 | PowerShell 7 up-to version 7.2.24 | First-class local support |
 | Native Windows console applications | Support through the local PTY backend |
 | SSH | First-class remote support |

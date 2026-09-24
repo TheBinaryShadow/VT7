@@ -193,6 +193,11 @@ The planned minimum target is:
 - A working Direct3D 11 graphics driver, with WARP used as a fallback where
   practical.
 
+KB3191566 / Windows Management Framework 5.1 is not a product prerequisite.
+VT7 should discover the installed Windows PowerShell version and offer only
+profiles actually present. A Windows 7 SP1 x64, .NET Framework 4.8 machine
+retaining PowerShell 2.0 is the pending [pre-WMF test tier](doc/vt7/validation/2026-09-24-pre-wmf51-windows7.md).
+
 The final installer or portable package should detect missing prerequisites and
 explain them in plain language. It must not fail with an unexplained missing
 entry point or DLL error.
@@ -208,6 +213,11 @@ entry point or DLL error.
 
 A release must pass Tier A. Other tiers expand confidence but do not silently
 raise the minimum requirement.
+
+The new PowerShell 2.0 machine tests whether Tier A also covers pre-WMF 5.1
+installations. Keep its product-runtime result separate from the existing
+PowerShell 5.1-specific automated corpus; passing the latter is not a
+requirement to launch VT7 on a machine without WMF 5.1.
 
 The KH01.2 package 0.2 comparison found that local VT7 operation and the complete
 offline known-host corpus pass on both tiers, while SSH.NET 2026.0.0 fails during
@@ -227,6 +237,9 @@ and [0.2.1 acceptance](doc/vt7/validation/2026-09-10-milestone-1-cleanup.md).
 ## Shell and session targets
 
 ### Required for version 1.0
+
+These are shell compatibility targets when the shell is installed, not a list
+of shells that every VT7 machine must install.
 
 - Command Prompt.
 - Windows PowerShell 5.1.

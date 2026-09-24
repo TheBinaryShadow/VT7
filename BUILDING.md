@@ -179,6 +179,12 @@ The proof build is intentionally narrow and reproducible:
 - .NET Framework 4.8 SDK and targeting pack.
 - PowerShell 5.1 or newer to run the build scripts.
 
+PowerShell 5.1 is a development and current automated-runner requirement, not
+an installed-runtime requirement for VT7. A Windows 7 SP1 machine with .NET
+Framework 4.8 and Windows PowerShell 2.0 is the pending legacy test tier; see
+[the pre-WMF 5.1 assessment](doc/vt7/validation/2026-09-24-pre-wmf51-windows7.md)
+for a PowerShell-2-compatible prerequisite check and the separate test scope.
+
 These are development-host requirements. VS 2022 17.7 and later cannot install
 on Windows 7; build with the pinned 17.14 on the modern development machine
 and test the resulting binaries on Windows 7. The trace debugger is a separate,
