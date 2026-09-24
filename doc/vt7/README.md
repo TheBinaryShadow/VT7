@@ -30,7 +30,8 @@ TURTLE. Version 0.12.1/package 0.6 passes the two-machine automated corpus,
 but live removal stops before mutation at `temporary-security` and exposes
 faint key-row text. Version 0.12.2/package 0.7 addresses both but exposes an
 obsolete exact-SDDL assertion in the inherited-ACL test on NESSY. Version
-0.12.3/package 0.8 corrects that assertion and awaits target testing.
+0.12.3/package 0.8 corrects that assertion and passes the automated and
+owner-controlled live known-host management matrix on both machines.
 
 VT7 is the terminal application Windows 7 always deserved. Version 0.12.3 keeps
 the accepted Command Prompt/WinPTY path and adds explicit Windows PowerShell 5.1
@@ -87,7 +88,8 @@ polish/release triage.
     Windows 7 matrix.
 14. [Known-host management KH01.4](validation/2026-09-24-known-hosts-kh01-4.md):
     selected user-record removal, exact `.old` backup, changed-key review,
-    host-certificate CA/principal/revocation checks and pending target matrix.
+    host-certificate CA/principal/revocation checks and accepted two-machine
+    known-host management matrix. Live certificate serving remains KH01.5.
 15. [WinPTY root transport 3B.1](validation/2026-09-17-winpty-root-3b.md):
     0.5.0 implementation, exact runtime/package identities, local results,
     Windows 7 procedure and remaining shell scope.
@@ -208,7 +210,7 @@ focused Windows 7 confirmation of the corrected Authentication selector.
 | C3 repaint/recovery | [0.3.1 repaint](validation/2026-09-12-atlas-repaint.md), [0.3.2 recovery](validation/2026-09-12-atlas-recovery.md) | Bounded target passes; injected recovery is not real driver-loss evidence. |
 | C3 scaling | [0.3.3 failures](validation/2026-09-12-atlas-settings.md), [0.3.4 correction](validation/2026-09-12-atlas-scaling-correction.md) | Actual Windows 7 96/120/144 DPI matrix accepted for 0.3.4 on the supplied setup. |
 | Deferred reliability concern | [REL01 decision](architecture/2026-09-14-warp-development-deferral.md) | Hardware lifecycle passes; WARP resource failures remain. Accepted risk for continued development; conditional Milestone 7 review. |
-| Current development | [KH01.4 management](validation/2026-09-24-known-hosts-kh01-4.md), [accepted KH01.3 first contact](validation/2026-09-24-known-hosts-kh01-3.md), [known-host specification](architecture/2026-09-21-openssh-known-hosts-management-spec.md), [Milestone 5](../../ROADMAP.md#milestone-5-first-class-ssh) | Version 0.12.3/ABI 11 retains KH01.4 changed-key review, selected primary-user removal and CA-signed host-certificate policy. Package 0.5 failed automated ACL read-back on both Windows 7 machines. Package 0.6 passes automation but live removal stops safely at `temporary-security` and key rows are too faint. Package 0.7 checks security components structurally but fails an obsolete exact-SDDL assertion in the inherited-ACL test on NESSY. Package 0.8 corrects that assertion; target validation is pending. KH01.3 package 0.4 remains the accepted two-machine baseline. |
+| Current development | [accepted KH01.4 management](validation/2026-09-24-known-hosts-kh01-4.md), [accepted KH01.3 first contact](validation/2026-09-24-known-hosts-kh01-3.md), [known-host specification](architecture/2026-09-21-openssh-known-hosts-management-spec.md), [Milestone 5](../../ROADMAP.md#milestone-5-first-class-ssh) | Version 0.12.3/ABI 11 retains changed-key review, selected primary-user removal and CA-signed host-certificate policy. Package 0.8 passes the exact automated and owner-controlled live known-host matrix on NESSY and TURTLE, including complete `.old` recovery. Four privacy-checked target files and hashes are archived. KH01.1 through KH01.4 are accepted; KH01.5 live certificate-serving validation remains. |
 | Previous native target result | [Windows 7 resource retirement 0.1](diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result) | Supported capture completes; workers retire by 90 seconds and USER returns to 4, but 54 process handles above pre-warmup remain. No C3 or timed-soak acceptance. |
 | Latest resource target result | [WPF reactivation 0.1](diagnostics/2026-09-14-resource-reactivation.md#supplied-windows-7-result) | Two integrated rounds complete, with 16 valid samples and three immediate failures. Both +180s handle/thread/GDI/USER counts match; private bytes rise 220 KiB. No permanent bound or C3 acceptance. |
 

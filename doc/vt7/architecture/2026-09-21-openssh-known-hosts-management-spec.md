@@ -9,7 +9,9 @@ on both Windows 7 machines. VT7 0.12.1/package 0.6 passes automated checks
 on both but live removal stops safely at `temporary-security`. VT7 0.12.2
 compares owner, group and ACL components structurally; package 0.7 exposed an
 obsolete exact-SDDL assertion in the inherited-ACL test on NESSY. VT7 0.12.3/
-package 0.8 corrects that assertion and awaits target validation.
+package 0.8 corrects that assertion and passes the automated and controlled
+live known-host management matrix on NESSY and TURTLE. KH01.4 is accepted;
+KH01.5 live certificate-serving validation remains.
 
 This specification defines VT7's first durable SSH host-trust subsystem. It
 replaces the generic trust-store wording in the broader
@@ -773,6 +775,7 @@ records, `NOTICE.md` if any upstream code is ported, and a dated KH01 validation
 record containing exact package and target evidence.
 
 This document authorizes engineering work within its boundaries. KH01.1 through
-KH01.3 are target accepted. KH01.4 is implemented and locally package-verified,
-with live acceptance still open. Complete known-host management is not claimed until
-KH01.4 and KH01.5 close their remaining behavior and matrix.
+KH01.4 are target accepted. Package 0.8 passes the two-machine automated and
+owner-controlled live known-host management matrix. Complete known-host
+management is not claimed until KH01.5 closes its live certificate-serving
+matrix.

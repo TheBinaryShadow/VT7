@@ -1124,7 +1124,10 @@ interactive candidate on the tested Windows 7 configuration.
   faint key-row text. Version 0.12.2 compares the actual security components
   and fixes that contrast. Package 0.7 failed the new inherited-ACL test's
   obsolete exact-SDDL assertion on NESSY. Version 0.12.3 aligns that assertion
-  with the production security check; package 0.8 awaits validation. This item remains open
+  with the production security check. Package 0.8 passes the automated and
+  owner-controlled live known-host matrix on NESSY and TURTLE, including
+  selected removal and exact `.old` backup. KH01.4 is accepted; this broader
+  item remains open through KH01.5 certificate-serving validation.
   through KH01.5.
 - [x] Support ephemeral password, private-key and passphrase authentication in
   the direct-profile dialog without persistence or default-log disclosure.

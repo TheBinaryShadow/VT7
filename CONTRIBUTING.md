@@ -87,7 +87,8 @@ passes the automated corpus on both, but live removal stops before mutation
 at `temporary-security`. Version 0.12.2 adds structural security comparison
 and legible key rows. Package 0.7 exposed an obsolete exact-SDDL assertion
 in its inherited-ACL fixture on Windows 7. Version 0.12.3 corrects that test;
-package 0.8 requires target acceptance.
+package 0.8 passes the exact automated and controlled live known-host matrix
+on NESSY and TURTLE. KH01.4 is accepted; KH01.5 live certificate serving remains.
 Also read the
 [accepted overlay record](doc/vt7/validation/2026-09-21-typed-ssh-overlay.md),
 [direct-profile validation record](doc/vt7/validation/2026-09-19-sshnet-direct-profile.md),

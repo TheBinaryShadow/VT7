@@ -69,7 +69,9 @@ application for Windows 7.
 > key-row text has poor contrast. Version 0.12.2 compares the actual owner,
 > group and ACL entries and styles that text. Package 0.7 exposed an obsolete
 > exact-SDDL assertion in the inherited-ACL test on Windows 7; version 0.12.3
-> aligns that assertion with the production check. Package 0.8 awaits target testing.
+> aligns that assertion with the production check. Package 0.8 passes the
+> automated and owner-controlled live known-host management matrix on NESSY
+> and TURTLE. Live host-certificate serving remains the KH01.5 gate.
 > Other
 > features described here remain project goals until implemented and verified.
 

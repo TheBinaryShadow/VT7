@@ -1,10 +1,11 @@
 # OpenSSH-compatible known-host management KH01.4
 
-Date: 2026-09-24. Implementation state: VT7 0.12.3/native ABI 11 inherited-ACL
-test correction candidate. Package 0.5 is rejected on NESSY and TURTLE. Package 0.6
-passes the automated corpus on both, but live removal stops safely before
-mutation at `temporary-security` and its key-row contrast is poor. KH01.3 package 0.4 remains the accepted
-first-contact baseline.
+Date: 2026-09-24. Acceptance state: KH01.4 version 0.12.3/package 0.8 passes
+the exact automated and owner-controlled live known-host management matrix on
+NESSY and TURTLE. Package 0.5 is rejected on both; package 0.6 passes automation
+but not live removal; package 0.7 fails an obsolete inherited-ACL assertion.
+KH01.3 package 0.4 remains the accepted first-contact baseline. Live
+certificate-serving cases belong to KH01.5.
 
 ## Behavior and security boundary
 
@@ -141,20 +142,25 @@ is rejected before live testing.
 
 Version 0.12.3/package 0.8 makes that inherited-ACL assertion use the same
 structural comparison as production and reports which component differs if
-it fails. The actual owner-file live removal is still unverified on Windows 7.
+it fails.
 Package 0.8 is issued as `VT7-KnownHosts-KH01-0.8-x64.zip`, SHA256
 `16509A782C8EE629E74F8CE4D4FE11E265C93763BB2E75036AC3C5FEE6920AEE`,
 15,283,778 bytes and 94 verified files. Its manifest names clean source
 commit `e37371c064f466102f9d2450af78a09278d1f720`. Release known-host,
 SSH.NET and typed-overlay checks, staged path-with-spaces and independent
 extracted launcher checks pass locally. Review copy:
-`artifacts/VT7-KnownHosts-KH01-0.8-x64.zip`. Windows 7 automation and live
-acceptance remain pending.
+`artifacts/VT7-KnownHosts-KH01-0.8-x64.zip`. NESSY (`mscorlib.dll`
+`4.8.4110.0`, VMware SVGA 3D) and TURTLE (`4.8.4795.0`, RX 6800 XT) return
+`Passed: True` from the exact Release 0.12.3 KH01.4 launcher. Both report the
+same host/native image and OpenSSH oracle hashes. Four privacy-checked target
+files plus `ARCHIVE-VERIFICATION.json` are preserved under
+`artifacts/vt7/evidence/known-hosts-kh01-4-win7-0.8-accepted`.
 
-Run the package 0.8 automated launcher on both NESSY (`mscorlib.dll`
-`4.8.4110.0`) and TURTLE (`4.8.4795.0`). Then follow its controlled live
-changed-key, removal, backup, fresh-reconnect and direct/typed path procedure.
-Return a complete `Logs` directory only for failed automated runs. Do not
-archive real trust file contents, host-key blobs, fingerprints or credentials.
+The owner confirms the controlled live matrix has no issues on either machine:
+changed-key review and selected record removal complete, the resulting
+`known_hosts` file has the intended contents, and `known_hosts.old` contains
+the complete previous file. Fresh connection and trust testing also pass.
+No real trust file, host-key blob, fingerprint or credential was archived.
+This accepts KH01.4 known-host management on both Windows 7 runtime tiers.
 The controlled live certificate-serving matrix remains a separate KH01.5
 gate; offline signed-certificate parsing alone is not network acceptance.

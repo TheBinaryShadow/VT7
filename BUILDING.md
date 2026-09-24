@@ -489,7 +489,7 @@ identity. See the [I01 record](doc/vt7/validation/2026-09-14-input-i01.md).
 | `Package-VT7KnownHostsManagement.ps1` | `vt7/packages/VT7-KnownHosts-KH01-0.5-x64` / matching ZIP; refuses replacement. It stages VT7 0.12.0, changed-key review, selected primary-user removal, host-certificate policy, the pinned SSH.NET closure and complete notices. `Verify-VT7KnownHostsManagementPackage.ps1` checks ZIP safety, hashes, policy fields, images and a fresh extracted run. |
 | `Package-VT7KnownHostsManagementAcl.ps1` | Issued `vt7/packages/VT7-KnownHosts-KH01-0.6-x64` / matching ZIP; refuses replacement. It stages VT7 0.12.1 with pre-replacement owner/group/DACL copy and verification. Package 0.5 is retained as rejected two-machine evidence. `Verify-VT7KnownHostsManagementAclPackage.ps1` independently checks the archive and extracted launcher. The 0.6 ZIP is SHA256 `DF56400ACB1B0266CD8BB5E99757BB8F08411B058799B1E028BDF5B3D8B218EF` (15,247,563 bytes, 94 files); automation passes on both Windows 7 machines but live removal stops safely at `temporary-security`. |
 | `Package-VT7KnownHostsManagementLiveAcl.ps1` | Issued non-overwriting `vt7/packages/VT7-KnownHosts-KH01-0.7-x64` / matching ZIP. It stages VT7 0.12.2 with structural owner/group/DACL comparison and legible changed-key rows. `Verify-VT7KnownHostsManagementLiveAclPackage.ps1` independently checks the archive and extracted launcher. SHA256 `402F077ACF230943554C50D964EE9100A02569B4359C1F17C8F254A1B0AF5FC5` (15,264,946 bytes, 94 files); rejected after NESSY's inherited-ACL test fails an obsolete exact-SDDL assertion. |
-| `Package-VT7KnownHostsManagementInheritedAcl.ps1` | Issued non-overwriting `vt7/packages/VT7-KnownHosts-KH01-0.8-x64` / matching ZIP. It stages VT7 0.12.3 with the inherited-ACL test aligned to production's structural security check. `Verify-VT7KnownHostsManagementInheritedAclPackage.ps1` independently checks the archive and extracted launcher. SHA256 `16509A782C8EE629E74F8CE4D4FE11E265C93763BB2E75036AC3C5FEE6920AEE` (15,283,778 bytes, 94 files); Windows 7 acceptance pending. |
+| `Package-VT7KnownHostsManagementInheritedAcl.ps1` | Issued non-overwriting `vt7/packages/VT7-KnownHosts-KH01-0.8-x64` / matching ZIP. It stages VT7 0.12.3 with the inherited-ACL test aligned to production's structural security check. `Verify-VT7KnownHostsManagementInheritedAclPackage.ps1` independently checks the archive and extracted launcher. SHA256 `16509A782C8EE629E74F8CE4D4FE11E265C93763BB2E75036AC3C5FEE6920AEE` (15,283,778 bytes, 94 files); automated and controlled live known-host management pass on both Windows 7 machines. |
 
 Issued P01 package 0.3 used a culture-sensitive PowerShell row comparison that
 ignored embedded NULs in the two Windows 7 raw-VT cases. The retained strings
@@ -829,7 +829,8 @@ paths on NESSY (`4.8.4110.0`) and TURTLE (`4.8.4795.0`). Preserve that accepted
 evidence. KH01.3 package 0.4 also passes its automation and controlled
 first-contact, persistence, reconnect and interaction matrix on both machines.
 Preserve its accepted evidence.
-The KH01.4 candidate requires fresh NESSY/TURTLE checks before target acceptance.
+KH01.4 package 0.8 passes automated and controlled live management checks on
+NESSY and TURTLE. Repeat that matrix only for a new change or new evidence.
 
 Copy and extract the entire 0.3.5 zip, including `fonts/`, on that machine.
 Run `RUN-DIAGNOSTICS.cmd` and `RUN-VIEWPORT-TEST.cmd`, retaining
