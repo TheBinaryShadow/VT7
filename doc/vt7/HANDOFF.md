@@ -35,8 +35,9 @@ TURTLE. KH01.3 is target accepted across both Windows 7 runtime tiers.
 Version 0.12.0 implements KH01.4 changed-key review and selected primary-user
 record removal with an exact `.old` backup. Host certificates now require an
 applicable CA, matching nonempty principals, valid dates, no critical options
-and no applicable revocation. Local checks pass. Windows 7 acceptance remains
-pending; the accepted KH01.3 package is unchanged.
+and no applicable revocation. Package 0.5 passes local staged and independent
+ZIP checks. Windows 7 acceptance remains pending; the accepted KH01.3 package
+is unchanged.
 This is the current resumption guide. Start with the [documentation index](README.md)
 if unfamiliar with the repository. The [roadmap](../../ROADMAP.md) owns gates;
 dated validation records own test claims.
@@ -165,7 +166,8 @@ KH01.4 deliberate removal/replacement and certificate policy is the current task
 | KH01.3 accepted package | `VT7-KnownHosts-KH01-0.4-x64.zip`, version 0.11.0, SHA256 `531B4A1D43894408F7AA38AC6E0BC22C6EBA1394519C3A70C1C9A83AA64B2C83`, 15,262,430 bytes, 94 verified files. Manifest source is clean commit `750bbca99`. Debug/Release, overlay, durable-writer, path-with-spaces and independent extracted checks pass. NESSY and TURTLE pass the exact automated launcher and owner-confirmed controlled live matrix. Review copy: `artifacts/VT7-KnownHosts-KH01-0.4-x64.zip`. |
 | KH01.3 accepted evidence | Four returned files plus `ARCHIVE-VERIFICATION.json` are preserved under `artifacts/vt7/evidence/known-hosts-kh01-3-win7-0.4`. Both machines use the same host/native and OpenSSH 10.0p2 hashes. NESSY reports .NET Framework `4.8.4110.0`; TURTLE reports `4.8.4795.0`. Both automated reports pass, and the owner confirms the complete first-contact, persistence, reconnect and interaction matrix passes on each machine. No credentials are retained. |
 | KH01.4 implementation | Version 0.12.0 presents changed-key evidence before authentication, lets the owner explicitly remove selected ordinary primary-user records after a second confirmation, retains other lines byte-for-byte and verifies an exact `.old` backup plus ACLs. It requires a fresh connection. Host certificates are evaluated only after SSH.NET verifies their cryptography; applicable CA, nonempty matching principals, validity, critical-option and certificate/key/CA revocation checks govern trust. Synthetic and OpenSSH-signed certificate fixtures pass locally. See the [KH01.4 record](validation/2026-09-24-known-hosts-kh01-4.md). |
-| Next bounded task | Issue and independently verify KH01.4 package 0.5, then run its two-tier Windows 7 automated and controlled changed-key matrix. A controlled certificate-serving host remains a separate KH01.5 network acceptance gate. |
+| KH01.4 local package | `VT7-KnownHosts-KH01-0.5-x64.zip`, version 0.12.0, SHA256 `13175567C37E0566C8601E790A1451902796D4AB3AD5309E2303A0DB5137E814`, 15,255,144 bytes, 94 verified files. Manifest source is clean commit `8bb8834bc`. Debug/Release, SSH.NET foundation, typed overlay, staged batch path with spaces and independent extracted ZIP checks pass. Review copy: `artifacts/VT7-KnownHosts-KH01-0.5-x64.zip`. Target status: pending NESSY and TURTLE. |
+| Next bounded task | Run KH01.4 package 0.5 on NESSY and TURTLE, including the controlled changed-key/removal/reconnect matrix. A controlled certificate-serving host remains a separate KH01.5 network acceptance gate. |
 | Milestone 2 | Open. Theme/high-contrast, broader device/environment and milestone-level ESU coverage also remain. |
 | Development sequence | Continue Milestone 5 through KH01.4-KH01.5 and later lifecycle/TUI hardening. Remaining C3/Milestone 2 qualification stays recorded without a blanket serial dependency. |
 
@@ -509,7 +511,8 @@ first-contact decisions, fresh-connection retry and byte-preserving persistence
 in 0.11.0. Package 0.4 passes the exact automated and controlled live matrix on
 NESSY and TURTLE, so KH01.3 is accepted. KH01.4 is now implemented in 0.12.0;
 its local removal, UI and OpenSSH-generated certificate corpus passes. Package
-0.5 and two-tier live checks remain before acceptance.
+0.5 passes staged and independent archive verification; two-tier live checks
+remain before acceptance.
 
 The exact 0.3.7 Windows 7 run is accepted and archived. The
 [S00 evaluation](validation/2026-09-14-openssh-s00.md) is complete on Windows 7

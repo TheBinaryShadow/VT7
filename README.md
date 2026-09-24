@@ -62,7 +62,8 @@ application for Windows 7.
 > from the primary user `known_hosts` file with an exact `.old` backup. It also
 > recognizes CA-signed host certificates under explicit OpenSSH principal,
 > validity, critical-option and revocation policy. Local checks pass; the 0.5
-> package and live Windows 7 acceptance remain to be completed.
+> package passes local staged and independent ZIP checks. Live Windows 7
+> acceptance remains to be completed.
 > Other
 > features described here remain project goals until implemented and verified.
 

@@ -45,8 +45,9 @@ exact-certificate revocation check.
 
 ## Local evidence
 
-- Debug build, `Test-VT7KnownHosts.ps1` and
-  `Test-VT7SshNetFoundation.ps1` pass on the development host.
+- Debug and Release builds, `Test-VT7KnownHosts.ps1`,
+  `Test-VT7SshNetFoundation.ps1` and the Release typed-overlay regression pass
+  on the development host.
 - The disposable corpus checks selected removal, retained bytes/newlines, ACL
   preservation, exact `.old` backup, stale review, backup replacement,
   revocation exclusion, unsafe targets and two competing VT7 removals.
@@ -76,8 +77,12 @@ Candidate identity: `VT7-KnownHosts-KH01-0.5-x64.zip`, application 0.12.0,
 native ABI 11, publisher-built SSH.NET `2026.0.1-prerelease.6`/`f099365`.
 The non-overwriting packager and independent verifier are
 `tools/Package-VT7KnownHostsManagement.ps1` and
-`tools/Verify-VT7KnownHostsManagementPackage.ps1`. Record the exact ZIP hash,
-size, file count and clean source commit after package verification.
+`tools/Verify-VT7KnownHostsManagementPackage.ps1`. It passes local staged
+path-with-spaces checks and independent extracted ZIP verification. The archive
+is 15,255,144 bytes and contains 94 verified files. SHA256:
+`13175567C37E0566C8601E790A1451902796D4AB3AD5309E2303A0DB5137E814`.
+The manifest identifies clean source commit `8bb8834bc3226f71074ed2b9719386f302e5ebb3`.
+Review copy: `artifacts/VT7-KnownHosts-KH01-0.5-x64.zip`.
 
 Run the packaged automated launcher on both NESSY (`mscorlib.dll`
 `4.8.4110.0`) and TURTLE (`4.8.4795.0`). Then follow its controlled live
