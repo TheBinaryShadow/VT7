@@ -37,7 +37,7 @@ of required workflows remain immediate concerns, not optional polish.
 
 Start with [BUILDING.md](BUILDING.md) and the current
 [stability record](doc/vt7/validation/2026-09-13-atlas-stability.md).
-The working source is 0.9.2/ABI 11. It combines the accepted document/session/
+The working source is 0.11.0/ABI 11. It combines the accepted document/session/
 view ownership and bounded inbound/outbound paths with Command Prompt, Windows
 PowerShell 5.1 and versioned PowerShell 7 profiles through pinned WinPTY 0.4.3.
 Local Debug/Release, lifecycle and clean-profile PowerShell 5.1 checks pass. The

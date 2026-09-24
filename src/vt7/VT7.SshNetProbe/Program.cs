@@ -141,8 +141,9 @@ namespace VT7.SshNetProbe
 
             var sshNet = typeof(SshClient).Assembly;
             var informational = sshNet.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
-            var passed = string.Equals(sshNet.GetName().Version?.ToString(), "2026.0.0.1", StringComparison.Ordinal) &&
-                         informational.StartsWith("2026.0.0", StringComparison.Ordinal) && Environment.Is64BitProcess;
+            var passed = string.Equals(sshNet.GetName().Version?.ToString(), "2026.0.1.0", StringComparison.Ordinal) &&
+                         informational.StartsWith("2026.0.1-prerelease.6+f099365c9d", StringComparison.Ordinal) &&
+                         Environment.Is64BitProcess;
             return Case("assembly-load", passed,
                 ("sshNetAssemblyVersion", sshNet.GetName().Version?.ToString() ?? string.Empty),
                 ("sshNetInformationalVersion", informational),

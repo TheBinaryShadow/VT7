@@ -339,6 +339,43 @@ Package 0.1 has passed on the Windows 7 target through that exact-version gate;
 the success procedure intentionally returned no Logs directory.
 See the [KH01.1 record](doc/vt7/validation/2026-09-22-known-hosts-kh01.md).
 
+KH01.2 connects that foundation to both production SSH.NET paths in read-only
+mode. Build, run the offline policy and overlay regressions, package and verify:
+
+```powershell
+.\tools\Build-VT7.ps1 -Configuration Release
+.\tools\Test-VT7KnownHosts.ps1 -Configuration Release
+.\tools\Test-VT7SshNetFoundation.ps1 -Configuration Release
+.\tools\Test-VT7SshOverlay.ps1 -Configuration Release -AllowMissingPowerShell7
+.\tools\Package-VT7KnownHostsReadOnly.ps1 -NoBuild
+.\tools\Verify-VT7KnownHostsReadOnlyPackage.ps1
+```
+
+Package 0.3 stages the complete application and typed shim for the accepted
+two-tier Windows 7 read-only trust matrix. Package 0.2 is retained as the
+TURTLE-pass/NESSY-rejected dependency result. See the
+[KH01.2 record](doc/vt7/validation/2026-09-22-known-hosts-kh01-2.md).
+
+KH01.3 adds generation-safe unknown-host decisions and verified durable
+addition to the primary user file. Build, run both focused corpora, package and
+independently verify it with:
+
+```powershell
+.\tools\Build-VT7.ps1 -Configuration Release
+.\tools\Test-VT7KnownHosts.ps1 -Configuration Release
+.\tools\Test-VT7SshNetFoundation.ps1 -Configuration Release
+.\tools\Test-VT7SshOverlay.ps1 -Configuration Release -AllowMissingPowerShell7
+.\tools\Package-VT7KnownHostsFirstContact.ps1 -NoBuild
+.\tools\Verify-VT7KnownHostsFirstContactPackage.ps1
+```
+
+Package 0.4 is non-overwriting and leaves accepted package 0.3 intact. Its
+offline corpus uses disposable trust files. Only the controlled live **Trust
+and connect** action writes the tester's primary user `known_hosts`. See the
+[KH01.3 record](doc/vt7/validation/2026-09-24-known-hosts-kh01-3.md). The exact
+package and complete controlled matrix are accepted on NESSY and TURTLE; keep
+the archived evidence and do not request an unchanged rerun.
+
 Run the P01 local-console characterization after building either configuration:
 
 ```powershell
@@ -422,6 +459,8 @@ identity. See the [I01 record](doc/vt7/validation/2026-09-14-input-i01.md).
 | `Package-VT7OpenSshNetwork.ps1` | Next identity `vt7/packages/VT7-OpenSSH-S00-Network-0.2-x64` / matching ZIP; refuses replacement and contains no OpenSSH binary or secret. Issued target evidence remains package 0.1. |
 | `Package-VT7SshNetDirect.ps1` | Current accepted `vt7/packages/VT7-SSHNET-Direct-0.4-x64` / matching ZIP; refuses replacement. It validates the actual Windows PowerShell 5.1 CMD launcher from a path containing spaces, every dialog label and the rendered Authentication selection at 4.5:1. Package 0.1 is rejected for its launcher defect; 0.2 is transport-accepted; 0.3 fixes labels but fails the focused selector visual check; 0.4 passes that check. Application 0.8.2/ABI 11, exact SSH.NET closure, 82 verified files. |
 | `Package-VT7KnownHosts.ps1` | `vt7/packages/VT7-KnownHosts-KH01-0.1-x64` / matching ZIP; refuses replacement. It stages the disconnected KH01.1 foundation, exercises the PowerShell 5.1 CMD launcher from a path containing spaces and records the exact `ssh-keygen` oracle. `Verify-VT7KnownHostsPackage.ps1` repeats ZIP, binary and extracted-launcher validation independently. |
+| `Package-VT7KnownHostsReadOnly.ps1` | `vt7/packages/VT7-KnownHosts-KH01-0.3-x64` / matching ZIP; refuses replacement. It stages VT7 0.10.1, publisher-built SSH.NET 2026.0.1-prerelease.6/f099365, the complete typed shim, KH01.2 read-only policy corpus, all notices and controlled-server instructions. Package 0.2 is preserved as the primary-pass/NESSY-rejected 2026.0.0 result. `Verify-VT7KnownHostsReadOnlyPackage.ps1` independently checks ZIP safety, hashes, manifest policy, binary closure and a fresh extracted run. |
+| `Package-VT7KnownHostsFirstContact.ps1` | `vt7/packages/VT7-KnownHosts-KH01-0.4-x64` / matching ZIP; refuses replacement. It stages VT7 0.11.0, both SSH entry paths, generation-bound first-contact decisions, durable writer regressions, the pinned prerelease.6/f099365 closure and all notices. `Verify-VT7KnownHostsFirstContactPackage.ps1` checks ZIP safety, hashes, write-enabled manifest policy, binary closure and a fresh extracted run. |
 
 Issued P01 package 0.3 used a culture-sensitive PowerShell row comparison that
 ignored embedded NULs in the two Windows 7 raw-VT cases. The retained strings
@@ -742,8 +781,25 @@ Tier A Windows 7 system can establish compatibility. Use a clean snapshot with:
 
 - Windows 7 SP1 x64.
 - Platform Update KB2670838.
-- .NET Framework 4.8.
+- .NET Framework 4.8. VT7 0.11.0 uses SSH.NET
+  `2026.0.1-prerelease.6`/`f099365`, which carries the receive-MAC reset needed
+  by the non-ESU `mscorlib.dll` `4.8.4110.0` implementation.
 - The remaining prerequisites listed in [ROADMAP.md](ROADMAP.md).
+
+Record the loaded runtime file version with:
+
+```powershell
+(Get-Item "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\mscorlib.dll").VersionInfo.FileVersion
+```
+
+The value distinguishes the two current Windows 7 test tiers. It is evidence,
+not a minimum-version gate for package 0.3.
+
+KH01.2 package 0.3 passes its automated corpus and both stored-key live SSH
+paths on NESSY (`4.8.4110.0`) and TURTLE (`4.8.4795.0`). Preserve that accepted
+evidence. KH01.3 package 0.4 also passes its automation and controlled
+first-contact, persistence, reconnect and interaction matrix on both machines.
+Preserve its accepted evidence; KH01.4 is the next known-host slice.
 
 Copy and extract the entire 0.3.5 zip, including `fonts/`, on that machine.
 Run `RUN-DIAGNOSTICS.cmd` and `RUN-VIEWPORT-TEST.cmd`, retaining

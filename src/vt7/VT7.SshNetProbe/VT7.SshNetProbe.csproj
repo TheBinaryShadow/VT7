@@ -15,12 +15,13 @@
     <OutputPath>$(VT7BinaryRoot)</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <RestoreSources>https://api.nuget.org/v3/index.json</RestoreSources>
+    <RestoreAdditionalProjectSources>$(VT7RepositoryRoot)dep\packages</RestoreAdditionalProjectSources>
     <RestorePackagesPath>$(MSBuildThisFileDirectory)..\..\..\artifacts\vt7\deps\nuget</RestorePackagesPath>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SSH.NET" Version="[2026.0.0]" />
+    <PackageReference Include="SSH.NET" Version="[2026.0.1-prerelease.6]" />
     <Reference Include="System.Web.Extensions" />
     <None Update="fixtures\s01-encrypted-test-key" CopyToOutputDirectory="PreserveNewest" />
     <None Update="fixtures\s01-encrypted-test-key.pub" CopyToOutputDirectory="PreserveNewest" />

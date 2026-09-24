@@ -32,9 +32,10 @@ namespace VT7.Host
 
             var assembly = typeof(SshClient).Assembly;
             var informational = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
-            Require(string.Equals(assembly.GetName().Version?.ToString(), "2026.0.0.1", StringComparison.Ordinal) &&
-                informational.StartsWith("2026.0.0", StringComparison.Ordinal), "SSH.NET 2026.0.0 was not loaded.");
-            report.AppendLine("PASS: exact SSH.NET 2026.0.0 and its twelve-file net48 runtime closure loaded.");
+            Require(string.Equals(assembly.GetName().Version?.ToString(), "2026.0.1.0", StringComparison.Ordinal) &&
+                informational.StartsWith("2026.0.1-prerelease.6+f099365c9d", StringComparison.Ordinal),
+                "SSH.NET 2026.0.1-prerelease.6 from f099365 was not loaded.");
+            report.AppendLine("PASS: exact SSH.NET 2026.0.1-prerelease.6 f099365 and its twelve-file net48 runtime closure loaded.");
 
             const string fingerprint = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
             Require(SshConnectionOptions.NormalizeFingerprint(" SHA256:" + fingerprint + "= ") == fingerprint,
@@ -50,7 +51,12 @@ namespace VT7.Host
                 catch (FormatException) { rejected = true; }
             }
             Require(rejected, "An invalid host-key fingerprint was accepted.");
-            report.AppendLine("PASS: structured SSH options require an explicit valid SHA256 trust fingerprint before authentication.");
+            using (var secret = Secret("test-only"))
+            using (var knownHost = new SshConnectionOptions("host.invalid", 22, "user", string.Empty,
+                SshAuthenticationKind.Password, null, secret))
+                Require(knownHost.ExpectedHostKeyFingerprint.Length == 0,
+                    "A known-host connection could not omit the fallback fingerprint.");
+            report.AppendLine("PASS: structured SSH options accept an absent known-host fallback and reject malformed SHA256 fingerprints.");
             using (var secret = Secret("test-only"))
             using (var forced = new SshConnectionOptions("127.0.0.1", 22, "user", fingerprint,
                 SshAuthenticationKind.Password, null, secret, SshAddressFamily.IPv4))
@@ -84,6 +90,28 @@ namespace VT7.Host
             Require(ContrastRatio(selectedForeground, dialogBackground) >= 4.5,
                 "The selected SSH authentication text is below the 4.5:1 contrast requirement.");
             report.AppendLine("PASS: every SSH connection-dialog label and the selected authentication item have explicit WCAG AA contrast.");
+
+            var trustRequest = new HostTrustPromptRequest(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
+                7, 3, 1, "[unknown.example]:2222", "test-user",
+                PresentedHostKey.Parse(Ed25519Blob()), true, true, "fixture-generation",
+                Path.Combine(Path.GetTempPath(), ".ssh", "known_hosts"));
+            var trustDialog = new HostTrustDialog(trustRequest);
+            var trustBackground = Solid(trustDialog.Background, "host-trust dialog background");
+            var trustLabels = Descendants(trustDialog.FormContent).OfType<TextBlock>().ToArray();
+            Require(trustLabels.Length >= 7, "The host-trust dialog contrast check did not find every text element.");
+            foreach (var label in trustLabels)
+            {
+                var foreground = Solid(label.Foreground, "host-trust dialog text");
+                Require(ContrastRatio(foreground, trustBackground) >= 4.5,
+                    "The host-trust dialog contains text below the 4.5:1 contrast requirement.");
+            }
+            var trustActions = Descendants(trustDialog.FormContent).OfType<Button>()
+                .Select(button => Convert.ToString(button.Content) ?? string.Empty).ToArray();
+            Require(trustActions.Any(value => value.Contains("Cancel")) &&
+                trustActions.Any(value => value.Contains("once")) &&
+                trustActions.Any(value => value.Contains("Trust and connect")),
+                "The host-trust dialog did not expose all three first-contact actions.");
+            report.AppendLine("PASS: the generation-bound host-trust dialog exposes cancel, connect-once and durable-trust actions with WCAG AA text contrast.");
 
             var document = new TerminalDocument(loadDemonstration: false);
             var fake = new FakeTerminalTransport("sshnet-foundation-root");
@@ -128,6 +156,26 @@ namespace VT7.Host
             foreach (var character in value) secret.AppendChar(character);
             secret.MakeReadOnly();
             return secret;
+        }
+
+        private static byte[] Ed25519Blob()
+        {
+            var type = Encoding.ASCII.GetBytes("ssh-ed25519");
+            var blob = new byte[4 + type.Length + 4 + 32];
+            WriteUInt32(blob, 0, (uint)type.Length);
+            Buffer.BlockCopy(type, 0, blob, 4, type.Length);
+            WriteUInt32(blob, 4 + type.Length, 32);
+            for (var index = 0; index < 32; ++index)
+                blob[8 + type.Length + index] = (byte)(index + 1);
+            return blob;
+        }
+
+        private static void WriteUInt32(byte[] destination, int offset, uint value)
+        {
+            destination[offset] = (byte)(value >> 24);
+            destination[offset + 1] = (byte)(value >> 16);
+            destination[offset + 2] = (byte)(value >> 8);
+            destination[offset + 3] = (byte)value;
         }
 
         private static void Require(bool condition, string message)

@@ -33,10 +33,10 @@ $binaryRoot = [IO.Path]::GetFullPath($BinaryDirectory)
 $hostPath = Join-Path $binaryRoot 'VT7.Host.exe'
 $nativePath = Join-Path $binaryRoot 'VT7.Native.dll'
 foreach ($path in @($hostPath, $nativePath)) {
-    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing KH01.1 runtime file: $path" }
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing KH01 runtime file: $path" }
 }
 $sshKeygen = Find-SshKeygen
-if (-not $sshKeygen) { throw 'ssh-keygen.exe was not found for the KH01.1 differential oracle.' }
+if (-not $sshKeygen) { throw 'ssh-keygen.exe was not found for the KH01 differential oracle.' }
 
 $reportRoot = if ($OutputDirectory) {
     $parent = [IO.Path]::GetFullPath($OutputDirectory)
@@ -74,33 +74,36 @@ $process = Start-Process -FilePath $hostPath -ArgumentList $arguments -PassThru 
 try {
     if (-not $process.WaitForExit(60000)) {
         $process.Kill()
-        throw 'VT7 KH01.1 test exceeded its 60-second timeout.'
+        throw 'VT7 KH01 test exceeded its 60-second timeout.'
     }
-    if ($process.ExitCode -ne 0) { throw "VT7 KH01.1 test failed ($($process.ExitCode)). See $reportPath" }
+    if ($process.ExitCode -ne 0) { throw "VT7 KH01 test failed ($($process.ExitCode)). See $reportPath" }
 }
 finally { $process.Dispose() }
 
-if (-not (Test-Path -LiteralPath $reportPath -PathType Leaf)) { throw 'VT7 KH01.1 test did not produce a report.' }
+if (-not (Test-Path -LiteralPath $reportPath -PathType Leaf)) { throw 'VT7 KH01 test did not produce a report.' }
 $report = Get-Item -LiteralPath $reportPath
-if ($report.LastWriteTime -lt $started.AddSeconds(-2)) { throw 'VT7 KH01.1 test left a stale report.' }
+if ($report.LastWriteTime -lt $started.AddSeconds(-2)) { throw 'VT7 KH01 test left a stale report.' }
 $text = [IO.File]::ReadAllText($reportPath)
 $required = @(
-    'Build: VT7 0.9.2'
+    'Build: VT7 0.11.0'
     'Native: ABI 11, expected 11'
     'PASS: OpenSSH host tokens preserve default-port identity and bracket every non-default port.'
     'PASS: presented host keys use the exact RFC 4253 blob type, RSA key identity and canonical SHA256 fingerprint.'
     'PASS: bounded known-host parsing accepts comments, markers, patterns, hashes and byte-preserved lines.'
     'PASS: literal, wildcard, negated and OpenSSH |1| hashed host matching passed.'
     'PASS: raw-key trust resolves matching, unknown, changed, revoked, unreadable and certificate-policy states.'
+    'PASS: four-source OpenSSH loading is immutable, bounded and fail-closed for missing, changed, revoked and unreadable stores.'
+    'PASS: stored matches need no fingerprint, unknown hosts require a generation-bound prompt pin and explicit fingerprint mismatches remain blocked.'
+    'PASS: durable first-contact writes preserve existing bytes, reject stale decisions, serialize writers and verify read-back.'
     'PASS: deterministic hash properties and 1024 bounded arbitrary-byte parser cases passed.'
     'PASS: ssh-keygen differential lookup, host hashing and removal passed'
     'Error: None'
 )
 foreach ($line in $required) {
-    if (-not $text.Contains($line)) { throw "KH01.1 report is missing: $line" }
+    if (-not $text.Contains($line)) { throw "KH01 report is missing: $line" }
 }
 if ($text -notmatch '(?m)^Passed: True\r?$' -or $text -match '(?m)^FAIL:') {
-    throw "VT7 KH01.1 report did not pass. See $reportPath"
+    throw "VT7 KH01 report did not pass. See $reportPath"
 }
 Write-Host "PASS: OpenSSH known-host foundation ($reportPath)"
 Write-Host "Oracle: ssh-keygen.exe $($sshKeygenInfo.FileVersion), SHA256 $sshKeygenHash"

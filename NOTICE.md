@@ -106,7 +106,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 ```
 
-## SSH.NET 2026.0.0 (VT7 S01 diagnostic and application transport)
+## SSH.NET (VT7 S01 diagnostic and application transport)
 
 The bounded S01 diagnostic and VT7 0.8.0 application host include SSH.NET
 2026.0.0 from exact source commit
@@ -128,6 +128,15 @@ components. S01 target evidence accepts SSH.NET as the embedded interactive
 candidate. VT7 0.8.0 integrates the same exact locked closure as its first direct
 SSH root transport; the corresponding portable package carries the same notices
 and package provenance.
+
+VT7 0.10.1 and later use the publisher-built
+`2026.0.1-prerelease.6` from the official GitHub Packages feed, exact upstream
+commit `f099365c9d4cf2ade92b92c203bbb2b345d2cd74`. That MIT-licensed update carries
+the .NET Framework receive-MAC reset required by the non-ESU Windows 7 test tier.
+Its dependency versions and permissive notice closure are unchanged from the
+audited 2026.0.0 set. The retained nupkg SHA256 is
+`3981BA4F5A36DADFFDAC19BA8B8F207F594F57B3BA043A794277678669FBC35C`.
+Source: https://github.com/sshnet/SSH.NET/commit/f099365c9d4cf2ade92b92c203bbb2b345d2cd74
 
 ## Microsoft Visual C++ app-local runtime
 
