@@ -184,6 +184,8 @@ an installed-runtime requirement for VT7. A Windows 7 SP1 machine with .NET
 Framework 4.8 and Windows PowerShell 2.0 is the pending legacy test tier; see
 [the pre-WMF 5.1 assessment](doc/vt7/validation/2026-09-24-pre-wmf51-windows7.md)
 for a PowerShell-2-compatible prerequisite check and the separate test scope.
+The issued `VT7-Legacy-Win7-0.1-x64.zip` candidate carries a `cmd.exe` baseline
+runner; its LEOPARD result is still pending.
 
 These are development-host requirements. VS 2022 17.7 and later cannot install
 on Windows 7; build with the pinned 17.14 on the modern development machine

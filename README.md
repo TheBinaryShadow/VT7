@@ -194,6 +194,10 @@ Planned shell coverage:
 | Native Windows console applications | Support through the local PTY backend |
 | SSH | First-class remote support |
 
+The separate pre-WMF 5.1 candidate is ready for LEOPARD. It checks the
+Windows 7 runtime and Command Prompt/SSH foundation without a PowerShell 5.1
+test script; it does not yet make PowerShell 2.0 a qualified profile.
+
 PowerShell 7.3 and newer depend on .NET versions that dropped Windows 7 support.
 They are outside of the initial compatibility promise.
 
