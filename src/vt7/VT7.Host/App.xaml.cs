@@ -21,6 +21,7 @@ namespace VT7.Host
         internal static bool WinPtySessionTest { get; private set; }
         internal static bool PowerShellProfileTest { get; private set; }
         internal static bool H01Test { get; private set; }
+        internal static bool SshOverlayNoExternalTest { get; private set; }
         internal static bool SshNetFoundationTest { get; private set; }
         internal static bool KnownHostsTest { get; private set; }
         internal static bool AllowMissingPowerShell7 { get; private set; }
@@ -52,6 +53,7 @@ namespace VT7.Host
             WinPtySessionTest = HasArgument(e.Args, "--winpty-session-test");
             PowerShellProfileTest = HasArgument(e.Args, "--powershell-profile-test");
             H01Test = HasArgument(e.Args, "--h01-test");
+            SshOverlayNoExternalTest = HasArgument(e.Args, "--ssh-overlay-no-external-test");
             SshNetFoundationTest = HasArgument(e.Args, "--sshnet-foundation-test");
             KnownHostsTest = HasArgument(e.Args, "--known-hosts-test");
             AllowMissingPowerShell7 = HasArgument(e.Args, "--allow-missing-powershell-7");
@@ -106,6 +108,7 @@ namespace VT7.Host
                 (InjectRepaintFailure && !RepaintTest)) { Shutdown(2); return; }
             var sessionTestCount = (SessionStreamTest ? 1 : 0) + (SessionOutboundTest ? 1 : 0) +
                 (WinPtySessionTest ? 1 : 0) + (PowerShellProfileTest ? 1 : 0) + (H01Test ? 1 : 0) +
+                (SshOverlayNoExternalTest ? 1 : 0) +
                 (SshNetFoundationTest ? 1 : 0) + (KnownHostsTest ? 1 : 0);
             if (sessionTestCount > 0 && (RendererMode == 0 || diagnostics || smokeTest || RepaintTest ||
                 RecoveryScenario != null || SettingsTest || StabilityTest || sessionTestCount != 1))
@@ -114,7 +117,8 @@ namespace VT7.Host
             if (profileIndex >= 0 && (diagnostics || smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest ||
                 StabilityTest || sessionTestCount > 0)) { Shutdown(2); return; }
             CaptureFrames = smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest || StabilityTest ||
-                SessionStreamTest || SessionOutboundTest || WinPtySessionTest || PowerShellProfileTest || H01Test;
+                SessionStreamTest || SessionOutboundTest || WinPtySessionTest || PowerShellProfileTest || H01Test ||
+                SshOverlayNoExternalTest;
             CaptureFrames = CaptureFrames || SshNetFoundationTest;
             CaptureFrames = CaptureFrames || KnownHostsTest;
             var injectBlank = HasArgument(e.Args, "--inject-blank-frame");
@@ -123,9 +127,11 @@ namespace VT7.Host
             if (RecoveryScenario == "startup-hardware") SurfaceOptions |= 0x400u;
             if (RecoveryScenario == "startup-both") SurfaceOptions |= 0x800u;
             LaunchLocalSession = !(diagnostics || smokeTest || RepaintTest || RecoveryScenario != null || SettingsTest ||
-                StabilityTest || SessionStreamTest || SessionOutboundTest || WinPtySessionTest || PowerShellProfileTest || H01Test);
+                StabilityTest || SessionStreamTest || SessionOutboundTest || WinPtySessionTest || PowerShellProfileTest || H01Test ||
+                SshOverlayNoExternalTest);
             LaunchLocalSession = LaunchLocalSession && !SshNetFoundationTest;
             LaunchLocalSession = LaunchLocalSession && !KnownHostsTest;
+            LaunchLocalSession = LaunchLocalSession && !SshOverlayNoExternalTest;
             if (!LaunchLocalSession)
             {
                 ShutdownMode = ShutdownMode.OnExplicitShutdown;
@@ -189,6 +195,13 @@ namespace VT7.Host
                     await H01Checks.Run(report, AllowMissingPowerShell7);
                     snapshot.SurfaceDisplay = report.ToString();
                     snapshot.Summary = "The authenticated typed-command shim, exact fallback and committed WinPTY barrier checks completed.";
+                }
+                if (SshOverlayNoExternalTest)
+                {
+                    if (!snapshot.Passed) throw new InvalidOperationException("Core or platform checks failed before the no-external-SSH overlay test.");
+                    await H01Checks.RunNoExternal(report);
+                    snapshot.SurfaceDisplay = report.ToString();
+                    snapshot.Summary = "Bundled typed SSH and explicit no-external fallback rejection passed without installed OpenSSH.";
                 }
                 if (SshNetFoundationTest)
                 {

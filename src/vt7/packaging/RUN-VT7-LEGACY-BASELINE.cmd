@@ -35,6 +35,9 @@ if errorlevel 1 goto failed
 echo Running SSH.NET foundation check...
 start "" /wait "%~dp0VT7.Host.exe" --sshnet-foundation-test --renderer atlas-auto --diagnostics-output "%VT7_OUTPUT%\sshnet-foundation.log"
 if errorlevel 1 goto failed
+echo Running typed SSH without OpenSSH check...
+start "" /wait "%~dp0VT7.Host.exe" --ssh-overlay-no-external-test --renderer atlas-auto --diagnostics-output "%VT7_OUTPUT%\ssh-overlay-no-external.log"
+if errorlevel 1 goto failed
 echo PASS: VT7 legacy baseline. Logs: "%VT7_OUTPUT%"
 if not defined VT7_TEST_NO_PAUSE pause
 exit /b 0

@@ -24,7 +24,7 @@ namespace VT7.Host
         private ITerminalTransport? _overlay;
         private bool _disposed;
 
-        private SshOverlayCoordinator(string externalPath,
+        private SshOverlayCoordinator(string? externalPath,
             Func<SshInvocation, Task<SshConnectionOptions?>> prompt,
             HostTrustPromptHandler trustPrompt, HostKeyProblemHandler hostKeyProblem)
         {
@@ -46,8 +46,7 @@ namespace VT7.Host
             var shim = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "shim", "ssh.exe");
             if (!File.Exists(shim)) return null;
             var external = FindExternalClient(profile, shim);
-            return external == null ? null : new SshOverlayCoordinator(external, prompt, trustPrompt,
-                hostKeyProblem);
+            return new SshOverlayCoordinator(external, prompt, trustPrompt, hostKeyProblem);
         }
 
         internal TerminalProfile Configure(TerminalProfile profile)

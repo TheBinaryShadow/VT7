@@ -1,7 +1,7 @@
 # Windows 7 SP1 without WMF 5.1: compatibility assessment
 
-Status: candidate 0.1 issued; LEOPARD target-machine evidence pending. This
-is not an accepted compatibility claim for Windows PowerShell 2.0.
+Status: candidate 0.1 baseline passes on LEOPARD; typed SSH defect found and
+candidate 0.2 is in preparation. PowerShell 2.0 remains unqualified.
 
 KB3191566 installs Windows Management Framework (WMF) 5.1, including Windows
 PowerShell 5.1. It is **not** .NET Framework 5.1. VT7's x64 WPF host targets
@@ -48,14 +48,15 @@ The issued candidate should run this matrix on the pre-WMF machine:
    checks added to this tier. Label unsupported or unrun tests as skipped, not
    passed. Retain the package identity and complete logs for failures.
 
-Until target evidence passes, the product floor remains Windows 7 SP1 x64
+Until the full target matrix passes, the product floor remains Windows 7 SP1 x64
 with its existing platform prerequisites and .NET Framework 4.8. WMF 5.1
 remains required for the existing 5.1-specific **test scripts and profile
 qualification**, not for launching VT7's Command Prompt or SSH sessions.
 
 LEOPARD and NESSY both reported `Release REG_DWORD 0x80eb1` (`528049`),
 confirming .NET Framework 4.8 independently of LEOPARD's PowerShell 2.0
-process CLR. This is prerequisite evidence only, not an application run.
+process CLR. The registry observation alone was prerequisite evidence; the
+candidate 0.1 application run is recorded below.
 
 Candidate 0.1 has application version 0.12.4/ABI 11 and SHA256
 `5E94F09166C17683083729BD91B442FF0C407697A45E81B8715889A4E7C864F3`
@@ -63,10 +64,27 @@ Candidate 0.1 has application version 0.12.4/ABI 11 and SHA256
 commit `2d18ff3c9` and the accepted KH01.4 package 0.8 closure. The Release
 build, PowerShell 5.1 profile and H01 regressions, staged baseline runner,
 and independent extracted ZIP verification pass on the development host. The
-baseline runner creates `prerequisites.txt` and five VT7 diagnostic logs;
-none of these local checks substitutes for LEOPARD's Windows 7/PowerShell 2.0
-result. `RUN-KNOWN-HOSTS-KH01-4.cmd` and `RUN-SSHNET-OVERLAY.cmd` still require
+baseline runner creates `prerequisites.txt` and five VT7 diagnostic logs.
+`RUN-KNOWN-HOSTS-KH01-4.cmd` and `RUN-SSHNET-OVERLAY.cmd` still require
 PowerShell 5.1 and must not be used as LEOPARD baseline checks.
+
+LEOPARD ran candidate 0.1. Its `prerequisites.txt` confirms Windows
+`6.1.7601`, .NET Framework release `0x80eb1` and Windows PowerShell `2.0`.
+All five built-in baseline logs report success: window smoke, Command Prompt
+WinPTY, session stream, session outbound and SSH.NET foundation. The owner
+also reports ordinary operation works, but typed `ssh` in Command Prompt
+returns Windows' "not recognized" message because LEOPARD has no system
+OpenSSH client. Source inspection found that `SshOverlayCoordinator.TryCreate`
+returned null whenever it could not find an external `ssh.exe`; the bundled
+shim was then never prepended to `PATH`. That is a VT7 product defect, not a
+PowerShell 2.0 or .NET Framework incompatibility.
+
+Version 0.12.5 removes the external-client gate for the bundled interactive
+shim. It still uses an installed external client for unsupported options or
+redirected standard handles when available. Without one, the broker returns
+an explicit status-255 rejection. A separate built-in no-external check now
+covers both authenticated embedded handoff and unsupported-syntax rejection
+through Command Prompt. LEOPARD's live network result remains pending.
 
 Sources: [Microsoft's WMF 5.1 KB3191566 description](https://support.microsoft.com/en-au/topic/update-for-windows-management-framework-5-1-for-windows-7-and-windows-server-2008-r2-918077a1-ebc1-289f-bc04-8cc4546eafd0),
 [.NET Framework version detection](https://learn.microsoft.com/en-us/dotnet/framework/install/how-to-determine-which-versions-are-installed),
