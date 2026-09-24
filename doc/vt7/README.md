@@ -1,7 +1,8 @@
 # VT7 documentation - start here
 
-Last reconciled: 2026-09-24. Version 0.6.6's accepted Windows 7 profile and
-keyboard results remain the current target baseline. H01 packages 0.1 through
+Last reconciled: 2026-09-25. Current source is version 0.12.5/native ABI 11.
+Version 0.6.6's accepted Windows 7 profile and keyboard results remain the
+target baseline for that scope. H01 packages 0.1 through
 0.3 pass all embedded shell/barrier paths on Windows 7 while exposing the full
 traditional-console fallback boundary. Version 0.7.3 uses the documented
 Windows 7 creation path, and package 0.4 passes the strict target run. Version
@@ -33,8 +34,8 @@ obsolete exact-SDDL assertion in the inherited-ACL test on NESSY. Version
 0.12.3/package 0.8 corrects that assertion and passes the automated and
 owner-controlled live known-host management matrix on both machines.
 
-VT7 is the terminal application Windows 7 always deserved. Version 0.12.3 keeps
-the accepted Command Prompt/WinPTY path and adds explicit Windows PowerShell 5.1
+VT7 is the terminal application Windows 7 always deserved. Current version
+0.12.5 keeps the accepted Command Prompt/WinPTY path and Windows PowerShell 5.1
 and versioned PowerShell 7 profiles through the 3A document/session/view
 boundary. Exact Windows 7 5.1/7.2.24 automation passes, as do the applicable
 ordinary profile checks. The 0.6.6 automated and all-profile keyboard checks
@@ -45,15 +46,23 @@ Windows 7 matrix, plus separate `htop` and `nano` runs, passes. Version 0.8.2
 scopes readable text styling to the SSH connection dialog and its generated
 Authentication selection. The session-scoped coordinator enables eligible typed
 `ssh` commands and is accepted on the controlled Windows 7 configuration.
-The
-application port is the priority; optional improvements belong in final
-polish/release triage.
+The pre-WMF 5.1 LEOPARD candidate also validates Command Prompt and typed/direct
+SSH on PowerShell 2.0-era Windows 7 without installed OpenSSH; the PowerShell
+2.0 interactive editor remains unqualified. The current selector, diagnostic
+tabs and SSH dialogs are proof UI. The approved
+[pre-1.0 UI and terminal SSH contract](architecture/2026-09-25-pre-1-0-ui-and-terminal-ssh-contract.md)
+requires real session tabs, stable conditional shell names and terminal-only
+typed SSH in Milestones 4/5 before optional polish. KH01.5 remains the next
+known-host validation task.
 
 ## Read in this order
 
 1. [Development handoff](HANDOFF.md): current source and artifacts, accepted
    results, deferred C3/REL01 concern, code map and the current Milestone 5 task.
 2. [Roadmap](../../ROADMAP.md): milestone gates and the deferred-work register.
+   The [pre-1.0 UI and terminal SSH contract](architecture/2026-09-25-pre-1-0-ui-and-terminal-ssh-contract.md)
+   defines the approved final tab/profile/SSH interactions and Windows 7
+   implementation constraints.
 3. [Port-first plan](architecture/2026-09-12-port-first-plan.md) and
    [WARP development deferral](architecture/2026-09-14-warp-development-deferral.md):
    execution policy, approved risk decision and conditional reopening criteria.
@@ -210,7 +219,7 @@ focused Windows 7 confirmation of the corrected Authentication selector.
 | C3 repaint/recovery | [0.3.1 repaint](validation/2026-09-12-atlas-repaint.md), [0.3.2 recovery](validation/2026-09-12-atlas-recovery.md) | Bounded target passes; injected recovery is not real driver-loss evidence. |
 | C3 scaling | [0.3.3 failures](validation/2026-09-12-atlas-settings.md), [0.3.4 correction](validation/2026-09-12-atlas-scaling-correction.md) | Actual Windows 7 96/120/144 DPI matrix accepted for 0.3.4 on the supplied setup. |
 | Deferred reliability concern | [REL01 decision](architecture/2026-09-14-warp-development-deferral.md) | Hardware lifecycle passes; WARP resource failures remain. Accepted risk for continued development; conditional Milestone 7 review. |
-| Current development | [accepted KH01.4 management](validation/2026-09-24-known-hosts-kh01-4.md), [accepted KH01.3 first contact](validation/2026-09-24-known-hosts-kh01-3.md), [known-host specification](architecture/2026-09-21-openssh-known-hosts-management-spec.md), [Milestone 5](../../ROADMAP.md#milestone-5-first-class-ssh) | Version 0.12.3/ABI 11 retains changed-key review, selected primary-user removal and CA-signed host-certificate policy. Package 0.8 passes the exact automated and owner-controlled live known-host matrix on NESSY and TURTLE, including complete `.old` recovery. Four privacy-checked target files and hashes are archived. KH01.1 through KH01.4 are accepted; KH01.5 live certificate-serving validation remains. |
+| Current development | [accepted KH01.4 management](validation/2026-09-24-known-hosts-kh01-4.md), [pre-WMF machine result](validation/2026-09-24-pre-wmf51-windows7.md), [known-host specification](architecture/2026-09-21-openssh-known-hosts-management-spec.md), [Milestone 5](../../ROADMAP.md#milestone-5-first-class-ssh) | Current source 0.12.5/ABI 11 retains accepted KH01.4 and fixes typed SSH with no installed OpenSSH on LEOPARD. KH01.5 live certificate-serving validation remains next; UI01/SSHUX01 are required before polish/1.0. |
 | Previous native target result | [Windows 7 resource retirement 0.1](diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result) | Supported capture completes; workers retire by 90 seconds and USER returns to 4, but 54 process handles above pre-warmup remain. No C3 or timed-soak acceptance. |
 | Latest resource target result | [WPF reactivation 0.1](diagnostics/2026-09-14-resource-reactivation.md#supplied-windows-7-result) | Two integrated rounds complete, with 16 valid samples and three immediate failures. Both +180s handle/thread/GDI/USER counts match; private bytes rise 220 KiB. No permanent bound or C3 acceptance. |
 

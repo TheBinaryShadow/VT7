@@ -17,6 +17,14 @@ panes, profiles, excellent text rendering, rich color, dependable resizing,
 local shells, and first-class SSH should feel at home on Windows 7 instead of
 feeling borrowed from another era.
 
+Before 1.0, VT7 aims for the familiar Windows Terminal tab strip: real session
+tabs in the title area where Windows 7 allows it, **+** for the default profile,
+and an adjacent profile menu. The finished SSH workflow is typed `ssh` inside
+any supported local shell, with trust and authentication handled inside the
+terminal. The current selector and SSH dialogs are development proof UI. The
+[pre-1.0 UI and terminal SSH contract](doc/vt7/architecture/2026-09-25-pre-1-0-ui-and-terminal-ssh-contract.md)
+records the required behavior and Windows 7 fallback before polish work.
+
 This is not a skin, a repackaged binary, or a nostalgia mock-up. VT7 is an
 independent open-source engineering effort to create a real terminal
 application for Windows 7.
@@ -99,7 +107,7 @@ replacing dependencies that require newer versions of Windows.
 The first complete release is intended to provide:
 
 - Tabs and split panes.
-- Profiles for local shells and remote connections.
+- Profiles for local shells, with SSH started by typing `ssh` in a shell.
 - Command Prompt and Windows PowerShell 5.1 sessions.
 - PowerShell 7 sessions, up to version 7.2.24.
 - SSH sessions with proper remote PTY creation and resize handling.
@@ -188,9 +196,8 @@ Planned shell coverage:
 | Shell or session | VT7 goal |
 | --- | --- |
 | Command Prompt | First-class local support |
-| Windows PowerShell 5.1 | First-class local support |
-| Earlier installed Windows PowerShell versions | Detected and displayed by version; the PowerShell 2.0 interactive profile remains unqualified under the [pre-WMF 5.1 test](doc/vt7/validation/2026-09-24-pre-wmf51-windows7.md) |
-| PowerShell 7 up-to version 7.2.24 | First-class local support |
+| Windows PowerShell (`powershell.exe`) | One stable **Windows PowerShell** profile launches the installed version; 5.1 has first-class local support. PowerShell 2.0 is detected but its interactive profile remains unqualified under the [pre-WMF 5.1 test](doc/vt7/validation/2026-09-24-pre-wmf51-windows7.md). |
+| PowerShell (`pwsh.exe`) | Appears only when a compatible executable is installed; 7.2.24 is the primary qualified version. Actual version and preview status appear in details. |
 | Native Windows console applications | Support through the local PTY backend |
 | SSH | First-class remote support |
 
@@ -210,7 +217,9 @@ They are outside of the initial compatibility promise.
 ## What VT7 is not
 
 - VT7 is not affiliated with, endorsed by, or supported by Microsoft.
-- VT7 is not a promise of exact feature parity with current Windows Terminal.
+- VT7 does not promise every feature or pixel-perfect visuals of current
+  Windows Terminal. The tab/profile and terminal SSH interactions described
+  above are required for 1.0.
 - VT7 is not a replacement for the Windows console host inside the operating
   system.
 - VT7 will not add ConPTY or other missing operating-system services to Windows
@@ -614,8 +623,9 @@ supplied Windows 7 target. Full SSH delivery remains a later milestone.
   0.2 passes the controlled-server matrix. Package 0.3 fixes the form labels but
   misses selected Authentication text; 0.8.2 package 0.4 corrects that remaining
   UI-only defect.
-- [ ] Add the daily-driver interface, including tabs, panes, profiles, and
-  settings.
+- [ ] Add the daily-driver interface, including real title-area session tabs,
+  conditional shell profiles, panes and settings; replace proof SSH dialogs
+  with terminal-only typed `ssh` before polish and 1.0.
 - [ ] Publish the first alpha build.
 
 There are no public VT7 terminal releases yet. Local engineering proof packages
@@ -629,6 +639,9 @@ are not alpha releases. Please be careful with downloads that claim otherwise.
   validation and research, with inherited upstream material clearly separated.
 - [Roadmap](ROADMAP.md) - milestones, requirements, acceptance criteria, and
   non-goals.
+- [Pre-1.0 UI and terminal SSH contract](doc/vt7/architecture/2026-09-25-pre-1-0-ui-and-terminal-ssh-contract.md)
+  - required tab/profile behavior, Windows 7 chrome fallback, terminal-only SSH
+  prompts and acceptance gates.
 - [Research and planning decision](doc/vt7/architecture/2026-09-11-research-driven-plan.md)
   - original shared contracts and experiment-to-milestone mapping.
 - [Port-first execution plan](doc/vt7/architecture/2026-09-12-port-first-plan.md)

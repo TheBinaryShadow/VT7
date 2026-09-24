@@ -1053,9 +1053,26 @@ Repeat backend-sensitive input and IME tests over direct SSH there.
 
 ## Milestone 4: Daily-driver interface
 
-- [ ] Tabs and horizontal/vertical split panes, keeping session lifetime separate
-  from transient WPF layout and respecting native HWND airspace. Search chrome
-  and splitters must not rely on ordinary WPF overlays over the terminal.
+- [ ] **UI01: real session tabs before cosmetic polish.** Give each tab its own
+  document, local root, optional SSH overlay, input generation and lifecycle.
+  Place tab title/icon/close controls in a Windows Terminal-like title strip,
+  with **+** opening the default profile and an adjacent arrow listing detected
+  profiles and shortcuts. Preserve native caption controls and drag/resize/
+  maximize/system-menu behavior. On Windows 7 without usable Aero glass, keep
+  the same tab actions below a standard native title bar. The proof host's
+  viewport/Diagnostics tabs do not satisfy this gate. Follow the
+  [pre-1.0 UI and SSH contract](doc/vt7/architecture/2026-09-25-pre-1-0-ui-and-terminal-ssh-contract.md).
+- [ ] Horizontal/vertical split panes within real session tabs, keeping session
+  lifetime separate from transient WPF layout and respecting native HWND
+  airspace. Search chrome and splitters must not rely on ordinary WPF overlays
+  over the terminal.
+- [ ] Use stable built-in menu labels: **Command Prompt**,
+  **Windows PowerShell** for the installed `powershell.exe` (2.0 or 5.1), and
+  **PowerShell** only when a compatible `pwsh.exe` is discovered. Show actual
+  versions and preview status in details/diagnostics; do not duplicate a
+  Windows PowerShell profile for each version or imply that the still
+  unqualified PowerShell 2.0 editor has passed the 5.1 corpus. Detect missing
+  executables and preserve stable saved profile identities across upgrades.
 - [ ] Profile creation/editing with explicit backend and executable selection,
   capabilities, and runtime requirements.
 - [ ] Versioned UTF-8 JSON settings with validation, last-known-good recovery,
@@ -1079,13 +1096,17 @@ Repeat backend-sensitive input and IME tests over direct SSH there.
   dialogs, pane switching, and active composition.
 
 Exit criterion: the primary workflows no longer require a developer harness or
-manual configuration edits.
+manual configuration edits, and the tab strip represents independent sessions
+on the qualified Windows 7 window styles.
 
 ## Milestone 5: First-class SSH
 
 Deliver the architecture accepted by 3A/S01. S00 rejected unmodified redirected
 OpenSSH for interactive sessions; S01 accepts SSH.NET 2026.0.0 as the embedded
 interactive candidate on the tested Windows 7 configuration.
+The accepted WPF connection, trust and management dialogs are proof
+presentation. Their transport and security behavior remains valuable, but the
+finished experience must satisfy SSHUX01 below before Milestone 7 polish.
 
 - [x] Integrate SSH.NET 2026.0.0 behind `ITerminalTransport` and pin its complete
   audited redistributable dependency set. Version 0.8.0 direct-profile package
@@ -1144,7 +1165,6 @@ interactive candidate on the tested Windows 7 configuration.
   owner-controlled live known-host matrix on NESSY and TURTLE, including
   selected removal and exact `.old` backup. KH01.4 is accepted; this broader
   item remains open through KH01.5 certificate-serving validation.
-  through KH01.5.
 - [x] Support ephemeral password, private-key and passphrase authentication in
   the direct-profile dialog without persistence or default-log disclosure.
 - [ ] Add agent and keyboard-interactive authentication where
@@ -1180,6 +1200,18 @@ interactive candidate on the tested Windows 7 configuration.
   corpus: the former timeout boundary, normal exit and local prompt recovery,
   sequential handoff, explicit disconnect/status 255, all three local shells,
   Unicode/resize/scrollback/TUI checks and exact external fallback.
+- [ ] **SSHUX01: terminal-only typed SSH workflow.** An eligible `ssh` command
+  from any supported local shell starts SSH.NET in its originating tab, including
+  on Windows 7 without installed OpenSSH. Remove the **Start SSH...** button,
+  direct SSH profile and separate connection/trust/management dialogs from the
+  finished interface. Present first-contact and changed-key decisions,
+  authentication, progress, failures and cancellation inside the terminal.
+  Matching known hosts reconnect without a trust prompt. Preserve structured
+  pre-auth trust, fail-closed policy, safe known-host mutation, secret privacy,
+  exact fallback and original-shell return/status. Bind every prompt and result
+  to the originating tab/generation; never interpret remote text as a trust
+  decision. Follow the
+  [pre-1.0 UI and SSH contract](doc/vt7/architecture/2026-09-25-pre-1-0-ui-and-terminal-ssh-contract.md).
 - [ ] Test `vim`, `htop`, `tmux`, `mc`, `less`, full-screen TUIs, mouse input,
   bracketed paste, Unicode, 256-color/true-color output, alternate-screen
   restoration, and the shared keyboard/IME/clipboard paths on Windows 7.
@@ -1187,9 +1219,10 @@ interactive candidate on the tested Windows 7 configuration.
   applications and interaction paths keep this broader item open.
 
 Exit criterion: SSH is a first-class VT7 connection type with lossless remote
-terminal bytes, secure trust/authentication handling, initial/live PTY sizing,
-and bounded lifecycle behavior. Neither a line-oriented redirected command nor
-`ssh.exe` through legacy console reconstruction substitutes for this gate.
+terminal bytes, secure terminal-only trust/authentication handling, initial/live
+PTY sizing, originating-tab/local-shell return and bounded lifecycle behavior.
+Neither a line-oriented redirected command nor `ssh.exe` through legacy console
+reconstruction substitutes for this gate.
 
 ## Milestone 6: Product qualification and hardening
 
@@ -1215,6 +1248,10 @@ hardening and release review repeat as the product approaches 1.0.
   active and equivalent settled-state resource trends for hardware and WARP;
   use this ordinary product evidence for REL01, without an automatic extra
   attribution campaign or rewriting the earlier investigation-budget failures.
+- [ ] Qualify UI01/SSHUX01 together on Windows 7: Aero and Basic/no-glass title
+  layouts, high contrast and DPI changes, keyboard/screen-reader focus across
+  `HwndHost` and menus, hidden-tab output, pending SSH prompts during tab switch
+  and close, cross-tab isolation, secret/log privacy and local-shell recovery.
 - [ ] Produce signed or checksum-verifiable portable release artifacts.
 - [ ] Document installation, prerequisites, recovery, and uninstallation.
 
@@ -1224,6 +1261,8 @@ The final checkpoint before the first public release, repeated for later release
 and 1.0. Milestone 6 supplies whole-product qualification; this milestone reviews
 the assembled user experience, chooses bounded polish work, and makes the release
 decision. Neither postpones security or correctness fixes from earlier milestones.
+UI01 and SSHUX01 are required Milestone 4/5 work and must be complete before
+this optional polish checkpoint; they cannot be deferred as visual refinements.
 
 - [ ] Review required workflows, known limitations, prerequisites, diagnostics,
   accessibility and first-run/documentation clarity in the assembled application.
@@ -1342,6 +1381,14 @@ VT7 1.0 is complete only when all of the following are true:
   session acceptance suite.
 - Direct SSH supports secure host-key verification, authentication, remote PTY
   creation, live resize updates, and unmodified remote terminal byte delivery.
+- The title-area **+** and profile menu open independent sessions; the stable
+  **Windows PowerShell** entry starts the installed `powershell.exe`, while
+  **PowerShell** appears only for a compatible installed `pwsh.exe`. The
+  no-glass Windows 7 layout preserves the same tab actions.
+- Typed `ssh` from a supported local shell uses in-terminal trust and
+  authentication, never an ordinary connection dialog or SSH profile; a saved
+  matching host reconnects without repeated approval and exit returns to the
+  same tab's local prompt.
 - Tabs, panes, profiles, settings, search, selection, clipboard, and scrollback
   are dependable enough for daily work.
 - Core/renderer acceptance proves streaming UTF-8, wide/combining text, box
@@ -1367,7 +1414,8 @@ VT7 1.0 is complete only when all of the following are true:
 
 ## Deliberate non-goals for version 1.0
 
-- Exact feature or UI parity with current Windows Terminal.
+- Pixel-perfect visuals or every feature of current Windows Terminal; the
+  specific tab/profile and SSH interaction contracts above remain required.
 - MSIX, Microsoft Store, WinGet, or Windows shell registration that depends on
   post-Windows 7 deployment services.
 - ConPTY implementation for the operating system.

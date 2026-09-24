@@ -1,6 +1,6 @@
 # VT7 development handoff
 
-Updated: 2026-09-24. Current source is version 0.12.5/native ABI 11. Version
+Updated: 2026-09-25. Current source is version 0.12.5/native ABI 11. Version
 0.6.6 remains accepted across the
 Windows 7 PowerShell/profile and keyboard matrix. H01 packages 0.1 through 0.3
 pass the Command Prompt, PowerShell 5.1 and PowerShell 7.2.24 embedded/barrier
@@ -101,6 +101,13 @@ host, not the finished multi-session UI. Version 0.6.5 returns Win32 focus to th
 native HWND after shell startup/replacement and applies explicit selector colors,
 but its navigation keys still escape into WPF. Version 0.6.6 handles them at the
 `HwndHost` keyboard-sink boundary and passes the focused Windows 7 retest.
+The approved [pre-1.0 UI and terminal SSH contract](architecture/2026-09-25-pre-1-0-ui-and-terminal-ssh-contract.md)
+sets UI01 in Milestone 4 and SSHUX01 in Milestone 5 before polish: real
+Windows Terminal-like session tabs and **+**/profile menu, stable conditional
+**Windows PowerShell** and **PowerShell** labels, and typed `ssh` with all trust and
+authentication inside the terminal. The present **Start SSH...** button and
+WPF connection/host-trust dialogs are temporary proof presentation. The
+accepted transport, shim and known-host security rules remain the foundation.
 
 Port first. Preserve pinned upstream behavior wherever possible and adapt the
 Windows 7 boundaries. Required correctness, security, accessibility and resource
@@ -124,7 +131,7 @@ KH01.4 package 0.8 passes its automated and controlled live two-tier matrix.
 
 | Item | Current state |
 | --- | --- |
-| Working application version | 0.12.3, native ABI 11, x64. It retains target-accepted KH01.2/KH01.3 and the publisher-built SSH.NET prerelease.6/f099365 fix, adds KH01.4 changed-key review and host-certificate policy, and compares owner/group/DACL structurally before deliberate record removal. The inherited-ACL fixture uses the same contract. KH01.4 known-host management is accepted on both Windows 7 machines; live certificate serving remains KH01.5. |
+| Working application version | 0.12.5, native ABI 11, x64. It retains target-accepted KH01.2/KH01.3/KH01.4 and the publisher-built SSH.NET prerelease.6/f099365 fix. The bundled typed-SSH shim works on LEOPARD without installed OpenSSH; its Command Prompt/SSH scope is accepted, while the PowerShell 2.0 interactive editor is unqualified. Live certificate serving remains KH01.5. UI01/SSHUX01 are approved pre-1.0 requirements, not implemented current features. |
 | Milestone 1 | Complete on the tested configurations, with the evidence limits in its record. |
 | C1 minimum font boundary and C2 Atlas integration | Accepted on the supplied Windows 7 setup in 0.3.0. |
 | C3 repaint, controlled recovery, scaling | Bounded 0.3.1/0.3.2 results and actual 0.3.4 96/120/144 DPI matrix accepted. |

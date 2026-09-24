@@ -1,5 +1,12 @@
 # OpenSSH-compatible known-host management specification
 
+Presentation note (2026-09-25): the WPF first-contact and changed-key dialogs
+in this staged implementation are temporary. The
+[pre-1.0 UI and terminal SSH contract](2026-09-25-pre-1-0-ui-and-terminal-ssh-contract.md)
+requires the same structured, fail-closed decisions inside the originating
+terminal tab before polish/1.0. The OpenSSH file, trust and safe-mutation rules
+in this specification remain authoritative.
+
 Decision date: 2026-09-21. Status: implementation specification approved;
 KH01.1 is accepted on Windows 7 against the exact 10.0p2 oracle. KH01.2 is
 accepted on NESSY and TURTLE. KH01.3 is implemented, package-verified and
