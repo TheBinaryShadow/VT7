@@ -135,7 +135,11 @@ namespace VT7.Host
             foreach (var label in Descendants(management.FormContent).OfType<TextBlock>())
                 Require(ContrastRatio(Solid(label.Foreground, "known-host management text"), managementBackground) >= 4.5,
                     "Known-host management contains text below the 4.5:1 contrast requirement.");
-            Require(Descendants(management.FormContent).OfType<CheckBox>().Count() == 1 &&
+            var managementChoice = Descendants(management.FormContent).OfType<CheckBox>().SingleOrDefault();
+            Require(managementChoice?.Content is TextBlock choiceText &&
+                ContrastRatio(Solid(choiceText.Foreground, "known-host record text"), managementBackground) >= 4.5,
+                "The selected known-host key row is not legible against the management background.");
+            Require(managementChoice != null &&
                 Descendants(management.FormContent).OfType<Button>().Any(button =>
                     Convert.ToString(button.Content)?.Contains("Remove selected") == true),
                 "Changed-key management did not expose the selected user record and deliberate removal action.");

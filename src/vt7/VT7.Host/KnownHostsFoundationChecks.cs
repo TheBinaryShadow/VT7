@@ -472,6 +472,26 @@ namespace VT7.Host
                 ExpectMutation("store-generation-changed", () =>
                     OpenSshKnownHostsWriter.RemovePrimaryUserRecords(reviewed, "changed.example", new[] { 2 }));
 
+                // OpenSSH may create the real user file with inherited rules.
+                // Exercise that shape separately from the protected-DACL case.
+                File.Delete(primary);
+                File.Delete(primary + ".old");
+                File.WriteAllBytes(primary, original);
+                var inheritedAcl = File.GetAccessControl(primary);
+                Require(!inheritedAcl.AreAccessRulesProtected,
+                    "The inherited-DACL removal fixture is unexpectedly protected.");
+                var inheritedSddl = inheritedAcl.GetSecurityDescriptorSddlForm(
+                    AccessControlSections.Owner | AccessControlSections.Group | AccessControlSections.Access);
+                reviewed = OpenSshKnownHostsStore.Load(definitions);
+                OpenSshKnownHostsWriter.RemovePrimaryUserRecords(reviewed, "changed.example", new[] { 2 });
+                Require(File.ReadAllBytes(primary).SequenceEqual(retained),
+                    "Inherited-DACL removal changed retained raw lines.");
+                Require(File.ReadAllBytes(primary + ".old").SequenceEqual(original),
+                    "Inherited-DACL removal lost the exact backup.");
+                Require(File.GetAccessControl(primary).GetSecurityDescriptorSddlForm(
+                    AccessControlSections.Owner | AccessControlSections.Group | AccessControlSections.Access) == inheritedSddl,
+                    "Inherited-DACL removal changed the primary file's security descriptor.");
+
                 File.WriteAllBytes(primary, original);
                 reviewed = OpenSshKnownHostsStore.Load(definitions);
                 File.AppendAllText(primary, "# external edit\n", Utf8);

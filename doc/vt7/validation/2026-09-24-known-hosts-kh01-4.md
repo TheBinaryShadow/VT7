@@ -1,8 +1,9 @@
 # OpenSSH-compatible known-host management KH01.4
 
-Date: 2026-09-24. Implementation state: VT7 0.12.1/native ABI 11 correction
-candidate. Package 0.5 is rejected on NESSY and TURTLE; corrected package 0.6
-awaits Windows 7 acceptance. KH01.3 package 0.4 remains the accepted
+Date: 2026-09-24. Implementation state: VT7 0.12.2/native ABI 11 live-removal
+correction candidate. Package 0.5 is rejected on NESSY and TURTLE. Package 0.6
+passes the automated corpus on both, but live removal stops safely before
+mutation at `temporary-security` and its key-row contrast is poor. KH01.3 package 0.4 remains the accepted
 first-contact baseline.
 
 ## Behavior and security boundary
@@ -22,7 +23,8 @@ writer mutex, validates selected line identities, checks all source generations
 and opens the primary file with competing writes excluded. Retained physical
 lines are copied byte for byte to a unique same-directory temporary file.
 VT7 flushes it, copies the original file security descriptor into a fresh
-`FileSecurity` object, applies and verifies its owner/group/DACL on the
+`FileSecurity` object, applies it and verifies owner, group, inheritance
+protection and exact DACL entries on the
 temporary file, rechecks the source generation and uses `File.Replace` to
 install the replacement and
 produce `known_hosts.old`. It reloads the store and verifies the retained
@@ -107,10 +109,22 @@ SHA256 `DF56400ACB1B0266CD8BB5E99757BB8F08411B058799B1E028BDF5B3D8B218EF`,
 15,247,563 bytes and 94 verified files. Its manifest names clean source commit
 `3dfd3664a32672d60e28734623c71af0de8a73e7`. Release build, focused
 known-host and SSH.NET checks, typed overlay, path-with-spaces staging and the
-independent extracted launcher pass locally. Review copy:
+independent extracted launcher pass locally. NESSY and TURTLE also pass the
+automated KH01.4 launcher; owner-confirmed live removal fails at
+`temporary-security` without changing the real file or creating `.old`.
+The real-file descriptor has not been collected, so the precise difference
+is unproven. The current exact SDDL-string comparison can reject differences
+in auto-inheritance control bits even when owner, group and ACL entries agree.
+Review copy:
 `artifacts/VT7-KnownHosts-KH01-0.6-x64.zip`.
 
-Run the packaged automated launcher on both NESSY (`mscorlib.dll`
+Version 0.12.2/package 0.7 compares those security components structurally,
+retains a fail-closed check before replacement, and reports the mismatched
+component if one remains. The corpus now exercises both protected and
+inherited file ACLs. An explicit dark key-row `TextBlock` corrects the white
+dialog's faint text. Package 0.7 awaits issuance and target validation.
+
+Run the package 0.7 automated launcher on both NESSY (`mscorlib.dll`
 `4.8.4110.0`) and TURTLE (`4.8.4795.0`). Then follow its controlled live
 changed-key, removal, backup, fresh-reconnect and direct/typed path procedure.
 Return a complete `Logs` directory only for failed automated runs. Do not

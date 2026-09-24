@@ -26,10 +26,11 @@ archive and complete NESSY/TURTLE Windows 7 checks; KH01.3 is accepted.
 Version 0.12.0 implements KH01.4 changed-key review, deliberate selected
 primary-user removal with `.old` recovery, and host-certificate policy. Package
 0.5 passes local checks but fails its Windows 7 ACL read-back on NESSY and
-TURTLE. Version 0.12.1 corrects the security-descriptor copy; package 0.6
-awaits target acceptance.
+TURTLE. Version 0.12.1/package 0.6 passes the two-machine automated corpus,
+but live removal stops before mutation at `temporary-security` and exposes
+faint key-row text. Version 0.12.2/package 0.7 addresses both and awaits target testing.
 
-VT7 is the terminal application Windows 7 always deserved. Version 0.12.1 keeps
+VT7 is the terminal application Windows 7 always deserved. Version 0.12.2 keeps
 the accepted Command Prompt/WinPTY path and adds explicit Windows PowerShell 5.1
 and versioned PowerShell 7 profiles through the 3A document/session/view
 boundary. Exact Windows 7 5.1/7.2.24 automation passes, as do the applicable
@@ -205,7 +206,7 @@ focused Windows 7 confirmation of the corrected Authentication selector.
 | C3 repaint/recovery | [0.3.1 repaint](validation/2026-09-12-atlas-repaint.md), [0.3.2 recovery](validation/2026-09-12-atlas-recovery.md) | Bounded target passes; injected recovery is not real driver-loss evidence. |
 | C3 scaling | [0.3.3 failures](validation/2026-09-12-atlas-settings.md), [0.3.4 correction](validation/2026-09-12-atlas-scaling-correction.md) | Actual Windows 7 96/120/144 DPI matrix accepted for 0.3.4 on the supplied setup. |
 | Deferred reliability concern | [REL01 decision](architecture/2026-09-14-warp-development-deferral.md) | Hardware lifecycle passes; WARP resource failures remain. Accepted risk for continued development; conditional Milestone 7 review. |
-| Current development | [KH01.4 management](validation/2026-09-24-known-hosts-kh01-4.md), [accepted KH01.3 first contact](validation/2026-09-24-known-hosts-kh01-3.md), [known-host specification](architecture/2026-09-21-openssh-known-hosts-management-spec.md), [Milestone 5](../../ROADMAP.md#milestone-5-first-class-ssh) | Version 0.12.1/ABI 11 retains KH01.4 changed-key review, selected primary-user removal and CA-signed host-certificate policy. Package 0.5 is rejected after identical Windows 7 ACL read-back failures on NESSY and TURTLE. The corrected security copy and protected-ACL fixture pass locally; package 0.6 awaits target acceptance. KH01.3 package 0.4 remains the accepted two-machine baseline. |
+| Current development | [KH01.4 management](validation/2026-09-24-known-hosts-kh01-4.md), [accepted KH01.3 first contact](validation/2026-09-24-known-hosts-kh01-3.md), [known-host specification](architecture/2026-09-21-openssh-known-hosts-management-spec.md), [Milestone 5](../../ROADMAP.md#milestone-5-first-class-ssh) | Version 0.12.2/ABI 11 retains KH01.4 changed-key review, selected primary-user removal and CA-signed host-certificate policy. Package 0.5 failed automated ACL read-back on both Windows 7 machines. Package 0.6 passes automation but live removal stops safely at `temporary-security` and key rows are too faint. Package 0.7 checks security components structurally and fixes the text; target validation is pending. KH01.3 package 0.4 remains the accepted two-machine baseline. |
 | Previous native target result | [Windows 7 resource retirement 0.1](diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result) | Supported capture completes; workers retire by 90 seconds and USER returns to 4, but 54 process handles above pre-warmup remain. No C3 or timed-soak acceptance. |
 | Latest resource target result | [WPF reactivation 0.1](diagnostics/2026-09-14-resource-reactivation.md#supplied-windows-7-result) | Two integrated rounds complete, with 16 valid samples and three immediate failures. Both +180s handle/thread/GDI/USER counts match; private bytes rise 220 KiB. No permanent bound or C3 acceptance. |
 

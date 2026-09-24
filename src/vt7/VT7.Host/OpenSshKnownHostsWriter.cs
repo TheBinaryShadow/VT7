@@ -194,10 +194,9 @@ namespace VT7.Host
                         replacementSecurity.SetSecurityDescriptorSddlForm(expectedSecurity,
                             AccessControlSections.Owner | AccessControlSections.Group | AccessControlSections.Access);
                         File.SetAccessControl(temporary, replacementSecurity);
-                        if (!string.Equals(File.GetAccessControl(temporary).GetSecurityDescriptorSddlForm(
-                            AccessControlSections.Owner | AccessControlSections.Group | AccessControlSections.Access),
-                            expectedSecurity, StringComparison.Ordinal))
-                            throw new KnownHostsMutationException("temporary-security");
+                        var temporaryMismatch = SecurityMismatch(security, File.GetAccessControl(temporary));
+                        if (temporaryMismatch != null)
+                            throw new KnownHostsMutationException("temporary-security-" + temporaryMismatch);
 
                         // The final source check catches edits while the retained file is being
                         // built. File.Replace commits the new file and the .old backup together.
@@ -231,10 +230,9 @@ namespace VT7.Host
                         verified.Sources.Skip(1).Zip(fresh.Sources.Skip(1), SameSource).Any(same => !same) ||
                         !string.Equals(HashFile(backup), originalHash, StringComparison.Ordinal))
                         throw new KnownHostsMutationException("read-back-generation");
-                    if (!string.Equals(File.GetAccessControl(primary.Path).GetSecurityDescriptorSddlForm(
-                        AccessControlSections.Owner | AccessControlSections.Group | AccessControlSections.Access),
-                        expectedSecurity, StringComparison.Ordinal))
-                        throw new KnownHostsMutationException("read-back-security");
+                    var readBackMismatch = SecurityMismatch(security, File.GetAccessControl(primary.Path));
+                    if (readBackMismatch != null)
+                        throw new KnownHostsMutationException("read-back-security-" + readBackMismatch);
                     return verified;
                     }
                 }
@@ -261,6 +259,36 @@ namespace VT7.Host
                 ++found;
             }
             if (found != selected.Count) throw new KnownHostsMutationException("removal-selection");
+        }
+
+        private static string? SecurityMismatch(FileSecurity expected, FileSecurity actual)
+        {
+            // The auto-inheritance control bits can differ when Windows writes
+            // a copied descriptor, even if owner, group and every DACL entry
+            // are identical. Compare the security properties we must preserve
+            // instead of the complete SDDL serialization of those properties.
+            var original = new RawSecurityDescriptor(expected.GetSecurityDescriptorBinaryForm(), 0);
+            var replacement = new RawSecurityDescriptor(actual.GetSecurityDescriptorBinaryForm(), 0);
+            if (!Equals(original.Owner, replacement.Owner)) return "owner";
+            if (!Equals(original.Group, replacement.Group)) return "group";
+            const ControlFlags relevant = ControlFlags.DiscretionaryAclPresent |
+                ControlFlags.DiscretionaryAclProtected;
+            if ((original.ControlFlags & relevant) != (replacement.ControlFlags & relevant))
+                return "access-flags";
+            var originalAcl = original.DiscretionaryAcl;
+            var replacementAcl = replacement.DiscretionaryAcl;
+            if (originalAcl == null || replacementAcl == null)
+                return originalAcl == replacementAcl ? null : "access-entries";
+            if (originalAcl.Count != replacementAcl.Count) return "access-entries";
+            for (var index = 0; index < originalAcl.Count; ++index)
+            {
+                var left = new byte[originalAcl[index].BinaryLength];
+                var right = new byte[replacementAcl[index].BinaryLength];
+                originalAcl[index].GetBinaryForm(left, 0);
+                replacementAcl[index].GetBinaryForm(right, 0);
+                if (!left.SequenceEqual(right)) return "access-entries";
+            }
+            return null;
         }
 
         private static void EnsureSafeBackupTarget(string path)

@@ -5,8 +5,9 @@ KH01.1 is accepted on Windows 7 against the exact 10.0p2 oracle. KH01.2 is
 accepted on NESSY and TURTLE. KH01.3 is implemented, package-verified and
 target accepted on both machines in VT7 0.11.0. KH01.4 is implemented locally
 in VT7 0.12.0. Package 0.5 passed local verification but failed ACL read-back
-on both Windows 7 machines. VT7 0.12.1 corrects the security copy; package 0.6
-awaits target validation.
+on both Windows 7 machines. VT7 0.12.1/package 0.6 passes automated checks
+on both but live removal stops safely at `temporary-security`. VT7 0.12.2
+compares owner, group and ACL components structurally; package 0.7 awaits validation.
 
 This specification defines VT7's first durable SSH host-trust subsystem. It
 replaces the generic trust-store wording in the broader

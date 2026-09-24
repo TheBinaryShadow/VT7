@@ -385,17 +385,19 @@ Its new package is non-overwriting and carries a separate Windows 7 procedure:
 .\tools\Test-VT7KnownHosts.ps1 -Configuration Release
 .\tools\Test-VT7SshNetFoundation.ps1 -Configuration Release
 .\tools\Test-VT7SshOverlay.ps1 -Configuration Release -AllowMissingPowerShell7
-.\tools\Package-VT7KnownHostsManagementAcl.ps1 -NoBuild
-.\tools\Verify-VT7KnownHostsManagementAclPackage.ps1
+.\tools\Package-VT7KnownHostsManagementLiveAcl.ps1 -NoBuild
+.\tools\Verify-VT7KnownHostsManagementLiveAclPackage.ps1
 ```
 
 The automated KH01.4 corpus uses disposable keys and files; it never reads the
 tester’s real trust store. The controlled live removal is explicitly chosen in
 the UI. See the [KH01.4 record](doc/vt7/validation/2026-09-24-known-hosts-kh01-4.md).
 The issued package 0.5 passed local checks but failed its disposable ACL
-read-back on both Windows 7 tiers. Version 0.12.1/package 0.6 corrects the
-`FileSecurity` copy and strengthens the ACL fixture; use only package 0.6 for
-the resumed target run.
+read-back on both Windows 7 tiers. Version 0.12.1/package 0.6 corrects that
+automated failure on both machines, but live removal stops before mutation
+at `temporary-security`. Version 0.12.2/package 0.7 compares owner, group,
+inheritance protection and exact DACL entries and fixes key-row contrast;
+use package 0.7 for the resumed target run.
 
 Run the P01 local-console characterization after building either configuration:
 
@@ -483,7 +485,8 @@ identity. See the [I01 record](doc/vt7/validation/2026-09-14-input-i01.md).
 | `Package-VT7KnownHostsReadOnly.ps1` | `vt7/packages/VT7-KnownHosts-KH01-0.3-x64` / matching ZIP; refuses replacement. It stages VT7 0.10.1, publisher-built SSH.NET 2026.0.1-prerelease.6/f099365, the complete typed shim, KH01.2 read-only policy corpus, all notices and controlled-server instructions. Package 0.2 is preserved as the primary-pass/NESSY-rejected 2026.0.0 result. `Verify-VT7KnownHostsReadOnlyPackage.ps1` independently checks ZIP safety, hashes, manifest policy, binary closure and a fresh extracted run. |
 | `Package-VT7KnownHostsFirstContact.ps1` | `vt7/packages/VT7-KnownHosts-KH01-0.4-x64` / matching ZIP; refuses replacement. It stages VT7 0.11.0, both SSH entry paths, generation-bound first-contact decisions, durable writer regressions, the pinned prerelease.6/f099365 closure and all notices. `Verify-VT7KnownHostsFirstContactPackage.ps1` checks ZIP safety, hashes, write-enabled manifest policy, binary closure and a fresh extracted run. |
 | `Package-VT7KnownHostsManagement.ps1` | `vt7/packages/VT7-KnownHosts-KH01-0.5-x64` / matching ZIP; refuses replacement. It stages VT7 0.12.0, changed-key review, selected primary-user removal, host-certificate policy, the pinned SSH.NET closure and complete notices. `Verify-VT7KnownHostsManagementPackage.ps1` checks ZIP safety, hashes, policy fields, images and a fresh extracted run. |
-| `Package-VT7KnownHostsManagementAcl.ps1` | Issued `vt7/packages/VT7-KnownHosts-KH01-0.6-x64` / matching ZIP; refuses replacement. It stages VT7 0.12.1 with pre-replacement owner/group/DACL copy and verification. Package 0.5 is retained as rejected two-machine evidence. `Verify-VT7KnownHostsManagementAclPackage.ps1` independently checks the archive and extracted launcher. The 0.6 ZIP is SHA256 `DF56400ACB1B0266CD8BB5E99757BB8F08411B058799B1E028BDF5B3D8B218EF` (15,247,563 bytes, 94 files); Windows 7 acceptance is pending. |
+| `Package-VT7KnownHostsManagementAcl.ps1` | Issued `vt7/packages/VT7-KnownHosts-KH01-0.6-x64` / matching ZIP; refuses replacement. It stages VT7 0.12.1 with pre-replacement owner/group/DACL copy and verification. Package 0.5 is retained as rejected two-machine evidence. `Verify-VT7KnownHostsManagementAclPackage.ps1` independently checks the archive and extracted launcher. The 0.6 ZIP is SHA256 `DF56400ACB1B0266CD8BB5E99757BB8F08411B058799B1E028BDF5B3D8B218EF` (15,247,563 bytes, 94 files); automation passes on both Windows 7 machines but live removal stops safely at `temporary-security`. |
+| `Package-VT7KnownHostsManagementLiveAcl.ps1` | Next non-overwriting identity `vt7/packages/VT7-KnownHosts-KH01-0.7-x64` / matching ZIP. It stages VT7 0.12.2 with structural owner/group/DACL comparison and legible changed-key rows. `Verify-VT7KnownHostsManagementLiveAclPackage.ps1` independently checks the archive and extracted launcher. |
 
 Issued P01 package 0.3 used a culture-sensitive PowerShell row comparison that
 ignored embedded NULs in the two Windows 7 raw-VT cases. The retained strings
@@ -804,7 +807,7 @@ Tier A Windows 7 system can establish compatibility. Use a clean snapshot with:
 
 - Windows 7 SP1 x64.
 - Platform Update KB2670838.
-- .NET Framework 4.8. VT7 0.12.1 uses SSH.NET
+- .NET Framework 4.8. VT7 0.12.2 uses SSH.NET
   `2026.0.1-prerelease.6`/`f099365`, which carries the receive-MAC reset needed
   by the non-ESU `mscorlib.dll` `4.8.4110.0` implementation.
 - The remaining prerequisites listed in [ROADMAP.md](ROADMAP.md).

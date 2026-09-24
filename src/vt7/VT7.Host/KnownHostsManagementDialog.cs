@@ -102,8 +102,13 @@ namespace VT7.Host
                     var fingerprint = "SHA256:" + Convert.ToBase64String(sha.ComputeHash(record.KeyBlob)).TrimEnd('=');
                     var choice = new CheckBox
                     {
-                        Content = "Line " + line.LineNumber + "   " + record.HostField + "   " +
-                            record.KeyType + "   " + fingerprint,
+                        Content = new TextBlock
+                        {
+                            Text = "Line " + line.LineNumber + "   " + record.HostField + "   " +
+                                record.KeyType + "   " + fingerprint,
+                            Foreground = Brushes.Black,
+                            TextWrapping = TextWrapping.Wrap,
+                        },
                         Foreground = Brushes.Black,
                         Margin = new Thickness(0, 5, 0, 5),
                     };

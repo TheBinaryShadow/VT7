@@ -22,7 +22,7 @@ independent open-source engineering effort to create a real terminal
 application for Windows 7.
 
 > [!IMPORTANT]
-> VT7 is currently in pre-alpha development. Version 0.12.1 retains selectable
+> VT7 is currently in pre-alpha development. Version 0.12.2 retains selectable
 > Command Prompt, Windows PowerShell 5.1 and versioned PowerShell 7 profiles to
 > the accepted local transport. The exact PowerShell 5.1/7.2.24 transport,
 > Unicode, resize, lifecycle and keyboard corpus passes on Windows 7. The 0.7.3
@@ -64,8 +64,10 @@ application for Windows 7.
 > validity, critical-option and revocation policy. Local checks pass; the 0.5
 > package passed local staged and independent ZIP checks, but both Windows 7
 > machines reject its disposable removal check at ACL read-back. Version
-> 0.12.1 copies and verifies the original security descriptor before file
-> replacement; corrected package 0.6 awaits Windows 7 acceptance.
+> 0.12.1/package 0.6 passes automated checks on both Windows 7 machines, but
+> live removal stops safely at the temporary-file security check and the
+> key-row text has poor contrast. Version 0.12.2 compares the actual owner,
+> group and ACL entries and styles that text; package 0.7 awaits target testing.
 > Other
 > features described here remain project goals until implemented and verified.
 
@@ -160,7 +162,7 @@ The primary target is Windows 7 SP1 x64 with the Platform Update and the normal
 runtime prerequisites documented in the [roadmap](ROADMAP.md). The required
 baseline will not depend on unofficial post-EOL operating-system packages.
 
-The current VT7 0.12.1 candidate retains ordinary .NET Framework 4.8 as the
+The current VT7 0.12.2 candidate retains ordinary .NET Framework 4.8 as the
 runtime floor. It pins publisher-built SSH.NET `2026.0.1-prerelease.6`, whose
 upstream `f099365` change resets receive-MAC state for older .NET Framework
 implementations. The previous 2026.0.0 package connected on `mscorlib.dll`
@@ -207,7 +209,7 @@ build the best terminal we can for the platform we love.
 
 ## Project status
 
-Current working source: **0.12.1, native ABI 11**. It retains the accepted 3A
+Current working source: **0.12.2, native ABI 11**. It retains the accepted 3A
 document/session/view ownership and Command Prompt path, then adds explicit
 Windows PowerShell 5.1 and versioned PowerShell 7 profiles through the same
 production `WinPtyTransport`. Ordinary PowerShell launches preserve user
