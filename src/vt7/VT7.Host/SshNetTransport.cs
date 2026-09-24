@@ -5,6 +5,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Net;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
@@ -70,6 +71,7 @@ namespace VT7.Host
             new TaskCompletionSource<TerminalTransportResult>(TaskCreationOptions.RunContinuationsAsynchronously);
         private readonly SshConnectionOptions _options;
         private readonly HostTrustPromptHandler? _trustPrompt;
+        private readonly HostKeyProblemHandler? _hostKeyProblem;
         private ITerminalOutputSink? _output;
         private SshClient? _client;
         private ShellStream? _stream;
@@ -102,10 +104,12 @@ namespace VT7.Host
         private long _promptGeneration;
         private bool _disposed;
 
-        internal SshNetTransport(SshConnectionOptions options, HostTrustPromptHandler? trustPrompt = null)
+        internal SshNetTransport(SshConnectionOptions options, HostTrustPromptHandler? trustPrompt = null,
+            HostKeyProblemHandler? hostKeyProblem = null)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
             _trustPrompt = trustPrompt;
+            _hostKeyProblem = hostKeyProblem;
         }
 
         public Guid TransportId { get; } = Guid.NewGuid();
@@ -194,6 +198,16 @@ namespace VT7.Host
                         else throw new SshTransportException("host-key decision");
                         prompted = true;
                         continue;
+                    }
+
+                    if (_hostKeyProblem != null && _trustDecision?.Result.State == KnownHostTrustState.Changed &&
+                        _presentedHostKey != null && _knownHosts != null && _knownHostToken != null)
+                    {
+                        var problem = new HostKeyProblemRequest(Guid.NewGuid(), _knownHostToken,
+                            _presentedHostKey, _trustDecision.Result, _knownHosts);
+                        DisposeConnectionAttempt();
+                        await _hostKeyProblem(problem, cancellationToken).ConfigureAwait(false);
+                        throw new SshTransportException("changed host key; reconnect after review", attemptError);
                     }
 
                     throw attemptError ?? new SshTransportException("SSH connection");
@@ -427,8 +441,18 @@ namespace VT7.Host
                 var token = _knownHostToken ?? throw new InvalidOperationException("The known-host token is unavailable.");
                 var presented = PresentedHostKey.Parse(eventArgs.HostKey);
                 _presentedHostKey = presented;
+                KnownHostCertificateFacts? certificate = null;
+                if (eventArgs.Certificate != null)
+                {
+                    var source = eventArgs.Certificate;
+                    certificate = new KnownHostCertificateFacts(source.Name, ReadCertificateBytes(source),
+                        source.CertificateAuthorityKey,
+                        source.Type == Renci.SshNet.Security.Certificate.CertificateType.Host,
+                        source.ValidPrincipals, source.CriticalOptions.Count != 0,
+                        source.ValidAfterUnixSeconds, source.ValidBeforeUnixSeconds);
+                }
                 _trustDecision = KnownHostTrustPolicy.Decide(token, presented, snapshot,
-                    _options.ExpectedHostKeyFingerprint, _oneConnectionPin);
+                    _options.ExpectedHostKeyFingerprint, _oneConnectionPin, certificate);
                 _hostKeyTrusted = _trustDecision.CanTrust;
             }
             catch (Exception error) when (error is FormatException || error is ArgumentException ||
@@ -442,6 +466,25 @@ namespace VT7.Host
                 _hostKeyTrusted = false;
             }
             eventArgs.CanTrust = _hostKeyTrusted;
+        }
+
+        internal static byte[] ReadCertificateBytes(Renci.SshNet.Security.Certificate certificate)
+        {
+            // The pinned prerelease exposes the complete authenticated certificate
+            // internally. Exact certificate revocation requires those bytes; fail
+            // closed if a later SSH.NET build changes this boundary.
+            var property = typeof(Renci.SshNet.Security.Certificate).GetProperty("Bytes",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            try
+            {
+                if (property?.PropertyType != typeof(byte[]) || property.GetValue(certificate) is not byte[] bytes)
+                    throw new FormatException("certificate-bytes-unavailable");
+                return (byte[])bytes.Clone();
+            }
+            catch (TargetInvocationException error)
+            {
+                throw new FormatException("certificate-bytes-unavailable", error);
+            }
         }
 
         private void ReadOutputLoop()

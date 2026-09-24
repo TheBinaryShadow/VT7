@@ -146,7 +146,8 @@ namespace VT7.Host
             if (_switchingProfile || _closed) return;
             var dialog = new SshConnectionDialog { Owner = this };
             if (dialog.ShowDialog() != true || dialog.Result == null) return;
-            await StartTransportAsync(new SshNetTransport(dialog.Result, PromptForHostTrustAsync),
+            await StartTransportAsync(new SshNetTransport(dialog.Result, PromptForHostTrustAsync,
+                PromptForHostKeyProblemAsync),
                 "SSH.NET direct profile", null, null);
         }
 
@@ -163,7 +164,7 @@ namespace VT7.Host
         {
             if (_switchingProfile || _closed || _document == null || Viewport == null) return;
             var coordinator = SshOverlayCoordinator.TryCreate(profile, PromptForTypedSshAsync,
-                PromptForHostTrustAsync);
+                PromptForHostTrustAsync, PromptForHostKeyProblemAsync);
             var configured = coordinator?.Configure(profile) ?? profile;
             await StartTransportAsync(new WinPtyTransport(configured), profile.DisplayName, profile, coordinator);
         }
@@ -290,6 +291,25 @@ namespace VT7.Host
                         return new HostTrustPromptResponse(request.RequestId, HostTrustPromptAction.Cancel);
                     return dialog.Result;
                 }
+            }).Task;
+        }
+
+        private async System.Threading.Tasks.Task PromptForHostKeyProblemAsync(
+            HostKeyProblemRequest request, CancellationToken cancellationToken)
+        {
+            if (_closed || cancellationToken.IsCancellationRequested) return;
+            var windowGeneration = Interlocked.Increment(ref _trustPromptGeneration);
+            await Dispatcher.InvokeAsync(() =>
+            {
+                if (_closed || cancellationToken.IsCancellationRequested ||
+                    windowGeneration != Interlocked.Read(ref _trustPromptGeneration)) return;
+                var dialog = new KnownHostsManagementDialog(request) { Owner = this };
+                using (cancellationToken.Register(() =>
+                    _ = Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        if (dialog.IsVisible) dialog.Close();
+                    }))))
+                    dialog.ShowDialog();
             }).Task;
         }
 

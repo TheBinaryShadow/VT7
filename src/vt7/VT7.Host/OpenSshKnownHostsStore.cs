@@ -227,10 +227,13 @@ namespace VT7.Host
     {
         internal static KnownHostTrustDecision Decide(string hostToken, PresentedHostKey presented,
             KnownHostsStoreSnapshot snapshot, string expectedFingerprint,
-            KnownHostConnectionPin? oneConnectionPin = null)
+            KnownHostConnectionPin? oneConnectionPin = null,
+            KnownHostCertificateFacts? certificate = null)
         {
             if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
-            var result = KnownHostTrustResolver.Resolve(hostToken, presented, snapshot.Documents);
+            var result = certificate == null
+                ? KnownHostTrustResolver.Resolve(hostToken, presented, snapshot.Documents)
+                : KnownHostTrustResolver.ResolveCertificate(hostToken, presented, certificate, snapshot.Documents);
             var normalized = SshConnectionOptions.NormalizeFingerprint(expectedFingerprint);
             var supplied = normalized.Length != 0;
             var actual = presented.Fingerprint.StartsWith("SHA256:", StringComparison.Ordinal)

@@ -3,7 +3,8 @@
 Decision date: 2026-09-21. Status: implementation specification approved;
 KH01.1 is accepted on Windows 7 against the exact 10.0p2 oracle. KH01.2 is
 accepted on NESSY and TURTLE. KH01.3 is implemented, package-verified and
-target accepted on both machines in VT7 0.11.0. KH01.4 is next.
+target accepted on both machines in VT7 0.11.0. KH01.4 is implemented locally
+in VT7 0.12.0; its Windows 7 package and live matrix remain pending.
 
 This specification defines VT7's first durable SSH host-trust subsystem. It
 replaces the generic trust-store wording in the broader
@@ -316,9 +317,11 @@ alias. When SSH.NET reports a certificate, VT7 must require all of the following
    applicable `@revoked` record; and
 7. every relevant field can be parsed within the declared bounds.
 
-An empty principal list is handled exactly as the baseline OpenSSH certificate
-policy, verified by differential and controlled-server tests. No application
-guess substitutes for that oracle. Unknown critical options always fail closed.
+OpenSSH rejects an empty principal list. Host principals use case-sensitive
+single-pattern wildcard matching, unlike known_hosts host-field matching.
+VT7 verifies those rules against OpenSSH source and signed disposable fixtures;
+the controlled-server matrix remains an acceptance gate. Unknown critical
+options always fail closed.
 
 If SSH.NET cannot expose enough authenticated certificate material to enforce
 these checks, certificate trust remains `PolicyRejected` and the release gate
@@ -586,6 +589,10 @@ on both Windows 7 runtime tiers. See the
 
 ### KH01.4: management and certificates
 
+Implementation status: VT7 0.12.0 local candidate; Debug checks pass. See the
+[KH01.4 validation record](../validation/2026-09-24-known-hosts-kh01-4.md).
+Windows 7 target acceptance remains open.
+
 - Add deliberate user-record removal with `.old` recovery and concurrency tests.
 - Complete `@cert-authority`, principal, critical-option and revocation behavior.
 - Do not mark known-host management complete until certificate and marker cases
@@ -759,5 +766,6 @@ records, `NOTICE.md` if any upstream code is ported, and a dated KH01 validation
 record containing exact package and target evidence.
 
 This document authorizes engineering work within its boundaries. KH01.1 through
-KH01.3 are target accepted. Complete known-host management is not claimed until
+KH01.3 are target accepted. KH01.4 is implemented locally, with package and
+live acceptance still open. Complete known-host management is not claimed until
 KH01.4 and KH01.5 close their remaining behavior and matrix.

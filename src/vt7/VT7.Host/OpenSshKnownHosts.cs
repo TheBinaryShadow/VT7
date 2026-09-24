@@ -129,6 +129,35 @@ namespace VT7.Host
         }
     }
 
+    internal sealed class KnownHostCertificateFacts
+    {
+        private readonly byte[] _certificateBlob;
+        private readonly byte[] _authorityBlob;
+
+        internal KnownHostCertificateFacts(string certificateType, byte[] certificateBlob,
+            byte[] authorityBlob, bool isHost, IEnumerable<string> principals,
+            bool hasCriticalOptions, ulong validAfter, ulong validBefore)
+        {
+            CertificateType = certificateType ?? throw new ArgumentNullException(nameof(certificateType));
+            _certificateBlob = (byte[])(certificateBlob ?? throw new ArgumentNullException(nameof(certificateBlob))).Clone();
+            _authorityBlob = (byte[])(authorityBlob ?? throw new ArgumentNullException(nameof(authorityBlob))).Clone();
+            IsHost = isHost;
+            Principals = (principals ?? throw new ArgumentNullException(nameof(principals))).ToArray();
+            HasCriticalOptions = hasCriticalOptions;
+            ValidAfter = validAfter;
+            ValidBefore = validBefore;
+        }
+
+        internal string CertificateType { get; }
+        internal byte[] CertificateBlob => (byte[])_certificateBlob.Clone();
+        internal byte[] AuthorityBlob => (byte[])_authorityBlob.Clone();
+        internal bool IsHost { get; }
+        internal IReadOnlyList<string> Principals { get; }
+        internal bool HasCriticalOptions { get; }
+        internal ulong ValidAfter { get; }
+        internal ulong ValidBefore { get; }
+    }
+
     internal static class OpenSshKeyBlob
     {
         internal const int MaximumDecodedBytes = 64 * 1024;
@@ -497,10 +526,121 @@ namespace VT7.Host
             if (revoked.Count > 0) return Result(KnownHostTrustState.Revoked, "matching-revoked-key", revoked);
             if (unreadable.Count > 0) return Result(KnownHostTrustState.Unreadable, "relevant-store-data-unreadable", unreadable);
             if (presented.IsCertificate)
-                return Result(KnownHostTrustState.PolicyRejected, "certificate-validation-pending-kh01.4", certificatePolicy);
+                return Result(KnownHostTrustState.PolicyRejected, "certificate-verification-unavailable", certificatePolicy);
             if (exact.Count > 0) return Result(KnownHostTrustState.Matching, "exact-key-blob", exact);
             if (changed.Count > 0) return Result(KnownHostTrustState.Changed, "different-key-for-host", changed);
             return Result(KnownHostTrustState.Unknown, "no-applicable-key", Array.Empty<string>());
+        }
+
+        internal static KnownHostTrustResult ResolveCertificate(string hostToken, PresentedHostKey certifiedKey,
+            KnownHostCertificateFacts certificate, IEnumerable<KnownHostsDocument> documents)
+        {
+            if (hostToken == null) throw new ArgumentNullException(nameof(hostToken));
+            if (certifiedKey == null) throw new ArgumentNullException(nameof(certifiedKey));
+            if (certificate == null) throw new ArgumentNullException(nameof(certificate));
+            if (documents == null) throw new ArgumentNullException(nameof(documents));
+            var revoked = new List<string>();
+            var unreadable = new List<string>();
+            var authorities = new List<string>();
+            var certBlob = certificate.CertificateBlob;
+            var caBlob = certificate.AuthorityBlob;
+            foreach (var document in documents)
+            {
+                if (document.FatalError != null) unreadable.Add(document.SourceId + ":" + document.FatalError);
+                foreach (var line in document.Lines)
+                {
+                    var location = document.SourceId + ":" + line.LineNumber;
+                    if (line.Kind == KnownHostsLineKind.Malformed)
+                    {
+                        if (line.IndeterminateHost || CandidateMatches(hostToken, line.CandidateHostField))
+                            unreadable.Add(location);
+                        continue;
+                    }
+                    var record = line.Record;
+                    if (record == null || !OpenSshHostMatcher.Matches(hostToken, record.HostField)) continue;
+                    var blob = record.KeyBlob;
+                    if (record.Marker == KnownHostMarker.Revoked &&
+                        (FixedEquals(blob, certBlob) || FixedEquals(blob, certifiedKey.Blob) ||
+                         FixedEquals(blob, caBlob)))
+                        revoked.Add(location);
+                    if (record.Marker == KnownHostMarker.CertAuthority && FixedEquals(blob, caBlob))
+                        authorities.Add(location);
+                }
+            }
+            if (revoked.Count > 0) return Result(KnownHostTrustState.Revoked, "certificate-material-revoked", revoked);
+            if (unreadable.Count > 0) return Result(KnownHostTrustState.Unreadable,
+                "relevant-store-data-unreadable", unreadable);
+            if (!certificate.IsHost || certifiedKey.IsCertificate ||
+                certificate.CertificateType != OpenSshKeyBlob.ReadKeyType(certBlob) ||
+                OpenSshKeyBlob.ReadKeyType(caBlob).EndsWith("-cert-v01@openssh.com", StringComparison.Ordinal) ||
+                !CertificateTypeMatchesKey(certificate.CertificateType, certifiedKey.KeyType))
+                return Result(KnownHostTrustState.PolicyRejected, "certificate-material-invalid", authorities);
+            var now = (ulong)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            if (certificate.ValidAfter > now || now >= certificate.ValidBefore)
+                return Result(KnownHostTrustState.PolicyRejected, "certificate-expired-or-not-yet-valid", authorities);
+            if (certificate.HasCriticalOptions)
+                return Result(KnownHostTrustState.PolicyRejected, "certificate-critical-option", authorities);
+            var principalHost = CertificatePrincipalHost(hostToken);
+            if (certificate.Principals.Count == 0 || certificate.Principals.Count > 256 ||
+                !certificate.Principals.Any(principal => CertificatePrincipalMatches(principalHost, principal)))
+                return Result(KnownHostTrustState.PolicyRejected, "certificate-principal-mismatch", authorities);
+            if (authorities.Count == 0)
+                return Result(KnownHostTrustState.PolicyRejected, "certificate-authority-untrusted", Array.Empty<string>());
+            return Result(KnownHostTrustState.Matching, "certificate-authority-match", authorities);
+        }
+
+        private static bool CertificateTypeMatchesKey(string certificateType, string keyType)
+        {
+            const string suffix = "-cert-v01@openssh.com";
+            if (!certificateType.EndsWith(suffix, StringComparison.Ordinal)) return false;
+            var baseType = certificateType.Substring(0, certificateType.Length - suffix.Length);
+            if (baseType == "rsa-sha2-256" || baseType == "rsa-sha2-512") baseType = "ssh-rsa";
+            return string.Equals(baseType, keyType, StringComparison.Ordinal);
+        }
+
+        private static string CertificatePrincipalHost(string hostToken)
+        {
+            if (hostToken.Length > 2 && hostToken[0] == '[')
+            {
+                var close = hostToken.LastIndexOf("]:" , StringComparison.Ordinal);
+                if (close > 0) return hostToken.Substring(1, close - 1);
+            }
+            return hostToken;
+        }
+
+        private static bool CertificatePrincipalMatches(string host, string pattern)
+        {
+            // OpenSSH checks certificate principals with match_pattern, which is
+            // case-sensitive and treats each principal as one wildcard pattern.
+            // The known_hosts hostname matcher has different case/list rules.
+            if (string.IsNullOrEmpty(pattern) || pattern.Length > 1024 ||
+                pattern.Any(character => character < 0x21 || character > 0x7e)) return false;
+            var hostIndex = 0;
+            var patternIndex = 0;
+            var star = -1;
+            var retry = 0;
+            while (hostIndex < host.Length)
+            {
+                if (patternIndex < pattern.Length &&
+                    (pattern[patternIndex] == '?' || pattern[patternIndex] == host[hostIndex]))
+                {
+                    ++patternIndex;
+                    ++hostIndex;
+                }
+                else if (patternIndex < pattern.Length && pattern[patternIndex] == '*')
+                {
+                    star = patternIndex++;
+                    retry = hostIndex;
+                }
+                else if (star >= 0)
+                {
+                    patternIndex = star + 1;
+                    hostIndex = ++retry;
+                }
+                else return false;
+            }
+            while (patternIndex < pattern.Length && pattern[patternIndex] == '*') ++patternIndex;
+            return patternIndex == pattern.Length;
         }
 
         private static bool CandidateMatches(string hostToken, string? candidate)

@@ -38,6 +38,9 @@ namespace VT7.Host
             CheckTrustStates(first, second, certificateBlob);
             report.AppendLine("PASS: raw-key trust resolves matching, unknown, changed, revoked, unreadable and certificate-policy states.");
 
+            CheckCertificatePolicy(first, second, certificateBlob);
+            report.AppendLine("PASS: host certificates require exact CA, principal, validity and empty critical options; certificate, key and CA revocations block.");
+
             CheckStoreLoadingAndPolicy(first, second);
             report.AppendLine("PASS: four-source OpenSSH loading is immutable, bounded and fail-closed for missing, changed, revoked and unreadable stores.");
             report.AppendLine("PASS: stored matches need no fingerprint, unknown hosts require a generation-bound prompt pin and explicit fingerprint mismatches remain blocked.");
@@ -45,11 +48,14 @@ namespace VT7.Host
             CheckDurableAddition(first, second);
             report.AppendLine("PASS: durable first-contact writes preserve existing bytes, reject stale decisions, serialize writers and verify read-back.");
 
+            CheckDeliberateRemoval(first, second);
+            report.AppendLine("PASS: selected user-key removal preserves retained bytes and ACLs, creates an exact .old backup and rejects stale review.");
+
             CheckPropertiesAndFuzz();
             report.AppendLine("PASS: deterministic hash properties and 1024 bounded arbitrary-byte parser cases passed.");
 
             var oracle = CheckOpenSshOracle(firstBlob);
-            report.AppendLine("PASS: ssh-keygen differential lookup, host hashing and removal passed (" + oracle + ").");
+            report.AppendLine("PASS: ssh-keygen differential lookup, host hashing, removal and signed host-certificate parsing passed (" + oracle + ").");
             return Task.CompletedTask;
         }
 
@@ -174,6 +180,67 @@ namespace VT7.Host
                 var document = OpenSshKnownHostsParser.Parse("fuzz", bytes);
                 Require(document.Lines.Count <= bytes.Length + 1, "Arbitrary input produced an impossible line count.");
             }
+        }
+
+        private static void CheckCertificatePolicy(PresentedHostKey certifiedKey,
+            PresentedHostKey authorityKey, byte[] certificateBlob)
+        {
+            var certificateType = OpenSshKeyBlob.ReadKeyType(certificateBlob);
+            var now = (ulong)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            KnownHostCertificateFacts Facts(string[] principals, bool critical = false,
+                bool isHost = true, ulong? after = null, ulong? before = null,
+                byte[]? authority = null) => new KnownHostCertificateFacts(certificateType,
+                    certificateBlob, authority ?? authorityKey.Blob, isHost, principals, critical,
+                    after ?? now - 60, before ?? now + 60);
+            var ca = Document("user-ca", "@cert-authority cert.example ssh-ed25519 " +
+                Convert.ToBase64String(authorityKey.Blob));
+            var facts = Facts(new[] { "cert.example" });
+            Require(KnownHostTrustResolver.ResolveCertificate("cert.example", certifiedKey, facts,
+                new[] { ca }).State == KnownHostTrustState.Matching,
+                "An applicable signed host certificate did not match its exact CA.");
+            Require(KnownHostTrustResolver.ResolveCertificate("cert.example", certifiedKey,
+                Facts(Array.Empty<string>()), new[] { ca }).State == KnownHostTrustState.PolicyRejected,
+                "An empty host-certificate principal list bypassed OpenSSH policy.");
+            Require(KnownHostTrustResolver.ResolveCertificate("cert.example", certifiedKey,
+                Facts(new[] { "*.example" }), new[] { ca }).State == KnownHostTrustState.Matching,
+                "An OpenSSH wildcard host-certificate principal did not match.");
+            Require(KnownHostTrustResolver.ResolveCertificate("cert.example", certifiedKey,
+                Facts(new[] { "CERT.example" }), new[] { ca }).State == KnownHostTrustState.PolicyRejected,
+                "A case-mismatched host-certificate principal was accepted.");
+            Require(KnownHostTrustResolver.ResolveCertificate("cert.example", certifiedKey,
+                Facts(new[] { "other.example" }), new[] { ca }).State == KnownHostTrustState.PolicyRejected,
+                "A wrong host certificate principal was accepted.");
+            Require(KnownHostTrustResolver.ResolveCertificate("cert.example", certifiedKey,
+                Facts(new[] { "cert.example" }, critical: true), new[] { ca }).State == KnownHostTrustState.PolicyRejected,
+                "A host certificate with a critical option was accepted.");
+            Require(KnownHostTrustResolver.ResolveCertificate("cert.example", certifiedKey,
+                Facts(new[] { "cert.example" }, isHost: false), new[] { ca }).State == KnownHostTrustState.PolicyRejected,
+                "A user certificate was accepted as a host certificate.");
+            Require(KnownHostTrustResolver.ResolveCertificate("cert.example", certifiedKey,
+                Facts(new[] { "cert.example" }, before: now), new[] { ca }).State == KnownHostTrustState.PolicyRejected,
+                "A certificate at its exclusive expiration bound was accepted.");
+            Require(KnownHostTrustResolver.ResolveCertificate("cert.example", certifiedKey, facts,
+                Array.Empty<KnownHostsDocument>()).State == KnownHostTrustState.PolicyRejected,
+                "An untrusted host certificate CA was accepted.");
+            var raw = Document("raw", "cert.example ssh-ed25519 " +
+                Convert.ToBase64String(certifiedKey.Blob));
+            Require(KnownHostTrustResolver.ResolveCertificate("cert.example", certifiedKey, facts,
+                new[] { raw }).State == KnownHostTrustState.PolicyRejected,
+                "An ordinary raw-key record was treated as a certificate authority.");
+            foreach (var material in new[] { certificateBlob, certifiedKey.Blob, authorityKey.Blob })
+            {
+                var keyType = OpenSshKeyBlob.ReadKeyType(material);
+                var revoked = Document("revoked", "@revoked cert.example " + keyType + " " +
+                    Convert.ToBase64String(material));
+                Require(KnownHostTrustResolver.ResolveCertificate("cert.example", certifiedKey, facts,
+                    new[] { ca, revoked }).State == KnownHostTrustState.Revoked,
+                    "A revoked certificate, certified key or CA did not override trust.");
+            }
+            var portCa = Document("port-ca", "@cert-authority [cert.example]:2222 ssh-ed25519 " +
+                Convert.ToBase64String(authorityKey.Blob));
+            Require(KnownHostTrustResolver.ResolveCertificate("[cert.example]:2222", certifiedKey, facts,
+                new[] { portCa }).State == KnownHostTrustState.Matching,
+                "A non-default port certificate lost the host principal or CA token identity.");
         }
 
         private static void CheckStoreLoadingAndPolicy(PresentedHostKey first, PresentedHostKey second)
@@ -357,6 +424,111 @@ namespace VT7.Host
             }
         }
 
+        private static void CheckDeliberateRemoval(PresentedHostKey first, PresentedHostKey second)
+        {
+            var root = Path.Combine(Path.GetTempPath(), "VT7 known hosts removal " + Guid.NewGuid().ToString("N"));
+            var user = Path.Combine(root, "user");
+            var system = Path.Combine(root, "system");
+            var userSsh = Path.Combine(user, ".ssh");
+            Directory.CreateDirectory(userSsh);
+            Directory.CreateDirectory(system);
+            var definitions = OpenSshKnownHostsStore.CreateDefaultDefinitions(user, system);
+            var primary = definitions[0].Path;
+            try
+            {
+                var original = Utf8.GetBytes("# preserve CRLF\r\n" +
+                    "changed.example ssh-ed25519 " + Convert.ToBase64String(first.Blob) + " old key\r\n" +
+                    "other.example ssh-ed25519 " + Convert.ToBase64String(second.Blob) + " keep me\n");
+                File.WriteAllBytes(primary, original);
+                var originalAcl = File.GetAccessControl(primary).GetSecurityDescriptorSddlForm(
+                    AccessControlSections.Owner | AccessControlSections.Group | AccessControlSections.Access);
+                var reviewed = OpenSshKnownHostsStore.Load(definitions);
+                ExpectMutation("removal-selection", () =>
+                    OpenSshKnownHostsWriter.RemovePrimaryUserRecords(reviewed, "changed.example", new[] { 3 }));
+                Require(original.SequenceEqual(File.ReadAllBytes(primary)), "Invalid removal selection modified the file.");
+
+                var verified = OpenSshKnownHostsWriter.RemovePrimaryUserRecords(reviewed, "changed.example", new[] { 2 });
+                var retained = reviewed.Sources[0].Document!.Lines.Where(line => line.LineNumber != 2)
+                    .SelectMany(line => line.RawBytes).ToArray();
+                Require(File.ReadAllBytes(primary).SequenceEqual(retained), "Removal changed retained raw lines.");
+                Require(File.ReadAllBytes(primary + ".old").SequenceEqual(original), ".old is not the exact prior file.");
+                Require(File.GetAccessControl(primary).GetSecurityDescriptorSddlForm(
+                    AccessControlSections.Owner | AccessControlSections.Group | AccessControlSections.Access) == originalAcl,
+                    "Removal changed the primary file's security descriptor.");
+                Require(KnownHostTrustResolver.Resolve("changed.example", first, verified.Documents).State ==
+                    KnownHostTrustState.Unknown, "A removed key still grants or blocks trust.");
+                Require(KnownHostTrustResolver.Resolve("other.example", second, verified.Documents).State ==
+                    KnownHostTrustState.Matching, "An unrelated retained key lost trust.");
+                ExpectMutation("store-generation-changed", () =>
+                    OpenSshKnownHostsWriter.RemovePrimaryUserRecords(reviewed, "changed.example", new[] { 2 }));
+
+                File.WriteAllBytes(primary, original);
+                reviewed = OpenSshKnownHostsStore.Load(definitions);
+                File.AppendAllText(primary, "# external edit\n", Utf8);
+                var externallyChanged = File.ReadAllBytes(primary);
+                ExpectMutation("store-generation-changed", () =>
+                    OpenSshKnownHostsWriter.RemovePrimaryUserRecords(reviewed, "changed.example", new[] { 2 }));
+                Require(File.ReadAllBytes(primary).SequenceEqual(externallyChanged),
+                    "A stale removal overwrote an external edit.");
+
+                File.WriteAllBytes(primary, original);
+                File.WriteAllText(primary + ".old", "older backup", Utf8);
+                var priorBackup = OpenSshKnownHostsStore.Load(definitions);
+                OpenSshKnownHostsWriter.RemovePrimaryUserRecords(priorBackup, "changed.example", new[] { 2 });
+                Require(File.ReadAllBytes(primary + ".old").SequenceEqual(original),
+                    "A prior .old file prevented replacement with the immediate previous generation.");
+
+                var revokedLine = "@revoked changed.example ssh-ed25519 " +
+                    Convert.ToBase64String(first.Blob) + "\n";
+                File.WriteAllText(primary, revokedLine, Utf8);
+                var revokedReview = OpenSshKnownHostsStore.Load(definitions);
+                ExpectMutation("removal-selection", () =>
+                    OpenSshKnownHostsWriter.RemovePrimaryUserRecords(revokedReview, "changed.example", new[] { 1 }));
+                Require(File.ReadAllText(primary, Utf8) == revokedLine,
+                    "Ordinary changed-key management removed a revocation marker.");
+
+                File.WriteAllBytes(primary, original);
+                var unsafeBackup = primary + ".old";
+                File.Delete(unsafeBackup);
+                Directory.CreateDirectory(unsafeBackup);
+                var unsafeReview = OpenSshKnownHostsStore.Load(definitions);
+                ExpectMutation("unsafe-backup-file", () =>
+                    OpenSshKnownHostsWriter.RemovePrimaryUserRecords(unsafeReview, "changed.example", new[] { 2 }));
+                Require(File.ReadAllBytes(primary).SequenceEqual(original),
+                    "An unsafe backup path changed the primary file.");
+                Directory.Delete(unsafeBackup);
+
+                var raceOriginal = Utf8.GetBytes("changed.example ssh-ed25519 " +
+                    Convert.ToBase64String(first.Blob) + "\nchanged.example ssh-ed25519 " +
+                    Convert.ToBase64String(second.Blob) + "\n");
+                File.WriteAllBytes(primary, raceOriginal);
+                var raceReview = OpenSshKnownHostsStore.Load(definitions);
+                var outcomes = new string[2];
+                Parallel.Invoke(
+                    () => outcomes[0] = RemoveConcurrent(raceReview, 1),
+                    () => outcomes[1] = RemoveConcurrent(raceReview, 2));
+                Require(outcomes.Count(value => value == "success") == 1 &&
+                    outcomes.Count(value => value == "store-generation-changed") == 1,
+                    "Concurrent removals did not serialize with one stale loser.");
+                Require(File.ReadAllBytes(primary + ".old").SequenceEqual(raceOriginal),
+                    "Concurrent removal did not back up the reviewed generation.");
+            }
+            finally
+            {
+                if (Directory.Exists(root)) Directory.Delete(root, true);
+            }
+        }
+
+        private static string RemoveConcurrent(KnownHostsStoreSnapshot snapshot, int lineNumber)
+        {
+            try
+            {
+                OpenSshKnownHostsWriter.RemovePrimaryUserRecords(snapshot, "changed.example", new[] { lineNumber });
+                return "success";
+            }
+            catch (KnownHostsMutationException error) { return error.Category; }
+        }
+
         private static void RequireOwnerOnly(string path, bool directory)
         {
             FileSystemSecurity security = directory
@@ -440,6 +612,41 @@ namespace VT7.Host
                     "VT7 still found the OpenSSH-removed host.");
                 Require(File.Exists(removePath + ".old"), "ssh-keygen removal did not create its recovery copy.");
 
+                var hostKeyPath = Path.Combine(root, "host key");
+                var authorityPath = Path.Combine(root, "authority key");
+                Require(Run(executable, "-q", "-t", "ed25519", "-N", "", "-f", hostKeyPath).ExitCode == 0,
+                    "ssh-keygen could not generate a disposable host key.");
+                Require(Run(executable, "-q", "-t", "ed25519", "-N", "", "-f", authorityPath).ExitCode == 0,
+                    "ssh-keygen could not generate a disposable authority key.");
+                var sign = Run(executable, "-q", "-s", authorityPath, "-I", "vt7-test-host",
+                    "-h", "-n", "cert.example", "-V", "-1d:+1d", hostKeyPath + ".pub");
+                Require(sign.ExitCode == 0, "ssh-keygen could not sign a disposable host certificate: " + sign.Error);
+                var hostBlob = ReadPublicKeyBlob(hostKeyPath + ".pub");
+                var authorityBlob = ReadPublicKeyBlob(authorityPath + ".pub");
+                var signedBlob = ReadPublicKeyBlob(hostKeyPath + "-cert.pub");
+                var certificate = new Renci.SshNet.Security.Certificate(signedBlob);
+                Require(SshNetTransport.ReadCertificateBytes(certificate).SequenceEqual(signedBlob),
+                    "SSH.NET did not expose the exact signed host-certificate blob.");
+                Require(certificate.CertificateAuthorityKey.SequenceEqual(authorityBlob) &&
+                    certificate.ValidPrincipals.SequenceEqual(new[] { "cert.example" }),
+                    "SSH.NET host-certificate CA or principal parsing disagreed with ssh-keygen.");
+                var facts = new KnownHostCertificateFacts(certificate.Name,
+                    SshNetTransport.ReadCertificateBytes(certificate), certificate.CertificateAuthorityKey,
+                    certificate.Type == Renci.SshNet.Security.Certificate.CertificateType.Host,
+                    certificate.ValidPrincipals, certificate.CriticalOptions.Count != 0,
+                    certificate.ValidAfterUnixSeconds, certificate.ValidBeforeUnixSeconds);
+                var authorityLine = "@cert-authority cert.example ssh-ed25519 " +
+                    Convert.ToBase64String(authorityBlob);
+                Require(KnownHostTrustResolver.ResolveCertificate("cert.example", PresentedHostKey.Parse(hostBlob),
+                    facts, new[] { Document("signed-authority", authorityLine) }).State == KnownHostTrustState.Matching,
+                    "The signed OpenSSH host certificate was not trusted by its exact authority.");
+                var revokedLine = "@revoked cert.example " + certificate.Name + " " +
+                    Convert.ToBase64String(signedBlob);
+                Require(KnownHostTrustResolver.ResolveCertificate("cert.example", PresentedHostKey.Parse(hostBlob),
+                    facts, new[] { Document("signed-authority", authorityLine),
+                        Document("signed-revocation", revokedLine) }).State == KnownHostTrustState.Revoked,
+                    "Exact OpenSSH certificate revocation did not block the signed fixture.");
+
                 var info = FileVersionInfo.GetVersionInfo(executable);
                 return Path.GetFileName(executable) + " " + (info.FileVersion ?? "unversioned");
             }
@@ -451,6 +658,14 @@ namespace VT7.Host
 
         private static KnownHostsDocument ParseLine(string line) =>
             OpenSshKnownHostsParser.Parse("fixture", Utf8.GetBytes(line + "\n"));
+
+        private static byte[] ReadPublicKeyBlob(string path)
+        {
+            var fields = File.ReadAllText(path, Utf8).Split(new[] { ' ', '\t' },
+                StringSplitOptions.RemoveEmptyEntries);
+            Require(fields.Length >= 2, "A generated OpenSSH public key has no blob.");
+            return Convert.FromBase64String(fields[1]);
+        }
 
         private static KnownHostsDocument Document(string name, string line) => ParseNamed(name, line + "\n");
 

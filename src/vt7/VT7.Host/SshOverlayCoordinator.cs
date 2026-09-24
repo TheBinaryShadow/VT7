@@ -16,6 +16,7 @@ namespace VT7.Host
         private readonly object _gate = new object();
         private readonly Func<SshInvocation, Task<SshConnectionOptions?>> _prompt;
         private readonly HostTrustPromptHandler _trustPrompt;
+        private readonly HostKeyProblemHandler _hostKeyProblem;
         private readonly TaskCompletionSource<TerminalSession> _sessionReady =
             new TaskCompletionSource<TerminalSession>(TaskCreationOptions.RunContinuationsAsynchronously);
         private readonly SemaphoreSlim _requestGate = new SemaphoreSlim(1, 1);
@@ -25,10 +26,11 @@ namespace VT7.Host
 
         private SshOverlayCoordinator(string externalPath,
             Func<SshInvocation, Task<SshConnectionOptions?>> prompt,
-            HostTrustPromptHandler trustPrompt)
+            HostTrustPromptHandler trustPrompt, HostKeyProblemHandler hostKeyProblem)
         {
             _prompt = prompt ?? throw new ArgumentNullException(nameof(prompt));
             _trustPrompt = trustPrompt ?? throw new ArgumentNullException(nameof(trustPrompt));
+            _hostKeyProblem = hostKeyProblem ?? throw new ArgumentNullException(nameof(hostKeyProblem));
             _broker = new SshShimBroker(RootGeneration, externalPath, WaitForBarrierAsync,
                 HandleEmbeddedAsync, ResumeRootAfterCompleteAsync, continuous: true);
         }
@@ -38,13 +40,14 @@ namespace VT7.Host
 
         internal static SshOverlayCoordinator? TryCreate(TerminalProfile profile,
             Func<SshInvocation, Task<SshConnectionOptions?>> prompt,
-            HostTrustPromptHandler trustPrompt)
+            HostTrustPromptHandler trustPrompt, HostKeyProblemHandler hostKeyProblem)
         {
             if (profile == null) throw new ArgumentNullException(nameof(profile));
             var shim = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "shim", "ssh.exe");
             if (!File.Exists(shim)) return null;
             var external = FindExternalClient(profile, shim);
-            return external == null ? null : new SshOverlayCoordinator(external, prompt, trustPrompt);
+            return external == null ? null : new SshOverlayCoordinator(external, prompt, trustPrompt,
+                hostKeyProblem);
         }
 
         internal TerminalProfile Configure(TerminalProfile profile)
@@ -101,7 +104,7 @@ namespace VT7.Host
                     return 255;
                 }
 
-                var overlay = new SshNetTransport(options, _trustPrompt);
+                var overlay = new SshNetTransport(options, _trustPrompt, _hostKeyProblem);
                 lock (_gate) _overlay = overlay;
                 OverlayStateChanged?.Invoke(true, "Connecting to " + invocation.Destination + "...");
                 try

@@ -1,6 +1,6 @@
 # VT7 development handoff
 
-Updated: 2026-09-24. Current source is version 0.11.0/native ABI 11. Version
+Updated: 2026-09-24. Current source is version 0.12.0/native ABI 11. Version
 0.6.6 remains accepted across the
 Windows 7 PowerShell/profile and keyboard matrix. H01 packages 0.1 through 0.3
 pass the Command Prompt, PowerShell 5.1 and PowerShell 7.2.24 embedded/barrier
@@ -32,6 +32,11 @@ durable primary-user-file addition for both SSH entry paths. Package 0.4 passes
 local Release, staged path-with-spaces and independent extracted verification,
 then passes the complete automated and controlled live matrix on NESSY and
 TURTLE. KH01.3 is target accepted across both Windows 7 runtime tiers.
+Version 0.12.0 implements KH01.4 changed-key review and selected primary-user
+record removal with an exact `.old` backup. Host certificates now require an
+applicable CA, matching nonempty principals, valid dates, no critical options
+and no applicable revocation. Local checks pass. Windows 7 acceptance remains
+pending; the accepted KH01.3 package is unchanged.
 This is the current resumption guide. Start with the [documentation index](README.md)
 if unfamiliar with the repository. The [roadmap](../../ROADMAP.md) owns gates;
 dated validation records own test claims.
@@ -93,7 +98,7 @@ KH01.4 deliberate removal/replacement and certificate policy is the current task
 
 | Item | Current state |
 | --- | --- |
-| Working application version | 0.11.0, native ABI 11, x64. It retains target-accepted KH01.2 and the publisher-built SSH.NET prerelease.6/f099365 fix, then adds target-accepted KH01.3 first-contact prompting and durable user-store addition to both SSH.NET paths. |
+| Working application version | 0.12.0, native ABI 11, x64. It retains target-accepted KH01.2/KH01.3 and the publisher-built SSH.NET prerelease.6/f099365 fix, then adds KH01.4 changed-key review, deliberate user-record removal and host-certificate policy to both SSH.NET paths. KH01.4 awaits Windows 7 acceptance. |
 | Milestone 1 | Complete on the tested configurations, with the evidence limits in its record. |
 | C1 minimum font boundary and C2 Atlas integration | Accepted on the supplied Windows 7 setup in 0.3.0. |
 | C3 repaint, controlled recovery, scaling | Bounded 0.3.1/0.3.2 results and actual 0.3.4 96/120/144 DPI matrix accepted. |
@@ -147,7 +152,7 @@ KH01.4 deliberate removal/replacement and certificate policy is the current task
 | Typed SSH overlay rejected package 0.1 | `VT7-SSHNET-Overlay-0.1-x64.zip`, SHA256 `F53326B898B6544798E10D30E895D1D389BECC1C590C3D1B9961508E51262A5E`, 15,230,388 bytes, 91 verified files. Its Windows 7 automation passed, and each typed attempt proved authenticated H01 entry, committed barrier, status 255 and return to the original prompt. Every real connection failed before network startup because the broker worker directly read dispatcher-owned document/viewport geometry; direct **Start SSH...** remained successful. Evidence: `artifacts/vt7/evidence/sshnet-overlay-win7-0.1-rejected`. |
 | Typed SSH overlay rejected package 0.2 | `VT7-SSHNET-Overlay-0.2-x64.zip`, version 0.9.1, SHA256 `65FF2E09F83758D8E86A78CC08B3409D2D18BE04B85BA901799A318DBE34AD7C`, 15,194,306 bytes, 91 verified files. Its automated Windows 7 corpus passes and a typed SSH.NET overlay connects successfully, accepting the package 0.1 dispatcher correction. The shim then times out reading completion after five seconds, returns the local prompt while the overlay remains active and leaves root input closed after remote exit because completion delivery fails before the resume callback. Evidence: `artifacts/vt7/evidence/sshnet-overlay-win7-0.2-rejected`. |
 | Typed SSH overlay accepted package 0.3 | `VT7-SSHNET-Overlay-0.3-x64.zip`, version 0.9.2, SHA256 `CAF09834CA1F7F025D96CC07D5F60AF8663C2F2167AA964EAB98D3AF3865B0DB`, 15,196,580 bytes, 91 verified files. The shim retains bounded handshake I/O but waits for accepted embedded completion for the remote-session lifetime; a closed host pipe still wakes it. The broker resumes root input in a `finally` path even if completion delivery loses the shim. H01 holds a real accepted shim for six seconds to exercise the former failure. Debug/Release, combined staged batch launch and independent ZIP verification pass locally. The complete controlled Windows 7 matrix passes without a reported defect: delayed connection, exit/root recovery, sequential handoff, explicit disconnect/status 255, three shells and external fallback. Review copy: `artifacts/VT7-SSHNET-Overlay-0.3-x64.zip`. |
-| Known-host management specification | Complete on 2026-09-21. The design shares the default OpenSSH user/system files, pins Win32-OpenSSH 10.0p2 as the behavior oracle, compares exact key blobs, handles hashes/markers/certificates, aborts unknown discovery before authentication, retries through a fresh connection, preserves the fingerprint fallback and defines byte-preserving Windows mutation/recovery. KH01.1 through KH01.3 are target accepted; KH01.4 is next. |
+| Known-host management specification | Complete on 2026-09-21. The design shares default OpenSSH user/system files, pins Win32-OpenSSH 10.0p2 as the behavior oracle and defines byte-preserving Windows mutation/recovery. KH01.1 through KH01.3 are target accepted. KH01.4 is implemented locally and awaits two-tier target validation before KH01.5 closes the full matrix. |
 | KH01.1 local implementation | `OpenSshKnownHosts` implements bounded byte-preserving parsing, host tokens, literal/pattern/negated/hashed matching, exact RFC 4253 blob identity and raw-key trust precedence. `KnownHostsFoundationChecks` covers all six trust results, deterministic hash properties, 1,024 arbitrary-byte inputs and disposable `ssh-keygen -F/-H/-R` comparisons. Certificates are policy-rejected until KH01.4. No production callback changed. |
 | KH01.1 candidate package | `VT7-KnownHosts-KH01-0.1-x64.zip`, SHA256 `D367B5F7C81304F6FBC9056FD10E501B95EF93FFB5A662E370FCC4ECE16C76A7`, 14,483,182 bytes, 81 verified files. Debug/Release, local `ssh-keygen.exe` 9.5.5.2 differential checks, path-with-spaces batch launch, binary/dependency inspection, exact ZIP hashing and an independent extracted-package rerun pass. Review copy: `artifacts/VT7-KnownHosts-KH01-0.1-x64.zip`. |
 | KH01.1 target result | Accepted on 2026-09-22. The owner reports all tests passed on Windows 7. The launcher could reach the test only after requiring the installed `ssh-keygen.exe` file version 10.0.0.0, the 10.0p2 oracle boundary. No target Logs directory is archived because the procedure requested it only on failure. |
@@ -159,7 +164,8 @@ KH01.4 deliberate removal/replacement and certificate policy is the current task
 | KH01.3 implementation | Version 0.11.0 aborts unknown discovery before authentication, presents generation-scoped **Cancel**, **Connect once** and **Trust and connect** actions, and retries through a fresh `SshClient`. Connect once binds exact host/key/store identities. Durable trust serializes writers, excludes new competing writers, preserves existing bytes and ACLs, creates missing paths owner-only, flushes and verifies the exact read-back. Changed/revoked/unreadable/mismatch/certificate states remain blocked. Local Debug foundation and UI checks pass. See the [KH01.3 record](validation/2026-09-24-known-hosts-kh01-3.md). |
 | KH01.3 accepted package | `VT7-KnownHosts-KH01-0.4-x64.zip`, version 0.11.0, SHA256 `531B4A1D43894408F7AA38AC6E0BC22C6EBA1394519C3A70C1C9A83AA64B2C83`, 15,262,430 bytes, 94 verified files. Manifest source is clean commit `750bbca99`. Debug/Release, overlay, durable-writer, path-with-spaces and independent extracted checks pass. NESSY and TURTLE pass the exact automated launcher and owner-confirmed controlled live matrix. Review copy: `artifacts/VT7-KnownHosts-KH01-0.4-x64.zip`. |
 | KH01.3 accepted evidence | Four returned files plus `ARCHIVE-VERIFICATION.json` are preserved under `artifacts/vt7/evidence/known-hosts-kh01-3-win7-0.4`. Both machines use the same host/native and OpenSSH 10.0p2 hashes. NESSY reports .NET Framework `4.8.4110.0`; TURTLE reports `4.8.4795.0`. Both automated reports pass, and the owner confirms the complete first-contact, persistence, reconnect and interaction matrix passes on each machine. No credentials are retained. |
-| Next bounded task | Implement KH01.4 deliberate user-record removal/replacement with `.old` recovery and concurrency protection, then complete the declared certificate/marker policy before KH01.5 final acceptance. |
+| KH01.4 implementation | Version 0.12.0 presents changed-key evidence before authentication, lets the owner explicitly remove selected ordinary primary-user records after a second confirmation, retains other lines byte-for-byte and verifies an exact `.old` backup plus ACLs. It requires a fresh connection. Host certificates are evaluated only after SSH.NET verifies their cryptography; applicable CA, nonempty matching principals, validity, critical-option and certificate/key/CA revocation checks govern trust. Synthetic and OpenSSH-signed certificate fixtures pass locally. See the [KH01.4 record](validation/2026-09-24-known-hosts-kh01-4.md). |
+| Next bounded task | Issue and independently verify KH01.4 package 0.5, then run its two-tier Windows 7 automated and controlled changed-key matrix. A controlled certificate-serving host remains a separate KH01.5 network acceptance gate. |
 | Milestone 2 | Open. Theme/high-contrast, broader device/environment and milestone-level ESU coverage also remain. |
 | Development sequence | Continue Milestone 5 through KH01.4-KH01.5 and later lifecycle/TUI hardening. Remaining C3/Milestone 2 qualification stays recorded without a blanket serial dependency. |
 
@@ -501,8 +507,9 @@ typed `ssh` and **Start SSH...** paths pass on NESSY and TURTLE. The
 the accepted evidence and boundary. KH01.3 now implements generation-safe
 first-contact decisions, fresh-connection retry and byte-preserving persistence
 in 0.11.0. Package 0.4 passes the exact automated and controlled live matrix on
-NESSY and TURTLE, so KH01.3 is accepted. Proceed to KH01.4 deliberate
-removal/replacement, recovery and certificate/marker policy.
+NESSY and TURTLE, so KH01.3 is accepted. KH01.4 is now implemented in 0.12.0;
+its local removal, UI and OpenSSH-generated certificate corpus passes. Package
+0.5 and two-tier live checks remain before acceptance.
 
 The exact 0.3.7 Windows 7 run is accepted and archived. The
 [S00 evaluation](validation/2026-09-14-openssh-s00.md) is complete on Windows 7

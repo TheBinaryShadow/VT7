@@ -92,7 +92,7 @@ $report = Get-Item -LiteralPath $reportPath
 if ($report.LastWriteTime -lt $started.AddSeconds(-2)) { throw 'VT7 WinPTY root test left a stale report.' }
 $text = [IO.File]::ReadAllText($reportPath)
 $required = @(
-    'Build: VT7 0.11.0',
+    'Build: VT7 0.12.0',
     'Native: ABI 11, expected 11',
     'PASS: explicit Command Prompt profile pins executable, arguments, working directory, and a Unicode environment block.',
     'PASS: WinPtyTransport launched cmd.exe PID',

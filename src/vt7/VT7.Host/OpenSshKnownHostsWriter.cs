@@ -85,7 +85,6 @@ namespace VT7.Host
                         stream.Write(addition, 0, addition.Length);
                         stream.Flush(true);
                     }
-
                     var verified = OpenSshKnownHostsStore.Load(definitions);
                     if (verified.Sources.Count != fresh.Sources.Count ||
                         !verified.Sources[0].Exists ||
@@ -108,6 +107,171 @@ namespace VT7.Host
                     if (acquired) mutex.ReleaseMutex();
                 }
             }
+        }
+
+        internal static KnownHostsStoreSnapshot RemovePrimaryUserRecords(
+            KnownHostsStoreSnapshot reviewedSnapshot, string hostToken, IReadOnlyList<int> selectedLines)
+        {
+            if (reviewedSnapshot == null) throw new ArgumentNullException(nameof(reviewedSnapshot));
+            if (hostToken == null) throw new ArgumentNullException(nameof(hostToken));
+            if (selectedLines == null) throw new ArgumentNullException(nameof(selectedLines));
+            if (reviewedSnapshot.Sources.Count != 4 ||
+                !string.Equals(reviewedSnapshot.Sources[0].Definition.SourceId, "user-known-hosts", StringComparison.Ordinal))
+                throw new KnownHostsMutationException("source-layout");
+            if (selectedLines.Count == 0 || selectedLines.Count > OpenSshKnownHostsParser.MaximumRecords ||
+                selectedLines.Any(number => number <= 0) || selectedLines.Distinct().Count() != selectedLines.Count)
+                throw new KnownHostsMutationException("removal-selection");
+
+            var definitions = reviewedSnapshot.Sources.Select(source => source.Definition).ToArray();
+            var primary = definitions[0];
+            var selected = new HashSet<int>(selectedLines);
+            var reviewed = reviewedSnapshot.Sources[0].Document;
+            if (!reviewedSnapshot.Sources[0].Exists || reviewed?.FatalError != null || reviewed == null)
+                throw new KnownHostsMutationException("primary-unavailable");
+            ValidateRemovalSelection(reviewed, hostToken, selected);
+
+            using (var mutex = new Mutex(false, MutexName(primary.Path)))
+            {
+                var acquired = false;
+                try
+                {
+                    try { acquired = mutex.WaitOne(MutexTimeout); }
+                    catch (AbandonedMutexException) { acquired = true; }
+                    if (!acquired) throw new KnownHostsMutationException("writer-lock-timeout");
+
+                    var fresh = OpenSshKnownHostsStore.Load(definitions);
+                    if (!string.Equals(fresh.Identity, reviewedSnapshot.Identity, StringComparison.Ordinal))
+                        throw new KnownHostsMutationException("store-generation-changed");
+                    var directory = Path.GetDirectoryName(primary.Path);
+                    if (string.IsNullOrEmpty(directory) || !Directory.Exists(directory))
+                        throw new KnownHostsMutationException("primary-path");
+                    EnsureSafeDirectory(directory!);
+                    EnsureSafeFileTarget(primary.Path);
+                    if (!File.Exists(primary.Path)) throw new KnownHostsMutationException("primary-unavailable");
+                    var backup = primary.Path + ".old";
+                    EnsureSafeBackupTarget(backup);
+
+                    byte[] original;
+                    FileSecurity security;
+                    using (var source = new FileStream(primary.Path, FileMode.Open, FileAccess.Read,
+                        FileShare.Read | FileShare.Delete, BufferBytes, FileOptions.SequentialScan))
+                    {
+                        original = ReadBounded(source);
+                        security = File.GetAccessControl(primary.Path);
+                        var current = OpenSshKnownHostsStore.CreateSourceSnapshot(primary, original,
+                            File.GetLastWriteTimeUtc(primary.Path));
+                        if (!PrimaryMatchesFresh(fresh.Sources[0], current, true))
+                            throw new KnownHostsMutationException("primary-generation-changed");
+                    var document = OpenSshKnownHostsParser.Parse(primary.SourceId, original);
+                    if (document.FatalError != null) throw new KnownHostsMutationException("primary-unreadable");
+                    ValidateRemovalSelection(document, hostToken, selected);
+                    var retained = document.Lines.Where(line => !selected.Contains(line.LineNumber))
+                        .SelectMany(line => line.RawBytes).ToArray();
+                    var originalHash = HashBytes(original);
+                    var expectedHash = HashBytes(retained);
+                    var expectedSecurity = security.GetSecurityDescriptorSddlForm(
+                        AccessControlSections.Owner | AccessControlSections.Group | AccessControlSections.Access);
+                    var temporary = Path.Combine(directory!, "known_hosts.vt7-" + Guid.NewGuid().ToString("N") + ".tmp");
+                    var replaced = false;
+                    try
+                    {
+                        using (var target = new FileStream(temporary, FileMode.CreateNew,
+                            FileSystemRights.ReadData | FileSystemRights.WriteData | FileSystemRights.AppendData |
+                            FileSystemRights.ReadAttributes | FileSystemRights.WriteAttributes |
+                            FileSystemRights.ReadPermissions | FileSystemRights.ChangePermissions,
+                            FileShare.None, BufferBytes, FileOptions.SequentialScan, security))
+                        {
+                            target.Write(retained, 0, retained.Length);
+                            target.Flush(true);
+                        }
+                        File.SetAccessControl(temporary, security);
+
+                        // The final source check catches edits while the retained file is being
+                        // built. File.Replace commits the new file and the .old backup together.
+                        var finalSource = OpenSshKnownHostsStore.Load(definitions);
+                        if (!string.Equals(finalSource.Identity, reviewedSnapshot.Identity, StringComparison.Ordinal) ||
+                            !string.Equals(finalSource.Sources[0].ContentHash, originalHash, StringComparison.Ordinal))
+                            throw new KnownHostsMutationException("store-generation-changed");
+                        EnsureSafeBackupTarget(backup);
+                        File.Replace(temporary, primary.Path, backup, false);
+                        replaced = true;
+                    }
+                    finally
+                    {
+                        if (!replaced && File.Exists(temporary))
+                        {
+                            // A created temporary file is never a trust source. Leave it for
+                            // inspection if another process changed it before cleanup.
+                            try
+                            {
+                                if (string.Equals(HashFile(temporary), expectedHash, StringComparison.Ordinal))
+                                    File.Delete(temporary);
+                            }
+                            catch (IOException) { }
+                            catch (UnauthorizedAccessException) { }
+                        }
+                    }
+
+                    var verified = OpenSshKnownHostsStore.Load(definitions);
+                    if (!verified.Sources[0].Exists || verified.Sources[0].Length != retained.LongLength ||
+                        !string.Equals(verified.Sources[0].ContentHash, expectedHash, StringComparison.Ordinal) ||
+                        verified.Sources.Skip(1).Zip(fresh.Sources.Skip(1), SameSource).Any(same => !same) ||
+                        !string.Equals(HashFile(backup), originalHash, StringComparison.Ordinal))
+                        throw new KnownHostsMutationException("read-back-generation");
+                    if (!string.Equals(File.GetAccessControl(primary.Path).GetSecurityDescriptorSddlForm(
+                        AccessControlSections.Owner | AccessControlSections.Group | AccessControlSections.Access),
+                        expectedSecurity, StringComparison.Ordinal))
+                        throw new KnownHostsMutationException("read-back-security");
+                    return verified;
+                    }
+                }
+                catch (KnownHostsMutationException) { throw; }
+                catch (Exception error) when (IsMutationFailure(error))
+                {
+                    throw new KnownHostsMutationException("filesystem", error);
+                }
+                finally { if (acquired) mutex.ReleaseMutex(); }
+            }
+        }
+
+        private static void ValidateRemovalSelection(KnownHostsDocument document, string hostToken,
+            HashSet<int> selected)
+        {
+            var found = 0;
+            foreach (var line in document.Lines)
+            {
+                if (!selected.Contains(line.LineNumber)) continue;
+                var record = line.Record;
+                if (line.Kind != KnownHostsLineKind.Record || record == null ||
+                    record.Marker != KnownHostMarker.None || !OpenSshHostMatcher.Matches(hostToken, record.HostField))
+                    throw new KnownHostsMutationException("removal-selection");
+                ++found;
+            }
+            if (found != selected.Count) throw new KnownHostsMutationException("removal-selection");
+        }
+
+        private static void EnsureSafeBackupTarget(string path)
+        {
+            FileAttributes attributes;
+            try { attributes = File.GetAttributes(path); }
+            catch (FileNotFoundException) { return; }
+            catch (DirectoryNotFoundException) { return; }
+            if ((attributes & (FileAttributes.Directory | FileAttributes.ReparsePoint | FileAttributes.ReadOnly)) != 0)
+                throw new KnownHostsMutationException("unsafe-backup-file");
+        }
+
+        private static string HashFile(string path)
+        {
+            using var input = new FileStream(path, FileMode.Open, FileAccess.Read,
+                FileShare.Read, BufferBytes, FileOptions.SequentialScan);
+            using var sha = SHA256.Create();
+            return BitConverter.ToString(sha.ComputeHash(input)).Replace("-", string.Empty);
+        }
+
+        private static string HashBytes(byte[] bytes)
+        {
+            using var sha = SHA256.Create();
+            return BitConverter.ToString(sha.ComputeHash(bytes)).Replace("-", string.Empty);
         }
 
         private static FileStream OpenPrimary(string path, bool existed)

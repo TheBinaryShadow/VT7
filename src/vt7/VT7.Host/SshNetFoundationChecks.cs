@@ -113,6 +113,34 @@ namespace VT7.Host
                 "The host-trust dialog did not expose all three first-contact actions.");
             report.AppendLine("PASS: the generation-bound host-trust dialog exposes cancel, connect-once and durable-trust actions with WCAG AA text contrast.");
 
+            var managementDefinitions = OpenSshKnownHostsStore.CreateDefaultDefinitions(
+                Path.Combine(Path.GetTempPath(), "vt7-management-fixture-user"),
+                Path.Combine(Path.GetTempPath(), "vt7-management-fixture-system"));
+            var stored = PresentedHostKey.Parse(Ed25519Blob());
+            var storedLine = "changed.example ssh-ed25519 " + Convert.ToBase64String(stored.Blob) + "\n";
+            var primarySnapshot = OpenSshKnownHostsStore.CreateSourceSnapshot(managementDefinitions[0],
+                Encoding.ASCII.GetBytes(storedLine), DateTime.UtcNow);
+            var managementSnapshot = new KnownHostsStoreSnapshot(new[]
+            {
+                primarySnapshot,
+                new KnownHostsSourceSnapshot(managementDefinitions[1], false, 0, DateTime.MinValue, string.Empty, null),
+                new KnownHostsSourceSnapshot(managementDefinitions[2], false, 0, DateTime.MinValue, string.Empty, null),
+                new KnownHostsSourceSnapshot(managementDefinitions[3], false, 0, DateTime.MinValue, string.Empty, null),
+            });
+            var problem = new HostKeyProblemRequest(Guid.NewGuid(), "changed.example", stored,
+                new KnownHostTrustResult(KnownHostTrustState.Changed, "different-key-for-host",
+                    new[] { "user-known-hosts:1" }), managementSnapshot);
+            var management = new KnownHostsManagementDialog(problem);
+            var managementBackground = Solid(management.Background, "known-host management background");
+            foreach (var label in Descendants(management.FormContent).OfType<TextBlock>())
+                Require(ContrastRatio(Solid(label.Foreground, "known-host management text"), managementBackground) >= 4.5,
+                    "Known-host management contains text below the 4.5:1 contrast requirement.");
+            Require(Descendants(management.FormContent).OfType<CheckBox>().Count() == 1 &&
+                Descendants(management.FormContent).OfType<Button>().Any(button =>
+                    Convert.ToString(button.Content)?.Contains("Remove selected") == true),
+                "Changed-key management did not expose the selected user record and deliberate removal action.");
+            report.AppendLine("PASS: changed-key management presents source identity, selected user removal and WCAG AA text contrast.");
+
             var document = new TerminalDocument(loadDemonstration: false);
             var fake = new FakeTerminalTransport("sshnet-foundation-root");
             var session = new TerminalSession(document, fake, () => new TerminalPixelSize(720, 456));

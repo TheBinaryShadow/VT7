@@ -376,6 +376,23 @@ and connect** action writes the tester's primary user `known_hosts`. See the
 package and complete controlled matrix are accepted on NESSY and TURTLE; keep
 the archived evidence and do not request an unchanged rerun.
 
+KH01.4 adds a deliberate changed-key review, selected primary-user record
+removal with a verified `.old` backup, and CA-signed host-certificate policy.
+Its new package is non-overwriting and carries a separate Windows 7 procedure:
+
+```powershell
+.\tools\Build-VT7.ps1 -Configuration Release
+.\tools\Test-VT7KnownHosts.ps1 -Configuration Release
+.\tools\Test-VT7SshNetFoundation.ps1 -Configuration Release
+.\tools\Test-VT7SshOverlay.ps1 -Configuration Release -AllowMissingPowerShell7
+.\tools\Package-VT7KnownHostsManagement.ps1 -NoBuild
+.\tools\Verify-VT7KnownHostsManagementPackage.ps1
+```
+
+The automated KH01.4 corpus uses disposable keys and files; it never reads the
+tester’s real trust store. The controlled live removal is explicitly chosen in
+the UI. See the [KH01.4 record](doc/vt7/validation/2026-09-24-known-hosts-kh01-4.md).
+
 Run the P01 local-console characterization after building either configuration:
 
 ```powershell
@@ -461,6 +478,7 @@ identity. See the [I01 record](doc/vt7/validation/2026-09-14-input-i01.md).
 | `Package-VT7KnownHosts.ps1` | `vt7/packages/VT7-KnownHosts-KH01-0.1-x64` / matching ZIP; refuses replacement. It stages the disconnected KH01.1 foundation, exercises the PowerShell 5.1 CMD launcher from a path containing spaces and records the exact `ssh-keygen` oracle. `Verify-VT7KnownHostsPackage.ps1` repeats ZIP, binary and extracted-launcher validation independently. |
 | `Package-VT7KnownHostsReadOnly.ps1` | `vt7/packages/VT7-KnownHosts-KH01-0.3-x64` / matching ZIP; refuses replacement. It stages VT7 0.10.1, publisher-built SSH.NET 2026.0.1-prerelease.6/f099365, the complete typed shim, KH01.2 read-only policy corpus, all notices and controlled-server instructions. Package 0.2 is preserved as the primary-pass/NESSY-rejected 2026.0.0 result. `Verify-VT7KnownHostsReadOnlyPackage.ps1` independently checks ZIP safety, hashes, manifest policy, binary closure and a fresh extracted run. |
 | `Package-VT7KnownHostsFirstContact.ps1` | `vt7/packages/VT7-KnownHosts-KH01-0.4-x64` / matching ZIP; refuses replacement. It stages VT7 0.11.0, both SSH entry paths, generation-bound first-contact decisions, durable writer regressions, the pinned prerelease.6/f099365 closure and all notices. `Verify-VT7KnownHostsFirstContactPackage.ps1` checks ZIP safety, hashes, write-enabled manifest policy, binary closure and a fresh extracted run. |
+| `Package-VT7KnownHostsManagement.ps1` | `vt7/packages/VT7-KnownHosts-KH01-0.5-x64` / matching ZIP; refuses replacement. It stages VT7 0.12.0, changed-key review, selected primary-user removal, host-certificate policy, the pinned SSH.NET closure and complete notices. `Verify-VT7KnownHostsManagementPackage.ps1` checks ZIP safety, hashes, policy fields, images and a fresh extracted run. |
 
 Issued P01 package 0.3 used a culture-sensitive PowerShell row comparison that
 ignored embedded NULs in the two Windows 7 raw-VT cases. The retained strings
@@ -781,7 +799,7 @@ Tier A Windows 7 system can establish compatibility. Use a clean snapshot with:
 
 - Windows 7 SP1 x64.
 - Platform Update KB2670838.
-- .NET Framework 4.8. VT7 0.11.0 uses SSH.NET
+- .NET Framework 4.8. VT7 0.12.0 uses SSH.NET
   `2026.0.1-prerelease.6`/`f099365`, which carries the receive-MAC reset needed
   by the non-ESU `mscorlib.dll` `4.8.4110.0` implementation.
 - The remaining prerequisites listed in [ROADMAP.md](ROADMAP.md).
@@ -799,7 +817,8 @@ KH01.2 package 0.3 passes its automated corpus and both stored-key live SSH
 paths on NESSY (`4.8.4110.0`) and TURTLE (`4.8.4795.0`). Preserve that accepted
 evidence. KH01.3 package 0.4 also passes its automation and controlled
 first-contact, persistence, reconnect and interaction matrix on both machines.
-Preserve its accepted evidence; KH01.4 is the next known-host slice.
+Preserve its accepted evidence.
+The KH01.4 candidate requires fresh NESSY/TURTLE checks before target acceptance.
 
 Copy and extract the entire 0.3.5 zip, including `fonts/`, on that machine.
 Run `RUN-DIAGNOSTICS.cmd` and `RUN-VIEWPORT-TEST.cmd`, retaining

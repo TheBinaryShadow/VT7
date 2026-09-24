@@ -22,7 +22,7 @@ independent open-source engineering effort to create a real terminal
 application for Windows 7.
 
 > [!IMPORTANT]
-> VT7 is currently in pre-alpha development. Version 0.11.0 retains selectable
+> VT7 is currently in pre-alpha development. Version 0.12.0 retains selectable
 > Command Prompt, Windows PowerShell 5.1 and versioned PowerShell 7 profiles to
 > the accepted local transport. The exact PowerShell 5.1/7.2.24 transport,
 > Unicode, resize, lifecycle and keyboard corpus passes on Windows 7. The 0.7.3
@@ -58,6 +58,11 @@ application for Windows 7.
 > staged and independent archive checks plus the complete automated and live
 > matrix on non-ESU NESSY and newer-serviced TURTLE. KH01.3 is accepted across
 > both Windows 7 .NET Framework 4.8 tiers.
+> Version 0.12.0 implements KH01.4 changed-key review and selected removal
+> from the primary user `known_hosts` file with an exact `.old` backup. It also
+> recognizes CA-signed host certificates under explicit OpenSSH principal,
+> validity, critical-option and revocation policy. Local checks pass; the 0.5
+> package and live Windows 7 acceptance remain to be completed.
 > Other
 > features described here remain project goals until implemented and verified.
 
@@ -72,7 +77,8 @@ is accepted on Windows 7 against the required 10.0p2 oracle. The
 is accepted on both Windows 7 runtime tiers. The
 [KH01.3 implementation record](doc/vt7/validation/2026-09-24-known-hosts-kh01-3.md)
 documents the accepted first-contact and durable-addition package and its
-two-machine evidence. KH01.4 removal/replacement and certificate policy is next.
+two-machine evidence. The [KH01.4 implementation record](doc/vt7/validation/2026-09-24-known-hosts-kh01-4.md)
+covers changed-key review, deliberate removal and host-certificate policy.
 
 ## What we are building
 
@@ -151,7 +157,7 @@ The primary target is Windows 7 SP1 x64 with the Platform Update and the normal
 runtime prerequisites documented in the [roadmap](ROADMAP.md). The required
 baseline will not depend on unofficial post-EOL operating-system packages.
 
-The current VT7 0.11.0 candidate retains ordinary .NET Framework 4.8 as the
+The current VT7 0.12.0 candidate retains ordinary .NET Framework 4.8 as the
 runtime floor. It pins publisher-built SSH.NET `2026.0.1-prerelease.6`, whose
 upstream `f099365` change resets receive-MAC state for older .NET Framework
 implementations. The previous 2026.0.0 package connected on `mscorlib.dll`
@@ -198,7 +204,7 @@ build the best terminal we can for the platform we love.
 
 ## Project status
 
-Current working source: **0.11.0, native ABI 11**. It retains the accepted 3A
+Current working source: **0.12.0, native ABI 11**. It retains the accepted 3A
 document/session/view ownership and Command Prompt path, then adds explicit
 Windows PowerShell 5.1 and versioned PowerShell 7 profiles through the same
 production `WinPtyTransport`. Ordinary PowerShell launches preserve user
@@ -268,6 +274,12 @@ before another fresh client. Changed, revoked, unreadable, fingerprint-mismatch
 and certificate cases remain fail-closed. Local Debug diagnostics pass; target
 acceptance now passes on NESSY and TURTLE, including all three first-contact
 choices, durable reconnect through both SSH paths and terminal interaction.
+Version 0.12.0 adds a changed-key review that can remove explicitly selected
+ordinary entries from the primary user file, with byte-preserved retained
+records and a verified `.old` backup. A fresh connection is always required.
+Host certificates require a matching OpenSSH CA, nonempty matching principals,
+valid dates, no critical options and no matching revocation. Local tests pass;
+the Windows 7 live matrix remains pending.
 The exact 0.5.0 Windows 7 package also passes all three runners; manual
 Command Prompt use, Croatian text and a Unicode filename pass. Ctrl+C interrupts
 a running command; empty or partial prompt-line cancellation has the known

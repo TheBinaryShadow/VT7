@@ -1112,8 +1112,11 @@ interactive candidate on the tested Windows 7 configuration.
   `531B4A1D43894408F7AA38AC6E0BC22C6EBA1394519C3A70C1C9A83AA64B2C83`.
   Its automated and controlled live matrix passes on NESSY and TURTLE: Cancel,
   Connect once, durable Trust and connect, prompt-free reconnect through both
-  SSH paths and terminal interaction are accepted. This item remains open until
-  KH01.4-KH01.5 and the complete management matrix pass.
+  SSH paths and terminal interaction are accepted. Version 0.12.0 implements
+  KH01.4 changed-key review, selected primary-user record removal with a
+  verified `.old` copy, and CA-signed host-certificate policy. Local regression
+  and OpenSSH-generated certificate checks pass. Windows 7 package and live
+  validation are still pending; this item remains open through KH01.5.
 - [x] Support ephemeral password, private-key and passphrase authentication in
   the direct-profile dialog without persistence or default-log disclosure.
 - [ ] Add agent and keyboard-interactive authentication where
