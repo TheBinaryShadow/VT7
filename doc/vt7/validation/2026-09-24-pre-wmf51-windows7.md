@@ -1,8 +1,10 @@
 # Windows 7 SP1 without WMF 5.1: compatibility assessment
 
 Status: corrected candidate 0.2 passes all six LEOPARD baseline stages,
-including the bundled typed-SSH handoff without installed OpenSSH. Live server
-connection and the interactive PowerShell 2.0 profile remain unqualified.
+including the bundled typed-SSH handoff without installed OpenSSH. The owner
+also confirms live connections through both typed `ssh` and `Start SSH...`,
+including remote exit back to the local prompt. Remote resize and the
+interactive PowerShell 2.0 profile remain unqualified.
 
 KB3191566 installs Windows Management Framework (WMF) 5.1, including Windows
 PowerShell 5.1. It is **not** .NET Framework 5.1. VT7's x64 WPF host targets
@@ -85,7 +87,7 @@ shim. It still uses an installed external client for unsupported options or
 redirected standard handles when available. Without one, the broker returns
 an explicit status-255 rejection. A separate built-in no-external check now
 covers both authenticated embedded handoff and unsupported-syntax rejection
-through Command Prompt. LEOPARD's live network result remains pending.
+through Command Prompt. LEOPARD's live network result is recorded below.
 
 Candidate 0.2 has application version 0.12.5/ABI 11 and SHA256
 `5DB55BB730A242958FDB32EF0DC6F47702BFF43883142435B2E78C27CE9E1450`
@@ -93,7 +95,8 @@ Candidate 0.2 has application version 0.12.5/ABI 11 and SHA256
 commit `1baf3c595` and the exact candidate 0.1 archive. Local Debug/Release
 H01 runs pass, including the new no-external embedded and fail-closed cases.
 The staged six-stage baseline and independent ZIP extraction from a path with
-spaces both pass. This does not yet prove LEOPARD's actual SSH connection.
+spaces both pass. These local checks alone do not prove LEOPARD's actual SSH
+connection; the separate manual result is recorded below.
 The seven supplied LEOPARD 0.1 baseline files, including the startup capture,
 are hash-verified under `artifacts/vt7/evidence/legacy-win7-0.1-leopard`;
 they contain no SSH session credentials or trust records.
@@ -118,9 +121,16 @@ The source launchers and scripts now explicitly reject PowerShell older than
 5.1 with exit code 2 and point to `RUN-VT7-LEGACY-BASELINE.cmd`. Candidate 0.2
 predates that guard and retains the misleading KH01.4 launcher; its six-stage
 legacy baseline result is unaffected. The guard will ship with the next
-package. LEOPARD's live typed SSH, remote input/resize/exit and direct SSH.NET
-connection still require a controlled server run before the full pre-WMF
-runtime tier is accepted.
+package. LEOPARD's live SSH result is recorded separately below.
+
+After the baseline run, the owner confirmed that both typed `ssh` from Command
+Prompt and the `Start SSH...` direct SSH.NET path connected to the live server
+on LEOPARD. Remote `exit` returned both sessions to the local prompt. This is
+owner-observed manual evidence, separate from the six archived diagnostic
+logs. Remote resize was not reported, so that specific pre-WMF live-session
+check remains open. The PowerShell 2.0 interactive profile is still
+exploratory and unqualified; neither this profile nor the PowerShell 5.1-only
+KH01.4 runner is needed for the demonstrated Command Prompt and SSH paths.
 
 Sources: [Microsoft's WMF 5.1 KB3191566 description](https://support.microsoft.com/en-au/topic/update-for-windows-management-framework-5-1-for-windows-7-and-windows-server-2008-r2-918077a1-ebc1-289f-bc04-8cc4546eafd0),
 [.NET Framework version detection](https://learn.microsoft.com/en-us/dotnet/framework/install/how-to-determine-which-versions-are-installed),
