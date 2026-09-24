@@ -1,6 +1,6 @@
 # VT7 development handoff
 
-Updated: 2026-09-24. Current source is version 0.12.3/native ABI 11. Version
+Updated: 2026-09-24. Current source is version 0.12.5/native ABI 11. Version
 0.6.6 remains accepted across the
 Windows 7 PowerShell/profile and keyboard matrix. H01 packages 0.1 through 0.3
 pass the Command Prompt, PowerShell 5.1 and PowerShell 7.2.24 embedded/barrier
@@ -47,6 +47,15 @@ inconsistent inherited-ACL fixture that still asserts exact SDDL. Version
 Its automated and controlled live known-host management matrix passes on both
 machines, accepting KH01.4. KH01.3 remains accepted; the certificate-serving
 network matrix belongs to KH01.5.
+LEOPARD adds a Windows 7 SP1 x64/.NET 4.8/PowerShell 2.0 machine without
+KB3191566 or system OpenSSH. Candidate 0.1 passes its five-stage baseline but
+typed `ssh` is not found: the production coordinator incorrectly required an
+external `ssh.exe` before exposing VT7's bundled shim. Version 0.12.5/candidate
+0.2 removes that gate, preserves exact external fallback when installed, and
+returns status 255 for unsupported syntax when no fallback exists. The new
+no-external diagnostic, complete H01 corpus and independent extracted package
+checks pass locally. LEOPARD's live SSH retest is pending; see the
+[pre-WMF validation record](validation/2026-09-24-pre-wmf51-windows7.md).
 This is the current resumption guide. Start with the [documentation index](README.md)
 if unfamiliar with the repository. The [roadmap](../../ROADMAP.md) owns gates;
 dated validation records own test claims.

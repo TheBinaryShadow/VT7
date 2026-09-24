@@ -196,7 +196,7 @@ The planned minimum target is:
 KB3191566 / Windows Management Framework 5.1 is not a product prerequisite.
 VT7 should discover the installed Windows PowerShell version and offer only
 profiles actually present. A Windows 7 SP1 x64, .NET Framework 4.8 machine
-retaining PowerShell 2.0 is the pending [pre-WMF test tier](doc/vt7/validation/2026-09-24-pre-wmf51-windows7.md).
+retaining PowerShell 2.0 is the [pre-WMF test tier](doc/vt7/validation/2026-09-24-pre-wmf51-windows7.md).
 
 The final installer or portable package should detect missing prerequisites and
 explain them in plain language. It must not fail with an unexplained missing

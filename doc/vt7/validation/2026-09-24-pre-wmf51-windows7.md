@@ -1,7 +1,8 @@
 # Windows 7 SP1 without WMF 5.1: compatibility assessment
 
-Status: candidate 0.1 baseline passes on LEOPARD; typed SSH defect found and
-candidate 0.2 is in preparation. PowerShell 2.0 remains unqualified.
+Status: candidate 0.1 baseline passes on LEOPARD; typed SSH defect found.
+Corrected candidate 0.2 is issued for LEOPARD's live SSH retest. PowerShell
+2.0 remains unqualified.
 
 KB3191566 installs Windows Management Framework (WMF) 5.1, including Windows
 PowerShell 5.1. It is **not** .NET Framework 5.1. VT7's x64 WPF host targets
@@ -85,6 +86,17 @@ redirected standard handles when available. Without one, the broker returns
 an explicit status-255 rejection. A separate built-in no-external check now
 covers both authenticated embedded handoff and unsupported-syntax rejection
 through Command Prompt. LEOPARD's live network result remains pending.
+
+Candidate 0.2 has application version 0.12.5/ABI 11 and SHA256
+`5DB55BB730A242958FDB32EF0DC6F47702BFF43883142435B2E78C27CE9E1450`
+(15,289,723 bytes; 97 verified files). Its manifest points to clean source
+commit `1baf3c595` and the exact candidate 0.1 archive. Local Debug/Release
+H01 runs pass, including the new no-external embedded and fail-closed cases.
+The staged six-stage baseline and independent ZIP extraction from a path with
+spaces both pass. This does not yet prove LEOPARD's actual SSH connection.
+The seven supplied LEOPARD 0.1 baseline files, including the startup capture,
+are hash-verified under `artifacts/vt7/evidence/legacy-win7-0.1-leopard`;
+they contain no SSH session credentials or trust records.
 
 Sources: [Microsoft's WMF 5.1 KB3191566 description](https://support.microsoft.com/en-au/topic/update-for-windows-management-framework-5-1-for-windows-7-and-windows-server-2008-r2-918077a1-ebc1-289f-bc04-8cc4546eafd0),
 [.NET Framework version detection](https://learn.microsoft.com/en-us/dotnet/framework/install/how-to-determine-which-versions-are-installed),
