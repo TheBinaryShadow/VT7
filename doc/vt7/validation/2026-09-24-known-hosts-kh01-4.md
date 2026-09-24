@@ -142,7 +142,14 @@ is rejected before live testing.
 Version 0.12.3/package 0.8 makes that inherited-ACL assertion use the same
 structural comparison as production and reports which component differs if
 it fails. The actual owner-file live removal is still unverified on Windows 7.
-Package 0.8 awaits issuance and target testing.
+Package 0.8 is issued as `VT7-KnownHosts-KH01-0.8-x64.zip`, SHA256
+`16509A782C8EE629E74F8CE4D4FE11E265C93763BB2E75036AC3C5FEE6920AEE`,
+15,283,778 bytes and 94 verified files. Its manifest names clean source
+commit `e37371c064f466102f9d2450af78a09278d1f720`. Release known-host,
+SSH.NET and typed-overlay checks, staged path-with-spaces and independent
+extracted launcher checks pass locally. Review copy:
+`artifacts/VT7-KnownHosts-KH01-0.8-x64.zip`. Windows 7 automation and live
+acceptance remain pending.
 
 Run the package 0.8 automated launcher on both NESSY (`mscorlib.dll`
 `4.8.4110.0`) and TURTLE (`4.8.4795.0`). Then follow its controlled live
