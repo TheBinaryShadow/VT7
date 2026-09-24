@@ -57,8 +57,10 @@ no-external diagnostic, complete H01 corpus and independent extracted package
 checks pass locally. LEOPARD also passes all six candidate 0.2 baseline stages
 on PowerShell 2.0 without installed OpenSSH. The owner also confirms both
 typed and direct SSH connections and remote exit back to the local prompt on
-LEOPARD; remote resize remains unverified. The older KH01.4 launcher falsely
-reported success on PowerShell 2.0, so current source rejects that
+LEOPARD. Live typing, resize and disconnect also work, as do `htop` and `nano`
+in a live SSH session. The pre-WMF Command Prompt and SSH scope is accepted;
+the PowerShell 2.0 interactive profile remains unqualified. The older KH01.4
+launcher falsely reported success on PowerShell 2.0, so current source rejects that
 incompatible runner explicitly. See the
 [pre-WMF validation record](validation/2026-09-24-pre-wmf51-windows7.md).
 This is the current resumption guide. Start with the [documentation index](README.md)

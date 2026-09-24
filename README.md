@@ -199,8 +199,10 @@ The separate pre-WMF 5.1 candidate 0.1 passes LEOPARD's Windows 7/PowerShell
 OpenSSH client was installed. Candidate 0.2 carries the corrected bundled
 shim path, and all six built-in baseline stages now pass on LEOPARD without
 installed OpenSSH. The owner also confirms live connections through both typed
-`ssh` and `Start SSH...`, with remote exit back to the local prompt. Remote
-resize and the PowerShell 2.0 interactive profile remain unqualified there.
+`ssh` and `Start SSH...`, with typing, resize, disconnect and return to the
+local prompt; `htop` and `nano` ran in a live session. This accepts the
+pre-WMF Command Prompt and SSH runtime scope. The PowerShell 2.0 interactive
+profile remains unqualified.
 
 PowerShell 7.3 and newer depend on .NET versions that dropped Windows 7 support.
 They are outside of the initial compatibility promise.

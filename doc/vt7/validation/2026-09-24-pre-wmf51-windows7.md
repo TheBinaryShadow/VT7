@@ -3,8 +3,10 @@
 Status: corrected candidate 0.2 passes all six LEOPARD baseline stages,
 including the bundled typed-SSH handoff without installed OpenSSH. The owner
 also confirms live connections through both typed `ssh` and `Start SSH...`,
-including remote exit back to the local prompt. Remote resize and the
-interactive PowerShell 2.0 profile remain unqualified.
+including typing, resize, disconnect, and remote exit back to the local
+prompt. `htop` and `nano` ran successfully in a live SSH session. Command
+Prompt and SSH are accepted for this pre-WMF test tier; the interactive
+PowerShell 2.0 profile remains unqualified.
 
 KB3191566 installs Windows Management Framework (WMF) 5.1, including Windows
 PowerShell 5.1. It is **not** .NET Framework 5.1. VT7's x64 WPF host targets
@@ -127,10 +129,12 @@ After the baseline run, the owner confirmed that both typed `ssh` from Command
 Prompt and the `Start SSH...` direct SSH.NET path connected to the live server
 on LEOPARD. Remote `exit` returned both sessions to the local prompt. This is
 owner-observed manual evidence, separate from the six archived diagnostic
-logs. Remote resize was not reported, so that specific pre-WMF live-session
-check remains open. The PowerShell 2.0 interactive profile is still
-exploratory and unqualified; neither this profile nor the PowerShell 5.1-only
-KH01.4 runner is needed for the demonstrated Command Prompt and SSH paths.
+logs. The owner also exercised typing, resize and disconnect in live SSH, and
+ran `htop` and `nano` without issues in a live session. These observations
+close the planned pre-WMF Command Prompt and SSH runtime matrix for candidate
+0.2. They do not qualify the PowerShell 2.0 interactive profile, which remains
+exploratory, or the PowerShell 5.1-only KH01.4 runner. Neither is required for
+the demonstrated Command Prompt and SSH paths.
 
 Sources: [Microsoft's WMF 5.1 KB3191566 description](https://support.microsoft.com/en-au/topic/update-for-windows-management-framework-5-1-for-windows-7-and-windows-server-2008-r2-918077a1-ebc1-289f-bc04-8cc4546eafd0),
 [.NET Framework version detection](https://learn.microsoft.com/en-us/dotnet/framework/install/how-to-determine-which-versions-are-installed),

@@ -214,10 +214,13 @@ entry point or DLL error.
 A release must pass Tier A. Other tiers expand confidence but do not silently
 raise the minimum requirement.
 
-The new PowerShell 2.0 machine tests whether Tier A also covers pre-WMF 5.1
-installations. Keep its product-runtime result separate from the existing
-PowerShell 5.1-specific automated corpus; passing the latter is not a
-requirement to launch VT7 on a machine without WMF 5.1.
+LEOPARD confirms that Tier A's Command Prompt and SSH runtime scope also works
+on a pre-WMF 5.1 installation with PowerShell 2.0 and no system OpenSSH. Its
+six-stage baseline and live typed/direct SSH checks pass, including resize,
+disconnect, `htop` and `nano`. The PowerShell 2.0 interactive profile is not
+yet qualified. Keep this product-runtime result separate from the existing
+PowerShell 5.1-specific automated corpus; passing the latter is not required
+to launch VT7 on a machine without WMF 5.1.
 
 The KH01.2 package 0.2 comparison found that local VT7 operation and the complete
 offline known-host corpus pass on both tiers, while SSH.NET 2026.0.0 fails during
