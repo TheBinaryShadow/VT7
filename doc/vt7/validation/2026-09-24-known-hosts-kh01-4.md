@@ -102,8 +102,13 @@ Corrected candidate identity: `VT7-KnownHosts-KH01-0.6-x64.zip`, application 0.1
 native ABI 11, publisher-built SSH.NET `2026.0.1-prerelease.6`/`f099365`.
 The non-overwriting packager and independent verifier are
 `tools/Package-VT7KnownHostsManagementAcl.ps1` and
-`tools/Verify-VT7KnownHostsManagementAclPackage.ps1`. Record its exact ZIP
-hash, size, file count and clean source commit after package verification.
+`tools/Verify-VT7KnownHostsManagementAclPackage.ps1`. The issued archive is
+SHA256 `DF56400ACB1B0266CD8BB5E99757BB8F08411B058799B1E028BDF5B3D8B218EF`,
+15,247,563 bytes and 94 verified files. Its manifest names clean source commit
+`3dfd3664a32672d60e28734623c71af0de8a73e7`. Release build, focused
+known-host and SSH.NET checks, typed overlay, path-with-spaces staging and the
+independent extracted launcher pass locally. Review copy:
+`artifacts/VT7-KnownHosts-KH01-0.6-x64.zip`.
 
 Run the packaged automated launcher on both NESSY (`mscorlib.dll`
 `4.8.4110.0`) and TURTLE (`4.8.4795.0`). Then follow its controlled live
