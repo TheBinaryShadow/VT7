@@ -1,11 +1,24 @@
 # Building VT7
 
-VT7 currently builds the 0.8.2/ABI 11 application: a WPF desktop
+VT7 currently builds the 0.14.0/ABI 11 application: a WPF desktop
 host, native HWND view, separate TerminalCore document/session owner, AtlasEngine
 and renderer controller, a real pinned WinPTY 0.4.3 local root transport, and the
-first direct SSH.NET 2026.0.0 remote root transport. Normal startup launches an
+direct and typed SSH.NET 2026.0.1-prerelease.6 remote transport. Normal startup launches an
 explicit `%SystemRoot%\System32\cmd.exe` profile; **Start SSH...** opens the
 ephemeral direct connection dialog.
+Version 0.14.0 implements SL01.1 owned SSH startup cancellation and original-shell
+failure recovery. Build Debug/Release, then run tools/Package-VT7SshLifecycle.ps1
+to issue its separately versioned portable candidate. The packager retains
+KH01.5 candidate 0.2's accepted native 0.12.3/dependency closure and verifies all
+new source inputs. Its PowerShell 2.0 runner needs no Debian fixture. See the
+[SL01.1 record](doc/vt7/validation/2026-10-05-ssh-lifecycle-sl01-1.md);
+bounded SL01.1 is accepted on LEOPARD, NESSY and TURTLE. The record also tracks
+a pre-existing U+12032 SSH prompt font-coverage gap; the broader lifecycle gate
+remains open.
+The [UT01 plan](doc/vt7/architecture/2026-10-05-upstream-text-and-font-parity-plan.md)
+now requires current-upstream Unicode/text/font support parity before polish
+and 1.0. The current bounded font adapter is not parity-qualified. This
+documentation decision changes no build, source/dependency pin or issued package.
 Hidden regression modes retain deterministic fixtures and fake transports. The
 Command Prompt transport, Unicode and lifecycle scope passes locally and on the
 supplied Windows 7 target. Active-command Ctrl+C passes; prompt-line cancellation
@@ -16,7 +29,19 @@ package 0.2 passes its complete controlled-server Windows 7 run. Package 0.3
 corrects the ordinary dialog labels but leaves the generated Authentication
 selection light-on-light. Version 0.8.2/package 0.4 adds an explicit item
 template, verifies the rendered selection at 4.5:1 and passes focused Windows 7
-visual confirmation; typed SSH remains disabled.
+visual confirmation. Typed SSH and KH01.1-KH01.4 are now target accepted.
+LEOPARD accepts Command Prompt and both SSH paths without WMF 5.1 or system
+OpenSSH; its PowerShell 2.0 interactive editor remains unqualified. Version
+ 0.13.1 corrects the isolated KH01.5 harness: SSH.NET rejects invalid dates
+before its trust callback. Candidate 0.1 reaches valid/wrong-principal cases
+on all three targets, then fails that obsolete callback assertion. Candidate
+0.2's local signature/date, PowerShell 2.0 runner and package checks pass;
+the complete client matrix now passes on all three targets. LEOPARD's audit
+passes; replaying the unchanged audit helper against NESSY/TURTLE's archived
+logs with expected count 5 also passes. KH01.5 is target accepted. NESSY's first
+failure corresponds to an empty server archive; its exact cause remains unproved.
+See the
+[KH01.5 procedure and record](doc/vt7/validation/2026-10-05-known-hosts-kh01-5.md).
 
 The solution also builds an independent capability probe and an Atlas backend
 proof (0.1). The latter renders fixed glyphs through real Atlas backends and
@@ -506,6 +531,7 @@ identity. See the [I01 record](doc/vt7/validation/2026-09-14-input-i01.md).
 | `Package-VT7KnownHostsManagementInheritedAcl.ps1` | Issued non-overwriting `vt7/packages/VT7-KnownHosts-KH01-0.8-x64` / matching ZIP. It stages VT7 0.12.3 with the inherited-ACL test aligned to production's structural security check. `Verify-VT7KnownHostsManagementInheritedAclPackage.ps1` independently checks the archive and extracted launcher. SHA256 `16509A782C8EE629E74F8CE4D4FE11E265C93763BB2E75036AC3C5FEE6920AEE` (15,283,778 bytes, 94 files); automated and controlled live known-host management pass on both Windows 7 machines. |
 | `Package-VT7LegacyWin7.ps1` | LEOPARD candidate 0.1, application 0.12.4; five-stage `cmd.exe` baseline passes on Windows 7 with PowerShell 2.0. Typed SSH is rejected because there is no system OpenSSH client, so this candidate does not establish the full SSH path. |
 | `Package-VT7LegacySshNoExternal.ps1` | Corrected LEOPARD candidate 0.2, application 0.12.5; stages the accepted dependency/notice closure and a six-stage `cmd.exe` baseline including bundled typed SSH without external OpenSSH. `Verify-VT7LegacySshNoExternalPackage.ps1` verifies ZIP hashes, manifest, binary closure and a fresh extracted run. SHA256 `5DB55BB730A242958FDB32EF0DC6F47702BFF43883142435B2E78C27CE9E1450` (15,289,723 bytes, 97 files). All six baseline stages pass on LEOPARD; the owner confirms live typed and direct SSH connections, typing, resize, disconnect and return to the local prompt, with `htop` and `nano` working in a live session. The pre-WMF Command Prompt and SSH runtime scope is accepted. |
+| `Package-VT7KnownHostsCertificates.ps1` | KH01.5 candidate 0.2, application 0.13.1; retains the accepted Legacy-0.2 native/dependency closure and corrects the pre-callback certificate-date assertion. SHA256 `90F1699C5DAA5388988DCD0241A28E075D4B688E252926948B203A0D26EE7DD6` (15,295,831 bytes, 92 files). Local image/import, signed signature/date self-tests on PowerShell 5.1 and 2.0, CMD and independent extracted path-with-spaces checks pass. Complete client matrices and matching archived server audit replays pass on LEOPARD, NESSY and TURTLE; target accepted 2026-10-05. The immutable manifest retains its issue-time unaccepted state; the dated validation record establishes later acceptance. |
 
 Issued P01 package 0.3 used a culture-sensitive PowerShell row comparison that
 ignored embedded NULs in the two Windows 7 raw-VT cases. The retained strings
@@ -826,7 +852,7 @@ Tier A Windows 7 system can establish compatibility. Use a clean snapshot with:
 
 - Windows 7 SP1 x64.
 - Platform Update KB2670838.
-- .NET Framework 4.8. VT7 0.12.5 uses SSH.NET
+- .NET Framework 4.8. VT7 0.14.0 retains SSH.NET
   `2026.0.1-prerelease.6`/`f099365`, which carries the receive-MAC reset needed
   by the non-ESU `mscorlib.dll` `4.8.4110.0` implementation.
 - The remaining prerequisites listed in [ROADMAP.md](ROADMAP.md).

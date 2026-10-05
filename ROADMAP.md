@@ -4,6 +4,10 @@ This file owns milestone completion and deferred-work triage. Start with the
 [current handoff](doc/vt7/HANDOFF.md) for completed C4/3A session work, current
 3B integration, and the
 [documentation index](doc/vt7/README.md) for the code, build and evidence map.
+The owner-approved [UT01 plan](doc/vt7/architecture/2026-10-05-upstream-text-and-font-parity-plan.md)
+now requires current-upstream Unicode, text rendering and font fallback parity
+before polish and 1.0. This is a text capability target, not the entire Terminal
+feature set; earlier POL04/POL05 deferrals do not waive its required gaps.
 The [port-first decision](doc/vt7/architecture/2026-09-12-port-first-plan.md)
 owns execution direction; dated research remains supporting evidence and proposals.
 
@@ -594,8 +598,10 @@ are deferred under POL02 in Milestone 7, not prerequisites to upstream-style Atl
   simulated bold/oblique styles and fail-closed missing/altered-asset diagnostics
   for the initial Atlas integration. Bounded target rendering acceptance passes; broader qualification remains open.
   Track pixel-derived glyph
-  quality and narrow-symbol refinements under POL04; no color emoji, ZWJ composition, or
-  universal Unicode coverage claim. Font repertoire does not replace core width tables.
+  quality and narrow-symbol refinements under POL04. This initial implementation
+  does not establish color emoji, ZWJ or universal Unicode coverage. UT01 below
+  now requires the applicable upstream capabilities before 1.0.
+  Font repertoire does not replace core width tables.
 - [x] Compare preserved pure/mixed/marked Arabic runs on Windows 7 in probe 0.3:
   joining/order follow the natural reference in these bounded samples.
 - [ ] Preserve inherited terminal ordering and core-grid interaction contracts
@@ -624,8 +630,9 @@ are deferred under POL02 in Milestone 7, not prerequisites to upstream-style Atl
 - [ ] Record the inherited Unicode width/cluster and bidi-ordering policies.
   Preserve original text even when a glyph is missing. Use versioned font/corpus
   evidence; prefer tested static faces for any initial bundled-font evaluation.
-  Color emoji, variable-font axes, and full bidi terminal behavior require
-  separate scope decisions, not an implied promise inside Unicode support.
+  UT01 supplies the 2026-10-05 scope decision for current-upstream text/font
+  capabilities, including applicable color/emoji and variable-axis behavior.
+  It does not require paragraph bidi beyond what the upstream reference supports.
 
 Gate: a Windows 7-compatible full-engine font path with reproducible mixed-script
 output, preserved source/core cells and upstream-aligned placement, owned data,
@@ -633,6 +640,41 @@ safe fallback and reviewed dependencies. Record inherited limitations separately
 from adaptation defects. Enhanced joined Arabic, visual bidi and optional fitting
 are not gate requirements. C1 and C2 are accepted in 0.3.0 on the supplied Windows 7
 setup; C3 still owns the broader renderer checks below.
+
+### UT01: current-upstream text and font parity
+
+Required before Milestone 7 polish and VT7 1.0; implementation belongs to
+2C/2F, with 3C/4 interaction/settings and Milestone 6 assembled qualification.
+Follow the [UT01 delivery plan](doc/vt7/architecture/2026-10-05-upstream-text-and-font-parity-plan.md).
+The initial behavior reference is stable Terminal v1.25.2733.0, commit
+dc8ae365847d41f62d1ebca93815bb00959bc12f, checked on 2026-10-05. This does not
+change VT7's source pin or authorize a wholesale upstream merge. Review the
+then-current stable release's text/font deltas again before 1.0 freeze.
+
+- [x] Confirm owner scope: one-to-one Unicode, text rendering and font fallback
+  support, rather than the entire Terminal feature set. Record current results,
+  source/API gaps and required delivery slices; no parity acceptance is claimed.
+- [ ] **UT01.1:** pin reference binaries/fonts/settings and the differential
+  corpus; inventory every applicable capability and Windows 7 adaptation.
+- [ ] **UT01.2:** deliver sequence-aware coverage and ordered font-family/app-local
+  fallback, including U+12032 and missing-family behavior without source/cell loss.
+- [ ] **UT01.3:** match upstream grapheme/width modes, ambiguous-width settings,
+  built-in glyphs, shaping, ligatures, features, style and wrapping/reflow behavior.
+- [ ] **UT01.4:** deliver applicable upstream color-font/emoji, variation/ZWJ and
+  variable-axis behavior through verified Windows 7-compatible implementations.
+  Disabled color, ignored axes or a monochrome-only substitute do not pass parity.
+- [ ] **UT01.5:** expose required font/text settings and qualify cursor,
+  selection/copy/search, IME and accessibility against original text/core cells.
+- [ ] **UT01.6:** accept matched-font and out-of-box coverage comparisons on the
+  Windows 7 matrix, hardware/WARP, DPI and real local/SSH paths; audit current
+  stable deltas, package closure, licenses, cache lifetime and performance.
+
+Functional text parity does not require identical OS antialiasing pixels or
+glyphs for characters unsupported by the reference fonts. Required coverage,
+shaping, widths and interactions must match; font/raster differences must be
+measured and identified. Missing modern OS APIs require an app-local adaptation,
+not an implicit waiver. Unresolved required gaps block 1.0 unless the owner
+explicitly changes scope. The existing Windows 7 prerequisite floor is retained.
 
 ### 2D: TerminalCore-to-Atlas integration
 
@@ -727,9 +769,10 @@ or the requirement to assess reliability before release.
   setup at milestone acceptance, not by assuming equivalent behavior.
 - [ ] Verify font fallback, accents/combining marks, wide and supplementary
   characters, ligatures, box drawing, colors, decorations, and cursor alignment.
-  Judge baseline behavior against the pinned upstream policy and agreed corpus,
-  not the optional joined-word experiments. Source loss, wrong cells and lasting
-  corruption block acceptance; additional typographic refinements go to Milestone 7.
+  Compare the original pinned baseline and UT01's selected current-stable corpus.
+  Optional joined-word experiments are separate. Source loss, wrong cells and
+  lasting corruption block acceptance; typographic refinements beyond required
+  upstream parity go to Milestone 7.
 - [x] Test Windows 7 system-DPI configurations at 100%, 125%, and 150%, including
   WPF/native sizing and clipping. The supplied 0.3.4 logs and hardware/WARP launch
   screenshots accept this bounded checkpoint on the tested Windows 7 setup.
@@ -1122,7 +1165,7 @@ finished experience must satisfy SSHUX01 below before Milestone 7 polish.
   release/support status, and the maintenance/update process before shipping.
 - [x] Require and verify a separately obtained SHA256 host-key fingerprint before
   authentication in the direct-profile slice. A mismatch fails closed.
-- [ ] Implement recoverable known-host management.
+- [x] Implement recoverable known-host management.
   Separate unknown, changed, matching, and unreadable trust records; never
   silently accept a mismatch or continue authentication past a failed decision.
   The [OpenSSH-compatible technical specification](doc/vt7/architecture/2026-09-21-openssh-known-hosts-management-spec.md)
@@ -1163,8 +1206,23 @@ finished experience must satisfy SSHUX01 below before Milestone 7 polish.
   obsolete exact-SDDL assertion on NESSY. Version 0.12.3 aligns that assertion
   with the production security check. Package 0.8 passes the automated and
   owner-controlled live known-host matrix on NESSY and TURTLE, including
-  selected removal and exact `.old` backup. KH01.4 is accepted; this broader
-  item remains open through KH01.5 certificate-serving validation.
+  selected removal and exact `.old` backup. KH01.4 is accepted. Version
+  0.13.0 adds its isolated nine-case live harness, Debian certificate-only
+  listeners, server authentication audit and PowerShell 2.0-compatible target
+  runner. Candidate 0.1 passes all three machines' self-tests and live valid/
+  wrong-principal cases on Debian 13, but fails an incorrect expired-certificate
+  callback assertion. Version 0.13.1/candidate 0.2 observes the exact certificate
+  at key exchange and requires SSH.NET's pre-callback date rejection. Signed
+  signature/date regressions and packaging checks pass locally; the corrected
+  complete client matrix now passes on all three machines. LEOPARD's server
+  audit passes; NESSY/TURTLE's original audit exports incorrectly expected
+  three accepted connections rather than five. Replaying the unchanged helper
+  against each matching archived server log set with the client count passes
+  all three paired audits, with no authentication attempts for rejected cases.
+  KH01.5 and this bounded gate are accepted. NESSY's initial failure corresponds
+  to an empty server archive; its exact operational cause remains unproved.
+  Broader algorithm/IPv6 qualification remains separate. See the
+  [KH01.5 procedure](doc/vt7/validation/2026-10-05-known-hosts-kh01-5.md).
 - [x] Support ephemeral password, private-key and passphrase authentication in
   the direct-profile dialog without persistence or default-log disclosure.
 - [ ] Add agent and keyboard-interactive authentication where
@@ -1179,6 +1237,18 @@ finished experience must satisfy SSHUX01 below before Milestone 7 polish.
 - [ ] Handle stage-specific deadlines/cancellation, stalled peers, partial I/O,
   rekey under output, keepalives, EOF/close/exit status, and reconnection UX (S01).
   Never replay already-submitted input automatically on reconnection.
+  - [x] **SL01.1: owned startup cancellation and failure recovery.** Version
+    0.14.0 tracks and joins pending SSH startup before transport/session/window
+    destruction, retains stream errors, retires faulted outbound queues and
+    resumes the original typed shell after the completion-frame handoff.
+    Loopback/local regressions and all 24 returned target stages pass. The owner
+    accepts live shutdown and shell recovery on LEOPARD, NESSY and TURTLE.
+    A separate U+12032 SSH prompt font-coverage gap also occurs in an older
+    package and is now a required UT01.2 fixture. Follow the
+    [SL01 design](doc/vt7/architecture/2026-10-05-ssh-lifecycle-sl01-spec.md)
+    and [candidate record](doc/vt7/validation/2026-10-05-ssh-lifecycle-sl01-1.md).
+    Full staged deadlines, silent-loss bounds, rekey and remote exit status
+    remain later slices; the parent gate is not completed by SL01.1.
 - [x] Accept the bounded 0.8.0 direct-profile trust/authentication, Unicode,
   output/scrollback, resize, EOF, idle-close and local-profile-isolation matrix on
   Windows 7. See the
@@ -1252,6 +1322,9 @@ hardening and release review repeat as the product approaches 1.0.
   layouts, high contrast and DPI changes, keyboard/screen-reader focus across
   `HwndHost` and menus, hidden-tab output, pending SSH prompts during tab switch
   and close, cross-tab isolation, secret/log privacy and local-shell recovery.
+- [ ] Qualify UT01's complete text/font parity corpus with pinned upstream/font
+  evidence and real local/SSH sessions. Resolve required differences and review
+  then-current stable text/font changes before the 1.0 reference freeze.
 - [ ] Produce signed or checksum-verifiable portable release artifacts.
 - [ ] Document installation, prerequisites, recovery, and uninstallation.
 
@@ -1261,7 +1334,7 @@ The final checkpoint before the first public release, repeated for later release
 and 1.0. Milestone 6 supplies whole-product qualification; this milestone reviews
 the assembled user experience, chooses bounded polish work, and makes the release
 decision. Neither postpones security or correctness fixes from earlier milestones.
-UI01 and SSHUX01 are required Milestone 4/5 work and must be complete before
+UT01, UI01 and SSHUX01 are required implementing-milestone work and must be complete before
 this optional polish checkpoint; they cannot be deferred as visual refinements.
 
 - [ ] Review required workflows, known limitations, prerequisites, diagnostics,
@@ -1310,7 +1383,9 @@ release; their mere presence in this register does not promise delivery in 1.0.
 
 ### Deferred improvements register
 
-All entries start as **deferred, awaiting release triage**, not active port work.
+Entries normally start as **deferred, awaiting release triage**, not active port work.
+The 2026-10-05 UT01 decision promotes necessary POL04/POL05 parity capabilities
+to required pre-1.0 work; only their beyond-upstream refinements remain deferred.
 Keep IDs stable. Add observations here as they arise with user impact, evidence,
 baseline behavior, proposed follow-up and a blocker trigger. A substantial separate
 workstream may receive its own post-release milestone after an explicit decision.
@@ -1341,19 +1416,27 @@ workstream may receive its own post-release milestone after an explicit decision
   [0.9 horizontal fitting](doc/vt7/validation/2026-09-11-horizontal-fitting-probe.md).
   The missing U+1F600 cause and bounded private-font proof are established; the
   minimum Atlas fallback is accepted in the supplied 0.3.0 Windows 7 run.
+  Retain the [2026-10-05 U+12032 prompt finding](doc/vt7/validation/2026-10-05-ssh-lifecycle-sl01-1.md#separate-ssh-prompt-glyph-finding)
+  as a required UT01.2 supplementary-script fixture. Its UTF-8 bytes are
+  f0 92 80 b2; this pre-existing coverage gap
+  occurs in both current and older SSH packages, outside the bounded private
+  symbol fallback. It does not invalidate SL01.1 lifecycle acceptance.
+  Required upstream coverage/fitting belongs to UT01, not optional polish.
   Keep the primary grid and upstream overhang policy.
   Review squeezed one-cell symbols, pixel-derived shapes and stacked-mark appearance
   later. Missing required fallback, illegible required text caused by our port,
   source loss or stale/erased neighbor pixels remain renderer blockers.
-- **POL05: Advanced font and bidi capabilities.** Color emoji, variable axes,
-  broader font repertoire and full terminal bidi need separate scope, interaction
-  and dependency decisions. Use static/monochrome fonts and inherited ordering
-  initially. See the [geometry contract](doc/vt7/architecture/2026-09-11-text-geometry-contract.md)
-  and [font research](doc/vt7/research/07-font-assets-and-emoji.md). No promise of
-  universal Unicode coverage; required-corpus failures still receive blocker triage.
-  Multiple explicit fallback-family preferences are unsupported in the initial
-  single-primary-family viewport. Review that configuration feature with the
-  Milestone 4 font settings rather than silently ignoring extra families.
+- **POL05: Advanced font and bidi capabilities.** Current-upstream repertoire,
+  ordered family fallback, supported color/emoji and variable-axis behavior are
+  now required UT01 work. The present static/monochrome, single-primary-family
+  viewport is an initial implementation limit, not the final parity target.
+  See the [UT01 plan](doc/vt7/architecture/2026-10-05-upstream-text-and-font-parity-plan.md),
+  [geometry contract](doc/vt7/architecture/2026-09-11-text-geometry-contract.md)
+  and [font research](doc/vt7/research/07-font-assets-and-emoji.md).
+  Broader behavior beyond the measured upstream reference, including a new full
+  paragraph-bidi design, remains separately scoped. No universal glyph-repertoire
+  claim is made. Required-corpus failures and unsupported required font settings
+  block their implementing gates rather than receiving a polish deferral.
 - **POL06: Optional presentation and performance refinements.** Retain the
   conservative complete-frame HWND presentation baseline. Evaluate dirty-region/
   scroll optimizations and visual refinements only against integrated measurements
@@ -1394,6 +1477,10 @@ VT7 1.0 is complete only when all of the following are true:
 - Core/renderer acceptance proves streaming UTF-8, wide/combining text, box
   drawing, indexed/true color, and VT state with deterministic fixtures and
   versioned font evidence. Missing glyphs must not corrupt original text.
+- UT01 matches the selected current-stable upstream Unicode/text/font capability
+  corpus, including required coverage, shaping, widths, fallback families,
+  supported color/emoji and axes, settings and text interactions. Current-stable
+  delta review and all Windows 7 comparison gates pass before polish/1.0.
 - Direct SSH independently passes end-to-end Unicode, 256-color/true-color,
   mouse, bracketed-paste, alternate-screen, and resize tests on compatible
   remote applications.
@@ -1414,8 +1501,9 @@ VT7 1.0 is complete only when all of the following are true:
 
 ## Deliberate non-goals for version 1.0
 
-- Pixel-perfect visuals or every feature of current Windows Terminal; the
-  specific tab/profile and SSH interaction contracts above remain required.
+- Identical antialiasing pixels or every feature of current Windows Terminal;
+  UT01 text/font support parity and the specific tab/profile and SSH interaction
+  contracts above remain required.
 - MSIX, Microsoft Store, WinGet, or Windows shell registration that depends on
   post-Windows 7 deployment services.
 - ConPTY implementation for the operating system.
@@ -1437,8 +1525,8 @@ session restoration, quake mode, shell integration, richer accessibility,
 plugin interfaces, and other architectures. These should not distract from
 shipping a trustworthy Windows 7 terminal first.
 
-Color emoji rendering, variable-font axis control, full bidirectional terminal
-behavior, and richer local-console transport are separate evaluation tracks.
-None is automatically included in the Unicode claim or permanently ruled out
-by an initial proof restriction. Record a scope/design decision before promising
-them for a release; preserve the baseline accessibility and local workflows above.
+Color/emoji and variable-axis capabilities supported by the selected upstream
+reference now belong to required UT01 delivery before 1.0. Broader bidi behavior
+beyond upstream and richer local-console transport remain separate evaluation
+tracks; they cannot waive required text workflows or mask transport text loss.
+Preserve the baseline accessibility and local workflows above.

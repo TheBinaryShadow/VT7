@@ -18,7 +18,17 @@ compares owner, group and ACL components structurally; package 0.7 exposed an
 obsolete exact-SDDL assertion in the inherited-ACL test on NESSY. VT7 0.12.3/
 package 0.8 corrects that assertion and passes the automated and controlled
 live known-host management matrix on NESSY and TURTLE. KH01.4 is accepted;
-KH01.5 live certificate-serving validation remains.
+KH01.5 live certificate-serving validation is accepted. Version 0.13.1 prepares
+the [isolated live matrix](../validation/2026-10-05-known-hosts-kh01-5.md);
+candidate 0.1 passes all three targets' self-tests and valid/wrong-principal
+live cases, then fails an obsolete date-case callback assertion. Candidate
+0.2 corrects the harness for SSH.NET's pre-callback date rejection; local
+signature/date and target-runner checks pass. Complete client matrices and
+matching archived server audit replays pass on LEOPARD, NESSY and TURTLE.
+NESSY/TURTLE's original exports incorrectly expected three instead of five;
+the unchanged helper passes when replayed with the actual client counts.
+NESSY's first failure corresponds to an empty server archive; its exact cause
+remains unproved. Its later complete paired run passes with identical binaries.
 
 This specification defines VT7's first durable SSH host-trust subsystem. It
 replaces the generic trust-store wording in the broader
@@ -620,6 +630,12 @@ Windows 7 target acceptance remains open.
 - Archive only the required privacy-safe evidence and exact package identity.
 - Update the roadmap checkbox only after every acceptance criterion below passes.
 
+Accepted 2026-10-05 for the declared tiers and IPv4/Ed25519 certificate slice:
+candidate 0.2 passes the complete client matrices and matching archived server
+audit replay on LEOPARD, NESSY and TURTLE. Exact identities, exclusions and the
+initial NESSY operational incident are recorded in the
+[KH01.5 validation record](../validation/2026-10-05-known-hosts-kh01-5.md).
+
 ## Verification plan
 
 ### Parser and matcher corpus
@@ -782,7 +798,8 @@ records, `NOTICE.md` if any upstream code is ported, and a dated KH01 validation
 record containing exact package and target evidence.
 
 This document authorizes engineering work within its boundaries. KH01.1 through
-KH01.4 are target accepted. Package 0.8 passes the two-machine automated and
-owner-controlled live known-host management matrix. Complete known-host
-management is not claimed until KH01.5 closes its live certificate-serving
-matrix.
+KH01.5 are target accepted. KH01.4 package 0.8 passes the two-machine automated
+and owner-controlled live management matrix. KH01.5 candidate 0.2 closes the
+bounded live certificate-serving gap on all three declared Windows 7 tiers.
+Broader algorithm/IPv6/environment qualification remains separate; temporary
+proof dialogs remain subject to the approved terminal-only SSH contract.

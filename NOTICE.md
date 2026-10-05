@@ -44,17 +44,18 @@ its sincere thanks to:
 - the [OpenSSH](https://www.openssh.com/) and
   [Microsoft Win32-OpenSSH](https://github.com/PowerShell/Win32-OpenSSH)
   contributors for the external client characterized in S00 and retained as a
-  non-PTY command-transport option;
+  non-PTY command-transport option, and for the documented known-host format,
+  certificate tools and isolated OpenSSH server fixtures used to validate KH01;
 - the authors and maintainers of jsoncpp, IntervalTree, PCG, wyhash, Oklab,
   ColorBrewer, cmark, CommonMark, houdini, utf8proc, markdowntest, fzf,
   Microsoft UI XAML, PowerToys/VirtualDesktopUtils, and every individually named
   contributor in the retained Microsoft Terminal notices below; and
 - the [SSH.NET](https://github.com/sshnet/SSH.NET) and
   [Bouncy Castle C#](https://github.com/bcgit/bc-csharp) maintainers for the
-  embedded SSH transport candidate accepted by the S01 diagnostic. This
-  closure is not yet a dependency of the current VT7 application; the
-  diagnostic retains its exact package inventory and component notices
-  separately.
+  embedded SSH transport accepted by S01 and integrated into VT7's direct and
+  typed SSH sessions. Application packages retain the exact dependency
+  inventory and component notices. The current publisher-built prerelease and
+  its provenance are identified below.
 
 This acknowledgement is a statement of gratitude, not a replacement for the
 copyright and license texts below or the component-specific files shipped in a

@@ -1,5 +1,13 @@
 # Text geometry contract v0.2
 
+Scope amendment, 2026-10-05: [UT01](2026-10-05-upstream-text-and-font-parity-plan.md)
+requires current-upstream Unicode/text/font support parity before polish/1.0,
+including coverage, shaping, widths, supported color/axes and consumer geometry.
+The core-cell authority and source-preservation rules here remain applicable.
+Earlier deferrals do not waive required UT01 differences; experimental behavior
+beyond the selected upstream reference remains separately scoped. This is a
+required plan, not new renderer acceptance or a change to the source pin.
+
 Current execution checkpoint, 2026-09-14: C1/C2 font/core/Atlas integration and
 [0.3.4 system-DPI acceptance](../validation/2026-09-12-atlas-scaling-correction.md)
 are recorded on the supplied Windows 7 setup. C3 remains open: the

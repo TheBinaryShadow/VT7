@@ -23,7 +23,11 @@ namespace VT7.Host
         internal static bool H01Test { get; private set; }
         internal static bool SshOverlayNoExternalTest { get; private set; }
         internal static bool SshNetFoundationTest { get; private set; }
+        private static bool SshLifecycleTest { get; set; }
         internal static bool KnownHostsTest { get; private set; }
+        private static bool CertificateLiveTest { get; set; }
+        private static bool CertificateSelfTest { get; set; }
+        private static string CertificateFixture { get; set; } = string.Empty;
         internal static bool AllowMissingPowerShell7 { get; private set; }
         internal static string RequestedProfileId { get; private set; } = "command-prompt";
         internal static uint ExpectedSystemDpi { get; private set; }
@@ -55,7 +59,18 @@ namespace VT7.Host
             H01Test = HasArgument(e.Args, "--h01-test");
             SshOverlayNoExternalTest = HasArgument(e.Args, "--ssh-overlay-no-external-test");
             SshNetFoundationTest = HasArgument(e.Args, "--sshnet-foundation-test");
+            SshLifecycleTest = HasArgument(e.Args, "--ssh-lifecycle-test");
             KnownHostsTest = HasArgument(e.Args, "--known-hosts-test");
+            CertificateLiveTest = HasArgument(e.Args, "--known-hosts-certificate-test");
+            CertificateSelfTest = HasArgument(e.Args, "--known-hosts-certificate-self-test");
+            var certificateIndex = Array.IndexOf(e.Args, "--certificate-fixture");
+            if (CertificateLiveTest || CertificateSelfTest)
+            {
+                if (CertificateLiveTest && CertificateSelfTest || certificateIndex < 0 || certificateIndex + 1 >= e.Args.Length)
+                { Shutdown(2); return; }
+                CertificateFixture = e.Args[certificateIndex + 1];
+            }
+            else if (certificateIndex >= 0) { Shutdown(2); return; }
             AllowMissingPowerShell7 = HasArgument(e.Args, "--allow-missing-powershell-7");
             var profileIndex = Array.IndexOf(e.Args, "--profile");
             if (profileIndex >= 0)
@@ -109,7 +124,8 @@ namespace VT7.Host
             var sessionTestCount = (SessionStreamTest ? 1 : 0) + (SessionOutboundTest ? 1 : 0) +
                 (WinPtySessionTest ? 1 : 0) + (PowerShellProfileTest ? 1 : 0) + (H01Test ? 1 : 0) +
                 (SshOverlayNoExternalTest ? 1 : 0) +
-                (SshNetFoundationTest ? 1 : 0) + (KnownHostsTest ? 1 : 0);
+                (SshNetFoundationTest ? 1 : 0) + (KnownHostsTest ? 1 : 0) +
+                (CertificateLiveTest || CertificateSelfTest ? 1 : 0) + (SshLifecycleTest ? 1 : 0);
             if (sessionTestCount > 0 && (RendererMode == 0 || diagnostics || smokeTest || RepaintTest ||
                 RecoveryScenario != null || SettingsTest || StabilityTest || sessionTestCount != 1))
             { Shutdown(2); return; }
@@ -130,7 +146,9 @@ namespace VT7.Host
                 StabilityTest || SessionStreamTest || SessionOutboundTest || WinPtySessionTest || PowerShellProfileTest || H01Test ||
                 SshOverlayNoExternalTest);
             LaunchLocalSession = LaunchLocalSession && !SshNetFoundationTest;
+            LaunchLocalSession = LaunchLocalSession && !SshLifecycleTest;
             LaunchLocalSession = LaunchLocalSession && !KnownHostsTest;
+            LaunchLocalSession = LaunchLocalSession && !CertificateLiveTest && !CertificateSelfTest;
             LaunchLocalSession = LaunchLocalSession && !SshOverlayNoExternalTest;
             if (!LaunchLocalSession)
             {
@@ -216,6 +234,22 @@ namespace VT7.Host
                     await KnownHostsFoundationChecks.Run(report);
                     snapshot.SurfaceDisplay = report.ToString();
                     snapshot.Summary = "The OpenSSH known-host parser, four-source loader, generation-bound first-contact policy, durable writer and differential oracle passed.";
+                }
+                if (SshLifecycleTest)
+                {
+                    if (!snapshot.Passed) throw new InvalidOperationException("Core/platform checks failed before SL01.1 testing.");
+                    await SshLifecycleChecks.Run(report);
+                    snapshot.SurfaceDisplay = report.ToString();
+                    snapshot.Summary = "SL01.1 startup cancellation, loopback failures and original-shell recovery checks passed; live SSH lifecycle acceptance remains separate.";
+                }
+                if (CertificateLiveTest || CertificateSelfTest)
+                {
+                    if (!snapshot.Passed) throw new InvalidOperationException("Core/platform checks failed before KH01.5 testing.");
+                    if (CertificateSelfTest) await KnownHostsCertificateChecks.SelfTest(CertificateFixture, report);
+                    else await KnownHostsCertificateChecks.RunLive(CertificateFixture, report);
+                    snapshot.SurfaceDisplay = report.ToString();
+                    snapshot.Summary = CertificateSelfTest ? "KH01.5 signed certificate adapter self-test passed; live validation remains separate." :
+                        "KH01.5 live client checks passed; match the separate server authentication audit before acceptance.";
                 }
                 if (SettingsTest)
                 {
@@ -306,7 +340,7 @@ namespace VT7.Host
                         }
                         finally
                         {
-                            window.Close();
+                            await window.CloseAndWaitAsync();
                         }
                         await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
                         if (NativeMethods.IsWindow(nativeWindow))

@@ -28,9 +28,11 @@ stops further dedicated tracing and accepts this risk for continued development.
 C4/3A session work proceeds now. Milestone 7 reviews reliability evidence and
 reopens investigation only if needed; recorded failures are not changed to passes.
 
-Current source is version 0.4.0/ABI 11 with the terminal document/view split,
-managed session boundary and opt-in resource-isolation controls not present in
-the issued viewport archive. This source README and
+Current managed application is version 0.14.0/ABI 11, with SL01.1 accepted on
+LEOPARD, NESSY and TURTLE. The issued native baseline remains 0.12.3; SL01.1
+does not change renderer/font bytes. The terminal document/view split,
+managed session boundary and opt-in resource-isolation controls are not present
+in the issued original viewport archive. This source README and
 those controls do not alter the frozen packages or their provenance files.
 
 Build 0.3.0 implements the minimum Windows 7 font boundary and connects the real
@@ -132,6 +134,14 @@ HWND teardown and exits only after that teardown finishes. Full target
 scheduling/stability acceptance remains outstanding.
 
 ## Minimum font adaptation in 0.3.0
+
+The owner-approved [UT01 plan](../../../doc/vt7/architecture/2026-10-05-upstream-text-and-font-parity-plan.md)
+now requires current-upstream Unicode/text/font support parity before polish
+and 1.0. The bounded adapter described below remains the current implementation,
+not the final target. Ordered fallback families, sequence-aware broader coverage,
+applicable color/emoji and axes, shaping/widths and interaction equivalence are
+required UT01 gates. Its reference/corpus/API audit precedes implementation;
+no capabilities are enabled by this documentation update.
 
 `Win7FontFallback` requests baseline text layouts and retains FontFace1 references
 from their draw callbacks. It sorts face intervals into logical source order,

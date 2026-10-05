@@ -6,6 +6,15 @@ and geometry experiments. The [roadmap](../../../ROADMAP.md) owns milestone
 completion and the deferred-work register. No application behavior, upstream
 baseline, package, license, or test result changes with this decision.
 
+Scope amendment, 2026-10-05: the owner-approved
+[UT01 plan](2026-10-05-upstream-text-and-font-parity-plan.md) now requires
+current-upstream Unicode, text rendering and font fallback support parity
+before polish/1.0. This supersedes the original deferral for capabilities needed
+within that text/font scope, while retaining the port-first approach, Windows 7
+floor and optional status of enhancements beyond upstream. It does not require
+the whole Terminal feature set or authorize an upstream merge. Historical
+implementation results and the dated wording below retain their original scope.
+
 For current implementation state and C4/3A session work, read the
 [handoff](../HANDOFF.md) and [documentation index](../README.md). This document
 remains the execution-direction decision; its dated implementation follow-ups

@@ -16,6 +16,13 @@ further engineering. [1][2]
 
 ## Planning adoption
 
+The [2026-10-05 UT01 decision](../architecture/2026-10-05-upstream-text-and-font-parity-plan.md)
+adds required current-upstream Unicode/text/font support parity before
+polish/1.0. Its current-stable research and gap inventory are recorded separately
+from this September collection. Needed POL04/POL05 capabilities are now UT01
+work; proposals beyond that reference remain optional. This does not retroactively
+accept any old probe or make every historical experiment mandatory.
+
 Current direction is the [September 12 port-first plan](../architecture/2026-09-12-port-first-plan.md)
 and [roadmap](../../../ROADMAP.md). Finish the minimal compatibility adapters and
 real application integration first. This research collection retains its dated

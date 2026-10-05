@@ -45,6 +45,16 @@ The projects have different platform goals:
 
 ## Upstream synchronization
 
+The owner-approved [UT01 decision](doc/vt7/architecture/2026-10-05-upstream-text-and-font-parity-plan.md)
+requires current-stable upstream Unicode, text rendering and font fallback
+support parity before polish and 1.0. Its initial reference is v1.25.2733.0,
+commit dc8ae365847d41f62d1ebca93815bb00959bc12f, verified on 2026-10-05.
+Review the then-current stable text/font changes again before release freeze.
+This behavior target is separate from the c7572cde source pin above. It does
+not authorize a wholesale merge or parity for the entire Terminal feature set.
+Required UT01 gaps are implementing-milestone work, not optional polish;
+the older deferral policy below still applies to improvements beyond that scope.
+
 VT7 follows an upstream-first port policy: preserve the pinned source's terminal
 semantics, shaping/cell placement and interaction behavior wherever practical.
 Make narrow Windows 7 compatibility adaptations and test their changed boundaries

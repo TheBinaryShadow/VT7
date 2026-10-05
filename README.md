@@ -30,7 +30,7 @@ independent open-source engineering effort to create a real terminal
 application for Windows 7.
 
 > [!IMPORTANT]
-> VT7 is currently in pre-alpha development. Version 0.12.5 retains selectable
+> VT7 is currently in pre-alpha development. Version 0.14.0 retains selectable
 > Command Prompt, Windows PowerShell 5.1 and versioned PowerShell 7 profiles to
 > the accepted local transport. The exact PowerShell 5.1/7.2.24 transport,
 > Unicode, resize, lifecycle and keyboard corpus passes on Windows 7. The 0.7.3
@@ -79,14 +79,22 @@ application for Windows 7.
 > exact-SDDL assertion in the inherited-ACL test on Windows 7; version 0.12.3
 > aligns that assertion with the production check. Package 0.8 passes the
 > automated and owner-controlled live known-host management matrix on NESSY
-> and TURTLE. Live host-certificate serving remains the KH01.5 gate.
+> and TURTLE. KH01.5 candidate 0.1 passes all three machines' self-tests and
+> live valid/wrong-principal cases, then fails an incorrect expired-certificate
+> callback assertion. Version 0.13.1/candidate 0.2 corrects the harness for
+> SSH.NET's pre-callback date rejection. Local signature/date and PowerShell
+> 2.0 package checks pass. Candidate 0.2 passes the complete client matrix on
+> all three targets. Replaying each matching archived server log set with the
+> correct client count passes all three audits, accepting KH01.5. NESSY's
+> first failure corresponds to an empty server archive; its exact operational
+> cause remains unproved, and its later complete paired run passes.
 > Other
 > features described here remain project goals until implemented and verified.
 
 Picking up development? Start with the [development handoff](doc/vt7/HANDOFF.md)
 and [documentation index](doc/vt7/README.md). They distinguish current source,
 issued test packages, accepted checkpoints and the next unresolved task. The
-next Milestone 5 feature is governed by the completed
+accepted recoverable trust implementation follows the
 [OpenSSH-compatible known-host management specification](doc/vt7/architecture/2026-09-21-openssh-known-hosts-management-spec.md);
 its disconnected [KH01.1 foundation](doc/vt7/validation/2026-09-22-known-hosts-kh01.md)
 is accepted on Windows 7 against the required 10.0p2 oracle. The
@@ -111,8 +119,9 @@ The first complete release is intended to provide:
 - Command Prompt and Windows PowerShell 5.1 sessions.
 - PowerShell 7 sessions, up to version 7.2.24.
 - SSH sessions with proper remote PTY creation and resize handling.
-- Unicode, wide characters, combining characters, box drawing, and emoji where
-  the selected font and Windows 7 can support them.
+- Current-upstream Unicode, text rendering and font fallback support, including
+  wide/combining text, box drawing and upstream-supported emoji/font capabilities,
+  through verified Windows 7-compatible implementations before 1.0. See [UT01](doc/vt7/architecture/2026-10-05-upstream-text-and-font-parity-plan.md).
 - 16-color, 256-color, and true-color terminal output.
 - Mouse input, bracketed paste, alternate screen buffers, and modern VT
   sequences.
@@ -125,9 +134,10 @@ Rich color and Unicode are core/renderer goals and end-to-end direct SSH goals.
 Local Windows console sessions travel through a different path, whose usability
 and compatibility must be assessed. We will publish tested backend capabilities
 rather than promise that every application can deliver everything the renderer
-can draw. Missing font coverage must not corrupt the original text. Color emoji,
-variable font axes, and full bidirectional terminal behavior need separate scope
-decisions.
+can draw. Missing font coverage must not corrupt the original text. UT01 now
+requires the selected current-upstream text/font capabilities, including
+supported color/emoji and variable axes, before polish/1.0. Bidi behavior beyond
+that upstream reference remains a separate scope decision.
 
 ## The current direction
 
@@ -136,7 +146,8 @@ terminal behavior to Windows 7, adapting the parts that depend on newer Windows
 features, system APIs, and similar.
 We do not need to redesign terminal typography before people can use VT7.
 
-Our longer-term ambition stays high. Better text rendering, thoughtful finishing
+Current-upstream text/font support parity is required UT01 work in the
+implementing milestones. Refinements beyond that reference, thoughtful finishing
 touches and ideas discovered along the way belong in the roadmap's final
 **Polish and release readiness** milestone. We will review them before release,
 complete a bounded selection, and explicitly carry optional work forward when
@@ -174,7 +185,7 @@ The primary target is Windows 7 SP1 x64 with the Platform Update and the normal
 runtime prerequisites documented in the [roadmap](ROADMAP.md). The required
 baseline will not depend on unofficial post-EOL operating-system packages.
 
-The current VT7 0.12.5 candidate retains ordinary .NET Framework 4.8 as the
+The current VT7 0.14.0 candidate retains ordinary .NET Framework 4.8 as the
 runtime floor. It pins publisher-built SSH.NET `2026.0.1-prerelease.6`, whose
 upstream `f099365` change resets receive-MAC state for older .NET Framework
 implementations. The previous 2026.0.0 package connected on `mscorlib.dll`
@@ -233,7 +244,21 @@ build the best terminal we can for the platform we love.
 
 ## Project status
 
-Current working source: **0.12.5, native ABI 11**. It retains the accepted 3A
+Current working source: **0.14.0, native ABI 11**. The
+[SL01.1 lifecycle candidate](doc/vt7/validation/2026-10-05-ssh-lifecycle-sl01-1.md)
+implements owned SSH startup cancellation, asynchronous window shutdown,
+observed stream-failure classification and original-shell recovery. Local
+checks and all 24 returned target stages pass, with live acceptance on LEOPARD,
+NESSY and TURTLE. A separate SSH prompt symbol, U+12032, has a pre-existing
+font-coverage gap also reproduced in an older package. The owner-approved
+[UT01 plan](doc/vt7/architecture/2026-10-05-upstream-text-and-font-parity-plan.md)
+makes current-upstream Unicode/text/font support parity required before polish
+and 1.0, including this symbol. Parity is planned, not yet implemented or accepted.
+The broader
+lifecycle gate and approved UI01/SSHUX01 requirements remain open. The
+[KH01.5 certificate candidate](doc/vt7/validation/2026-10-05-known-hosts-kh01-5.md)
+has passed local checks and paired live client/server validation on LEOPARD,
+NESSY and TURTLE, accepting KH01.5. It retains the accepted 3A
 document/session/view ownership and Command Prompt path, then adds explicit
 Windows PowerShell 5.1 and versioned PowerShell 7 profiles through the same
 production `WinPtyTransport`. Ordinary PowerShell launches preserve user
@@ -618,7 +643,8 @@ supplied Windows 7 target. Full SSH delivery remains a later milestone.
   fallback with TerminalCore on the tested Windows 7 setup.
 - [ ] Complete the remaining C3 renderer qualification, including WARP
   resource lifetime, broader environment checks and subsequent timed stability.
-- [ ] Run an interactive local shell through the Windows 7 PTY backend.
+- [x] Accept interactive Command Prompt and the qualified PowerShell profiles
+  through WinPTY, with keyboard/scrollback fixes and the pre-WMF LEOPARD tier.
 - [x] Accept the first direct SSH session on Windows 7. Version 0.8.0 package
   0.2 passes the controlled-server matrix. Package 0.3 fixes the form labels but
   misses selected Authentication text; 0.8.2 package 0.4 corrects that remaining
@@ -626,6 +652,10 @@ supplied Windows 7 target. Full SSH delivery remains a later milestone.
 - [ ] Add the daily-driver interface, including real title-area session tabs,
   conditional shell profiles, panes and settings; replace proof SSH dialogs
   with terminal-only typed `ssh` before polish and 1.0.
+- [x] Accept KH01.1-KH01.5 known-host management and the bounded SL01.1
+  startup/shutdown/shell-recovery slice on the recorded Windows 7 tiers.
+- [ ] Complete UT01's current-upstream Unicode/text/font parity corpus and
+  Windows 7 implementation before polish and 1.0.
 - [ ] Publish the first alpha build.
 
 There are no public VT7 terminal releases yet. Local engineering proof packages
@@ -637,6 +667,7 @@ are not alpha releases. Please be careful with downloads that claim otherwise.
   unresolved questions, exact next task and safe resumption checklist.
 - [Documentation index](doc/vt7/README.md) - current guidance, historical
   validation and research, with inherited upstream material clearly separated.
+- [Upstream text and font parity plan](doc/vt7/architecture/2026-10-05-upstream-text-and-font-parity-plan.md) - completed baseline, current-stable reference, required slices and pre-1.0 acceptance.
 - [Roadmap](ROADMAP.md) - milestones, requirements, acceptance criteria, and
   non-goals.
 - [Pre-1.0 UI and terminal SSH contract](doc/vt7/architecture/2026-09-25-pre-1-0-ui-and-terminal-ssh-contract.md)

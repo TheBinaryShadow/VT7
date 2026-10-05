@@ -1,6 +1,17 @@
 # VT7 documentation - start here
 
-Last reconciled: 2026-09-25. Current source is version 0.12.5/native ABI 11.
+Last reconciled: 2026-10-05. Current source is version 0.14.0/native ABI 11.
+The [SL01.1 design](architecture/2026-10-05-ssh-lifecycle-sl01-spec.md) and
+[candidate record](validation/2026-10-05-ssh-lifecycle-sl01-1.md) define owned
+startup cancellation and original-shell failure recovery. Local checks and all
+24 returned target stages pass, with live acceptance on LEOPARD, NESSY and
+TURTLE. A separate SSH prompt symbol, U+12032, has a pre-existing font-coverage
+gap reproduced in an older package and now a required UT01 fixture.
+The [UT01 plan](architecture/2026-10-05-upstream-text-and-font-parity-plan.md)
+requires current-upstream Unicode, text rendering and font fallback parity
+before polish/1.0. Its current-stable reference is Terminal v1.25.2733.0;
+implementation and parity acceptance remain pending.
+KH01.1-KH01.5 remain accepted.
 Version 0.6.6's accepted Windows 7 profile and keyboard results remain the
 target baseline for that scope. H01 packages 0.1 through
 0.3 pass all embedded shell/barrier paths on Windows 7 while exposing the full
@@ -35,7 +46,7 @@ obsolete exact-SDDL assertion in the inherited-ACL test on NESSY. Version
 owner-controlled live known-host management matrix on both machines.
 
 VT7 is the terminal application Windows 7 always deserved. Current version
-0.12.5 keeps the accepted Command Prompt/WinPTY path and Windows PowerShell 5.1
+0.14.0 keeps the accepted Command Prompt/WinPTY path and Windows PowerShell 5.1
 and versioned PowerShell 7 profiles through the 3A document/session/view
 boundary. Exact Windows 7 5.1/7.2.24 automation passes, as do the applicable
 ordinary profile checks. The 0.6.6 automated and all-profile keyboard checks
@@ -52,8 +63,17 @@ SSH on PowerShell 2.0-era Windows 7 without installed OpenSSH; the PowerShell
 tabs and SSH dialogs are proof UI. The approved
 [pre-1.0 UI and terminal SSH contract](architecture/2026-09-25-pre-1-0-ui-and-terminal-ssh-contract.md)
 requires real session tabs, stable conditional shell names and terminal-only
-typed SSH in Milestones 4/5 before optional polish. KH01.5 remains the next
-known-host validation task.
+typed SSH in Milestones 4/5 before optional polish. The
+[KH01.5 certificate candidate](validation/2026-10-05-known-hosts-kh01-5.md)
+prepares nine isolated live certificate cases, direct PTY/resize/EOF/reconnect
+and typed-shell recovery. Candidate 0.1 passes all three machines' self-tests
+and first two live cases on Debian 13, then fails an obsolete date-case
+callback assertion. Version 0.13.1/candidate 0.2 corrects the harness for
+SSH.NET's pre-callback date rejection. Local signature/date and PowerShell 2.0
+package checks pass. All three complete client matrices and their matching
+archived server audit replays pass, accepting KH01.5. NESSY/TURTLE's original
+exports incorrectly expected three instead of five. NESSY's first failure
+corresponds to an empty server archive; its exact operational cause is unproved.
 
 ## Read in this order
 
@@ -63,6 +83,9 @@ known-host validation task.
    The [pre-1.0 UI and terminal SSH contract](architecture/2026-09-25-pre-1-0-ui-and-terminal-ssh-contract.md)
    defines the approved final tab/profile/SSH interactions and Windows 7
    implementation constraints.
+   The [UT01 text/font parity plan](architecture/2026-10-05-upstream-text-and-font-parity-plan.md)
+   records the completed baseline, stable upstream reference, source/API gaps,
+   delivery slices and the newly required pre-1.0 parity gate.
 3. [Port-first plan](architecture/2026-09-12-port-first-plan.md) and
    [WARP development deferral](architecture/2026-09-14-warp-development-deferral.md):
    execution policy, approved risk decision and conditional reopening criteria.
@@ -98,7 +121,8 @@ known-host validation task.
 14. [Known-host management KH01.4](validation/2026-09-24-known-hosts-kh01-4.md):
     selected user-record removal, exact `.old` backup, changed-key review,
     host-certificate CA/principal/revocation checks and accepted two-machine
-    known-host management matrix. Live certificate serving remains KH01.5.
+    known-host management matrix. Live certificate serving is accepted in
+    [KH01.5's paired evidence record](validation/2026-10-05-known-hosts-kh01-5.md).
 15. [WinPTY root transport 3B.1](validation/2026-09-17-winpty-root-3b.md):
     0.5.0 implementation, exact runtime/package identities, local results,
     Windows 7 procedure and remaining shell scope.
@@ -219,7 +243,8 @@ focused Windows 7 confirmation of the corrected Authentication selector.
 | C3 repaint/recovery | [0.3.1 repaint](validation/2026-09-12-atlas-repaint.md), [0.3.2 recovery](validation/2026-09-12-atlas-recovery.md) | Bounded target passes; injected recovery is not real driver-loss evidence. |
 | C3 scaling | [0.3.3 failures](validation/2026-09-12-atlas-settings.md), [0.3.4 correction](validation/2026-09-12-atlas-scaling-correction.md) | Actual Windows 7 96/120/144 DPI matrix accepted for 0.3.4 on the supplied setup. |
 | Deferred reliability concern | [REL01 decision](architecture/2026-09-14-warp-development-deferral.md) | Hardware lifecycle passes; WARP resource failures remain. Accepted risk for continued development; conditional Milestone 7 review. |
-| Current development | [accepted KH01.4 management](validation/2026-09-24-known-hosts-kh01-4.md), [pre-WMF machine result](validation/2026-09-24-pre-wmf51-windows7.md), [known-host specification](architecture/2026-09-21-openssh-known-hosts-management-spec.md), [Milestone 5](../../ROADMAP.md#milestone-5-first-class-ssh) | Current source 0.12.5/ABI 11 retains accepted KH01.4 and fixes typed SSH with no installed OpenSSH on LEOPARD. KH01.5 live certificate-serving validation remains next; UI01/SSHUX01 are required before polish/1.0. |
+| Current development | [SL01.1](validation/2026-10-05-ssh-lifecycle-sl01-1.md), [accepted KH01.5](validation/2026-10-05-known-hosts-kh01-5.md), [pre-WMF result](validation/2026-09-24-pre-wmf51-windows7.md), [Milestone 5](../../ROADMAP.md#milestone-5-first-class-ssh) | Source 0.14.0/ABI 11's bounded SL01.1 is accepted on LEOPARD, NESSY and TURTLE after 24 passing stages and live shutdown/recovery checks. The broad lifecycle gate remains open. KH01.1-KH01.5 remain accepted. |
+| Required text parity | [UT01 plan](architecture/2026-10-05-upstream-text-and-font-parity-plan.md), [roadmap gate](../../ROADMAP.md#ut01-current-upstream-text-and-font-parity) | Current-stable Terminal v1.25.2733.0 is the initial Unicode/text/font behavior reference. Required before polish/1.0; no parity pass yet. U+12032 is a required fixture. Applicable POL04/POL05 capability gaps are promoted to UT01; UI01/SSHUX01 remain separately required. |
 | Previous native target result | [Windows 7 resource retirement 0.1](diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result) | Supported capture completes; workers retire by 90 seconds and USER returns to 4, but 54 process handles above pre-warmup remain. No C3 or timed-soak acceptance. |
 | Latest resource target result | [WPF reactivation 0.1](diagnostics/2026-09-14-resource-reactivation.md#supplied-windows-7-result) | Two integrated rounds complete, with 16 valid samples and three immediate failures. Both +180s handle/thread/GDI/USER counts match; private bytes rise 220 KiB. No permanent bound or C3 acceptance. |
 

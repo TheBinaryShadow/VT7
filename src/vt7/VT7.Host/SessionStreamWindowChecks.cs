@@ -118,7 +118,7 @@ namespace VT7.Host
             }
             finally
             {
-                window.Close();
+                await window.CloseAndWaitAsync();
             }
             await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
             Require(!NativeMethods.IsWindow(handle), "The session-stream child HWND survived host disposal.");
