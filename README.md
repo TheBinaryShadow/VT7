@@ -30,7 +30,7 @@ independent open-source engineering effort to create a real terminal
 application for Windows 7.
 
 > [!IMPORTANT]
-> VT7 is currently in pre-alpha development. Version 0.14.0 retains selectable
+> VT7 is currently in pre-alpha development. Version 0.16.0 retains selectable
 > Command Prompt, Windows PowerShell 5.1 and versioned PowerShell 7 profiles to
 > the accepted local transport. The exact PowerShell 5.1/7.2.24 transport,
 > Unicode, resize, lifecycle and keyboard corpus passes on Windows 7. The 0.7.3
@@ -185,7 +185,7 @@ The primary target is Windows 7 SP1 x64 with the Platform Update and the normal
 runtime prerequisites documented in the [roadmap](ROADMAP.md). The required
 baseline will not depend on unofficial post-EOL operating-system packages.
 
-The current VT7 0.14.0 candidate retains ordinary .NET Framework 4.8 as the
+The current VT7 0.16.0 candidate retains ordinary .NET Framework 4.8 as the
 runtime floor. It pins publisher-built SSH.NET `2026.0.1-prerelease.6`, whose
 upstream `f099365` change resets receive-MAC state for older .NET Framework
 implementations. The previous 2026.0.0 package connected on `mscorlib.dll`
@@ -244,7 +244,17 @@ build the best terminal we can for the platform we love.
 
 ## Project status
 
-Current working source: **0.14.0, native ABI 11**. The
+Current working source: **0.16.0, native ABI 11**. The new
+[SL01.3 candidate](doc/vt7/validation/2026-10-12-ssh-authenticated-startup-stalls-sl01-3.md)
+adds a twelve-case real SSH authentication/PTY stall diagnostic and an isolated
+Debian fault peer. Debug/Release paired checks and 32 portable regression stages
+pass locally; paired Windows 7 target acceptance is pending. The accepted
+[SL01.2 candidate](doc/vt7/validation/2026-10-11-ssh-startup-phase-deadlines-sl01-2.md)
+adds startup phase budgets, safe timeout categories and late-result rejection,
+with human trust decisions outside network clocks. All 24 returned stages and
+the owner's live checks pass on LEOPARD, NESSY and TURTLE, accepting bounded
+SL01.2. Synchronous OS/library work is still joined, so this is not a hard
+overall startup/shutdown deadline. The accepted
 [SL01.1 lifecycle candidate](doc/vt7/validation/2026-10-05-ssh-lifecycle-sl01-1.md)
 implements owned SSH startup cancellation, asynchronous window shutdown,
 observed stream-failure classification and original-shell recovery. Local

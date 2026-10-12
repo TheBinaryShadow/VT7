@@ -5,6 +5,11 @@ Local/target validation and candidate identity belong to the
 [SL01.1 validation record](../validation/2026-10-05-ssh-lifecycle-sl01-1.md).
 Accepted on LEOPARD, NESSY and TURTLE on 2026-10-05. This is a bounded first slice of Milestone 5's
 larger lifecycle gate, following accepted KH01.1-KH01.5.
+Successor [SL01.2](2026-10-11-ssh-startup-phase-deadlines-sl01-2.md) adds startup
+phase budgets in 0.15.0 and is accepted on all three Windows 7 tiers.
+[SL01.3](2026-10-12-ssh-authenticated-startup-stalls-sl01-3.md) adds real
+authentication/PTY fault qualification in 0.16.0, with target acceptance pending. The behavior and
+acceptance described below retain SL01.1's original scope.
 
 ## Library boundary and scope
 

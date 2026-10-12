@@ -1249,6 +1249,29 @@ finished experience must satisfy SSHUX01 below before Milestone 7 polish.
     and [candidate record](doc/vt7/validation/2026-10-05-ssh-lifecycle-sl01-1.md).
     Full staged deadlines, silent-loss bounds, rekey and remote exit status
     remain later slices; the parent gate is not completed by SL01.1.
+  - [x] **SL01.2: startup phase budgets and late-result rejection.** Version
+    0.15.0 implements owned 15-second phase clocks, bounded timeout categories,
+    paused human trust decisions and rejection of late DNS/local/PTY results.
+    The existing SSH.NET connection timeout and ownership joins remain. Local
+    loopback/policy and production-limit typed timeout checks accompany portable
+    candidate 0.4. All 24 returned target stages pass on LEOPARD, NESSY and
+    TURTLE; the owner confirms clean live checks, including the unknown-key
+    decision wait. Bounded SL01.2 is accepted. See the
+    [design](doc/vt7/architecture/2026-10-11-ssh-startup-phase-deadlines-sl01-2.md)
+    and [candidate record](doc/vt7/validation/2026-10-11-ssh-startup-phase-deadlines-sl01-2.md).
+    Real OS resolver completion bounds and stalled authenticated-server phases
+    remain unqualified; this does not establish a hard overall startup bound.
+  - [ ] **SL01.3: real authentication/PTY startup stalls.** Version 0.16.0
+    adds an isolated protocol fault peer and twelve client cases: production
+    deadlines, late success, cancellation/close, healthy-before/after and
+    typed Command Prompt timeout/status-255/original-PID recovery. The production
+    transport and exact dependency/native/font/shim closure remain unchanged.
+    Paired Debug/Release checks and 32 portable regression stages pass locally;
+    paired LEOPARD/NESSY/TURTLE acceptance is pending. Follow the
+    [design](doc/vt7/architecture/2026-10-12-ssh-authenticated-startup-stalls-sl01-3.md)
+    and [candidate procedure](doc/vt7/validation/2026-10-12-ssh-authenticated-startup-stalls-sl01-3.md).
+    Hard real DNS completion/shutdown bounds and remaining I/O/rekey/exit-status
+    gates remain open; these checks do not establish immediate cancellation.
 - [x] Accept the bounded 0.8.0 direct-profile trust/authentication, Unicode,
   output/scrollback, resize, EOF, idle-close and local-profile-isolation matrix on
   Windows 7. See the

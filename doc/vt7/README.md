@@ -1,6 +1,15 @@
 # VT7 documentation - start here
 
-Last reconciled: 2026-10-05. Current source is version 0.14.0/native ABI 11.
+Last reconciled: 2026-10-12. Current source is version 0.16.0/native ABI 11.
+The new [SL01.3 design](architecture/2026-10-12-ssh-authenticated-startup-stalls-sl01-3.md)
+and [candidate record](validation/2026-10-12-ssh-authenticated-startup-stalls-sl01-3.md)
+add a real authentication/PTY fault peer and twelve client cases. Local paired
+Debug/Release and 32 portable stages pass; paired Windows 7 acceptance is pending.
+The accepted [SL01.2 design](architecture/2026-10-11-ssh-startup-phase-deadlines-sl01-2.md)
+and [candidate record](validation/2026-10-11-ssh-startup-phase-deadlines-sl01-2.md)
+cover startup phase budgets, late-result rejection and paused human decisions.
+All 24 target stages and the owner's live checks pass on LEOPARD, NESSY and
+TURTLE, accepting bounded SL01.2. Hard OS resolver completion bounds remain open.
 The [SL01.1 design](architecture/2026-10-05-ssh-lifecycle-sl01-spec.md) and
 [candidate record](validation/2026-10-05-ssh-lifecycle-sl01-1.md) define owned
 startup cancellation and original-shell failure recovery. Local checks and all
@@ -46,7 +55,7 @@ obsolete exact-SDDL assertion in the inherited-ACL test on NESSY. Version
 owner-controlled live known-host management matrix on both machines.
 
 VT7 is the terminal application Windows 7 always deserved. Current version
-0.14.0 keeps the accepted Command Prompt/WinPTY path and Windows PowerShell 5.1
+0.16.0 keeps the accepted Command Prompt/WinPTY path and Windows PowerShell 5.1
 and versioned PowerShell 7 profiles through the 3A document/session/view
 boundary. Exact Windows 7 5.1/7.2.24 automation passes, as do the applicable
 ordinary profile checks. The 0.6.6 automated and all-profile keyboard checks
@@ -243,7 +252,7 @@ focused Windows 7 confirmation of the corrected Authentication selector.
 | C3 repaint/recovery | [0.3.1 repaint](validation/2026-09-12-atlas-repaint.md), [0.3.2 recovery](validation/2026-09-12-atlas-recovery.md) | Bounded target passes; injected recovery is not real driver-loss evidence. |
 | C3 scaling | [0.3.3 failures](validation/2026-09-12-atlas-settings.md), [0.3.4 correction](validation/2026-09-12-atlas-scaling-correction.md) | Actual Windows 7 96/120/144 DPI matrix accepted for 0.3.4 on the supplied setup. |
 | Deferred reliability concern | [REL01 decision](architecture/2026-09-14-warp-development-deferral.md) | Hardware lifecycle passes; WARP resource failures remain. Accepted risk for continued development; conditional Milestone 7 review. |
-| Current development | [SL01.1](validation/2026-10-05-ssh-lifecycle-sl01-1.md), [accepted KH01.5](validation/2026-10-05-known-hosts-kh01-5.md), [pre-WMF result](validation/2026-09-24-pre-wmf51-windows7.md), [Milestone 5](../../ROADMAP.md#milestone-5-first-class-ssh) | Source 0.14.0/ABI 11's bounded SL01.1 is accepted on LEOPARD, NESSY and TURTLE after 24 passing stages and live shutdown/recovery checks. The broad lifecycle gate remains open. KH01.1-KH01.5 remain accepted. |
+| Current development | [SL01.3](validation/2026-10-12-ssh-authenticated-startup-stalls-sl01-3.md), [accepted SL01.2](validation/2026-10-11-ssh-startup-phase-deadlines-sl01-2.md), [accepted SL01.1](validation/2026-10-05-ssh-lifecycle-sl01-1.md), [Milestone 5](../../ROADMAP.md#milestone-5-first-class-ssh) | Source 0.16.0/ABI 11 adds twelve real authentication/PTY stall checks and a separate fault peer. Local paired and portable stages pass; paired Windows 7 acceptance is pending. SL01.1/SL01.2 and KH01.1-KH01.5 remain accepted. The broad lifecycle gate stays open. |
 | Required text parity | [UT01 plan](architecture/2026-10-05-upstream-text-and-font-parity-plan.md), [roadmap gate](../../ROADMAP.md#ut01-current-upstream-text-and-font-parity) | Current-stable Terminal v1.25.2733.0 is the initial Unicode/text/font behavior reference. Required before polish/1.0; no parity pass yet. U+12032 is a required fixture. Applicable POL04/POL05 capability gaps are promoted to UT01; UI01/SSHUX01 remain separately required. |
 | Previous native target result | [Windows 7 resource retirement 0.1](diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result) | Supported capture completes; workers retire by 90 seconds and USER returns to 4, but 54 process handles above pre-warmup remain. No C3 or timed-soak acceptance. |
 | Latest resource target result | [WPF reactivation 0.1](diagnostics/2026-09-14-resource-reactivation.md#supplied-windows-7-result) | Two integrated rounds complete, with 16 valid samples and three immediate failures. Both +180s handle/thread/GDI/USER counts match; private bytes rise 220 KiB. No permanent bound or C3 acceptance. |

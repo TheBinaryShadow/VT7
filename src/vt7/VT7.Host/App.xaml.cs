@@ -24,6 +24,8 @@ namespace VT7.Host
         internal static bool SshOverlayNoExternalTest { get; private set; }
         internal static bool SshNetFoundationTest { get; private set; }
         private static bool SshLifecycleTest { get; set; }
+        private static bool SshStartupStallTest { get; set; }
+        private static string StartupFixture { get; set; } = string.Empty;
         internal static bool KnownHostsTest { get; private set; }
         private static bool CertificateLiveTest { get; set; }
         private static bool CertificateSelfTest { get; set; }
@@ -60,6 +62,13 @@ namespace VT7.Host
             SshOverlayNoExternalTest = HasArgument(e.Args, "--ssh-overlay-no-external-test");
             SshNetFoundationTest = HasArgument(e.Args, "--sshnet-foundation-test");
             SshLifecycleTest = HasArgument(e.Args, "--ssh-lifecycle-test");
+            SshStartupStallTest = HasArgument(e.Args, "--ssh-startup-stall-test");
+            if (SshStartupStallTest)
+            {
+                var fixtureIndex = Array.IndexOf(e.Args, "--startup-fixture");
+                if (fixtureIndex < 0 || fixtureIndex + 1 >= e.Args.Length) { Shutdown(2); return; }
+                StartupFixture = e.Args[fixtureIndex + 1];
+            }
             KnownHostsTest = HasArgument(e.Args, "--known-hosts-test");
             CertificateLiveTest = HasArgument(e.Args, "--known-hosts-certificate-test");
             CertificateSelfTest = HasArgument(e.Args, "--known-hosts-certificate-self-test");
@@ -125,7 +134,7 @@ namespace VT7.Host
                 (WinPtySessionTest ? 1 : 0) + (PowerShellProfileTest ? 1 : 0) + (H01Test ? 1 : 0) +
                 (SshOverlayNoExternalTest ? 1 : 0) +
                 (SshNetFoundationTest ? 1 : 0) + (KnownHostsTest ? 1 : 0) +
-                (CertificateLiveTest || CertificateSelfTest ? 1 : 0) + (SshLifecycleTest ? 1 : 0);
+                (CertificateLiveTest || CertificateSelfTest ? 1 : 0) + (SshLifecycleTest ? 1 : 0) + (SshStartupStallTest ? 1 : 0);
             if (sessionTestCount > 0 && (RendererMode == 0 || diagnostics || smokeTest || RepaintTest ||
                 RecoveryScenario != null || SettingsTest || StabilityTest || sessionTestCount != 1))
             { Shutdown(2); return; }
@@ -147,6 +156,7 @@ namespace VT7.Host
                 SshOverlayNoExternalTest);
             LaunchLocalSession = LaunchLocalSession && !SshNetFoundationTest;
             LaunchLocalSession = LaunchLocalSession && !SshLifecycleTest;
+            LaunchLocalSession = LaunchLocalSession && !SshStartupStallTest;
             LaunchLocalSession = LaunchLocalSession && !KnownHostsTest;
             LaunchLocalSession = LaunchLocalSession && !CertificateLiveTest && !CertificateSelfTest;
             LaunchLocalSession = LaunchLocalSession && !SshOverlayNoExternalTest;
@@ -237,10 +247,10 @@ namespace VT7.Host
                 }
                 if (SshLifecycleTest)
                 {
-                    if (!snapshot.Passed) throw new InvalidOperationException("Core/platform checks failed before SL01.1 testing.");
+                    if (!snapshot.Passed) throw new InvalidOperationException("Core/platform checks failed before SL01.2 testing.");
                     await SshLifecycleChecks.Run(report);
                     snapshot.SurfaceDisplay = report.ToString();
-                    snapshot.Summary = "SL01.1 startup cancellation, loopback failures and original-shell recovery checks passed; live SSH lifecycle acceptance remains separate.";
+                    snapshot.Summary = "SL01.2 startup phase deadlines and SL01.1 cancellation/shell recovery checks passed; target acceptance and hard OS resolver bounds remain separate.";
                 }
                 if (CertificateLiveTest || CertificateSelfTest)
                 {
@@ -250,6 +260,13 @@ namespace VT7.Host
                     snapshot.SurfaceDisplay = report.ToString();
                     snapshot.Summary = CertificateSelfTest ? "KH01.5 signed certificate adapter self-test passed; live validation remains separate." :
                         "KH01.5 live client checks passed; match the separate server authentication audit before acceptance.";
+                }
+                if (SshStartupStallTest)
+                {
+                    if (!snapshot.Passed) throw new InvalidOperationException("Core/platform checks failed before SL01.3 testing.");
+                    await SshStartupStallChecks.Run(StartupFixture, report);
+                    snapshot.SurfaceDisplay = report.ToString();
+                    snapshot.Summary = "SL01.3 real authentication/PTY stall client checks pass; paired server audit and target acceptance remain separate.";
                 }
                 if (SettingsTest)
                 {

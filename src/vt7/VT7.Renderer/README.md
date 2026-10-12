@@ -28,8 +28,11 @@ stops further dedicated tracing and accepts this risk for continued development.
 C4/3A session work proceeds now. Milestone 7 reviews reliability evidence and
 reopens investigation only if needed; recorded failures are not changed to passes.
 
-Current managed application is version 0.14.0/ABI 11, with SL01.1 accepted on
-LEOPARD, NESSY and TURTLE. The issued native baseline remains 0.12.3; SL01.1
+Current managed application is version 0.16.0/ABI 11. SL01.3 adds a real
+authentication/PTY fault diagnostic, with paired target acceptance pending.
+Bounded SL01.2 phase budgets and SL01.1 remain accepted on LEOPARD, NESSY and
+TURTLE. All 24 SL01.2 target
+stages and owner live checks pass. The issued native baseline remains 0.12.3; SL01.1
 does not change renderer/font bytes. The terminal document/view split,
 managed session boundary and opt-in resource-isolation controls are not present
 in the issued original viewport archive. This source README and

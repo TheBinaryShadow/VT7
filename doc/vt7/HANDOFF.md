@@ -1,7 +1,13 @@
 # VT7 development handoff
 
-Updated: 2026-10-05. Current source is version 0.14.0/native ABI 11.
-SL01.1 candidate 0.4 is accepted on all three Windows 7 machines.
+Updated: 2026-10-12. Current source is version 0.16.0/native ABI 11.
+SL01.3 candidate 0.2 adds twelve real authentication/PTY fault checks and a
+separate Debian fault peer. Local paired Debug/Release and 32 portable stages
+pass; paired Windows 7 target acceptance is pending.
+SL01.1 and bounded SL01.2 candidate 0.4 are accepted on all three Windows 7
+machines. SL01.2 passes all 24 returned target stages and the owner's live checks,
+including the unknown-key decision wait. Hard resolver/authenticated-stall bounds
+and the broader lifecycle gate remain open.
 The owner-approved [UT01 plan](architecture/2026-10-05-upstream-text-and-font-parity-plan.md)
 requires current-upstream Unicode/text/font parity before polish and 1.0;
 it is planned, not implemented or accepted. The historical checkpoints below
@@ -135,7 +141,7 @@ KH01.4 package 0.8 passes its automated and controlled live two-tier matrix.
 
 | Item | Current state |
 | --- | --- |
-| Working application version | 0.14.0, native ABI 11, x64. SL01.1 owned startup cancellation, asynchronous window shutdown and original-shell failure recovery are accepted on all three Windows 7 tiers after 24 passing target stages and the owner's live checks. U+12032 is a pre-existing font-coverage gap and now a required UT01 fixture. KH01.1-KH01.5, SSH.NET prerelease.6/f099365 and LEOPARD's Command Prompt/SSH scope remain accepted. PowerShell 2.0's full interactive editor corpus is unqualified. UT01/UI01/SSHUX01 remain required before polish/1.0. |
+| Working application version | 0.16.0, native ABI 11, x64. SL01.3 adds twelve real authentication/PTY stall checks and the isolated fault peer; local paired and portable evidence passes, paired Windows 7 acceptance is pending. Bounded SL01.2 and SL01.1 remain accepted on LEOPARD/NESSY/TURTLE. U+12032 remains a required UT01 fixture. KH01.1-KH01.5, SSH.NET prerelease.6/f099365 and LEOPARD's Command Prompt/SSH scope remain accepted. PowerShell 2.0's full interactive editor corpus is unqualified. UT01/UI01/SSHUX01 remain required before polish/1.0. |
 | Milestone 1 | Complete on the tested configurations, with the evidence limits in its record. |
 | C1 minimum font boundary and C2 Atlas integration | Accepted on the supplied Windows 7 setup in 0.3.0. |
 | C3 repaint, controlled recovery, scaling | Bounded 0.3.1/0.3.2 results and actual 0.3.4 96/120/144 DPI matrix accepted. |
@@ -209,8 +215,10 @@ KH01.4 package 0.8 passes its automated and controlled live two-tier matrix.
 | KH01.4 rejected live candidate | `VT7-KnownHosts-KH01-0.7-x64.zip`, version 0.12.2, SHA256 `402F077ACF230943554C50D964EE9100A02569B4359C1F17C8F254A1B0AF5FC5`, 15,264,946 bytes, 94 verified files. Manifest source is clean commit `cf27e25a5`. Local checks pass, but NESSY automation fails the inherited-ACL fixture's obsolete exact SDDL assertion after a structurally verified removal. The privacy-checked log is archived under `artifacts/vt7/evidence/known-hosts-kh01-4-win7-0.7-rejected`. No live test was run. |
 | KH01.4 fixture correction | Version 0.12.3 uses the production structural owner/group/DACL comparison in the inherited-ACL assertion. |
 | KH01.4 accepted package | `VT7-KnownHosts-KH01-0.8-x64.zip`, version 0.12.3, SHA256 `16509A782C8EE629E74F8CE4D4FE11E265C93763BB2E75036AC3C5FEE6920AEE`, 15,283,778 bytes, 94 verified files. Manifest source is clean commit `e37371c06`. Release known-host, SSH.NET and typed-overlay, staged path-with-spaces and independent extracted checks pass. NESSY and TURTLE each pass the exact automated launcher; owner-confirmed live changed-key removal, complete `.old` backup and fresh-connection matrix passes on both. Four privacy-checked target files and hashes are archived under `artifacts/vt7/evidence/known-hosts-kh01-4-win7-0.8-accepted`. Review copy: `artifacts/VT7-KnownHosts-KH01-0.8-x64.zip`. |
-| Next bounded task | Select the next SL01 staged-deadline/I/O/rekey/exit-status slice. [SL01.1](validation/2026-10-05-ssh-lifecycle-sl01-1.md) is accepted; explicit Disconnect SSH was tested, not network interruption. UT01.1 is the first required text-parity slice: pin reference binaries/fonts/settings, corpus and gap ledger before changing fallback. U+12032 is required there; lifecycle acceptance remains intact. UT01/UI01/SSHUX01 must finish before polish/1.0. |
+| Next bounded task | Qualify [SL01.3 candidate 0.2](validation/2026-10-12-ssh-authenticated-startup-stalls-sl01-3.md) on LEOPARD/NESSY/TURTLE: self-test, isolated Debian fault peer, twelve-case client matrix and matching server audit. Follow the packaged README; return complete client Logs/server JSONL/audit stdout even on success. One client matrix per foreground serve run; wait five seconds before stopping and restart serve for the next machine. Leave fault listeners down afterward; ordinary port 22 is unchanged and KH01.5 stays down. Hard DNS completion, remaining I/O, final drain, silent loss, rekey and nonzero exit status remain open. UT01/UI01/SSHUX01 must finish before polish/1.0. |
 | UT01 reference and scope | [UT01 plan](architecture/2026-10-05-upstream-text-and-font-parity-plan.md): one-to-one current-upstream Unicode, text rendering and font fallback support before 1.0, explicitly excluding the whole Terminal feature set. Initial stable v1.25.2733.0, commit dc8ae365847d41f62d1ebca93815bb00959bc12f; recheck current stable text/font deltas before release freeze. VT7 source pin remains c7572cde0c69733e4511787dc963eb336f17adbf. Ordered fallback, shaping/widths, supported color/emoji, axes and interactions are required audits/delivery gates, not accepted capabilities. |
+| SL01.2 accepted candidate | artifacts/VT7-SSH-Lifecycle-SL01-2-0.4-x64.zip, managed 0.15.0/native ABI 11, SHA256 AAF77183BF54BA323EC543D9871C575C2EC932DBF3A152370200BCAAA0B1B105, 15,314,513 bytes, 90 files. Debug/Release builds and 32 local portable stages pass; all 24 returned Windows 7 stages and owner live checks pass on LEOPARD/NESSY/TURTLE, including the unknown-key wait. Complete 33-file evidence is archived with verified hashes under artifacts/vt7/evidence/ssh-lifecycle-sl01-2-win7-0.4-review. Hard OS resolver/authenticated-stall bounds remain open. All native/font/shim/dependency assets match accepted SL01.1. Candidates/stages 0.1-0.3 are superseded local-only evidence; 0.4 also fixes the no-external fixture's premature parent exit. [Acceptance and limits](validation/2026-10-11-ssh-startup-phase-deadlines-sl01-2.md). |
+| SL01.3 current candidate | artifacts/VT7-SSH-Lifecycle-SL01-3-0.2-x64.zip, managed 0.16.0/native ABI 11, SHA256 F4FC4EE844667C22F82A3A6EBE7A9D9BC136A2BC1BF149B225CFA0B9B40E174B, 15,329,030 bytes, 91 files/90 inventoried. Debug/Release real protocol cases and paired audits, 32 portable stages and known-host/H01 regressions pass locally. All 83 retained baseline assets, including native/font/shim/dependency bytes, remain unchanged. Production transport/session/coordinator source hashes also match accepted SL01.2. Only host/PDB, metadata, README and new diagnostic/fixture runner files differ. Paired target acceptance pending. [Procedure and limits](validation/2026-10-12-ssh-authenticated-startup-stalls-sl01-3.md). |
 | SL01.1 candidate | artifacts/VT7-SSH-Lifecycle-SL01-1-0.4-x64.zip, managed 0.14.0/native ABI 11, SHA256 0942D0DFD3B67570FB4F78CE724A7FD4940736EEDE83819EAE47456833C1FDFC, 15,305,461 bytes, 90 files. Debug/Release, loopback startup and same-shell 255 recovery, window/settings/repaint/close-retry, known-host and H01 regressions pass locally. Eight portable stages pass on PS5.1/PS2/CMD/fresh extraction; all 24 target stages and live checks pass on LEOPARD, NESSY and TURTLE, accepting this bounded slice. Use this candidate rather than the superseded local-only 0.1-0.3 archives. |
 | KH01.5 accepted candidate | `artifacts/VT7-KnownHosts-KH01-5-0.2-x64.zip`, application 0.13.1, SHA256 `90F1699C5DAA5388988DCD0241A28E075D4B688E252926948B203A0D26EE7DD6`, 15,295,831 bytes, 92 files. Local signature/date, SSH, PowerShell 2.0/5.1, CMD and independent extraction checks pass. All three complete client matrices and matching archived server audit replays pass; target accepted 2026-10-05. The immutable manifest records its earlier unaccepted issue-time state. |
 | Milestone 2 | Open. Theme/high-contrast, broader device/environment and milestone-level ESU coverage also remain. |
@@ -542,8 +550,16 @@ f0 92 80 b2. It is outside the bounded private fallback, and the owner reproduce
 the same missing glyph in an older package. Native/font/SSH.NET assets match
 accepted KH01.5 candidate 0.2 exactly; Croatian letters work. Retain this
 pre-existing font-coverage gap as a required UT01 fixture, with the screenshot
-and exact bytes. It does not reopen SL01.1 acceptance. Select the
-next bounded SL01 slice. Explicit Disconnect SSH was tested, not a network
+and exact bytes. It does not reopen SL01.1 acceptance. The
+[SL01.2 candidate](validation/2026-10-11-ssh-startup-phase-deadlines-sl01-2.md)
+is now accepted on all three tiers after 24 passing target stages and clean
+owner live checks, including the unknown-key wait. Its phase budgets reject late
+results without abandoning startup ownership. The new
+[SL01.3 candidate](validation/2026-10-12-ssh-authenticated-startup-stalls-sl01-3.md)
+qualifies real authentication and authenticated PTY stalls locally; obtain
+matching client/server evidence on all three Windows 7 tiers next. Hard OS
+resolver return bounds remain unqualified. Explicit Disconnect SSH was
+tested, not a network
 interruption. Keep the broad lifecycle gate open for staged deadlines,
 silent-network-loss bounds, rekey and remote exit status. See the
 [SL01 design](architecture/2026-10-05-ssh-lifecycle-sl01-spec.md) and

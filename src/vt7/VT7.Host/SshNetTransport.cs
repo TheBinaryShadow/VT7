@@ -85,6 +85,9 @@ namespace VT7.Host
         private Task? _closeTask;
         private Exception? _streamError;
         private readonly TimeSpan _connectionTimeout;
+        private readonly TimeSpan _phaseTimeout;
+        private readonly Func<string, CancellationToken, Task<IPAddress[]>> _resolveAddresses;
+        private SshStartupDeadline? _startupDeadline;
         private CancellationTokenRegistration _callerCancellation;
         private TerminalCloseReason? _closeReason;
         private long _nextOutputSequence;
@@ -119,7 +122,9 @@ namespace VT7.Host
 
         internal SshNetTransport(SshConnectionOptions options, HostTrustPromptHandler? trustPrompt = null,
             HostKeyProblemHandler? hostKeyProblem = null, Func<KnownHostsStoreSnapshot>? knownHostsLoader = null,
-            bool observeCertificateKeyExchange = false, TimeSpan? diagnosticConnectionTimeout = null)
+            bool observeCertificateKeyExchange = false, TimeSpan? diagnosticConnectionTimeout = null,
+            TimeSpan? diagnosticPhaseTimeout = null,
+            Func<string, CancellationToken, Task<IPAddress[]>>? diagnosticResolver = null)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
             _trustPrompt = trustPrompt;
@@ -131,6 +136,13 @@ namespace VT7.Host
             _connectionTimeout = diagnosticConnectionTimeout ?? TimeSpan.FromSeconds(15);
             if (_connectionTimeout <= TimeSpan.Zero || _connectionTimeout > TimeSpan.FromSeconds(15))
                 throw new ArgumentOutOfRangeException(nameof(diagnosticConnectionTimeout));
+            _phaseTimeout = diagnosticPhaseTimeout ?? TimeSpan.FromSeconds(15);
+            if (_phaseTimeout <= TimeSpan.Zero || _phaseTimeout > TimeSpan.FromSeconds(15))
+                throw new ArgumentOutOfRangeException(nameof(diagnosticPhaseTimeout));
+            // Windows 7's resolver has no supported cancellation API here. Join
+            // the request and reject its late result rather than abandoning it.
+            _resolveAddresses = diagnosticResolver ?? ((host, token) =>
+                Task.Run(() => Dns.GetHostAddresses(host), token));
         }
 
         public Guid TransportId { get; } = Guid.NewGuid();
@@ -171,31 +183,39 @@ namespace VT7.Host
         {
             using var linked = CancellationTokenSource.CreateLinkedTokenSource(callerToken, _lifetime.Token);
             var cancellationToken = linked.Token;
+            var startup = new SshStartupDeadline(_phaseTimeout, cancellationToken);
+            _startupDeadline = startup;
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 _knownHostToken = OpenSshHostToken.Create(_options.Host, _options.Port);
-                var connectionHost = await ResolveConnectionHostAsync(cancellationToken).ConfigureAwait(false);
+                EnterStartupPhase(SshStartupPhase.Resolution);
+                var connectionHost = await ResolveConnectionHostAsync(startup.Token).ConfigureAwait(false);
+                startup.Check();
                 var prompted = false;
                 while (true)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    _stage = "known-host store loading";
+                    EnterStartupPhase(SshStartupPhase.KnownHosts);
                     _knownHosts = _knownHostsLoader();
+                    startup.Check();
                     ResetAttemptState();
                     ++_connectionGeneration;
                     Exception? attemptError = null;
                     try
                     {
-                        _stage = "authentication setup";
+                        EnterStartupPhase(SshStartupPhase.Credentials);
                         var connection = CreateConnectionInfo(connectionHost);
+                        startup.Check();
                         var client = new SshClient(connection) { KeepAliveInterval = TimeSpan.FromSeconds(5) };
                         client.HostKeyReceived += OnHostKeyReceived;
+                        client.ServerIdentificationReceived += OnServerIdentification;
                         client.ErrorOccurred += OnStreamError;
                         _client = client;
 
-                        _stage = "connection and host-key verification";
-                        await client.ConnectAsync(cancellationToken).ConfigureAwait(false);
+                        EnterStartupPhase(SshStartupPhase.Identification);
+                        await client.ConnectAsync(startup.Token).ConfigureAwait(false);
+                        startup.Check();
                         cancellationToken.ThrowIfCancellationRequested();
                         if (!_hostKeySeen || !_hostKeyTrusted || !client.IsConnected || !client.ConnectionInfo.IsAuthenticated)
                             throw new SshTransportException(!_hostKeyTrusted ? "host-key verification" : "authentication");
@@ -206,10 +226,13 @@ namespace VT7.Host
                         attemptError = error;
                     }
                     cancellationToken.ThrowIfCancellationRequested();
+                    startup.Check();
 
                     if (!prompted && CanPromptForUnknownHost())
                     {
                         var request = CreateTrustPromptRequest();
+                        startup.Pause();
+                        _stage = "host-key trust decision";
                         DisposeConnectionAttempt();
                         var response = await _trustPrompt!(request, cancellationToken).ConfigureAwait(false);
                         ValidateTrustPromptResponse(request, response, cancellationToken);
@@ -217,8 +240,10 @@ namespace VT7.Host
                             throw new SshTransportException("host-key verification cancelled", attemptError);
                         if (response.Action == HostTrustPromptAction.ConnectOnce)
                         {
+                            EnterStartupPhase(SshStartupPhase.KnownHosts);
                             var current = OpenSshKnownHostsStore.Load(
                                 _knownHosts!.Sources.Select(source => source.Definition));
+                            startup.Check();
                             if (!string.Equals(current.Identity, request.StoreIdentity, StringComparison.Ordinal))
                                 throw new SshTransportException("stale host-key decision");
                             _oneConnectionPin = new KnownHostConnectionPin(request.HostToken,
@@ -226,9 +251,10 @@ namespace VT7.Host
                         }
                         else if (response.Action == HostTrustPromptAction.TrustAndConnect)
                         {
-                            _stage = "known-host durable addition";
+                            EnterStartupPhase(SshStartupPhase.TrustUpdate);
                             OpenSshKnownHostsWriter.AddPrimaryUserRecord(_knownHosts!,
                                 request.HostToken, request.Presented);
+                            startup.Check();
                             _oneConnectionPin = null;
                         }
                         else throw new SshTransportException("host-key decision");
@@ -241,6 +267,8 @@ namespace VT7.Host
                     {
                         var problem = new HostKeyProblemRequest(Guid.NewGuid(), _knownHostToken,
                             _presentedHostKey, _trustDecision.Result, _knownHosts);
+                        startup.Pause();
+                        _stage = "host-key change review";
                         DisposeConnectionAttempt();
                         await _hostKeyProblem(problem, cancellationToken).ConfigureAwait(false);
                         throw new SshTransportException("changed host key; reconnect after review", attemptError);
@@ -256,15 +284,19 @@ namespace VT7.Host
                 _clientCipher = connectedClient.ConnectionInfo.CurrentClientEncryption ?? string.Empty;
                 _serverCipher = connectedClient.ConnectionInfo.CurrentServerEncryption ?? string.Empty;
 
-                _stage = "remote PTY allocation";
+                EnterStartupPhase(SshStartupPhase.Pty);
                 var pixelWidth = context.PixelWidth == 0 ? checked(context.Columns * 8u) : context.PixelWidth;
                 var pixelHeight = context.PixelHeight == 0 ? checked(context.Rows * 16u) : context.PixelHeight;
                 _stream = connectedClient.CreateShellStream("xterm-256color", context.Columns, context.Rows,
                     pixelWidth, pixelHeight, ShellBufferSize);
+                startup.Check();
                 _stream.ErrorOccurred += OnStreamError;
                 _stream.Closed += OnShellClosed;
                 lock (_gate)
                 {
+                    // Stop the startup clock atomically with its final check;
+                    // an expired PTY result cannot become a live session.
+                    startup.Pause();
                     cancellationToken.ThrowIfCancellationRequested();
                     if (_closeReason.HasValue) throw new OperationCanceledException(cancellationToken);
                     State = TerminalTransportState.Running;
@@ -280,9 +312,27 @@ namespace VT7.Host
                     TerminalTransportResultKind.ConnectionFailure, detail: category),
                     failed: !cancelled, disconnectClient: true).ConfigureAwait(false);
                 if (cancelled) throw new OperationCanceledException(cancellationToken);
-                if (error is SshTransportException) throw;
+                if (error is SshTransportException transport && transport.Category == category) throw;
                 throw new SshTransportException(category, error);
             }
+            finally
+            {
+                _startupDeadline = null;
+                await startup.StopAsync().ConfigureAwait(false);
+            }
+        }
+
+        private void EnterStartupPhase(SshStartupPhase phase)
+        {
+            _startupDeadline!.Enter(phase);
+            _stage = SshStartupDeadline.Name(phase);
+        }
+
+        private void OnServerIdentification(object? sender, SshIdentificationEventArgs args)
+        {
+            var startup = _startupDeadline;
+            if (startup != null && startup.TryAdvance(SshStartupPhase.Identification, SshStartupPhase.KeyExchange))
+                _stage = SshStartupDeadline.Name(SshStartupPhase.KeyExchange);
         }
 
         public async Task WriteAsync(SessionOutboundOperation operation, CancellationToken cancellationToken)
@@ -463,6 +513,7 @@ namespace VT7.Host
             if (client != null)
             {
                 client.HostKeyReceived -= OnHostKeyReceived;
+                client.ServerIdentificationReceived -= OnServerIdentification;
                 client.ErrorOccurred -= OnStreamError;
                 try { if (client.IsConnected) client.Disconnect(); }
                 catch { }
@@ -536,7 +587,8 @@ namespace VT7.Host
                     throw new SshTransportException("address-family resolution");
                 return literal.ToString();
             }
-            var addresses = await Task.Run(() => Dns.GetHostAddresses(host), cancellationToken).ConfigureAwait(false);
+            var addresses = await _resolveAddresses(host, cancellationToken).ConfigureAwait(false);
+            _startupDeadline!.Check();
             var selected = addresses.FirstOrDefault(address => address.AddressFamily == required);
             if (selected == null) throw new SshTransportException("address-family resolution");
             return selected.ToString();
@@ -567,6 +619,16 @@ namespace VT7.Host
                 _hostKeyTrusted = false;
             }
             eventArgs.CanTrust = _hostKeyTrusted;
+            var startup = _startupDeadline;
+            if (_hostKeyTrusted && startup != null && State == TerminalTransportState.Starting)
+            {
+                if (startup.TryAdvance(SshStartupPhase.KeyExchange, SshStartupPhase.Authentication))
+                    _stage = SshStartupDeadline.Name(SshStartupPhase.Authentication);
+                if (startup.ExpiredCategory != null || startup.Token.IsCancellationRequested)
+                    eventArgs.CanTrust = false;
+                // A trusted rekey during authentication/channel startup still
+                // uses normal policy; it must not reset the current deadline.
+            }
         }
 
         internal static KnownHostTrustDecision DecideHostKey(HostKeyEventArgs eventArgs, string token,
@@ -687,6 +749,7 @@ namespace VT7.Host
                     if (client != null)
                     {
                         client.HostKeyReceived -= OnHostKeyReceived;
+                        client.ServerIdentificationReceived -= OnServerIdentification;
                         client.ErrorOccurred -= OnStreamError;
                         try { if (client.IsConnected) client.Disconnect(); }
                         catch { failed = true; }
@@ -713,12 +776,15 @@ namespace VT7.Host
         {
             while (error is AggregateException aggregate && aggregate.InnerExceptions.Count == 1)
                 error = aggregate.InnerExceptions[0];
+            var startup = _startupDeadline;
+            if (startup?.ExpiredCategory is string expired) return expired;
             if (error is KnownHostsMutationException mutation)
                 return "known-host update " + mutation.Category;
             if (!_hostKeyTrusted && _hostKeySeen) return HostKeyFailureCategory();
             if (error is SshTransportException transport) return transport.Category;
             if (error is SshAuthenticationException) return "authentication";
-            if (error is SshOperationTimeoutException || error is TimeoutException) return "SSH operation timeout";
+            if (error is SshOperationTimeoutException || error is TimeoutException)
+                return startup != null ? startup.CurrentCategory + " timeout" : "SSH operation timeout";
             if (error is SshConnectionException) return "SSH connection";
             if (error is SocketException socket) return "network connection " + socket.SocketErrorCode;
             if (error is OperationCanceledException) return "SSH operation cancelled";

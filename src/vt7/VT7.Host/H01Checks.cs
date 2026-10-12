@@ -224,6 +224,11 @@ namespace VT7.Host
                     var brokerResult = await WithTimeout(broker.Completion, TimeSpan.FromSeconds(15), "H01 absent external fallback response");
                     Require(brokerResult.Action == SshShimAction.Reject && brokerResult.Reason == "external-client-unavailable",
                         "Unsupported SSH syntax did not fail closed without an external client.");
+                    // Broker completion precedes the shim's stderr write. Keep
+                    // the fixture shell alive until that real output commits;
+                    // do not race its exit against WinPTY's console capture.
+                    await WithTimeout(sink.WaitForBarrierAsync("external-client-unavailable"),
+                        TimeSpan.FromSeconds(15), "H01 absent external fallback committed rejection");
                     await Input(transport, "if errorlevel 255 (exit 0) else (exit 96)\r");
                     var result = await WithTimeout(transport.Completion, TimeSpan.FromSeconds(15), "H01 absent external fallback exit");
                     await sink.CompleteAsync();
