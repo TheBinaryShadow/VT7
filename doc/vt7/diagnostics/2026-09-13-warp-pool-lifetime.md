@@ -1,6 +1,6 @@
 # WARP pool construction, cleanup and idle lifetime
 
-Current execution decision, 2026-09-14: the owner approved
+Current execution decision, 2026-09-14: I approved
 [REL01](../architecture/2026-09-14-warp-development-deferral.md), stopping further
 dedicated WARP tracing and proceeding to C4/3A session development. This record
 preserves historical findings and reproduction instructions; its proposed next

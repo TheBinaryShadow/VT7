@@ -1,7 +1,7 @@
 # OpenSSH-compatible known-host management KH01.4
 
 Date: 2026-09-24. Acceptance state: KH01.4 version 0.12.3/package 0.8 passes
-the exact automated and owner-controlled live known-host management matrix on
+the exact automated and manual live known-host management matrix on
 NESSY and TURTLE. Package 0.5 is rejected on both; package 0.6 passes automation
 but not live removal; package 0.7 fails an obsolete inherited-ACL assertion.
 KH01.3 package 0.4 remains the accepted first-contact baseline. Live
@@ -13,7 +13,7 @@ Both the typed `ssh` overlay and direct **Start SSH...** profile use the same
 SSH.NET transport policy. A changed ordinary host key is rejected in the
 synchronous host-key callback before authentication. The connection owner then
 opens a review with the new key type/fingerprint, host token, relevant source
-locations and matching ordinary entries from the primary user file. The owner
+locations and matching ordinary entries from the primary user file. The person connecting
 must select records and separately confirm removal. VT7 cannot use this view
 to remove `@revoked`, `@cert-authority`, system or secondary-user entries. A
 successful removal ends the attempt; a new connection and host-key decision
@@ -114,7 +114,7 @@ independent extracted launcher pass locally. NESSY (`4.8.4110.0`) and TURTLE
 (`4.8.4795.0`) also pass the automated KH01.4 launcher. Four privacy-checked
 files and their hashes are archived under
 `artifacts/vt7/evidence/known-hosts-kh01-4-win7-0.6-automated`.
-Owner-confirmed live removal fails at
+My live removal test fails at
 `temporary-security` without changing the real file or creating `.old`.
 The real-file descriptor has not been collected, so the precise difference
 is unproven. The current exact SDDL-string comparison can reject differences
@@ -156,7 +156,7 @@ same host/native image and OpenSSH oracle hashes. Four privacy-checked target
 files plus `ARCHIVE-VERIFICATION.json` are preserved under
 `artifacts/vt7/evidence/known-hosts-kh01-4-win7-0.8-accepted`.
 
-The owner confirms the controlled live matrix has no issues on either machine:
+I confirm the controlled live matrix has no issues on either machine:
 changed-key review and selected record removal complete, the resulting
 `known_hosts` file has the intended contents, and `known_hosts.old` contains
 the complete previous file. Fresh connection and trust testing also pass.

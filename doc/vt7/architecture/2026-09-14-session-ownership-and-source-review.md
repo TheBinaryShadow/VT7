@@ -145,7 +145,7 @@ Licenses were checked against each project's own repository or official site on
 2026-09-14. A permissive license makes code adoption possible under its terms;
 it does not remove provenance or notice obligations.
 
-Project-owner direction: keep new VT7-authored code MIT licensed where possible.
+My decision: keep new VT7-authored code MIT licensed where possible.
 The standing 2026-09-14 decision permits compatible permissive dependencies and
 assets, including Apache-2.0, ISC-style, BSD-style and broader supplier notice
 sets, when they help deliver the port. Every adoption still records exact

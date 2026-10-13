@@ -97,9 +97,9 @@ retained entries change: host, host PDB, README and manifest. Earlier runner
 files are replaced in the new stage; the new server helper is added. The old
 issued archives and original failures remain intact.
 
-All 21 issue-time source inputs match the final working implementation. Six
+At issue time, all 21 recorded source inputs matched the working implementation. Six
 critical production/session/coordinator/legacy diagnostic source hashes also
-match accepted SL01.2's manifest. Package review is retained in
+matched accepted SL01.2's manifest at that checkpoint. Package review is retained in
 artifacts/vt7/sl01-3-package-review-0.2.json. The immutable candidate manifest records
 sl01_3TargetAccepted=false; do not rewrite it after target qualification.
 

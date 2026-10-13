@@ -7,11 +7,11 @@
 ## Result and scope
 
 VT7 proof 0.2.0 runs its real TerminalCore-backed native viewport on Windows 7
-SP1 x64. The tester confirmed two separate, fully updated setups as working
+SP1 x64. I confirmed two separate, fully updated setups as working
 and tested: one without ESU, and one with the full ESU update set.
 
 The supplied logs and screenshots are from the non-ESU setup. The ESU result is
-recorded from the tester's explicit confirmation, not inferred from the
+recorded from my explicit confirmation, not inferred from the
 non-ESU result or from an assumption that security updates cannot affect
 compatibility. Separate ESU logs were not supplied with this evidence set.
 
@@ -46,7 +46,7 @@ paths, original logs, or screenshots containing desktop details.
 | Native boundary | ABI 2, matching the managed host |
 | Compiler | MSVC 19.44.35228 |
 | Operating system | Windows NT 6.1.7601, SP1, 64-bit workstation |
-| Update tier | Fully updated without ESU, identified by the tester |
+| Update tier | Fully updated without ESU, identified by me |
 | Managed runtime | .NET Framework 4.8.4795.0 |
 | Graphics adapter | AMD Radeon RX 6800 XT, approximately 16 GiB dedicated memory |
 | Hardware D3D11 | Device creation passed, feature level 11.0 |
@@ -54,7 +54,7 @@ paths, original logs, or screenshots containing desktop details.
 | DXGI 1.2 | Available through `IDXGIFactory2` |
 | Visual viewport | 105 x 22 cells, 9 x 19 pixels per cell |
 
-The update tier is tester-provided metadata; the probe does not enumerate
+The update tier is metadata I recorded; the probe does not enumerate
 installed updates. Exact KB inventories, graphics driver versions, CPU,
 display scaling, and a compatibility-modification inventory were not supplied.
 Hardware and runtime details above must not be attributed to the separate ESU

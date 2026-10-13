@@ -22,7 +22,7 @@ The [supplied Windows 7 0.8 run](2026-09-11-text-adapter-probe.md) passes struct
 mapping but exposes ink wider than its cells: the emoji sequence draws over its
 following B, and private Unifont yin-yang exceeds one column. Correcting the
 final advance, as the mapper does, does not by itself constrain glyph outlines.
-The user approved tackling horizontal fitting while keeping Arabic work open.
+I approved tackling horizontal fitting while keeping Arabic work open.
 
 `Win7GlyphFitter.hpp/.cpp` is a separate candidate layer compiled only into the
 renderer probe. It consumes the owned logical-order mapper snapshot. It does

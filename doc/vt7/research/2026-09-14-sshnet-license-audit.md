@@ -93,9 +93,9 @@ Official advisory references:
 - [recursive SCP path traversal](https://github.com/sshnet/SSH.NET/security/advisories/GHSA-q939-rpr3-3284); and
 - [SCP command-path injection](https://github.com/sshnet/SSH.NET/security/advisories/GHSA-mggc-4xg6-vcxf).
 
-## Owner decision
+## My decision
 
-On 2026-09-14 the owner approved this exact permissive closure and made the
+On 2026-09-14 I approved this exact permissive closure and made the
 decision project-wide and long-term. VT7 may include compatible permissive
 Apache-2.0, ISC-style, BSD-style and other supplier terms when all required
 licenses, copyright notices and acknowledgements are preserved. VT7-authored

@@ -1,6 +1,6 @@
 # Continue development with WARP resource follow-up deferred
 
-Decision date: 2026-09-14. Status: approved by the project owner after reviewing
+Decision date: 2026-09-14. Status: approved by me after reviewing
 the Windows 7 reactivation result and the cost of further investigation.
 Tracking item: **REL01** in [Milestone 7: Polish and release readiness](../../../ROADMAP.md#deferred-reliability-review).
 
@@ -15,7 +15,7 @@ The next development checkpoint is **C4 / Milestone 3A: session feasibility and
 contracts**. Establish the local-console transport and input behavior, evaluate
 the direct OpenSSH byte/control path, and define session ownership, cancellation
 and output-security contracts. Then proceed to the existing local-session and
-application milestones. The user's Croatian HR Latin layout is a primary input
+application milestones. My Croatian HR Latin layout is a primary input
 fixture, including AltGr, dead keys and composed text; Ctrl+C and resize belong
 in the session feasibility checks. A visible prompt alone is insufficient.
 

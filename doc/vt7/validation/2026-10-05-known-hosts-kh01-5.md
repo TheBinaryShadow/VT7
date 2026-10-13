@@ -184,7 +184,7 @@ The unchanged accepted native/dependency baseline and disclosures above apply.
 
 These local results do not establish Windows 7 live certificate acceptance.
 
-## Owner-controlled target procedure
+## Manual target procedure
 
 Use the complete [packaged instructions](../../../src/vt7/packaging/KH01-5-README.txt).
 The extracted package contains the same README.txt, Windows launchers and
@@ -248,7 +248,7 @@ altering the original evidence or the regular SSH service.
 
 ### Candidate 0.2 target evidence review, 2026-10-05
 
-The owner supplied eight client run directories and three named server audit
+I supplied eight client run directories and three named server audit
 exports. Originals and a hash inventory are retained under ignored
 `artifacts/vt7/evidence/known-hosts-kh01-5-win7-0.2-review/`. All runs identify
 application 0.13.1, host SHA256
@@ -280,7 +280,7 @@ This means the expected certificate was absent or differed; the report does not
 distinguish those outcomes or retain the underlying transport exception class.
 It does not establish an expired-certificate regression or prove a network,
 credential, server-startup or client fault. The later complete pass uses identical
-binary hashes and fixture identity. The owner confirms reset/start before the
+binary hashes and fixture identity. I confirm reset/start before the
 first attempt and between every machine; reused logs are therefore not an
 explanation for this initial failure. Its cause remains unresolved, with no
 automatic retry or relaxed validation introduced. If it recurs, preserve that
@@ -311,7 +311,7 @@ preserving the supplied failure exports.
 
 ### Mounted archived-server audit replay and acceptance
 
-The owner supplied the fixture mounted at `E:/var/tmp/vt7-kh01-5-b` and granted
+I supplied the fixture mounted at `E:/var/tmp/vt7-kh01-5-b` and granted
 read access. Fixture identity matches the clients. The three separate complete
 log sets are identified by archive boundaries, client execution order and their
 exact positive/negative counts. Before replay, only each selected log set and
@@ -349,7 +349,7 @@ entries enumerated. The start command requires nine server log files and
 `Server listening on` readiness records before reporting success. An empty
 archive is consistent with fixture listeners being unavailable during that
 attempt, but does not prove why they were unavailable or exclude omissions in
-the supplied mount/copy. Respect the owner's confirmation that reset/start was
+the supplied mount/copy. Respect my confirmation that reset/start was
 performed; do not claim a specific skipped command or an application fix.
 The other empty archives `025344Z-b96fe2f9` and `025551Z-991e6567` and the current
 empty `logs` are preserved in the inventory. The older `024057Z-d24865b5` set

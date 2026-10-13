@@ -16,7 +16,7 @@ now completes two rounds of the existing integrated 100-lifecycle workload on
 Windows 7. Both +180s states match at 1,314 handles, 13 threads, GDI 18 and USER
 10, with +220 KiB private bytes in the second. Three immediate checkpoints
 still fail against the original fixed baseline. Retained handle ownership and
-a permanent bound remain unproven. The owner-approved
+a permanent bound remain unproven. The approved
 [REL01 development deferral](../architecture/2026-09-14-warp-development-deferral.md)
 now stops dedicated tracing and permits C4/3A session development. Original
 failures and unrun soak stay recorded; Milestone 7 release review reopens
@@ -45,7 +45,7 @@ contract. Production integration remains open. The subsequent slice was
 [probe 0.8](../validation/2026-09-11-text-adapter-probe.md), an owned logical-order
 mapper candidate tested independently before routing it into Atlas.
 The supplied 0.8 Windows 7 run now passes its structural checks, with horizontal
-overflow and Arabic quality explicitly open. The subsequent user-approved slice was
+overflow and Arabic quality explicitly open. The subsequent approved slice was
 [0.9 horizontal fitting](../validation/2026-09-11-horizontal-fitting-probe.md):
 retain the raw candidate, measure whole-group ink, protect neighbors from
 oversized groups, and test conservative partial-row redraw. Do not change
@@ -205,7 +205,7 @@ paragraph lane. Probe 0.8 compares both, using upstream-default metrics in a new
 lane while retaining every older image. It checks owned mappings, retained-face
 lifetime, style boundaries, missing glyphs and stale keys at all 12 size/DPI
 combinations. It does not claim Arabic visual/interaction acceptance or a cache.
-Ask the user before a material policy change such as broadening bundled fallback,
+Check with me before a material policy change such as broadening bundled fallback,
 changing default cell proportions, or accepting intentional loss of glyph ink.
 
 Current integration must preserve inherited shaping direction and cluster advance

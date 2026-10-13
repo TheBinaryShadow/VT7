@@ -146,7 +146,7 @@ Windows PowerShell 5.1 and qualified PowerShell 7 recovery pass on NESSY/TURTLE.
 LEOPARD correctly skips the unqualified PowerShell 2.0 interactive editor corpus
 and absent PowerShell 7. Its PowerShell 2.0 runner completes all eight stages.
 
-The owner confirms that every README live check passed without issues on all
+I confirm that every README live check passed without issues on all
 three machines: typed/direct connection, normal exit, explicit disconnect,
 reconnect, htop/nano, input/resize/scrollback and window closing. The server key
 was unknown, so the over-20-second host-trust decision check was exercised,
@@ -156,7 +156,7 @@ decision suspension on the ordinary Debian server at 10.3.3.2:22.
 The 33 original files, including three inspected window-smoke PNGs, are retained
 under artifacts/vt7/evidence/ssh-lifecycle-sl01-2-win7-0.4-review/Logs.
 SHA256SUMS.txt verifies every archived copy; REVIEW.json records identities,
-assertions, skips and owner observations. Text evidence contains no detected
+assertions, skips and my observations. Text evidence contains no detected
 private-key blocks, GitHub token patterns or SL01_PRIVATE_SENTINEL. Screenshots
 contain the static diagnostic sample. The runner's LiveAccepted=False and the
 issue-time manifest are preserved; this later record supplies live acceptance.

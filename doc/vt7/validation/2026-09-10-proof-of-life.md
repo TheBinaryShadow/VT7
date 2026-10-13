@@ -4,7 +4,7 @@
 > For current work, see the [handoff](../HANDOFF.md) and
 > [0.3.5 C3 stability investigation](2026-09-13-atlas-stability.md).
 
-The user supplied a screenshot and three diagnostic logs from proof 0.1.0:
+I supplied a screenshot and three diagnostic logs from proof 0.1.0:
 `proof-20260910-111631.log`, `proof-20260910-111639.log`, and
 `proof-20260910-111640.log`. This record summarizes the observations without
 committing private local paths or the original logs.
@@ -30,5 +30,5 @@ do not independently establish the defined Tier A floor.
 Proof 0.2 introduces ABI 2 and a much larger native dependency boundary. Its
 subsequent Windows 7 tests are recorded separately in
 [the viewport validation record](2026-09-10-viewport-proof.md). That record also
-includes the tester's clarification of the non-ESU and ESU setups. The later
+includes my clarification of the non-ESU and ESU setups. The later
 results do not expand what these earlier 0.1 logs themselves demonstrate.

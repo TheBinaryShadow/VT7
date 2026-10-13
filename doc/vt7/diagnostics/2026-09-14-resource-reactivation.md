@@ -1,6 +1,6 @@
 # Integrated WPF resource reactivation 0.1
 
-Date: 2026-09-14. This implements the user-approved follow-up to the
+Date: 2026-09-14. This implements the approved follow-up to the
 [Windows 7 retirement capture](2026-09-13-resource-retirement.md#supplied-windows-7-result).
 It is a separate managed diagnostic using the real WPF application and the
 unchanged issued native 0.3.5/ABI 8 payload. C3 remains open and the timed soak
@@ -385,7 +385,7 @@ not included in a fresh Git clone.
 
 ### Initial recommendation after this capture
 
-The recommendation below preceded the owner's development-risk decision and
+The recommendation below preceded my development-risk decision and
 is retained as history. It is superseded for execution by
 [REL01](../architecture/2026-09-14-warp-development-deferral.md): stop dedicated
 tracing, proceed to C4/3A, and revisit only when evidence or release review needs

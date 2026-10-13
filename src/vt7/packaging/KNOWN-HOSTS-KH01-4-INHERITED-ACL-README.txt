@@ -6,7 +6,7 @@ removal check found that an unchanged .NET FileSecurity object was not applied
 to the temporary replacement file, so the primary known_hosts ACL differed
 after replacement. Version 0.12.1/package 0.6 corrected that failure and
 passes the automated corpus on NESSY and TURTLE, but a live removal from the
-owner's real known_hosts file stops safely at temporary-security. Version
+my real known_hosts file stops safely at temporary-security. Version
 0.12.2/package 0.7 compares owner, group, inheritance protection and exact
 DACL entries before replacement rather than comparing the entire serialized
 descriptor, whose auto-inheritance control bits can differ. The Windows 7

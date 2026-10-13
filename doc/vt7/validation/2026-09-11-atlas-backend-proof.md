@@ -122,7 +122,7 @@ The supplied logs identify Windows NT 6.1.7601, Release x64, compiler
 19.44.35228, and build time `Sep 11 2026 06:26:45`. The issued archive is
 `VT7-atlas-backend-proof-0.1-x64.zip`, SHA-256
 `27ca1c434899ba0d81406342b5f28a92e3ab027dd6f15339907eb23cdb99081b`.
-The log build identity matches the issued build; the tester did not supply
+The log build identity matches the issued build; I did not supply
 a separate hash of the extracted executable or archive.
 
 All four automated reports end with `Automated backend checks passed: True`

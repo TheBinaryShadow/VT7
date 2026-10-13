@@ -14,7 +14,7 @@ limits. The latest [WPF reactivation result](../diagnostics/2026-09-14-resource-
 completes two rounds on Windows 7 with identical late handle/thread/GDI/USER
 counts and +220 KiB private bytes, retaining three immediate budget failures.
 
-Development decision, 2026-09-14: the owner approved continuing the application
+Development decision, 2026-09-14: I approved continuing the application
 and deferring further WARP tracing under
 [REL01](../architecture/2026-09-14-warp-development-deferral.md). C4/3A session
 feasibility is next; complete attribution is no longer a prerequisite. Final C3
@@ -23,6 +23,19 @@ and no timed soak is requested now. Milestone 7 reviews ordinary product
 reliability evidence and reopens investigation only if needed. This supersedes
 mandatory next-trace and attribution-before-development instructions in the
 historical sections below without rewriting their results.
+
+## Find a section
+
+- [Implementation](#implementation)
+- [Profiles and budgets](#profiles-and-budgets)
+- [Local lifetime investigation](#local-lifetime-investigation)
+- [Local results and unresolved WARP growth](#local-results-and-unresolved-warp-growth)
+- [Supplied Windows 7 comparison](#supplied-windows-7-comparison)
+- [Follow-up resource isolation, development machine only](#follow-up-resource-isolation-development-machine-only)
+- [Issued investigation artifact](#issued-investigation-artifact)
+- [Native resource comparison 0.1](#native-resource-comparison-01)
+- [Original 0.3.5 Windows 7 handoff](#original-035-windows-7-handoff)
+- [Remaining scope](#remaining-scope)
 
 ## Implementation
 
@@ -157,7 +170,7 @@ The eight reports supplied from `K:/VT7_work/0.3.5/Logs/` are preserved with
 matching hashes under `artifacts/vt7/evidence/atlas-stability-win7-0.3.5/`.
 They identify Release 0.3.5, ABI 8, Windows 7 SP1 x64, .NET Framework 4.8.4795.0,
 Radeon RX 6800 XT and measured system DPI 96. They do not independently establish
-the ESU tier, driver version or archive hash. The user explicitly ran only the
+the ESU tier, driver version or archive hash. I explicitly ran only the
 quick and lifecycle launchers, not the timed soak or other regression launchers.
 Embedded platform/core/font checks are present in all four final reports.
 
@@ -268,14 +281,14 @@ No WARP worker-thread suppression or accessibility disablement was adopted.
 
 ### Environment and next decision
 
-The user confirms ESET is active on both development and Windows 7 machines.
+I confirm ESET is active on both development and Windows 7 machines.
 `ebehmoni.dll`, described as ESET Deep Behavioral Inspection Monitor, was
 observed in both a failing integrated development run and the flat native-only
 control. Its presence alone does not explain the difference. No ESET setting
 had been changed for those initial controls. The earlier fresh
 Windhawk-excluded reproduction remains recorded separately above.
 
-The user then temporarily added only
+I then temporarily added only
 `D:/Git/VT7/artifacts/vt7/bin/Debug/VT7.Host.exe` to ESET HIPS Deep Behavioral
 Inspection exclusions. A fresh process ran the identical normal-input
 `native-child` WARP control, with no rebuild, two warm-up cycles and 100 measured
@@ -299,8 +312,8 @@ gaining input queues. The reproduction persists with ESET's in-process
 inspection module absent from both samples. This does not rule out every ESET
 component or external interaction, but does not support that module as a
 necessary cause of this failure. No broader security exclusion is justified by
-this result. The comparison process exited, and the user was asked to remove
-the temporary exclusion. The user subsequently confirmed its removal. Security
+this result. The comparison process exited, and I was asked to remove
+the temporary exclusion. I subsequently confirmed its removal. Security
 settings were not independently inspected or changed by the diagnostic runner.
 
 The host and native DLL hashes were unchanged before/after the run:
@@ -330,7 +343,7 @@ on both machines before the timed soak.
 The installed x64 SDK debugger was used with Microsoft's
 [user-mode handle tracing](https://learn.microsoft.com/en-us/windows-hardware/drivers/debuggercmds/-htrace).
 Only the fresh VT7 process was traced. No registry/AppVerifier configuration,
-system-wide ETW collection or security-setting change was made. The user had
+system-wide ETW collection or security-setting change was made. I had
 confirmed removal of the temporary HIPS exclusion before these runs.
 
 The first attempt completed the workload but missed its checkpoint breakpoint
@@ -481,7 +494,7 @@ The assembled package's launcher was run locally on Windows 10 build 19044.
 Both processes and the launcher return exit 0, with all seven checkpoints,
 balanced registration counts and final completion markers. The final control
 identifies itself as 0.1, compiled September 13, 2026, 03:11:38, and loads the
-issued Release 0.3.5 ABI 8 DLL. The user had confirmed removal of the temporary
+issued Release 0.3.5 ABI 8 DLL. I had confirmed removal of the temporary
 HIPS exclusion before this run; security configuration was not independently
 inspected or changed by the test.
 
@@ -714,7 +727,7 @@ proposal for more retained-handle attribution was subsequently deferred by the
 owner under REL01. C4/3A proceeds; original budgets/failures remain and no new
 diagnostic is issued by the deferral decision.
 
-The user subsequently authorized archiving the complete target run. All 17
+I subsequently authorized archiving the complete target run. All 17
 files (7,310,791 bytes) are preserved at
 [`artifacts/vt7/evidence/resource-retirement-win7-0.1/resource-retirement-20260913-170928-9ad405a7/`](../../../artifacts/vt7/evidence/resource-retirement-win7-0.1/resource-retirement-20260913-170928-9ad405a7/),
 with every size and SHA256 verified against the original K: run. Source hashes

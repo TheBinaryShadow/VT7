@@ -16,7 +16,7 @@ now completes two rounds of the existing integrated 100-lifecycle workload on
 Windows 7. Both +180s states match at 1,314 handles, 13 threads, GDI 18 and USER
 10, with +220 KiB private bytes in the second. Three immediate checkpoints
 still fail against the original fixed baseline. Retained handle ownership and
-a permanent bound remain unproven. The owner-approved
+a permanent bound remain unproven. The approved
 [REL01 development deferral](../architecture/2026-09-14-warp-development-deferral.md)
 now stops dedicated tracing and permits C4/3A session development. Original
 failures and unrun soak stay recorded; Milestone 7 release review reopens
@@ -100,7 +100,7 @@ measured end-to-end behavior, not the renderer's feature list.
 The [OpenSSH reassessment](../research/22-win32-openssh-reassessment.md) makes
 Microsoft Win32-OpenSSH the first SSH candidate to evaluate in 3A/S00, not a
 selected shipping dependency. Modern SSH cryptography is an implementation
-capability to validate, not a reason to build our own cryptographic algorithms.
+capability to validate, not a reason to build my own cryptographic algorithms.
 
 Compare a known-good console run with direct I/O using exact versioned binaries.
 Prove intact remote terminal bytes, initial dimensions, live window-change,

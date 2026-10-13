@@ -1,158 +1,25 @@
 # Windows 7 research for VT7
 
-Research date: **2026-09-11**. Scope: implementation decisions for VT7's Windows 7 SP1 x64 target. This directory contains research only; it does not change the product baseline or certify an implementation.
-
-Start with the [documentation index](../README.md) and [current handoff](../HANDOFF.md)
-for implementation state, C4/3A work, the deferred REL01 concern and evidence. Source
-quotes, availability statements, candidate versions and original priorities in
-this collection retain their research-date scope. They were not re-researched
-or turned into production requirements by this documentation update.
-
-At the research date, VT7 aimed to combine the inherited TerminalCore/parser/buffer
-with a .NET Framework 4.8 WPF host, a native terminal HWND, a downleveled Atlas
-renderer, WinPTY local sessions, and direct SSH. The accepted product at that
-point was a static viewport proof; the renderer and session boundaries needed
-further engineering. [1][2]
+This collection records platform research begun on **2026-09-11**. I use it to
+inform implementation decisions, not as proof that an implementation works.
+API availability, source quotes, candidate versions, and priorities retain
+their research-date scope. This editorial pass does not refresh that research.
 
 ## Planning adoption
 
-The [2026-10-05 UT01 decision](../architecture/2026-10-05-upstream-text-and-font-parity-plan.md)
-adds required current-upstream Unicode/text/font support parity before
-polish/1.0. Its current-stable research and gap inventory are recorded separately
-from this September collection. Needed POL04/POL05 capabilities are now UT01
-work; proposals beyond that reference remain optional. This does not retroactively
-accept any old probe or make every historical experiment mandatory.
+For current work, use the [handoff](../HANDOFF.md) and
+[roadmap](../../../ROADMAP.md). The [port-first plan](../architecture/2026-09-12-port-first-plan.md)
+sets execution direction. The later [UT01 plan](../architecture/2026-10-05-upstream-text-and-font-parity-plan.md)
+defines required text/font parity; it does not make every old probe mandatory.
 
-Current direction is the [September 12 port-first plan](../architecture/2026-09-12-port-first-plan.md)
-and [roadmap](../../../ROADMAP.md). Finish the minimal compatibility adapters and
-real application integration first. This research collection retains its dated
-findings and original priorities as reference, not an instruction to implement
-every experiment. Record non-blocking ideas in Milestone 7 for release triage or
-post-release work; required correctness, security and workflows remain gates.
+Start with the [project assessment](00-project-assessment.md),
+[API availability matrix](21-api-availability.md), and
+[experiment plan](20-validation-and-experiments.md). Test outcomes belong in
+the [validation records](../validation/README.md). The
+[adoption history](../history/2026-10-12-research-context.md) preserves earlier
+follow-up notes, including the original font experiments and WARP investigation.
 
-The new [Atlas viewport 0.3.0](../validation/2026-09-12-atlas-viewport.md) implements
-the minimum face-selection adapter and real AtlasEngine/controller/core path.
-Local results and supplied Windows 7 C1/C2 acceptance pass on the tested setup. The first
-[0.3.1 C3 slice](../validation/2026-09-12-atlas-repaint.md) tests actual Atlas
-invalidation and cursor pixels and passes the supplied Windows 7 run. The
-[0.3.2 slice](../validation/2026-09-12-atlas-recovery.md) adds controlled recovery
-and passes supplied target testing. The
-[0.3.3 settings/DPI slice](../validation/2026-09-12-atlas-settings.md) passes its
-font matrix at actual 96/120/144 DPI. Its viewport/recovery failures are resolved
-in the [accepted 0.3.4 scaling matrix](../validation/2026-09-12-atlas-scaling-correction.md).
-These accepted slices are limited to the supplied Windows 7 configuration;
-full renderer qualification remains open.
-Simulated and actual-system DPI stay distinct. The independent mapper,
-fitter and enhanced Arabic experiments below remain separate research.
-
-Current C3 status, 2026-09-14: the
-[0.3.5 scheduling/stability slice](../validation/2026-09-13-atlas-stability.md)
-implements bounded scheduling, idle and shutdown checks. Hardware passes the
-100-cycle integrated profile locally and in the supplied Windows 7 run, while
-WARP exceeds the resource budgets on both. The native power/plain comparison
-shows a power-only growth contrast on the Windows 10 development machine and
-growth in both modes on the supplied Windows 7 setup. Native recreate/reuse
-controls and the [retirement 0.1 target run](../diagnostics/2026-09-13-resource-retirement.md#supplied-windows-7-result)
-are complete. The latter records mode-3 work cleanup and all 34 baseline workers
-retiring by 90 seconds. USER falls from 38 to 4. Retained native resources and
-the existing integrated WARP failure remain unresolved; C3 stays open. The
-complete 17-file run has a
-[verified local archive](../../../artifacts/vt7/evidence/resource-retirement-win7-0.1/ARCHIVE-VERIFICATION-20260913-152421-53a65b82.json).
-The [WPF reactivation diagnostic 0.1](../diagnostics/2026-09-14-resource-reactivation.md)
-now completes two integrated 100-lifecycle rounds on Windows 7 with one fixed
-baseline. The two +180s handle/thread/GDI/USER counts match; private bytes rise
-by 220 KiB. Three immediate checkpoints still fail. Retained handle ownership
-and a permanent bound remain unproven. The owner-approved
-[REL01 decision](../architecture/2026-09-14-warp-development-deferral.md) now
-stops dedicated tracing and permits C4/3A session development. Milestone 7 reviews
-ordinary product reliability evidence and reopens attribution only when needed.
-The original failures and unrun soak stay recorded. These results
-do not select a security/input workaround, relax budgets or reopen optional
-typography work.
-
-Implementation follow-up: the [0.2 font/cell probe](../validation/2026-09-11-font-mapping-probe.md)
-has supplied Windows 7 evidence identifying U+1F600 as the missing cluster.
-The [font coverage/fitting research](2026-09-11-font-coverage-and-fitting.md)
-informs the [0.3 diagnostic](../validation/2026-09-11-font-fitting-probe.md).
-The supplied 0.3 run finds no U+1F600 coverage in 575 system-collection faces,
-with zero scan errors; KB2729094 is user-confirmed installed.
-[Probe 0.4](../validation/2026-09-11-natural-size-probe.md) refines natural-size
-fitting and now has a successful supplied Windows 7 run.
-[Probe 0.5](../validation/2026-09-11-private-font-probe.md) follows the user's
-approved private-font decision: pinned Unifont/Unifont Upper, OFL 1.1 font assets,
-MIT application code, and bounded symbol fallback. Local and supplied Windows 7
-tests pass, including automatic private U+1F600 fallback. This accepts the bounded
-experiment, not final typography or production integration. The
-[geometry/repaint history](../architecture/2026-09-11-font-geometry-test-plan.md)
-records the following test slices. Its first implementation is
-[probe 0.6](../validation/2026-09-11-geometry-probe.md), an offscreen size/DPI matrix
-with vertical-review and crop diagnostics; the supplied Windows 7 run passes
-its structural gates while retaining the vertical-policy observations.
-[Probe 0.7](../validation/2026-09-11-repaint-probe.md) adds the isolated differential
-repaint experiment; the supplied Windows 7 result passes all 480 comparisons
-and 24 deliberate negative cases. The upstream fixed-grid/overlapping-text
-policy is now selected. [Probe 0.8](../validation/2026-09-11-text-adapter-probe.md)
-adds a logical-order owned mapper candidate and an upstream-metric comparison
-lane; its supplied Windows 7 structural run passes, with horizontal overflow and
-Arabic quality still open. [Probe 0.9](../validation/2026-09-11-horizontal-fitting-probe.md)
-implements a separate raster-measured horizontal fitter and neighbor checks.
-Its supplied Windows 7 containment/repaint run passes; narrow-symbol quality
-and Atlas integration remain open. [Probe 0.10](../validation/2026-09-11-arabic-context-probe.md)
-adds bounded Arabic context repair and separate ordering/spacing comparisons.
-Its supplied Windows 7 run passes the bounded checks. Neither successful glyph matching nor a diagnostic
-visual projection settles terminal bidi, cursive spacing or interactive hit tests.
-[Probe 0.11](../validation/2026-09-11-joined-span-probe.md) tests shared-span
-fitting and partial repaint inside an unchanged combined core allocation.
-Its supplied Windows 7 matrix passes; production span formation and interaction
-policy remain open. [Probe 0.12](../validation/2026-09-11-cross-style-ligature-probe.md)
-compares whole-source lam-alef shapes and spatial paint/style alternatives.
-Its supplied Windows 7 matrix passes. The user approved carrying forward
-same-outline paint, not different-outline hybrids as the default.
-[Probe 0.13](../validation/2026-09-11-marked-paint-probe.md) extends that experiment
-to marked/joined words and source selection. Its supplied Windows 7 matrix passes
-all eight validators, with 139 earlier target BMPs unchanged. The long-word
-highlight mismatch remains open; source ownership does not settle visual
-selection. Visible-position/source/core interaction mapping is now deferred
-under Milestone 7/POL02, not the next implementation task.
-The [geometry contract](../architecture/2026-09-11-text-geometry-contract.md)
-defines core authority and consumer boundaries. The missing-glyph cause has been
-identified and the minimum production adapter is integrated in 0.3.0. Remaining
-F02 qualification has the scope recorded in the roadmap; enhanced visual
-layout/interaction policy remains separate deferred work.
-
-The [approved September 11 plan](../architecture/2026-09-11-research-driven-plan.md)
-adopted the reviewed findings. The September 12 revision and roadmap now own the
-execution order. C1/C2 adaptation and integration are accepted; the C3 WARP
-concern is deferred under REL01. P01 selects WinPTY for bounded Windows 7 local
-legacy-console sessions. I01 now selects the Windows 7 Croatian native-HWND
-input boundary. Its outbound queue implementation is accepted. S00 completes
-the external OpenSSH evaluation and rejects redirected interactive PTY use; the
-SSH.NET 2026.0.0 and its permissive closure are locked in the isolated S01
-diagnostic. Corrected package 0.6 passes public-key-only and optional-password
-Windows 7 runs and accepts the embedded interactive candidate.
-Session ownership remains
-in 3A before substantial local integration or daily-driver UI work. Text geometry, session
-ownership, input, accessibility, and output-security contracts move ahead of
-their dependent UI features.
-
-The original research is planning input, not runtime acceptance. The
-original subsystem recommendations remain research, and historical priority
-tables should be read with the adopted experiment mapping. The platform floor,
-upstream baseline and existing validation results are unchanged. The later
-private-font dependency and its separate license are documented above.
-
-## Reading order
-
-Implementation follow-up: the later
-[Atlas backend validation](../validation/2026-09-11-atlas-backend-proof.md)
-records Windows 7 automated passes for both Atlas backends on hardware/WARP,
-visible Direct3D11 output, and repeated R-key recreation. Its fixed-glyph scope
-does not establish later font/controller integration; that evidence belongs to
-0.3.0 and its successors above. The original research snapshots remain research,
-not execution reports. Interactive local sessions and production SSH remain future work;
-the bounded S01 candidate is accepted by corrected package 0.6 target evidence.
-
-Start with the [project assessment](00-project-assessment.md), [API availability matrix](21-api-availability.md), and [experiment plan](20-validation-and-experiments.md). The subsystem files contain platform behavior, relevant APIs, implementation consequences, and targeted tests.
+## Research by subsystem
 
 | Subsystem | Research |
 | --- | --- |

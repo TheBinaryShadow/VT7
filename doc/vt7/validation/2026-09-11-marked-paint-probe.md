@@ -16,7 +16,7 @@ Branch: `initial-implementation-and-assessment`.
 
 ## Accepted direction and scope
 
-The user reviewed [0.12](2026-09-11-cross-style-ligature-probe.md) and agreed to
+I reviewed [0.12](2026-09-11-cross-style-ligature-probe.md) and agreed to
 carry forward same-outline painting, not adopt the different-outline spatial
 hybrid as a default. Its older comparison remains frozen evidence. No font or
 weight override is silently selected for a boundary-spanning ligature.

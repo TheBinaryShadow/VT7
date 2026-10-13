@@ -9,7 +9,7 @@ files, fonts and data under other licenses. Each component keeps its own
 copyright, license and notice requirements; those terms do not become MIT merely
 because the component is distributed with VT7.
 
-The project owner approved a standing policy on 2026-09-14 allowing permissive
+I approved a standing policy on 2026-09-14 allowing permissive
 licenses such as Apache License 2.0, ISC, BSD-style, zlib, Unicode, W3C, CC0,
 public-domain dedications and similar supplier terms when they help deliver the
 Windows 7 port. Every adoption must still record the exact version and source,

@@ -24,7 +24,7 @@ now completes two rounds of the existing integrated 100-lifecycle workload on
 Windows 7. Both +180s states match at 1,314 handles, 13 threads, GDI 18 and USER
 10, with +220 KiB private bytes in the second. Three immediate checkpoints
 still fail against the original fixed baseline. Retained handle ownership and
-a permanent bound remain unproven. The owner-approved
+a permanent bound remain unproven. The approved
 [REL01 development deferral](../architecture/2026-09-14-warp-development-deferral.md)
 now stops dedicated tracing and permits C4/3A session development. Original
 failures and unrun soak stay recorded; Milestone 7 release review reopens
@@ -221,7 +221,7 @@ selection snaps to the owning core cluster, not necessarily the entire shaping
 ligature. The logical copied substring preserves the base and its marks. Neither
 that source check nor a spatial highlight establishes anatomical glyph ownership,
 font caret positions or accepted interactive selection. Different-outline hybrids
-are not adopted as the default following the user's 0.12 review.
+are not adopted as the default following my 0.12 review.
 Its supplied Windows 7 matrix passes, but the long-word highlight demonstrates
 that successful source ownership is not sufficient for visual selection.
 The proposed visible-position/source/core comparison, including empty allocated
@@ -251,7 +251,7 @@ list as the contract's history, not a fresh instruction to repeat C1/C2.
 
 These gates do not install fonts or change the supported Windows update baseline.
 U+1F600 missing-system-collection coverage is separately recorded, with KB2729094
-user-confirmed installed. The user subsequently approved private OFL-licensed
+confirmed installed in my testing. I subsequently approved private OFL-licensed
 Unifont assets; the supplied 0.5 run verifies bounded symbol fallback without
 system font installation. This does not change the core geometry contract or
 settle the final adapter, asset-failure, style, and font-quality policies.

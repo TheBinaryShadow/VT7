@@ -172,7 +172,7 @@ The log and images are retained in the ignored local evidence directory
 `artifacts/vt7/evidence/repaint-probe-win7-25080a9c/`. No supplied files were edited.
 This accepts the isolated software repaint experiment, not Atlas invalidation.
 
-After reviewing upstream, the user approved continuing with its fixed-grid,
+After reviewing upstream, I approved continuing with its fixed-grid,
 overlapping ordinary-text policy. See the updated
 [geometry contract](../architecture/2026-09-11-text-geometry-contract.md).
 Overlapping-text legibility, special-glyph clipping, and integration still need

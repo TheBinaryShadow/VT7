@@ -1,10 +1,10 @@
 # UT01: current-upstream Unicode, text and font parity before 1.0
 
 Decision/research date: 2026-10-05.
-Status: owner-approved required scope and delivery plan; parity is not implemented
-or accepted. The owner explicitly selected Unicode, text rendering and font
+Status: approved required scope and delivery plan; parity is not implemented
+or accepted. I explicitly selected Unicode, text rendering and font
 fallback, rather than the entire Windows Terminal feature set.
-The [roadmap](../../../ROADMAP.md#ut01-current-upstream-text-and-font-parity)
+The [roadmap](../plan/renderer.md#ut01-current-upstream-text-and-font-parity)
 owns completion. This decision supersedes earlier deferral of capabilities
 needed for this parity target, while preserving historical evidence and the
 Windows 7 platform floor.
@@ -84,7 +84,7 @@ claiming parity. Preview/main changes are tracked separately; the initial
 reference is stable, not a moving development branch. A subsequent stable
 release requires explicit delta review, not an unrecorded reference change.
 
-The owner's Windows Terminal screenshot,
+My Windows Terminal screenshot,
 codex-clipboard-2fa65da9-0c33-49d9-a94f-04a715454c7f.png, is retained as a
 visual reference from the same Debian server. It shows a root prompt and a
 visible symbol; the earlier VT7 byte dump came from sshtest. The screenshot
@@ -94,7 +94,7 @@ UT01.1 must reproduce U+12032 explicitly in both applications.
 
 The source-only inspection is retained under
 artifacts/vt7/evidence/upstream-text-font-parity-20261005/SOURCE-AUDIT.json,
-with baseline/reference Git blob identities. The copied owner screenshot has
+with baseline/reference Git blob identities. The copied screenshot from my test has
 SHA256 507E3686E081A25B4E6108F15BA8D9075E96ADC78CB70B536D919180FE90228D.
 This evidence does not include a captured reference binary/font corpus, so
 UT01.1 remains incomplete.
@@ -221,7 +221,7 @@ remain separate. The U+12032 finding is no longer merely a possible polish item.
 
 Unresolved upstream-supported text behavior, required coverage, color/axis
 capability or interaction differences block UT01 and the 1.0 parity claim.
-An infeasible Windows 7 adaptation requires an explicit owner scope decision;
+An infeasible Windows 7 adaptation requires an explicit scope decision from me;
 it cannot be silently described as supported, gracefully absent or deferred.
 An inherited upstream limitation is documented and matched rather than claimed
 as a VT7-specific failure. No scope waiver is granted by this plan.

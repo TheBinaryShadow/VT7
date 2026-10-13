@@ -1,8 +1,7 @@
 # Windows 7 SP1 without WMF 5.1: compatibility assessment
 
 Status: corrected candidate 0.2 passes all six LEOPARD baseline stages,
-including the bundled typed-SSH handoff without installed OpenSSH. The owner
-also confirms live connections through both typed `ssh` and `Start SSH...`,
+including the bundled typed-SSH handoff without installed OpenSSH. I also confirm live connections through both typed `ssh` and `Start SSH...`,
 including typing, resize, disconnect, and remote exit back to the local
 prompt. `htop` and `nano` ran successfully in a live SSH session. Command
 Prompt and SSH are accepted for this pre-WMF test tier; the interactive
@@ -76,8 +75,7 @@ PowerShell 5.1 and must not be used as LEOPARD baseline checks.
 LEOPARD ran candidate 0.1. Its `prerequisites.txt` confirms Windows
 `6.1.7601`, .NET Framework release `0x80eb1` and Windows PowerShell `2.0`.
 All five built-in baseline logs report success: window smoke, Command Prompt
-WinPTY, session stream, session outbound and SSH.NET foundation. The owner
-also reports ordinary operation works, but typed `ssh` in Command Prompt
+WinPTY, session stream, session outbound and SSH.NET foundation. In my testing, ordinary operation works, but typed `ssh` in Command Prompt
 returns Windows' "not recognized" message because LEOPARD has no system
 OpenSSH client. Source inspection found that `SshOverlayCoordinator.TryCreate`
 returned null whenever it could not find an external `ssh.exe`; the bundled
@@ -110,13 +108,13 @@ Prompt WinPTY, session stream, session outbound, SSH.NET foundation, and the
 new no-external typed-SSH overlay. That last check completed an authenticated
 local shim handoff without an external `ssh.exe` and rejected unsupported
 syntax with status 255. It is an offline diagnostic, not a live connection to
-the owner's Debian server. The logs' `Build: VT7 0.12.3` line comes from the
+my Debian server. The logs' `Build: VT7 0.12.3` line comes from the
 unchanged native component; the candidate's managed host file version and
 manifest identify application 0.12.5. The eight supplied files, including
 the startup capture, were reviewed for credentials and trust material and
 hash-verified under `artifacts/vt7/evidence/legacy-win7-0.2-leopard`.
 
-The owner initially ran `RUN-KNOWN-HOSTS-KH01-4.cmd` on PowerShell 2.0. That
+I initially ran `RUN-KNOWN-HOSTS-KH01-4.cmd` on PowerShell 2.0. That
 incompatible launcher printed `passed` after PowerShell rejected
 `Set-StrictMode -Version 3.0`, so its output is **not** a KH01.4 result.
 The source launchers and scripts now explicitly reject PowerShell older than
@@ -125,11 +123,11 @@ predates that guard and retains the misleading KH01.4 launcher; its six-stage
 legacy baseline result is unaffected. The guard will ship with the next
 package. LEOPARD's live SSH result is recorded separately below.
 
-After the baseline run, the owner confirmed that both typed `ssh` from Command
+After the baseline run, I confirmed that both typed `ssh` from Command
 Prompt and the `Start SSH...` direct SSH.NET path connected to the live server
-on LEOPARD. Remote `exit` returned both sessions to the local prompt. This is
-owner-observed manual evidence, separate from the six archived diagnostic
-logs. The owner also exercised typing, resize and disconnect in live SSH, and
+on LEOPARD. Remote `exit` returned both sessions to the local prompt. These are
+my manual observations, separate from the six archived diagnostic
+logs. I also exercised typing, resize and disconnect in live SSH, and
 ran `htop` and `nano` without issues in a live session. These observations
 close the planned pre-WMF Command Prompt and SSH runtime matrix for candidate
 0.2. They do not qualify the PowerShell 2.0 interactive profile, which remains

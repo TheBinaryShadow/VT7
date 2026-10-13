@@ -104,7 +104,7 @@ open until its remaining staged-deadline/I/O/rekey/exit-status requirements pass
 
 ## Accepted Windows 7 results
 
-The owner returned three complete Logs directories. All eight stages pass in
+I collected three complete Logs directories. All eight stages pass in
 each run (24 passing target stages). All three identify Windows 7 SP1 x64,
 .NET Framework Release 528049, application 0.14.0 and native ABI 11. Package
 inventory verification covers 89 files and matches issued candidate 0.4's
@@ -121,21 +121,21 @@ refusal/cancellation in Command Prompt on all three machines, and in Windows
 PowerShell 5.1 and exact PowerShell 7.2.24 on NESSY/TURTLE. LEOPARD correctly
 skips profiles outside that automated interactive qualification scope.
 
-The owner reports clean live operation in every tested shell, including
+I observed clean live operation in every tested shell, including
 PowerShell 2.0 on LEOPARD. Closing while connecting, active or disconnecting
 was immediate, with no observed remnants. Explicit disconnect returned 255 to
-a usable local shell, and subsequent sessions worked. The owner clarified that
+a usable local shell, and subsequent sessions worked. I clarified that
 the Disconnect SSH button was used, rather than interrupting the network.
 The earlier duration-dependent observation therefore does not qualify network
 loss or establish a detection threshold. No new silent-network-loss acceptance
-or automatic replay/reconnection contract is claimed. The owner's
+or automatic replay/reconnection contract is claimed. My
 PowerShell 2.0 smoke result does not qualify its full interactive editor corpus.
 
 Original evidence is retained under
 artifacts/vt7/evidence/ssh-lifecycle-sl01-1-win7-0.4-review/Logs, with
 SHA256SUMS.txt and REVIEW.json alongside it. The runner's LiveAccepted=False
 and the immutable issue-time manifest describe the automated/issue-time state;
-this later record supplies the owner's live acceptance without rewriting them.
+this later record supplies my live acceptance without rewriting them.
 
 ## Separate SSH prompt glyph finding
 
@@ -154,7 +154,7 @@ U+2190-U+2BFF and U+1F000-U+1FAFF; other scripts depend on system font coverage.
 This narrows the investigation to the specific symbol rather than general SSH
 Unicode handling.
 
-The owner subsequently confirmed that Croatian letters display correctly.
+I subsequently confirmed that Croatian letters display correctly.
 The follow-up screenshot codex-clipboard-236c710b-15f4-438f-8c4e-42a8c426ea7d.png
 shows printf supplied only the octal byte 304 (hex C4). That byte alone is an
 incomplete UTF-8 sequence, so its replacement character is expected; it is not
@@ -171,13 +171,13 @@ followed by U+0020 SPACE. The [Unicode Cuneiform chart](https://www.unicode.org/
 identifies U+12032 as CUNEIFORM SIGN ANSHE. This scalar is outside both private
 fallback ranges, so the bundled fallback is not consulted for it. The observed
 missing-glyph box shows the tested system fallback is not supplying a visible
-glyph either. The owner also reports the same issue with an older package;
+glyph either. I also reproduced the same issue with an older package;
 that comparison does not identify a regression introduced by SL01.1.
 
 Diagnosis: a pre-existing coverage gap for this supplementary Cuneiform symbol,
 not a demonstrated general SSH UTF-8 regression. Retain the exact byte sequence
 and screenshot as a required UT01.2 font-repertoire/fallback fixture under the
-owner-approved [current-upstream parity plan](../architecture/2026-10-05-upstream-text-and-font-parity-plan.md).
+approved [current-upstream parity plan](../architecture/2026-10-05-upstream-text-and-font-parity-plan.md).
 That 2026-10-05 scope decision promotes necessary POL04/POL05 capabilities to
 required work before polish/1.0; text parity itself remains unaccepted.
 No production renderer changes or new candidate are made in this investigation.

@@ -27,7 +27,7 @@ Include as much of the following as you safely can:
   component, or VT7-specific code.
 - Any suggested mitigation.
 
-We will acknowledge reports as time permits, investigate them privately, and
+I will acknowledge reports as time permits, investigate them privately, and
 coordinate disclosure when a fix or mitigation is ready. VT7 is currently a
 small community project, so no guaranteed response deadline is offered.
 

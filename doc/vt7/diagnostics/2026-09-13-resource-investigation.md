@@ -1,6 +1,6 @@
 # Native resource investigation: reproducible documentation snapshot
 
-Current execution decision, 2026-09-14: the owner approved
+Current execution decision, 2026-09-14: I approved
 [REL01](../architecture/2026-09-14-warp-development-deferral.md), stopping further
 dedicated WARP tracing and proceeding to C4/3A session development. This record
 preserves historical findings and reproduction instructions; its proposed next
@@ -557,7 +557,7 @@ Do not install a global postmortem debugger to reproduce this process-only test.
 
 ## Preserved Windows 7 target transcripts
 
-Source directory supplied by the tester:
+Source directory from my test machine:
 `K:/VT7_work/resource-comparison-0.1/Logs/resource-comparison-18452-32699/`.
 Matched local copies are under
 `artifacts/vt7/evidence/resource-comparison-win7-0.1/resource-comparison-18452-32699/`.

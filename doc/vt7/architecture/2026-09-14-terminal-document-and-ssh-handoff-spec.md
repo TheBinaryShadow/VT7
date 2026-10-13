@@ -50,6 +50,28 @@ ConPTY; VT7 must use SSH.NET for a first-class Windows 7 remote PTY because S00
 proved that the evaluated Windows OpenSSH client cannot obtain or track PTY
 geometry when used as VT7's directly redirected process backend.
 
+## Find a section
+
+- [Scope and acceptance boundary](#scope-and-acceptance-boundary)
+- [Research conclusions that control the design](#research-conclusions-that-control-the-design)
+- [Rejected shortcuts](#rejected-shortcuts)
+- [Required ownership model](#required-ownership-model)
+- [Native ABI 11 split](#native-abi-11-split)
+- [Session and presentation state machines](#session-and-presentation-state-machines)
+- [Ordinary typed `ssh` invocation](#ordinary-typed-ssh-invocation)
+- [IPC protocol and security](#ipc-protocol-and-security)
+- [The ordering barrier](#the-ordering-barrier)
+- [SSH.NET transport contract](#sshnet-transport-contract)
+- [Input, resize, and terminal state at overlay boundaries](#input-resize-and-terminal-state-at-overlay-boundaries)
+- [Backpressure and thread rules](#backpressure-and-thread-rules)
+- [Terminal output and host-action policy](#terminal-output-and-host-action-policy)
+- [Trust, authentication, and privacy](#trust-authentication-and-privacy)
+- [Failure and shutdown policy](#failure-and-shutdown-policy)
+- [Implementation sequence](#implementation-sequence)
+- [Verification matrix](#verification-matrix)
+- [Explicitly deferred decisions](#explicitly-deferred-decisions)
+- [Source and license disposition](#source-and-license-disposition)
+
 ## Scope and acceptance boundary
 
 This document fixes the following contracts before backend construction:

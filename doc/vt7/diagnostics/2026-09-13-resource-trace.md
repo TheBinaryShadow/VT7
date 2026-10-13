@@ -1,6 +1,6 @@
 # Focused native WARP resource trace, 2026-09-13
 
-Current execution decision, 2026-09-14: the owner approved
+Current execution decision, 2026-09-14: I approved
 [REL01](../architecture/2026-09-14-warp-development-deferral.md), stopping further
 dedicated WARP tracing and proceeding to C4/3A session development. This record
 preserves historical findings and reproduction instructions; its proposed next
@@ -263,7 +263,7 @@ their notices and provenance, and snapshots the new trace scripts and helpers.
 Source HEAD is `928c4581e3747d622ebcd43cf36206125b623102` with uncommitted
 diagnostic work; the package manifest hashes the actual copied source bytes.
 
-The user reports Windows PowerShell 5.1 plus PowerShell 7.2.24 side-by-side on
+I have Windows PowerShell 5.1 plus PowerShell 7.2.24 installed side-by-side on
 the Windows 7 machine. `RUN-RESOURCE-TRACE.cmd` selects `powershell.exe`, which
 is 5.1 there, rather than `pwsh.exe`. This records installed tools, not a VT7
 session-backend acceptance claim.
@@ -335,7 +335,7 @@ The summary records Windows 7 SP1 x64 (`6.1.7601`) and Windows PowerShell
 DbgHelp `6.3.9600.17298`, with DbgEng, Ext and Exts `6.3.9600.17336`.
 The summary retains their individual SHA256 values. They differ from the local
 base MSI's `6.3.9600.16384`; that difference is provenance, not evidence of a
-debugger defect. The user also reports Visual Studio 2022 Enterprise 17.6 on
+debugger defect. I also have Visual Studio 2022 Enterprise 17.6 installed on
 this target. This is consistent with the earlier restriction applying to 17.7
 and later, and does not qualify a target-side VT7 build environment.
 

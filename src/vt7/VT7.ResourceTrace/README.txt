@@ -38,7 +38,7 @@ Visual Studio 2022 version 17.7 and later cannot install on Windows 7.
 VT7's pinned VS 2022 17.14/MSVC 14.44 build environment belongs on the modern
 development machine. The Windows 7 machine runs the produced application
 and this debugger. Targeting Windows 7 differs from hosting Visual Studio.
-The tester has installed Visual Studio 2022 Enterprise 17.6. That is recorded
+I have installed Visual Studio 2022 Enterprise 17.6. That is recorded
 as available tooling, not qualification of it as the pinned VT7 build environment.
 
 Run the trace
@@ -149,7 +149,7 @@ COLLECTION=COMPLETE means the expected workload, checkpoints, setup records,
 handle commands and normal diagnostic exit were observed. It is NOT resource
 acceptance or a finding that the retained resources are harmless.
 
-We will correlate newly queue-positive baseline identities against setup
+I will correlate newly queue-positive baseline identities against setup
 events in the SAME run. Sampler identities include TID plus creation FILETIME;
 setup events have TID/TEB but no creation FILETIME. Ambiguous TID reuse or
 unsampled transient threads must remain unassigned. Missing setup matches mean

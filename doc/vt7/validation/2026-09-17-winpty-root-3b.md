@@ -115,7 +115,7 @@ runners pass:
 
 The visible proof log passes at 105 by 21 cells on Atlas D3D11 hardware. Manual
 use was otherwise clean: ordinary and Croatian HR Latin text rendered correctly,
-Notepad launched from the session and created `ććć.txt`, and the user reported
+Notepad launched from the session and created `ććć.txt`, and I reported
 no other interaction problem.
 
 The apparent Ctrl+C failure occurred only at an empty or partly typed prompt.
@@ -131,7 +131,7 @@ Command Prompt or PowerShell may not cancel the current input line. The target
 result matches that known limitation. It is recorded for 3C fidelity work and
 does not indicate a VT7 control-delivery defect.
 
-The user also found that the 0.5.0 viewport had no scroll input. Its 500-line
+I also found that the 0.5.0 viewport had no scroll input. Its 500-line
 TerminalCore scrollback buffer was populated correctly, but the native child
 HWND never handled `WM_MOUSEWHEEL`. Version 0.5.1 retains ABI 11 and adds the
 missing presentation input path. It honors the Windows wheel-lines setting,

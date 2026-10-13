@@ -1,6 +1,6 @@
 # Native resource lifetime comparison 0.2
 
-Current execution decision, 2026-09-14: the owner approved
+Current execution decision, 2026-09-14: I approved
 [REL01](../architecture/2026-09-14-warp-development-deferral.md), stopping further
 dedicated WARP tracing and proceeding to C4/3A session development. This record
 preserves historical findings and reproduction instructions; its proposed next
@@ -254,7 +254,7 @@ the subsequently supplied result follows.
 
 ## Supplied Windows 7 comparison
 
-The tester supplied
+I supplied
 `K:/VT7_work/Logs/resource-lifetime-20260913-144532-55a231c4/`.
 Hash-matched copies of both stdout logs, both empty stderr logs and `summary.txt`
 are preserved under

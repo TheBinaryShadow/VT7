@@ -119,7 +119,7 @@ remain unchanged. Packaging 0.2 uses a different directory and archive name.
 
 ## Supplied Windows 7 evidence
 
-The user supplied the 0.2 log and bitmap from `K:\VT7_work`. The preserved local
+I supplied the 0.2 log and bitmap from `K:\VT7_work`. The preserved local
 copies are under `artifacts/vt7/evidence/font-probe-win7-20260911-053320/`.
 The log reports Windows NT 6.1.7601, the same Release build stamp, and UTC
 2026-09-11 05:33:20. It passes 51 required checks, zero failures, nine mapped

@@ -37,6 +37,34 @@ with an OpenSSH-compatible design. The existing, accepted fingerprint-only
 path remains the security baseline until every acceptance gate in this document
 passes.
 
+## Find a section
+
+- [Decision summary](#decision-summary)
+- [Goals](#goals)
+- [Non-goals of the first implementation](#non-goals-of-the-first-implementation)
+- [Normative baseline and references](#normative-baseline-and-references)
+- [Compatibility boundary](#compatibility-boundary)
+- [File discovery and ownership](#file-discovery-and-ownership)
+- [Byte-preserving file model](#byte-preserving-file-model)
+- [Known-host line grammar](#known-host-line-grammar)
+- [Host identity and lookup token](#host-identity-and-lookup-token)
+- [Key identity and algorithm handling](#key-identity-and-algorithm-handling)
+- [Trust evaluation](#trust-evaluation)
+- [Host certificates](#host-certificates)
+- [Existing fingerprint fallback](#existing-fingerprint-fallback)
+- [SSH.NET integration and connection state machine](#sshnet-integration-and-connection-state-machine)
+- [User experience](#user-experience)
+- [Persistence, concurrency and recovery](#persistence-concurrency-and-recovery)
+- [Diagnostics and privacy](#diagnostics-and-privacy)
+- [Licensing and source-reuse rule](#licensing-and-source-reuse-rule)
+- [Proposed code boundaries](#proposed-code-boundaries)
+- [Implementation slices](#implementation-slices)
+- [Verification plan](#verification-plan)
+- [Windows 7 acceptance matrix](#windows-7-acceptance-matrix)
+- [Acceptance criteria](#acceptance-criteria)
+- [Rejected alternatives](#rejected-alternatives)
+- [Documentation and completion record](#documentation-and-completion-record)
+
 ## Decision summary
 
 VT7 will use the user's existing OpenSSH known-host files rather than create a
@@ -252,7 +280,7 @@ key-type and base64 tokens must remain valid under their field grammar.
 
 ## Host identity and lookup token
 
-The trust lookup starts from the endpoint the user explicitly requested, before
+The trust lookup starts from the endpoint the person connecting explicitly requested, before
 name resolution. VT7 does not trust a reverse DNS name and does not add resolved
 IP addresses in this slice, matching the baseline `CheckHostIP no` default.
 
@@ -385,7 +413,7 @@ trust and sets `CanTrust` true only for `Matching` or an exact authorized
 one-connection pin. All other results set it false. SSH.NET then aborts during
 key exchange, before authentication.
 
-For `Unknown`, the owner receives the captured result after the failed attempt
+For `Unknown`, the connection coordinator receives the captured result after the failed attempt
 and posts a generation-scoped WPF request. The user may cancel, connect once, or
 trust and connect. Either affirmative choice creates a fresh `SshClient` and a
 fresh connection attempt:
@@ -799,7 +827,7 @@ record containing exact package and target evidence.
 
 This document authorizes engineering work within its boundaries. KH01.1 through
 KH01.5 are target accepted. KH01.4 package 0.8 passes the two-machine automated
-and owner-controlled live management matrix. KH01.5 candidate 0.2 closes the
+and manual live management matrix. KH01.5 candidate 0.2 closes the
 bounded live certificate-serving gap on all three declared Windows 7 tiers.
 Broader algorithm/IPv6/environment qualification remains separate; temporary
 proof dialogs remain subject to the approved terminal-only SSH contract.
