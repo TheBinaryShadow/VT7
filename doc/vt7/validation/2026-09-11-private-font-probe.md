@@ -12,7 +12,7 @@ Development runtime: Windows NT 10.0.19044. The supplied Windows 7 SP1 x64
 
 ## Assets and licensing
 
-The user approved bundling private fallback fonts after the supplied Windows 7
+I approved bundling private fallback fonts after the supplied Windows 7
 0.4 run confirmed the missing U+1F600 system coverage. Unmodified static CFF/OTF
 Unifont and Unifont Upper 17.0.05 are now in `oss/unifont/`. The official upstream
 archive, acquisition method, exact font/license hashes, and copyright holders
@@ -111,7 +111,7 @@ supplied target results are recorded separately, not treated as interchangeable.
 
 ## Supplied Windows 7 result and acceptance
 
-The user supplied the 0.5 log and bitmap captured at 2026-09-11 07:00:24 UTC
+I supplied the 0.5 log and bitmap captured at 2026-09-11 07:00:24 UTC
 on Windows NT 6.1.7601, with the Release stamp listed above. Evidence is preserved
 under `artifacts/vt7/evidence/font-probe-win7-20260911-070024/`:
 
@@ -150,7 +150,7 @@ script or interactive conformance.
 The pixel-derived private smiley is visible; the one-cell yin-yang is noticeably
 squeezed. The woman/laptop sequence remains separate glyphs rather than a composed
 emoji. These are explicit quality limitations, not hidden by the passing baseline.
-The user accepted proceeding after this review. This evidence accepts the exact
+I accepted proceeding after this review. This evidence accepts the exact
 private faces and bounded fallback on this Windows 7 setup. It does not establish
 a separate ESU/non-ESU 0.5 matrix or acceptance of all Milestone 2C gates.
 

@@ -143,7 +143,7 @@ not a general Windows 7 guarantee. Visual inspection at 18/96 and 24/192 shows
 intact same-outline colors and mixed-outline seam concerns, especially italic
 and family changes. No independent ESU run is inferred from this archive.
 
-After reviewing the images, the user approved carrying forward same-outline
+After reviewing the images, I approved carrying forward same-outline
 painting while rejecting the mixed-outline hybrid as the recommended default.
 This does not authorize a cluster-wide font override. The subsequent isolated step was
 [0.13 marked paint/source selection](2026-09-11-marked-paint-probe.md).

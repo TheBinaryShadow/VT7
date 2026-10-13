@@ -14,6 +14,8 @@ namespace VT7.Host
             var windowsOrdinary = TerminalProfile.CreateWindowsPowerShell();
             var windowsClean = TerminalProfile.CreateWindowsPowerShell(cleanProfile: true)
                 .WithEnvironmentVariable("VT7_3B2_UNICODE", UnicodeSentinel);
+            if (!windowsOrdinary.IsWindows7Qualified || !windowsClean.IsWindows7Qualified)
+                throw new InvalidOperationException("The PowerShell 5.1 profile test requires Windows PowerShell 5.1; discovered " + windowsOrdinary.DisplayName + ".");
             CheckProfileContract(windowsOrdinary, windowsClean, "Windows PowerShell 5.1");
             report.AppendLine("PASS: Windows PowerShell 5.1 uses an explicit System32 executable, preserves ordinary user profiles, and reserves -NoProfile for controlled diagnostics.");
             var windowsResult = await RunProfile(windowsClean, new[] { 50, 51 }, BuildWindowsPowerShellScript(), "Windows PowerShell 5.1");

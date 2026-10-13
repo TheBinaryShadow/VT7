@@ -129,7 +129,7 @@ namespace VT7.Host
                 report.AppendLine("PASS: hidden font change stayed parked and resumed with preserved fixture");
                 report.AppendLine(await ProofWindowChecks.CheckTabRoundTrip(window, viewport));
             }
-            finally { window.Close(); }
+            finally { await window.CloseAndWaitAsync(); }
             await Application.Current.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
             Require(!NativeMethods.IsWindow(handle), "Settings HWND survived disposal.");
             report.AppendLine("PASS: settings HWND disposed; 10 settings cases, 8 invalid inputs, hidden update");

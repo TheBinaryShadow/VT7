@@ -6,6 +6,10 @@ param(
     [switch]$AllowMissingPowerShell7
 )
 $ErrorActionPreference = 'Stop'
+if ($PSVersionTable.PSVersion -lt [version]'5.1') {
+    [Console]::Error.WriteLine('VT7 typed SSH overlay test requires Windows PowerShell 5.1 or newer; run RUN-VT7-LEGACY-BASELINE.cmd on PowerShell 2.0.')
+    exit 2
+}
 Set-StrictMode -Version 3.0
 if ($env:VT7_ALLOW_MISSING_POWERSHELL7 -eq '1') { $AllowMissingPowerShell7 = $true }
 

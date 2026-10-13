@@ -12,11 +12,11 @@ CC0, public-domain dedications and comparable supplier notice sets. These
 components keep their own licenses; distributing them with VT7 does not relicense
 them as MIT.
 
-A new permissive component does not need a repeated owner choice when the audit
+A new permissive component does not need another decision from me when the audit
 finds obligations consistent with this policy. It still needs a recorded review
 before incorporation. A license with source-sharing, network-use, proprietary
 redistribution, field-of-use, noncommercial or other material distribution
-conditions receives a separate compatibility and owner review because it can
+conditions receives a separate compatibility review and my approval because it can
 change how VT7 may be built or shipped.
 
 ## Required adoption record

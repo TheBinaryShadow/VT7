@@ -12,7 +12,7 @@ The development runtime reports Windows NT 10.0.19044, not Windows 7.
 ## Why this iteration
 
 The [supplied Windows 7 0.3 result](2026-09-11-font-fitting-probe.md) passes all
-checks but squeezes normal Consolas and italic glyphs. The user also confirmed
+checks but squeezes normal Consolas and italic glyphs. I also confirmed
 KB2729094 installed, so missing U+1F600 coverage is not diagnosed as a missing
 update. No font installation or update change is part of this follow-up.
 
@@ -104,7 +104,7 @@ All earlier archive hashes match their recorded identities.
 
 ## Supplied Windows 7 result
 
-The user supplied the 0.4 report and bitmap captured at 2026-09-11 06:31:43 UTC
+I supplied the 0.4 report and bitmap captured at 2026-09-11 06:31:43 UTC
 on Windows NT 6.1.7601. Evidence is preserved under
 `artifacts/vt7/evidence/font-probe-win7-20260911-063143/`.
 
@@ -118,7 +118,7 @@ on Windows NT 6.1.7601. Evidence is preserved under
   static comparison. The woman/laptop sequence remains separate glyphs, not a
   composed emoji. This is not final terminal bidi or interaction acceptance.
 - U+1F600 remains absent from 575 scanned system faces, with zero scan errors.
-  KB2729094 was already user-confirmed installed; no update reinstall is proposed.
+  KB2729094 was already confirmed installed in my testing; no update reinstall is proposed.
 
 This closes the pending target execution/comparison for 0.4, not the production
 fitting, partial redraw, DPI, or font fallback gates. The subsequent approved

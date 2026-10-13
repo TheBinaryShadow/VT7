@@ -80,6 +80,8 @@ namespace VT7.Host
             report.AppendLine("PASS: Command Prompt resolved ordinary ssh through the authenticated shim, committed the visible WinPTY barrier in order, and kept the accepted shim waiting beyond the five-second handshake timeout until embedded completion.");
 
             var windowsPowerShell = TerminalProfile.CreateWindowsPowerShell(cleanProfile: true);
+            if (!windowsPowerShell.IsWindows7Qualified)
+                throw new InvalidOperationException("The H01 PowerShell path requires Windows PowerShell 5.1; discovered " + windowsPowerShell.DisplayName + ".");
             await RunEmbedded(windowsPowerShell, "Windows PowerShell 5.1", 62, true);
             report.AppendLine("PASS: Windows PowerShell 5.1 preserved Croatian HR Latin input, command precedence and the authenticated WinPTY barrier.");
 
@@ -108,21 +110,32 @@ namespace VT7.Host
 
             await RunAuthenticationFailure();
             report.AppendLine("PASS: a wrong session capability was denied before embedded acceptance and fell back once without a duplicate connection.");
+
+            await RunNoExternal(report);
+        }
+
+        internal static async Task RunNoExternal(StringBuilder report)
+        {
+            await RunEmbedded(TerminalProfile.CreateCommandPrompt(), "Command Prompt without external SSH", 64, false, 0, true);
+            report.AppendLine("PASS: interactive typed SSH uses the bundled shim and authenticated embedded handoff without an installed external ssh.exe.");
+
+            await RunNoExternalFallback();
+            report.AppendLine("PASS: unsupported SSH syntax is rejected with status 255 when no external ssh.exe is installed.");
         }
 
         private static async Task RunEmbedded(TerminalProfile baseProfile, string label, int exitCode,
-            bool powerShell, int embeddedDelayMilliseconds = 0)
+            bool powerShell, int embeddedDelayMilliseconds = 0, bool noExternal = false)
         {
             var binaryRoot = AppDomain.CurrentDomain.BaseDirectory;
             var shimDirectory = Path.Combine(binaryRoot, "shim");
             var shim = Path.Combine(shimDirectory, "ssh.exe");
             var fixture = Path.Combine(binaryRoot, "VT7.WinPtyFixture.exe");
             Require(File.Exists(shim), "H01 shim is missing: " + shim);
-            Require(File.Exists(fixture), "H01 system fixture is missing: " + fixture);
+            if (!noExternal) Require(File.Exists(fixture), "H01 system fixture is missing: " + fixture);
 
             var document = new TerminalDocument(loadDemonstration: false);
             using (var sink = new CommittedOutputSink(document))
-            using (var broker = new SshShimBroker(1, fixture, sink.WaitForBarrierAsync, async _ =>
+            using (var broker = new SshShimBroker(1, noExternal ? null : fixture, sink.WaitForBarrierAsync, async _ =>
             {
                 if (embeddedDelayMilliseconds > 0) await Task.Delay(embeddedDelayMilliseconds);
                 return 0;
@@ -189,6 +202,47 @@ namespace VT7.Host
                     transport.Dispose();
                     document.Dispose();
                     if (File.Exists(fixtureReport)) File.Delete(fixtureReport);
+                }
+            }
+        }
+
+        private static async Task RunNoExternalFallback()
+        {
+            var binaryRoot = AppDomain.CurrentDomain.BaseDirectory;
+            var shimDirectory = Path.Combine(binaryRoot, "shim");
+            var document = new TerminalDocument(loadDemonstration: false);
+            using (var sink = new CommittedOutputSink(document))
+            using (var broker = new SshShimBroker(1, null, sink.WaitForBarrierAsync))
+            {
+                var profile = ConfigureProfile(TerminalProfile.CreateCommandPrompt(), shimDirectory, broker, string.Empty);
+                var transport = new WinPtyTransport(profile);
+                try
+                {
+                    await transport.StartAsync(new TerminalStartContext(Guid.NewGuid(), 1, 90, 28), sink, CancellationToken.None);
+                    broker.SetRootProcess(transport.Snapshot.ProcessId);
+                    await Input(transport, "ssh -V\r");
+                    var brokerResult = await WithTimeout(broker.Completion, TimeSpan.FromSeconds(15), "H01 absent external fallback response");
+                    Require(brokerResult.Action == SshShimAction.Reject && brokerResult.Reason == "external-client-unavailable",
+                        "Unsupported SSH syntax did not fail closed without an external client.");
+                    // Broker completion precedes the shim's stderr write. Keep
+                    // the fixture shell alive until that real output commits;
+                    // do not race its exit against WinPTY's console capture.
+                    await WithTimeout(sink.WaitForBarrierAsync("external-client-unavailable"),
+                        TimeSpan.FromSeconds(15), "H01 absent external fallback committed rejection");
+                    await Input(transport, "if errorlevel 255 (exit 0) else (exit 96)\r");
+                    var result = await WithTimeout(transport.Completion, TimeSpan.FromSeconds(15), "H01 absent external fallback exit");
+                    await sink.CompleteAsync();
+                    Require(result.Kind == TerminalTransportResultKind.ReportedExit && result.ExitCode == 0,
+                        "The no-external rejection did not return status 255 to cmd.exe.");
+                    Require(sink.Text.Contains("external-client-unavailable"),
+                        "The no-external rejection did not explain the missing fallback.");
+                }
+                finally
+                {
+                    if (transport.State != TerminalTransportState.Closed && transport.State != TerminalTransportState.Failed)
+                        await transport.CloseAsync(TerminalCloseReason.Cancelled, CancellationToken.None);
+                    transport.Dispose();
+                    document.Dispose();
                 }
             }
         }

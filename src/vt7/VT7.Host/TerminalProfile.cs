@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -40,13 +41,14 @@ namespace VT7.Host
         internal IReadOnlyList<KeyValuePair<string, string>> Environment { get; }
         internal Version? RuntimeVersion { get; }
         internal bool IsCleanProfile { get; }
-        internal bool IsWindows7Qualified => Kind != TerminalProfileKind.PowerShell7 ||
-            (RuntimeVersion != null && RuntimeVersion.Major == 7 && RuntimeVersion.Minor == 2 && RuntimeVersion.Build == 24);
+        internal bool IsWindows7Qualified => Kind == TerminalProfileKind.CommandPrompt ||
+            (Kind == TerminalProfileKind.WindowsPowerShell && RuntimeVersion != null &&
+             RuntimeVersion.Major == 5 && RuntimeVersion.Minor == 1) ||
+            (Kind == TerminalProfileKind.PowerShell7 && RuntimeVersion != null &&
+             RuntimeVersion.Major == 7 && RuntimeVersion.Minor == 2 && RuntimeVersion.Build == 24);
         internal string CommandLine => Quote(Executable) + (string.IsNullOrWhiteSpace(Arguments) ? string.Empty : " " + Arguments);
-        internal string DisplayName => Kind == TerminalProfileKind.PowerShell7 && RuntimeVersion != null
-            ? $"PowerShell {RuntimeVersion.Major}.{RuntimeVersion.Minor}.{RuntimeVersion.Build}" +
-              (IsWindows7Qualified ? string.Empty : " (unqualified on Windows 7)")
-            : Name;
+        internal string DisplayName => Kind == TerminalProfileKind.CommandPrompt || IsWindows7Qualified
+            ? Name : Name + " (unqualified on Windows 7)";
 
         public override string ToString() => DisplayName;
 
@@ -57,8 +59,11 @@ namespace VT7.Host
         internal static TerminalProfile CreateWindowsPowerShell(bool cleanProfile = false)
         {
             var executable = GetWindowsExecutable(Path.Combine("WindowsPowerShell", "v1.0", "powershell.exe"));
-            return Create(TerminalProfileKind.WindowsPowerShell, "windows-powershell", "Windows PowerShell 5.1",
-                executable, cleanProfile ? "-NoLogo -NoProfile" : "-NoLogo", new Version(5, 1), cleanProfile);
+            if (!File.Exists(executable)) throw new FileNotFoundException("Windows PowerShell was not found.", executable);
+            var version = ReadWindowsPowerShellVersion(executable);
+            return Create(TerminalProfileKind.WindowsPowerShell, "windows-powershell",
+                $"Windows PowerShell {version.Major}.{version.Minor}", executable,
+                cleanProfile ? "-NoLogo -NoProfile" : "-NoLogo", version, cleanProfile);
         }
 
         internal static TerminalProfile CreatePowerShell7(bool cleanProfile = false)
@@ -76,7 +81,8 @@ namespace VT7.Host
                     candidates.Count > 0 ? candidates[0] : "pwsh.exe");
             var version = ReadPowerShellVersion(executable);
             if (version.Major != 7) throw new InvalidOperationException($"The discovered pwsh.exe reports version {version}, not PowerShell 7.");
-            return Create(TerminalProfileKind.PowerShell7, "powershell-7", "PowerShell 7", executable,
+            return Create(TerminalProfileKind.PowerShell7, "powershell-7",
+                $"PowerShell {version.Major}.{version.Minor}.{version.Build}", executable,
                 cleanProfile ? "-NoLogo -NoProfile" : "-NoLogo", version, cleanProfile);
         }
 
@@ -143,6 +149,35 @@ namespace VT7.Host
                 if (match.Success && Version.TryParse(match.Value, out var version)) return version;
             }
             throw new InvalidOperationException("The PowerShell 7 executable has no parseable product version: " + executable);
+        }
+
+        private static Version ReadWindowsPowerShellVersion(string executable)
+        {
+            // The executable's file version is a Windows build number, not the
+            // engine version. Query the engine itself without loading user profiles.
+            var start = new ProcessStartInfo(executable,
+                "-NoLogo -NoProfile -NonInteractive -Command \"$PSVersionTable.PSVersion.ToString()\"")
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+            };
+            Process process;
+            try { process = Process.Start(start) ?? throw new InvalidOperationException("Windows PowerShell could not start."); }
+            catch (Win32Exception ex) { throw new InvalidOperationException("Windows PowerShell version detection could not start.", ex); }
+            using (process)
+            {
+                if (!process.WaitForExit(5000))
+                {
+                    try { process.Kill(); }
+                    catch (InvalidOperationException) { }
+                    throw new InvalidOperationException("Windows PowerShell version detection timed out.");
+                }
+                var output = process.StandardOutput.ReadToEnd().Trim();
+                if (process.ExitCode != 0 || !Version.TryParse(output, out var version) || version.Major < 2)
+                    throw new InvalidOperationException("Windows PowerShell did not report a usable engine version.");
+                return version;
+            }
         }
 
         private static IReadOnlyList<KeyValuePair<string, string>> CaptureEnvironment()

@@ -138,7 +138,7 @@ remain unchanged.
 
 ## Supplied Windows 7 result
 
-The user supplied `probe-0.6-logs-and-bitmaps.zip`, captured at 2026-09-11
+I supplied `probe-0.6-logs-and-bitmaps.zip`, captured at 2026-09-11
 11:50:29 UTC on Windows NT 6.1.7601 with the Release stamp above. Its log and
 13 bitmaps are preserved in `artifacts/vt7/evidence/geometry-probe-win7-5f33be70/`.
 
@@ -160,6 +160,6 @@ observation, not acceptance of that clipping policy. Two private BMP cases,
 12 DIP/192 DPI and 24 DIP/96 DPI, each need one raster-fit retry, ending at scale
 0.380769 with contained horizontal bounds.
 
-The user approved proceeding to the [differential repaint experiment](2026-09-11-repaint-probe.md).
+I approved proceeding to the [differential repaint experiment](2026-09-11-repaint-probe.md).
 This result accepts the bounded offscreen structural matrix on the supplied setup,
 not a separate ESU matrix, physical HWND DPI behavior, or final line-height policy.

@@ -203,8 +203,8 @@ Win32-OpenSSH 10.0p2 oracle on both machines:
 | Host SHA256 | `D9B245BCD6C018AC1023FAA15567CA89068E2358D2919DE17937698D32F5F1DC` | Same |
 | Native SHA256 | `96D97CF5DCC3218ACD5E2BF2D59350AA2302D87E595133734519276A0FBF1756` | Same |
 | `ssh-keygen.exe` | 10.0.0.0, SHA256 `B51FDD26BE0F7C83398D18E5354A0ACB0406A9DE25516791758FE63BBE3AE870` | Same |
-| Typed stored-key SSH | Owner-confirmed pass | Owner-confirmed pass |
-| Direct **Start SSH...** stored-key session | Owner-confirmed pass | Owner-confirmed pass |
+| Typed stored-key SSH | Passed in my live testing | Passed in my live testing |
+| Direct **Start SSH...** stored-key session | Passed in my live testing | Passed in my live testing |
 
 Both `known-hosts.log` files report `Passed: True`. They pass the parser,
 four-source immutable loader, read-only policy, 1,024-input bounded byte corpus,

@@ -7,12 +7,12 @@ The later S00 and S01 sections record the resulting transport decisions. Use
 the [research status](README.md#planning-adoption), [current handoff](../HANDOFF.md)
 and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidence.
 
-Research date: 2026-09-11. Added after the user pointed out that current Microsoft Win32-OpenSSH runs successfully on Windows 7. This corrects an omission in the initial dependency shortlist. No binary was downloaded or executed during this reassessment.
+Research date: 2026-09-11. Added after I pointed out that current Microsoft Win32-OpenSSH runs successfully on Windows 7. This corrects an omission in the initial dependency shortlist. No binary was downloaded or executed during this reassessment.
 
 ## Later S00 result
 
 The [2026-09-14 S00 evaluation](../validation/2026-09-14-openssh-s00.md)
-completed this proposed experiment against the owner's Debian 12 server. The
+completed this proposed experiment against my Debian 12 server. The
 exact Microsoft 10.0p2 x64 client passes strict trust, key authentication,
 modern negotiation, lossless non-PTY channels, exit drain and cancellation on
 Windows 7. Forced PTY allocates but reports 0 by 0.
@@ -51,7 +51,7 @@ login do not guarantee future Windows 7 maintenance or complete VT7 integration.
 
 Microsoft's project installation wiki explicitly lists Windows 7 and later for its GitHub releases. The release list consulted identifies 10.0.0.0p2-Preview as latest. Its notes name OpenSSH 10.0p2, LibreSSL 4.2.0, and support for mlkem768x25519-sha256 and sntrup761x25519-sha512 key exchange. These are substantial positive evidence for modern SSH on the target platform. [1][2]
 
-The user also reports successful operation on Windows 7. That is useful operational evidence, separate from this research's source inspection; no exact local binary/version, negotiated-algorithm transcript or full VT7 integration test was supplied.
+I have also used it successfully on Windows 7. That is useful operational evidence, separate from this research's source inspection; no exact local binary/version, negotiated-algorithm transcript or full VT7 integration test was supplied.
 
 Support terminology needs one distinction: the official project documents Windows 7 compatibility, while the GitHub release is labeled Preview/non-production-ready. A Microsoft contributor explains that GitHub and Windows-delivered releases differ in support channel, rather than inherently in quality. Do not turn the Preview label into a claim that the client is unusable; equally, do not describe it as a new Windows 7 OS support lifecycle. [1][2][3]
 
@@ -116,7 +116,7 @@ This finding reduces uncertainty around available SSH implementations and modern
 Run the 3A/S00 OpenSSH comparison before selecting the SSH implementation:
 
 1. Record the exact executable version/hash and Windows 7 test image. Retain a controlled verbose connection log with the negotiated algorithms and secrets removed.
-2. Establish a working local-console baseline using the user's known-good configuration.
+2. Establish a working local-console baseline using my known-good configuration.
 3. Try direct redirected I/O with forced remote PTY allocation and controlled non-secret credentials.
 4. Compare exact VT/UTF-8 bytes with remote output, and verify dimensions remotely before and after pane resize.
 5. Exercise authentication prompts, unknown/changed host keys, large paste, alternate screen and close during output.

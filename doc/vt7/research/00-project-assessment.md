@@ -8,7 +8,7 @@ and [roadmap](../../../ROADMAP.md) for port-first priorities and present evidenc
 
 The [port-first plan](../architecture/2026-09-12-port-first-plan.md) governs
 sequencing. C1/C2 integration is accepted on the supplied Windows 7 setup;
-C3 WARP resource qualification remains incomplete. The later owner-approved
+C3 WARP resource qualification remains incomplete. The later approved
 [September 14 decision](../architecture/2026-09-14-warp-development-deferral.md)
 stops dedicated tracing and permits C4/3A development, with REL01 in Milestone 7
 release-readiness review. Optional improvements keep separate POL entries.
@@ -39,7 +39,7 @@ The inherited baseline is Microsoft Terminal commit c7572cde0c69733e4511787dc963
 | Area | Evidence inspected | Limit of the conclusion |
 | --- | --- | --- |
 | Host/native/core | WPF HwndHost owns a native child window through ABI 2; the window writes a fixed demonstration into TerminalCore, draws using GDI, and resizes/reflows the core. [4][5] | No interactive session or input forwarding is present in this proof. |
-| Windows 7 viewport | 0.2.0 logs/screenshots and 0.2.1 cleanup records show successful static viewport operation. Non-ESU artifacts were supplied; separate ESU success is tester-confirmed. [6][7] | Fully serviced machines do not establish the exact minimum prerequisite image. |
+| Windows 7 viewport | 0.2.0 logs/screenshots and 0.2.1 cleanup records show successful static viewport operation. Non-ESU artifacts were supplied; separate ESU success is confirmed in my testing. [6][7] | Fully serviced machines do not establish the exact minimum prerequisite image. |
 | Regression scope | Seven focused core checks, four window lifecycles, and eight tab round trips are recorded for the cleanup proof. [7] | These do not establish sustained use, IME, accessibility, modern shaping, or shell correctness. |
 | Atlas build | The isolated renderer target is documented as compiling Atlas translation units and generating shaders. It is not referenced by VT7.Native or shipped in the capability package. [8] | A static library can contain unsupported references until link/runtime paths become active. |
 | Graphics/font probe | The independent Windows 7 probe reports 49 required checks with no failures, but one missing glyph. [9] | It does not load Atlas, identify the missing character, prove terminal-cell mapping, or establish visible frame correctness. |

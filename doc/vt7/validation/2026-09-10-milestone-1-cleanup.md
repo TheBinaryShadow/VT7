@@ -7,7 +7,7 @@
 ## Outcome
 
 Milestone 1 is complete on the tested Windows 7 SP1 x64 configurations. The
-0.2.1 non-ESU logs and screenshots confirm the cleanup; the tester also confirms
+0.2.1 non-ESU logs and screenshots confirm the cleanup; I also confirm
 keyboard navigation, visible focus, and all tests passing on the separate
 fully ESU-updated setup. This is a static viewport proof, not an interactive
 terminal release or qualification of the full prerequisite/hardware matrix.
@@ -69,12 +69,12 @@ The failing regression evidence is retained separately at
 Initial automated desktop visual QA could not be completed: window discovery
 misidentified VT7 as Power Automate and rejected the window binding. No sign-in
 or installer prompts were accepted. Automated built-in checks do not depend
-on Power Automate. The tester subsequently supplied Windows 7 screenshots and
+on Power Automate. I subsequently supplied Windows 7 screenshots and
 manual acceptance, closing the visual-check gap for this proof.
 
 ### Supplied non-ESU evidence
 
-The tester supplied six log files from the normally updated, non-ESU setup:
+I supplied six log files from the normally updated, non-ESU setup:
 
 - `VT7-diagnostics.log` and `proof-20260910-211129.log`, reporting the same
   headless diagnostics run.
@@ -102,9 +102,9 @@ font/shaping or accessibility coverage.
 
 ### Manual confirmation and ESU coverage
 
-The tester confirms that Tab navigation, arrow-key tab switching, and the focus
+I confirm that Tab navigation, arrow-key tab switching, and the focus
 outline work. Buttons show a bluish animated focus indication when tabbed to.
-The tester also explicitly reran 0.2.1 on the separate fully ESU-updated setup
+I also explicitly reran 0.2.1 on the separate fully ESU-updated setup
 and reported that all tests pass and all is well. This is a fresh ESU test
 confirmation, not an inference from the successful non-ESU run. Separate ESU
 logs and an exact update inventory were not supplied.

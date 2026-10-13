@@ -247,7 +247,7 @@ namespace VT7.Host
             }
             finally
             {
-                var close = Stopwatch.StartNew(); window.Close();
+                var close = Stopwatch.StartNew(); await window.CloseAndWaitAsync();
                 worstClose = Math.Max(worstClose, close.ElapsedMilliseconds);
                 Require(close.ElapsedMilliseconds <= 2000, "Shutdown exceeded two seconds.");
             }
@@ -388,7 +388,7 @@ namespace VT7.Host
                 var final = await Resources.Read(); log("RESOURCE soak final: " + final); final.CheckGrowth(baseline);
                 log("PASS: extended active/idle soak completed; opacity-zero test host, not physical occlusion qualification.");
             }
-            finally { window.Close(); }
+            finally { await window.CloseAndWaitAsync(); }
         }
     }
 }

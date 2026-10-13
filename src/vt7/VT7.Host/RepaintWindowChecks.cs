@@ -42,7 +42,7 @@ namespace VT7.Host
                     }
                 }
             }
-            finally { window.Close(); }
+            finally { await window.CloseAndWaitAsync(); }
             await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
             if (NativeMethods.IsWindow(handle)) throw new InvalidOperationException("Repaint HWND survived disposal.");
             report.AppendLine("PASS: repaint HWND disposed; 32 exact comparisons, 8 cursor-cell checks");

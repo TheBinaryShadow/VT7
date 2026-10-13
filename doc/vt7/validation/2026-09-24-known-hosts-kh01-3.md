@@ -121,11 +121,11 @@ TURTLE exercises 4.8.4795.0 with an AMD Radeon RX 6800 XT. Both reports record
 VT7 0.11.0 Release, ABI 11, all 1,024 parser cases, the `ssh-keygen` differential
 oracle and the durable KH01.3 writer corpus as passed with no error.
 
-The owner then completed the package README's controlled live matrix on both
+I then completed the package README's controlled live matrix on both
 machines: Cancel, Connect once without persistence, Trust and connect with one
 saved record, prompt-free stored-key reconnect through typed and direct paths,
 Unicode/input/resize/scrollback and clean remote exit all pass. The automated
-logs establish the offline contracts; the owner report establishes the live
+logs establish the offline contracts; my test report establishes the live
 network/UI behavior. No credential is retained in either evidence set.
 
 The four returned files and `ARCHIVE-VERIFICATION.json` are preserved under

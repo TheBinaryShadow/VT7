@@ -1,6 +1,6 @@
 # Focused resource retirement diagnostic 0.1
 
-Current execution decision, 2026-09-14: the owner approved
+Current execution decision, 2026-09-14: I approved
 [REL01](../architecture/2026-09-14-warp-development-deferral.md), stopping further
 dedicated WARP tracing and proceeding to C4/3A session development. This record
 preserves historical findings and reproduction instructions; its proposed next
@@ -216,7 +216,7 @@ timed soak stays on hold.
 ## Supplied Windows 7 result
 
 The supplied run is `resource-retirement-20260913-170928-9ad405a7`, originally
-read directly from `K:/VT7_work/Logs/`. After the user's explicit copy request,
+read directly from `K:/VT7_work/Logs/`. After my explicit copy request,
 the complete run was archived at
 [`artifacts/vt7/evidence/resource-retirement-win7-0.1/resource-retirement-20260913-170928-9ad405a7/`](../../../artifacts/vt7/evidence/resource-retirement-win7-0.1/resource-retirement-20260913-170928-9ad405a7/).
 All 17 files, totaling 7,310,791 bytes, match the source by size and SHA256;
@@ -449,7 +449,7 @@ reuse the issued native DLL rather than rebuilding or replacing that payload.
 No new application build or diagnostic package is issued
 by this analysis, and no unchanged retirement 0.1 repeat is requested.
 
-Implementation follow-up, 2026-09-14: the user approved this design and the
+Implementation follow-up, 2026-09-14: I approved this design and the
 separate [WPF resource reactivation diagnostic 0.1](2026-09-14-resource-reactivation.md)
 now implements and locally qualifies it. It shares the exact integrated cycle
 body, uses one fixed baseline across both rounds, adds creation-time/liveness

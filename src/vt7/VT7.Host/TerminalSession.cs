@@ -121,6 +121,7 @@ namespace VT7.Host
         private readonly Func<TerminalPixelSize>? _pixelSize;
         private readonly SessionOutputPump _output;
         private ITerminalTransport? _overlay;
+        private ITerminalTransport? _startingOverlay;
         private SessionOutboundQueue? _outbound;
         private long _activeGeneration;
         private Task? _closeTask;
@@ -160,8 +161,11 @@ namespace VT7.Host
 
         internal async Task StartAsync()
         {
-            RequireState(TerminalSessionState.Created);
-            State = TerminalSessionState.StartingRoot;
+            lock (_gate)
+            {
+                RequireState(TerminalSessionState.Created);
+                State = TerminalSessionState.StartingRoot;
+            }
             try
             {
                 var generation = NextGeneration();
@@ -174,29 +178,45 @@ namespace VT7.Host
                 var context = await CreateStartContextAsync(generation);
                 await _root.StartAsync(context,
                     new OutputSink(this), _lifetime.Token);
-                _outbound = new SessionOutboundQueue(generation, _root);
-                State = TerminalSessionState.RunningRoot;
+                lock (_gate)
+                {
+                    if (State != TerminalSessionState.StartingRoot || _lifetime.IsCancellationRequested)
+                        throw new OperationCanceledException();
+                    _outbound = new SessionOutboundQueue(generation, _root);
+                    State = TerminalSessionState.RunningRoot;
+                }
                 _rootMonitor = MonitorRootAsync();
             }
             catch (Exception ex)
             {
-                State = TerminalSessionState.Failed;
-                _completion.TrySetResult(new TerminalTransportResult(TerminalTransportResultKind.ConnectionFailure, detail: ex.Message));
+                lock (_gate)
+                {
+                    if (State != TerminalSessionState.Closing && State != TerminalSessionState.Closed)
+                        State = TerminalSessionState.Failed;
+                }
+                _completion.TrySetResult(new TerminalTransportResult(_lifetime.IsCancellationRequested
+                    ? TerminalTransportResultKind.Cancelled : TerminalTransportResultKind.ConnectionFailure, detail: ex.Message));
                 throw;
             }
         }
 
-        internal async Task StartOverlayAsync(ITerminalTransport overlay)
+        internal async Task StartOverlayAsync(ITerminalTransport overlay, bool resumeRootOnFailure = true)
         {
             if (overlay == null) throw new ArgumentNullException(nameof(overlay));
-            RequireState(TerminalSessionState.RunningRoot);
-            State = TerminalSessionState.StartingOverlay;
-            var prior = _outbound!;
-            _outbound = null;
-            await prior.CompleteAsync();
-            prior.Dispose();
+            SessionOutboundQueue prior;
+            lock (_gate)
+            {
+                RequireState(TerminalSessionState.RunningRoot);
+                State = TerminalSessionState.StartingOverlay;
+                _startingOverlay = overlay;
+                prior = _outbound!;
+                _outbound = null;
+            }
             try
             {
+                try { await prior.CompleteAsync(); }
+                finally { prior.Dispose(); }
+                _lifetime.Token.ThrowIfCancellationRequested();
                 var generation = NextGeneration();
                 lock (_gate)
                 {
@@ -206,37 +226,57 @@ namespace VT7.Host
                 var context = await CreateStartContextAsync(generation);
                 await overlay.StartAsync(context,
                     new OutputSink(this), _lifetime.Token);
-                _overlay = overlay;
-                _outbound = new SessionOutboundQueue(generation, new OverlayOutboundSink(_root, overlay));
-                State = TerminalSessionState.RunningOverlay;
-                ActiveOutboundChanged?.Invoke(_outbound);
+                SessionOutboundQueue outbound;
+                lock (_gate)
+                {
+                    if (State != TerminalSessionState.StartingOverlay || _lifetime.IsCancellationRequested)
+                        throw new OperationCanceledException();
+                    _overlay = overlay;
+                    _startingOverlay = null;
+                    outbound = new SessionOutboundQueue(generation, new OverlayOutboundSink(_root, overlay));
+                    _outbound = outbound;
+                    State = TerminalSessionState.RunningOverlay;
+                }
+                ActiveOutboundChanged?.Invoke(outbound);
             }
             catch
             {
+                // Retain the pending owner until its worker has actually
+                // settled, so concurrent session close can still join it.
+                // Yield before Dispose to avoid blocking startup continuations.
+                await overlay.CloseAsync(TerminalCloseReason.Cancelled, CancellationToken.None);
+                overlay.Dispose();
+                var resume = false;
                 lock (_gate)
                 {
                     if (_overlay == overlay) _overlay = null;
+                    if (_startingOverlay == overlay) _startingOverlay = null;
                     _producerGenerations.Remove(overlay.Generation);
                     _producerTransports.Remove(overlay.Generation);
+                    if (!_lifetime.IsCancellationRequested && State == TerminalSessionState.StartingOverlay)
+                    {
+                        State = TerminalSessionState.StoppingOverlay;
+                        resume = resumeRootOnFailure;
+                    }
                 }
-                overlay.Dispose();
-                var generation = NextGeneration();
-                _outbound = new SessionOutboundQueue(generation, _root);
-                State = TerminalSessionState.RunningRoot;
-                ActiveOutboundChanged?.Invoke(_outbound);
+                if (resume) ResumeRoot();
                 throw;
             }
         }
 
         internal async Task StopOverlayAsync(TerminalCloseReason reason = TerminalCloseReason.Normal, bool resumeRoot = true)
         {
-            RequireState(TerminalSessionState.RunningOverlay);
-            State = TerminalSessionState.StoppingOverlay;
-            var outbound = _outbound!;
-            _outbound = null;
-            await outbound.CompleteAsync();
-            outbound.Dispose();
-            var overlay = _overlay!;
+            SessionOutboundQueue outbound;
+            ITerminalTransport overlay;
+            lock (_gate)
+            {
+                RequireState(TerminalSessionState.RunningOverlay);
+                State = TerminalSessionState.StoppingOverlay;
+                outbound = _outbound!;
+                _outbound = null;
+                overlay = _overlay!;
+            }
+            await RetireOutboundAsync(outbound);
             await overlay.CloseAsync(reason, _lifetime.Token);
             await overlay.Completion;
             _overlay = null;
@@ -253,10 +293,16 @@ namespace VT7.Host
 
         private void ResumeRoot()
         {
-            var generation = NextGeneration();
-            _outbound = new SessionOutboundQueue(generation, _root);
-            State = TerminalSessionState.RunningRoot;
-            ActiveOutboundChanged?.Invoke(_outbound);
+            SessionOutboundQueue outbound;
+            lock (_gate)
+            {
+                if (State != TerminalSessionState.StoppingOverlay || _lifetime.IsCancellationRequested) return;
+                var generation = NextGeneration();
+                outbound = new SessionOutboundQueue(generation, _root);
+                _outbound = outbound;
+                State = TerminalSessionState.RunningRoot;
+            }
+            ActiveOutboundChanged?.Invoke(outbound);
         }
 
         internal Task WaitForCommittedOutputAsync(long generation, string marker)
@@ -305,27 +351,36 @@ namespace VT7.Host
 
         private async Task CloseCoreAsync(TerminalCloseReason reason)
         {
-            if (State == TerminalSessionState.Closed) return;
-            if (State == TerminalSessionState.Created)
+            bool wasStarting;
+            SessionOutboundQueue? outbound;
+            ITerminalTransport? overlay;
+            lock (_gate)
             {
-                State = TerminalSessionState.Closed;
-                _output.Dispose();
-                _completion.TrySetResult(new TerminalTransportResult(TerminalTransportResultKind.Cancelled));
-                return;
+                if (State == TerminalSessionState.Closed) return;
+                if (State == TerminalSessionState.Created)
+                {
+                    State = TerminalSessionState.Closed;
+                    _output.Dispose();
+                    _completion.TrySetResult(new TerminalTransportResult(TerminalTransportResultKind.Cancelled));
+                    return;
+                }
+                wasStarting = State == TerminalSessionState.StartingRoot || State == TerminalSessionState.StartingOverlay;
+                State = TerminalSessionState.Closing;
+                outbound = _outbound;
+                _outbound = null;
+                overlay = _overlay ?? _startingOverlay;
             }
-            State = TerminalSessionState.Closing;
-            var outbound = _outbound;
-            _outbound = null;
+            if (wasStarting) _lifetime.Cancel();
             if (outbound != null)
             {
-                await outbound.CompleteAsync();
-                outbound.Dispose();
+                await RetireOutboundAsync(outbound);
             }
-            if (_overlay != null)
+            if (overlay != null)
             {
-                await _overlay.CloseAsync(reason, CancellationToken.None);
-                await _overlay.Completion;
+                await overlay.CloseAsync(reason, CancellationToken.None);
+                await overlay.Completion;
                 _overlay = null;
+                _startingOverlay = null;
             }
             await _root.CloseAsync(reason, CancellationToken.None);
             var result = await _root.Completion;
@@ -333,6 +388,19 @@ namespace VT7.Host
             _output.Dispose();
             State = result.Kind == TerminalTransportResultKind.ConnectionFailure ? TerminalSessionState.Failed : TerminalSessionState.Closed;
             _completion.TrySetResult(result);
+        }
+
+        private static async Task RetireOutboundAsync(SessionOutboundQueue outbound)
+        {
+            // Failure/cancellation belongs to the transport's completion. A
+            // faulted queue must not prevent closing it or recovering the root.
+            try { await outbound.CompleteAsync(); }
+            catch { }
+            finally
+            {
+                try { outbound.Dispose(); }
+                catch { }
+            }
         }
 
         private async Task MonitorRootAsync()

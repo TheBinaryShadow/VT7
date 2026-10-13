@@ -54,7 +54,7 @@ namespace VT7.Host
                         await Task.Delay(10);
                     }
                     timer.Restart();
-                    window.Close(); closed = true;
+                    await window.CloseAndWaitAsync(); closed = true;
                     Require(timer.ElapsedMilliseconds < 1500, "Teardown did not interrupt retry backoff promptly.");
                     report.AppendLine($"PASS: close during retry, joined in {timer.ElapsedMilliseconds} ms");
                 }
@@ -128,7 +128,7 @@ namespace VT7.Host
                     report.AppendLine($"PASS: status notification; actual {after.RendererMode}, generations {after.DeviceGeneration}, attempts {after.DeviceAttempts}, failures {after.RecoveryFailures}, fallbacks {after.FallbackCount}, injected {after.InjectedFailures}, last 0x{unchecked((uint)after.LastRenderFailure):X8}");
                 }
             }
-            finally { if (!closed) window.Close(); }
+            finally { if (!closed) await window.CloseAndWaitAsync(); }
             await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
             Require(!NativeMethods.IsWindow(handle), "Recovery HWND survived disposal.");
             report.AppendLine("PASS: controlled recovery HWND disposed");

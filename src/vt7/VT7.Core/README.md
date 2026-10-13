@@ -136,7 +136,7 @@ now completes two integrated lifecycle/idle rounds locally and on Windows 7.
 The target retains three immediate failures; its two +180s handle/thread/GDI/USER
 counts match, with +220 KiB private bytes. Ownership and C3 acceptance remain
 open. It reuses this issued native/core payload without rebuilding it.
-The [owner-approved REL01 decision](../../../doc/vt7/architecture/2026-09-14-warp-development-deferral.md)
+The [approved REL01 decision](../../../doc/vt7/architecture/2026-09-14-warp-development-deferral.md)
 stops further dedicated tracing and accepts this risk for continued development.
 C4/3A session work proceeds now. Milestone 7 reviews reliability evidence and
 reopens investigation only if needed; recorded failures are not changed to passes.
@@ -198,7 +198,7 @@ Proof 0.2.0 passes these checks on the development machine and in supplied logs
 from a fully updated Windows 7 SP1 x64 non-ESU setup. The Windows 7 window test
 records four complete lifecycles, each with 18 paints and 15 resizes. Supplied
 screenshots show the 105 x 22-cell static viewport and its sample text, colors,
-attributes, and box drawing. The tester also confirmed a separate fully
+attributes, and box drawing. I also confirmed a separate fully
 ESU-updated setup as working and tested; separate ESU logs are not part of the
 current evidence set.
 
@@ -217,7 +217,7 @@ not pixel-level or full accessibility QA.
 The 0.2.1 Windows 7 cleanup acceptance is complete on the tested configurations.
 The supplied non-ESU logs pass all seven core checks, eight tab round trips,
 and four window lifecycles with 22 paints and 15 resizes each. Screenshots show
-readable headers/values and the 105 x 21-cell viewport. The tester confirms
+readable headers/values and the 105 x 21-cell viewport. I confirm
 Tab/arrow-key navigation and visible focus, and separately confirms all tests
 passing on the ESU setup. Separate ESU logs were not supplied.
 

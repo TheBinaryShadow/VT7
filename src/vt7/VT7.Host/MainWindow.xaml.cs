@@ -16,6 +16,10 @@ namespace VT7.Host
         private SessionOutboundAuditSink? _outboundAudit;
         private TerminalDocument? _document;
         private TerminalSession? _session;
+        private TerminalSession? _pendingSession;
+        private bool _closeCompleted;
+        private readonly System.Threading.Tasks.TaskCompletionSource<bool> _windowClosed =
+            new System.Threading.Tasks.TaskCompletionSource<bool>(System.Threading.Tasks.TaskCreationOptions.RunContinuationsAsynchronously);
         private ITerminalTransport? _rootTransport;
         private SshOverlayCoordinator? _sshOverlayCoordinator;
         private TerminalProfile? _activeProfile;
@@ -62,19 +66,53 @@ namespace VT7.Host
             return surface;
         }
 
-        protected override async void OnClosed(EventArgs e)
+        internal System.Threading.Tasks.Task CloseAndWaitAsync()
         {
+            Close();
+            return _windowClosed.Task;
+        }
+
+        protected override async void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            if (_closeCompleted) { base.OnClosing(e); return; }
+            if (_session == null && _pendingSession == null)
+            {
+                _closeCompleted = true;
+                base.OnClosing(e);
+                return;
+            }
+            e.Cancel = true;
+            if (_closed) return;
             _closed = true;
             ++_statusGeneration;
             Interlocked.Increment(ref _trustPromptGeneration);
             Viewport?.DetachSessionInput();
             _sshOverlayCoordinator?.Dispose();
             _sshOverlayCoordinator = null;
-            if (_session != null)
+            try
             {
-                try { await _session.CloseAsync(); }
-                finally { _session.Dispose(); _session = null; }
+                var active = _session;
+                var pending = _pendingSession;
+                if (active != null) await active.CloseAsync(TerminalCloseReason.Cancelled);
+                if (pending != null && pending != active) await pending.CloseAsync(TerminalCloseReason.Cancelled);
             }
+            catch { SurfaceStatus.Text = "Terminal shutdown did not complete normally."; }
+            finally
+            {
+                _session?.Dispose();
+                _session = null;
+                _closeCompleted = true;
+                Close();
+            }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            _closed = true;
+            ++_statusGeneration;
+            Interlocked.Increment(ref _trustPromptGeneration);
+            _sshOverlayCoordinator?.Dispose();
+            _sshOverlayCoordinator = null;
             _rootTransport = null;
             _outboundAudit = null;
             // HwndHost can reparent a detached child to retain it for reuse.
@@ -84,6 +122,7 @@ namespace VT7.Host
             _document?.Dispose();
             _document = null;
             base.OnClosed(e);
+            _windowClosed.TrySetResult(true);
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
@@ -146,7 +185,8 @@ namespace VT7.Host
             if (_switchingProfile || _closed) return;
             var dialog = new SshConnectionDialog { Owner = this };
             if (dialog.ShowDialog() != true || dialog.Result == null) return;
-            await StartTransportAsync(new SshNetTransport(dialog.Result, PromptForHostTrustAsync),
+            await StartTransportAsync(new SshNetTransport(dialog.Result, PromptForHostTrustAsync,
+                PromptForHostKeyProblemAsync),
                 "SSH.NET direct profile", null, null);
         }
 
@@ -163,7 +203,7 @@ namespace VT7.Host
         {
             if (_switchingProfile || _closed || _document == null || Viewport == null) return;
             var coordinator = SshOverlayCoordinator.TryCreate(profile, PromptForTypedSshAsync,
-                PromptForHostTrustAsync);
+                PromptForHostTrustAsync, PromptForHostKeyProblemAsync);
             var configured = coordinator?.Configure(profile) ?? profile;
             await StartTransportAsync(new WinPtyTransport(configured), profile.DisplayName, profile, coordinator);
         }
@@ -195,9 +235,11 @@ namespace VT7.Host
                 previousCoordinator?.Dispose();
                 if (previous != null)
                 {
+                    _pendingSession = previous;
                     try { await previous.CloseAsync(TerminalCloseReason.Replaced); }
                     finally { previous.Dispose(); }
                 }
+                if (_closed) { transport.Dispose(); pendingCoordinator?.Dispose(); return; }
 
                 SurfaceStatus.Text = "Starting " + sessionName + "...";
                 pendingSession = new TerminalSession(_document, transport, () =>
@@ -206,7 +248,15 @@ namespace VT7.Host
                     var info = Viewport.ReadInfo();
                     return new TerminalPixelSize(checked(info.Columns * info.CellWidth), checked(info.Rows * info.CellHeight));
                 });
+                _pendingSession = pendingSession;
                 await pendingSession.StartAsync();
+                if (_closed)
+                {
+                    await pendingSession.CloseAsync(TerminalCloseReason.Cancelled);
+                    pendingSession.Dispose();
+                    pendingCoordinator?.Dispose();
+                    return;
+                }
                 if (pendingCoordinator != null)
                 {
                     if (!(transport is WinPtyTransport winPty))
@@ -236,13 +286,18 @@ namespace VT7.Host
                     _activeProfile = null;
                     _activeSessionName = null;
                 }
-                if (pendingSession != null) pendingSession.Dispose();
+                if (pendingSession != null)
+                {
+                    try { await pendingSession.CloseAsync(TerminalCloseReason.Cancelled); }
+                    finally { pendingSession.Dispose(); }
+                }
                 else transport.Dispose();
                 pendingCoordinator?.Dispose();
                 if (!_closed) SurfaceStatus.Text = sessionName + " could not start: " + ex.Message;
             }
             finally
             {
+                _pendingSession = null;
                 _switchingProfile = false;
                 if (!_closed)
                 {
@@ -252,6 +307,9 @@ namespace VT7.Host
                 }
             }
         }
+
+        internal System.Threading.Tasks.Task StartTransportForLifecycleTestAsync(ITerminalTransport transport) =>
+            StartTransportAsync(transport, "SSH lifecycle fixture", null, null);
 
         private async System.Threading.Tasks.Task<SshConnectionOptions?> PromptForTypedSshAsync(SshInvocation invocation)
         {
@@ -290,6 +348,25 @@ namespace VT7.Host
                         return new HostTrustPromptResponse(request.RequestId, HostTrustPromptAction.Cancel);
                     return dialog.Result;
                 }
+            }).Task;
+        }
+
+        private async System.Threading.Tasks.Task PromptForHostKeyProblemAsync(
+            HostKeyProblemRequest request, CancellationToken cancellationToken)
+        {
+            if (_closed || cancellationToken.IsCancellationRequested) return;
+            var windowGeneration = Interlocked.Increment(ref _trustPromptGeneration);
+            await Dispatcher.InvokeAsync(() =>
+            {
+                if (_closed || cancellationToken.IsCancellationRequested ||
+                    windowGeneration != Interlocked.Read(ref _trustPromptGeneration)) return;
+                var dialog = new KnownHostsManagementDialog(request) { Owner = this };
+                using (cancellationToken.Register(() =>
+                    _ = Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        if (dialog.IsVisible) dialog.Close();
+                    }))))
+                    dialog.ShowDialog();
             }).Task;
         }
 

@@ -125,14 +125,14 @@ server-key rotation or real trust-file tests for KH01.1.
 
 ## Supplied Windows 7 result
 
-The owner reports that all package tests passed on the Windows 7 target on
+I confirmed that all package tests passed on the Windows 7 target on
 2026-09-22. The launcher permits the diagnostic to start only after resolving
 `ssh-keygen.exe` and verifying file version `10.0.0.0`, so the pass satisfies the
 specified Microsoft Win32-OpenSSH 10.0p2 oracle boundary.
 
 No target `Logs` directory is archived. This is expected: the supplied procedure
 requested the complete directory only if the test failed. The accepted evidence
-is therefore the owner's clean-result report together with the package's enforced
+is therefore my clean-result report together with the package's enforced
 version gate; this record does not claim a preserved target manifest, transcript
 or target executable hash.
 

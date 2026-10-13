@@ -1,46 +1,21 @@
 # VT7 Atlas renderer boundary
 
-Build 0.3.5, ABI 8, adds scheduling/stability diagnostics and corrects timer-read
-locking and HWND/worker teardown order. Hidden workers park rather than exit;
-the presentation worker outlives native HWND destruction, then releases its
-graphics resources before joining. See the [stability record](../../../doc/vt7/validation/2026-09-13-atlas-stability.md)
-for local evidence and the supplied Windows 7 quick/hardware-lifecycle passes.
-WARP exceeds the resource budget on both setups, and the timed soak remains
-unrun. This is a test candidate. Earlier results below retain
-their original build and scope. Use the [documentation index](../../../doc/vt7/README.md)
-and [current handoff](../../../doc/vt7/HANDOFF.md) for the next bounded step.
+`VT7.Renderer` adapts the upstream Atlas renderer to Windows 7 graphics and
+font interfaces. The issued native baseline is **0.12.3 / ABI 11**. The
+[handoff](../../../doc/vt7/HANDOFF.md) tracks the managed application and active
+test candidate so this component page does not duplicate that status.
 
-The separate native comparison 0.1 uses the issued Release 0.3.5 ABI 8 DLL.
-Both power and plain modes complete and grow on the supplied Windows 7 setup;
-explicit power subscriptions and WPF are not required for this reproduction.
-The development machine's power/plain contrast and traced allocation family
-do not establish ownership on Windows 7. A fixed initialized pool or harmless
-bound has not been proven. The later recreate/reuse comparison, focused trace
-and retirement capture now have Windows 7 results; see the current handoff.
-The separate [WPF reactivation diagnostic 0.1](../../../doc/vt7/diagnostics/2026-09-14-resource-reactivation.md)
-now completes two integrated work/close/idle rounds locally and on Windows 7
-against one fixed baseline. The target retains three immediate failures, while
-the two +180s handle/thread/GDI/USER counts match and private memory rises by
-220 KiB. This does not identify retained handles or establish C3 acceptance.
-The native renderer bytes remain unchanged.
-The [owner-approved REL01 decision](../../../doc/vt7/architecture/2026-09-14-warp-development-deferral.md)
-stops further dedicated tracing and accepts this risk for continued development.
-C4/3A session work proceeds now. Milestone 7 reviews reliability evidence and
-reopens investigation only if needed; recorded failures are not changed to passes.
+Bounded integration, repaint, recovery, and 96/120/144 system-DPI slices have
+Windows 7 acceptance. Full renderer qualification remains open. The original
+WARP resource budgets still fail; I accepted continued development under
+[REL01](../../../doc/vt7/architecture/2026-09-14-warp-development-deferral.md).
+Its investigation is deferred, not declared fixed.
 
-Current source is version 0.4.0/ABI 11 with the terminal document/view split,
-managed session boundary and opt-in resource-isolation controls not present in
-the issued viewport archive. This source README and
-those controls do not alter the frozen packages or their provenance files.
-
-Build 0.3.0 implements the minimum Windows 7 font boundary and connects the real
-AtlasEngine/controller to TerminalCore and the host. Debug/Release local tests
-pass for both backends on hardware/WARP. Supplied Windows 7 tests now accept
-C1/C2 on the tested setup, with broader C3 qualification open; see
-the [integration record](../../../doc/vt7/validation/2026-09-12-atlas-viewport.md).
-Follow the [port-first checkpoints](../../../doc/vt7/architecture/2026-09-12-port-first-plan.md).
-Keep inherited shaping/grid/interaction behavior; optional fitting, joined Arabic
-and paint experiments are Milestone 7 research, not integration prerequisites.
+[UT01](../../../doc/vt7/architecture/2026-10-05-upstream-text-and-font-parity-plan.md)
+requires current-upstream text/font capability parity before polish and 1.0.
+The bounded fallback adapter below is not the final parity implementation.
+The [earlier renderer context](../../../doc/vt7/history/2026-10-12-renderer-context.md)
+retains the initial integration and investigation chronology.
 
 `VT7.Renderer.lib` builds the eleven inherited non-PCH Atlas translation units,
 the existing `ColorFix.cpp`, and VT7's `Win7Presentation.cpp` and
@@ -132,6 +107,14 @@ HWND teardown and exits only after that teardown finishes. Full target
 scheduling/stability acceptance remains outstanding.
 
 ## Minimum font adaptation in 0.3.0
+
+The approved [UT01 plan](../../../doc/vt7/architecture/2026-10-05-upstream-text-and-font-parity-plan.md)
+now requires current-upstream Unicode/text/font support parity before polish
+and 1.0. The bounded adapter described below remains the current implementation,
+not the final target. Ordered fallback families, sequence-aware broader coverage,
+applicable color/emoji and axes, shaping/widths and interaction equivalence are
+required UT01 gates. Its reference/corpus/API audit precedes implementation;
+no capabilities are enabled by this documentation update.
 
 `Win7FontFallback` requests baseline text layouts and retains FontFace1 references
 from their draw callbacks. It sorts face intervals into logical source order,

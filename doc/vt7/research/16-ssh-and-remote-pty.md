@@ -14,7 +14,7 @@ rejects it for interactive VT7 SSH. Windows 7 testing preserves exact bytes,
 trust, authentication, negotiation, drain and cancellation, but forced PTY
 starts at 0 by 0. Exact source confirms that initial and live geometry require
 Windows console handles/events absent from redirected VT7 pipes. SSH.NET
-2026.0.0 is the S01-accepted candidate under the owner's standing permissive
+2026.0.0 is the S01-accepted candidate under my standing permissive
 dependency policy. Corrected package 0.6 passes its offline self-test and both
 Windows 7 controlled-Debian runs, including public-key and optional-password
 authentication. Nothing is incorporated into the application yet; the next

@@ -22,7 +22,7 @@ plausible Windows 7 choices, not evidence of a broken installation.
 
 Microsoft KB2729094 adds emoji and control glyphs to Segoe UI Symbol on Windows 7.
 Its file table identifies Seguisym.ttf by size/date but does not provide a font
-version number. We cannot infer that this update is missing from a reported
+version number. I cannot infer that this update is missing from a reported
 5.01 version, nor infer coverage of the particular U+1F600 sample merely from
 the article's general emoji description. VT7 must not make installing an update
 or copying a newer Windows font the explanation for a still-unmeasured result.
@@ -48,8 +48,8 @@ shaping, color support, or Unicode completeness.
 Mintty documents Uniscribe rendering for wider fallback coverage, configurable
 coverage-tested substitution, and a separate RTL fallback font. Its tips explain
 that applying Uniscribe to its already bidi-transformed RTL text would interfere
-with mintty's own transformation. Our inference: fallback coverage, shaping, and
-terminal bidi ownership need explicit boundaries. We should not copy a font name
+with mintty's own transformation. My inference: fallback coverage, shaping, and
+terminal bidi ownership need explicit boundaries. I should not copy a font name
 or perform a second reversal and expect that to solve all three.
 [Mintty manual](https://mintty.github.io/mintty.1.html),
 [Mintty font-rendering tips](https://github.com/mintty/mintty/wiki/Tips).
@@ -110,7 +110,7 @@ cross-run joining, full bidi conformance, wrapping/reflow, or arbitrary controls
 ## Next decision after the Windows 7 run
 
 Follow-up evidence: the supplied 0.3 Windows 7 scan examined 575 faces, found
-zero U+1F600 coverage, and reported zero errors. The user separately confirmed
+zero U+1F600 coverage, and reported zero errors. I separately confirmed
 KB2729094 installed. The no-match path below now applies to that machine;
 reinstalling the update is not the next step. The [0.3 validation record](../validation/2026-09-11-font-fitting-probe.md)
 owns this evidence. [Probe 0.4](../validation/2026-09-11-natural-size-probe.md)
@@ -128,7 +128,7 @@ supersedes the strict-fitting experiment with natural-size bounded overhang.
 
 ## Subsequent private-font decision and result
 
-The user approved bundling Unifont/Unifont Upper 17.0.05 privately under their
+I approved bundling Unifont/Unifont Upper 17.0.05 privately under their
 OFL 1.1 option. [Probe 0.5](../validation/2026-09-11-private-font-probe.md) passes
 on the supplied Windows 7 setup, including automatic replacement of missing
 U+1F600 in the C lane, with unchanged core cells and no system font installation.

@@ -1,9 +1,34 @@
 # OpenSSH-compatible known-host management specification
 
+Presentation note (2026-09-25): the WPF first-contact and changed-key dialogs
+in this staged implementation are temporary. The
+[pre-1.0 UI and terminal SSH contract](2026-09-25-pre-1-0-ui-and-terminal-ssh-contract.md)
+requires the same structured, fail-closed decisions inside the originating
+terminal tab before polish/1.0. The OpenSSH file, trust and safe-mutation rules
+in this specification remain authoritative.
+
 Decision date: 2026-09-21. Status: implementation specification approved;
 KH01.1 is accepted on Windows 7 against the exact 10.0p2 oracle. KH01.2 is
 accepted on NESSY and TURTLE. KH01.3 is implemented, package-verified and
-target accepted on both machines in VT7 0.11.0. KH01.4 is next.
+target accepted on both machines in VT7 0.11.0. KH01.4 is implemented locally
+in VT7 0.12.0. Package 0.5 passed local verification but failed ACL read-back
+on both Windows 7 machines. VT7 0.12.1/package 0.6 passes automated checks
+on both but live removal stops safely at `temporary-security`. VT7 0.12.2
+compares owner, group and ACL components structurally; package 0.7 exposed an
+obsolete exact-SDDL assertion in the inherited-ACL test on NESSY. VT7 0.12.3/
+package 0.8 corrects that assertion and passes the automated and controlled
+live known-host management matrix on NESSY and TURTLE. KH01.4 is accepted;
+KH01.5 live certificate-serving validation is accepted. Version 0.13.1 prepares
+the [isolated live matrix](../validation/2026-10-05-known-hosts-kh01-5.md);
+candidate 0.1 passes all three targets' self-tests and valid/wrong-principal
+live cases, then fails an obsolete date-case callback assertion. Candidate
+0.2 corrects the harness for SSH.NET's pre-callback date rejection; local
+signature/date and target-runner checks pass. Complete client matrices and
+matching archived server audit replays pass on LEOPARD, NESSY and TURTLE.
+NESSY/TURTLE's original exports incorrectly expected three instead of five;
+the unchanged helper passes when replayed with the actual client counts.
+NESSY's first failure corresponds to an empty server archive; its exact cause
+remains unproved. Its later complete paired run passes with identical binaries.
 
 This specification defines VT7's first durable SSH host-trust subsystem. It
 replaces the generic trust-store wording in the broader
@@ -11,6 +36,34 @@ replaces the generic trust-store wording in the broader
 with an OpenSSH-compatible design. The existing, accepted fingerprint-only
 path remains the security baseline until every acceptance gate in this document
 passes.
+
+## Find a section
+
+- [Decision summary](#decision-summary)
+- [Goals](#goals)
+- [Non-goals of the first implementation](#non-goals-of-the-first-implementation)
+- [Normative baseline and references](#normative-baseline-and-references)
+- [Compatibility boundary](#compatibility-boundary)
+- [File discovery and ownership](#file-discovery-and-ownership)
+- [Byte-preserving file model](#byte-preserving-file-model)
+- [Known-host line grammar](#known-host-line-grammar)
+- [Host identity and lookup token](#host-identity-and-lookup-token)
+- [Key identity and algorithm handling](#key-identity-and-algorithm-handling)
+- [Trust evaluation](#trust-evaluation)
+- [Host certificates](#host-certificates)
+- [Existing fingerprint fallback](#existing-fingerprint-fallback)
+- [SSH.NET integration and connection state machine](#sshnet-integration-and-connection-state-machine)
+- [User experience](#user-experience)
+- [Persistence, concurrency and recovery](#persistence-concurrency-and-recovery)
+- [Diagnostics and privacy](#diagnostics-and-privacy)
+- [Licensing and source-reuse rule](#licensing-and-source-reuse-rule)
+- [Proposed code boundaries](#proposed-code-boundaries)
+- [Implementation slices](#implementation-slices)
+- [Verification plan](#verification-plan)
+- [Windows 7 acceptance matrix](#windows-7-acceptance-matrix)
+- [Acceptance criteria](#acceptance-criteria)
+- [Rejected alternatives](#rejected-alternatives)
+- [Documentation and completion record](#documentation-and-completion-record)
 
 ## Decision summary
 
@@ -227,7 +280,7 @@ key-type and base64 tokens must remain valid under their field grammar.
 
 ## Host identity and lookup token
 
-The trust lookup starts from the endpoint the user explicitly requested, before
+The trust lookup starts from the endpoint the person connecting explicitly requested, before
 name resolution. VT7 does not trust a reverse DNS name and does not add resolved
 IP addresses in this slice, matching the baseline `CheckHostIP no` default.
 
@@ -316,9 +369,11 @@ alias. When SSH.NET reports a certificate, VT7 must require all of the following
    applicable `@revoked` record; and
 7. every relevant field can be parsed within the declared bounds.
 
-An empty principal list is handled exactly as the baseline OpenSSH certificate
-policy, verified by differential and controlled-server tests. No application
-guess substitutes for that oracle. Unknown critical options always fail closed.
+OpenSSH rejects an empty principal list. Host principals use case-sensitive
+single-pattern wildcard matching, unlike known_hosts host-field matching.
+VT7 verifies those rules against OpenSSH source and signed disposable fixtures;
+the controlled-server matrix remains an acceptance gate. Unknown critical
+options always fail closed.
 
 If SSH.NET cannot expose enough authenticated certificate material to enforce
 these checks, certificate trust remains `PolicyRejected` and the release gate
@@ -358,7 +413,7 @@ trust and sets `CanTrust` true only for `Matching` or an exact authorized
 one-connection pin. All other results set it false. SSH.NET then aborts during
 key exchange, before authentication.
 
-For `Unknown`, the owner receives the captured result after the failed attempt
+For `Unknown`, the connection coordinator receives the captured result after the failed attempt
 and posts a generation-scoped WPF request. The user may cancel, connect once, or
 trust and connect. Either affirmative choice creates a fresh `SshClient` and a
 fresh connection attempt:
@@ -586,6 +641,12 @@ on both Windows 7 runtime tiers. See the
 
 ### KH01.4: management and certificates
 
+Implementation status: VT7 0.12.0/package 0.5 rejected on NESSY and TURTLE
+after local checks passed. VT7 0.12.1 corrects the `FileSecurity` copy and
+verifies the temporary file's ACL before replacement. See the
+[KH01.4 validation record](../validation/2026-09-24-known-hosts-kh01-4.md).
+Windows 7 target acceptance remains open.
+
 - Add deliberate user-record removal with `.old` recovery and concurrency tests.
 - Complete `@cert-authority`, principal, critical-option and revocation behavior.
 - Do not mark known-host management complete until certificate and marker cases
@@ -596,6 +657,12 @@ on both Windows 7 runtime tiers. See the
 - Package, independently verify and run the complete Windows 7 matrix.
 - Archive only the required privacy-safe evidence and exact package identity.
 - Update the roadmap checkbox only after every acceptance criterion below passes.
+
+Accepted 2026-10-05 for the declared tiers and IPv4/Ed25519 certificate slice:
+candidate 0.2 passes the complete client matrices and matching archived server
+audit replay on LEOPARD, NESSY and TURTLE. Exact identities, exclusions and the
+initial NESSY operational incident are recorded in the
+[KH01.5 validation record](../validation/2026-10-05-known-hosts-kh01-5.md).
 
 ## Verification plan
 
@@ -759,5 +826,8 @@ records, `NOTICE.md` if any upstream code is ported, and a dated KH01 validation
 record containing exact package and target evidence.
 
 This document authorizes engineering work within its boundaries. KH01.1 through
-KH01.3 are target accepted. Complete known-host management is not claimed until
-KH01.4 and KH01.5 close their remaining behavior and matrix.
+KH01.5 are target accepted. KH01.4 package 0.8 passes the two-machine automated
+and manual live management matrix. KH01.5 candidate 0.2 closes the
+bounded live certificate-serving gap on all three declared Windows 7 tiers.
+Broader algorithm/IPv6/environment qualification remains separate; temporary
+proof dialogs remain subject to the approved terminal-only SSH contract.

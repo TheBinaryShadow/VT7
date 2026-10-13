@@ -18,7 +18,7 @@ This is not an Atlas terminal build or final typography acceptance.
 ## Why this slice
 
 The supplied [0.7 Windows 7 run](2026-09-11-repaint-probe.md) passes the isolated
-differential repaint checks. The user then approved continuing with upstream's
+differential repaint checks. I then approved continuing with upstream's
 fixed primary-font rows and overlapping ordinary glyph ink. The
 [geometry contract v0.2](../architecture/2026-09-11-text-geometry-contract.md)
 records that decision, its special clipping exceptions, and remaining gates.
@@ -201,6 +201,6 @@ ink spans x=269..290 for an allocation x=270..280. These are not typography pass
 Arabic logical ordering differs from paragraph layout as planned, but joining
 and spacing still require work. Stacked marks remain visible across row edges.
 
-The user approved tackling horizontal fitting/protection next. The separate
+I approved tackling horizontal fitting/protection next. The separate
 [0.9 fitting candidate](2026-09-11-horizontal-fitting-probe.md) keeps the accepted
 0.8 raw lane intact; it does not close the Arabic or Atlas integration gates.

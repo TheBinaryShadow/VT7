@@ -125,7 +125,7 @@ The original local candidate was `VT7-SSHNET-Overlay-0.1-x64.zip`, SHA256
 
 ## Accepted Windows 7 result for package 0.3
 
-The owner ran `RUN-SSHNET-OVERLAY.cmd` and the complete controlled-server matrix
+I ran `RUN-SSHNET-OVERLAY.cmd` and the complete controlled-server matrix
 from the package `README.txt`. The automated overlay corpus passes. A typed
 connection remains active beyond the former five-second boundary without a
 timeout or premature local prompt. Normal remote `exit` returns to an immediately

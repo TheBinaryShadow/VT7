@@ -6,6 +6,10 @@ param(
     [string]$ExpectedSshKeygenFileVersion
 )
 $ErrorActionPreference = 'Stop'
+if ($PSVersionTable.PSVersion -lt [version]'5.1') {
+    [Console]::Error.WriteLine('VT7 KH01.4 test requires Windows PowerShell 5.1 or newer; run RUN-VT7-LEGACY-BASELINE.cmd on PowerShell 2.0.')
+    exit 2
+}
 Set-StrictMode -Version 3.0
 
 function Get-VT7Sha256 {
@@ -85,7 +89,7 @@ $report = Get-Item -LiteralPath $reportPath
 if ($report.LastWriteTime -lt $started.AddSeconds(-2)) { throw 'VT7 KH01 test left a stale report.' }
 $text = [IO.File]::ReadAllText($reportPath)
 $required = @(
-    'Build: VT7 0.11.0'
+    'Build: VT7 0.12.3'
     'Native: ABI 11, expected 11'
     'PASS: OpenSSH host tokens preserve default-port identity and bracket every non-default port.'
     'PASS: presented host keys use the exact RFC 4253 blob type, RSA key identity and canonical SHA256 fingerprint.'
@@ -95,8 +99,10 @@ $required = @(
     'PASS: four-source OpenSSH loading is immutable, bounded and fail-closed for missing, changed, revoked and unreadable stores.'
     'PASS: stored matches need no fingerprint, unknown hosts require a generation-bound prompt pin and explicit fingerprint mismatches remain blocked.'
     'PASS: durable first-contact writes preserve existing bytes, reject stale decisions, serialize writers and verify read-back.'
+    'PASS: selected user-key removal preserves retained bytes and ACLs, creates an exact .old backup and rejects stale review.'
+    'PASS: host certificates require exact CA, principal, validity and empty critical options; certificate, key and CA revocations block.'
     'PASS: deterministic hash properties and 1024 bounded arbitrary-byte parser cases passed.'
-    'PASS: ssh-keygen differential lookup, host hashing and removal passed'
+    'PASS: ssh-keygen differential lookup, host hashing, removal and signed host-certificate parsing passed'
     'Error: None'
 )
 foreach ($line in $required) {

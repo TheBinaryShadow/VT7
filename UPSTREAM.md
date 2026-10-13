@@ -22,7 +22,7 @@ use [BUILDING.md](BUILDING.md) and the [VT7 index](doc/vt7/README.md) for this p
 - Baseline subject: `Pin GitHub Actions to full-length commit SHAs (#20559)`
 
 VT7 retains the upstream Git history, Microsoft copyright notice, MIT license,
-and third-party notices. We will not flatten the repository into an unattributed
+and third-party notices. I will not flatten the repository into an unattributed
 code dump.
 
 ## Relationship to Microsoft Terminal
@@ -45,6 +45,16 @@ The projects have different platform goals:
 
 ## Upstream synchronization
 
+The approved [UT01 decision](doc/vt7/architecture/2026-10-05-upstream-text-and-font-parity-plan.md)
+requires current-stable upstream Unicode, text rendering and font fallback
+support parity before polish and 1.0. Its initial reference is v1.25.2733.0,
+commit dc8ae365847d41f62d1ebca93815bb00959bc12f, verified on 2026-10-05.
+Review the then-current stable text/font changes again before release freeze.
+This behavior target is separate from the c7572cde source pin above. It does
+not authorize a wholesale merge or parity for the entire Terminal feature set.
+Required UT01 gaps are implementing-milestone work, not optional polish;
+the older deferral policy below still applies to improvements beyond that scope.
+
 VT7 follows an upstream-first port policy: preserve the pinned source's terminal
 semantics, shaping/cell placement and interaction behavior wherever practical.
 Make narrow Windows 7 compatibility adaptations and test their changed boundaries
@@ -55,73 +65,19 @@ optional improvements go to Milestone 7 under the
 This does not authorize a merge, update the pinned baseline, or waive an inherited
 security defect or required-workflow failure.
 
-The 0.2 viewport proof compiles selected inherited sources directly into a
-VT7-only static library. Its `VT7_CORE` compatibility branches, dependency pins,
-disabled features, and testing limits are recorded in
-[the core boundary notes](src/vt7/VT7.Core/README.md). Review those branches when
-updating any affected upstream file. The GDI proof surface is VT7-specific and
-does not replace the Atlas integration work.
-
-The isolated `VT7.Renderer` target now compiles the inherited Atlas backends,
-shaders, and ColorFix, plus VT7's shared Windows 7 presentation helper. The
-`VT7_ATLAS` branches select older graphics/font-face interfaces and disable
-unsupported optional paths. Backend interface-query fixes also touch the
-inherited Atlas sources. Review these changes when updating the affected files;
-the [renderer boundary notes](src/vt7/VT7.Renderer/README.md) describe their scope.
-The standalone backend proof has passed on the tested Windows 7 machine.
-Build 0.3.0 now integrates AtlasEngine with the real renderer controller and core.
-Its narrow font adapter uses baseline DirectWrite layout callbacks for face
-selection, then leaves shaping and cell advance fitting with Atlas. The VT7
-controller uses kernel events in place of address-based waits; the caret path
-uses `GetCaretBlinkTime` without the newer system metric. Local tests pass,
-and the supplied Windows 7 run accepts the bounded C1/C2 integration. Broader
-renderer qualification remains open. See the
-[integration record](doc/vt7/validation/2026-09-12-atlas-viewport.md).
-This work does not change the recorded upstream baseline or merge policy.
-
-Build 0.3.1 adds VT7-only integrated repaint/cursor diagnostics and a bounded
-host status refresh, without further Atlas font/shaping changes. Its tests use
-normal core invalidation and inherited InvalidateAll as the full-redraw reference.
-The [C3 record](doc/vt7/validation/2026-09-12-atlas-repaint.md) records local
-and supplied Windows 7 acceptance of the bounded slice.
-
-Build 0.3.2 adds VT7-only automatic driver selection and controlled recovery
-instrumentation around the inherited controller retry loop and Atlas presentation
-boundary. Forced modes stay strict; no upstream merge or shaping-policy change
-is included. See the [recovery record](doc/vt7/validation/2026-09-12-atlas-recovery.md).
-
-Build 0.3.3 adds a VT7 native font/settings boundary and deterministic tests around
-inherited Atlas UpdateDpi/UpdateFont and TerminalCore UserResize. It does not change
-upstream shaping, cell fitting or reflow policies. The frame wait now includes
-newer pending requests observed during the wait. System-aware WPF behavior stays
-separate from diagnostic renderer-DPI overrides. See the
-[settings record](doc/vt7/validation/2026-09-12-atlas-settings.md).
-
-Build 0.3.4 corrects VT7 host startup sizing and status-driven layout, and
-replaces a first-row-only test assumption with a whole-frame diagnostic. ABI 7
-adds raster dimensions for recovery evidence. These are local integration/test
-changes, not an upstream merge or new shaping/reflow policy. See the
-[scaling correction](doc/vt7/validation/2026-09-12-atlas-scaling-correction.md).
-All positive 0.3.4 suites now pass on the supplied Windows 7 setup at measured
-96/120/144 system DPI. This is bounded integration acceptance, not evidence of
-new upstream merges, universal compatibility or completion of Milestone 2.
-
-The 0.3.5 [scheduling/stability slice](doc/vt7/validation/2026-09-13-atlas-stability.md)
-changes VT7-only timer locking, pause/resume and final HWND/worker lifetime, with
-ABI 8 diagnostics. It retains the pinned parser and synchronized-output timeout
-policy. These changes are not an upstream merge or a new shaping policy.
-The supplied Windows 7 quick profiles and hardware lifecycle profile pass;
-WARP resource growth and the unrun timed soak keep full stability acceptance open.
-Subsequent source-only diagnostics and the separate native resource comparison
-do not change the upstream baseline or parser/shaping policies. Windows 7 grows
-in both native power/plain modes, so local Windows 10 allocation traces are not
-target attribution. The current handoff records the next proposed control.
+The [core notes](src/vt7/VT7.Core/README.md) and
+[renderer notes](src/vt7/VT7.Renderer/README.md) identify the `VT7_CORE` and
+`VT7_ATLAS` branches, source/dependency pins, disabled paths, and interface
+adaptations. Review those boundaries when updating affected upstream files.
+The [earlier adaptation record](doc/vt7/history/2026-10-12-upstream-adaptation-context.md)
+preserves the initial integration history; dated validation records establish
+what actually passed. None of those changes silently updates the source pin.
 
 Microsoft Terminal continues to evolve. VT7 should benefit from upstream parser,
 TerminalCore, security, correctness, and performance improvements without
 blindly importing new platform dependencies.
 
-Our synchronization rules are:
+My synchronization rules are:
 
 1. Fetch upstream regularly, but never merge or rebase it into VT7 without
    review.
@@ -176,8 +132,7 @@ copy or translate its implementation into the MIT application without a
 separately reviewed licensing boundary.
 
 For every future upstream or third-party import, record the concrete need, exact
-revision, license, obligations, alternatives and distribution effect. The
-project owner's standing 2026-09-14 decision permits compatible permissive
+revision, license, obligations, alternatives and distribution effect. My standing 2026-09-14 decision permits compatible permissive
 licenses and supplier notice sets when they help deliver the port. Preserve all
 required notices and acknowledge the upstream project. Licenses with
 source-sharing, network-use, proprietary redistribution or other material

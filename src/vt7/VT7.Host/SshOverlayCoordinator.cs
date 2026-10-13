@@ -16,6 +16,8 @@ namespace VT7.Host
         private readonly object _gate = new object();
         private readonly Func<SshInvocation, Task<SshConnectionOptions?>> _prompt;
         private readonly HostTrustPromptHandler _trustPrompt;
+        private readonly HostKeyProblemHandler _hostKeyProblem;
+        private readonly Func<KnownHostsStoreSnapshot>? _knownHostsLoader;
         private readonly TaskCompletionSource<TerminalSession> _sessionReady =
             new TaskCompletionSource<TerminalSession>(TaskCreationOptions.RunContinuationsAsynchronously);
         private readonly SemaphoreSlim _requestGate = new SemaphoreSlim(1, 1);
@@ -23,12 +25,15 @@ namespace VT7.Host
         private ITerminalTransport? _overlay;
         private bool _disposed;
 
-        private SshOverlayCoordinator(string externalPath,
+        private SshOverlayCoordinator(string? externalPath,
             Func<SshInvocation, Task<SshConnectionOptions?>> prompt,
-            HostTrustPromptHandler trustPrompt)
+            HostTrustPromptHandler trustPrompt, HostKeyProblemHandler hostKeyProblem,
+            Func<KnownHostsStoreSnapshot>? knownHostsLoader)
         {
             _prompt = prompt ?? throw new ArgumentNullException(nameof(prompt));
             _trustPrompt = trustPrompt ?? throw new ArgumentNullException(nameof(trustPrompt));
+            _hostKeyProblem = hostKeyProblem ?? throw new ArgumentNullException(nameof(hostKeyProblem));
+            _knownHostsLoader = knownHostsLoader;
             _broker = new SshShimBroker(RootGeneration, externalPath, WaitForBarrierAsync,
                 HandleEmbeddedAsync, ResumeRootAfterCompleteAsync, continuous: true);
         }
@@ -38,13 +43,14 @@ namespace VT7.Host
 
         internal static SshOverlayCoordinator? TryCreate(TerminalProfile profile,
             Func<SshInvocation, Task<SshConnectionOptions?>> prompt,
-            HostTrustPromptHandler trustPrompt)
+            HostTrustPromptHandler trustPrompt, HostKeyProblemHandler hostKeyProblem,
+            Func<KnownHostsStoreSnapshot>? knownHostsLoader = null)
         {
             if (profile == null) throw new ArgumentNullException(nameof(profile));
             var shim = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "shim", "ssh.exe");
             if (!File.Exists(shim)) return null;
             var external = FindExternalClient(profile, shim);
-            return external == null ? null : new SshOverlayCoordinator(external, prompt, trustPrompt);
+            return new SshOverlayCoordinator(external, prompt, trustPrompt, hostKeyProblem, knownHostsLoader);
         }
 
         internal TerminalProfile Configure(TerminalProfile profile)
@@ -101,12 +107,12 @@ namespace VT7.Host
                     return 255;
                 }
 
-                var overlay = new SshNetTransport(options, _trustPrompt);
+                var overlay = new SshNetTransport(options, _trustPrompt, _hostKeyProblem, _knownHostsLoader);
                 lock (_gate) _overlay = overlay;
                 OverlayStateChanged?.Invoke(true, "Connecting to " + invocation.Destination + "...");
                 try
                 {
-                    await session.StartOverlayAsync(overlay).ConfigureAwait(false);
+                    await session.StartOverlayAsync(overlay, resumeRootOnFailure: false).ConfigureAwait(false);
                     OverlayStateChanged?.Invoke(true, "SSH.NET overlay connected to " + invocation.Destination + ".");
                     var result = await overlay.Completion.ConfigureAwait(false);
                     if (session.State == TerminalSessionState.RunningOverlay)
@@ -122,11 +128,12 @@ namespace VT7.Host
                 }
                 catch (Exception error)
                 {
-                    var category = error is SshTransportException transportError
+                    var cancelled = error is OperationCanceledException;
+                    var category = cancelled ? "SSH operation cancelled" : error is SshTransportException transportError
                         ? transportError.Category : "terminal overlay coordination";
                     if (session.State == TerminalSessionState.RunningOverlay)
                     {
-                        try { await session.StopOverlayAsync(TerminalCloseReason.Failed).ConfigureAwait(false); }
+                        try { await session.StopOverlayAsync(TerminalCloseReason.Failed, resumeRoot: false).ConfigureAwait(false); }
                         catch { }
                     }
                     try { await session.AppendHostLineAsync("VT7: SSH connection failed during " + category +

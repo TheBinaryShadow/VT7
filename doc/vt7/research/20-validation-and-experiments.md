@@ -16,7 +16,7 @@ now completes two rounds of the existing integrated 100-lifecycle workload on
 Windows 7. Both +180s states match at 1,314 handles, 13 threads, GDI 18 and USER
 10, with +220 KiB private bytes in the second. Three immediate checkpoints
 still fail against the original fixed baseline. Retained handle ownership and
-a permanent bound remain unproven. The owner-approved
+a permanent bound remain unproven. The approved
 [REL01 development deferral](../architecture/2026-09-14-warp-development-deferral.md)
 now stops dedicated tracing and permits C4/3A session development. Original
 failures and unrun soak stay recorded; Milestone 7 release review reopens

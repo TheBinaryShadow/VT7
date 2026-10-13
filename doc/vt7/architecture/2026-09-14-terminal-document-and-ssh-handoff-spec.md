@@ -1,5 +1,12 @@
 # Terminal document, transport, and typed-SSH handoff specification
 
+Presentation note (2026-09-25): this record's WPF connection/trust prompts and
+direct SSH root are accepted proof paths, not the finished user interface. The
+[pre-1.0 UI and terminal SSH contract](2026-09-25-pre-1-0-ui-and-terminal-ssh-contract.md)
+requires typed SSH with host-owned, in-terminal decisions in a real session
+tab. This later presentation decision preserves the transport, handoff and
+security contracts below.
+
 Decision date: 2026-09-14. Implementation status updated 2026-09-21: 3A.1 and
 3A.2 are implemented as 0.4.0/native ABI 11 and pass locally in Debug and
 Release and on the exact Windows 7 SP1 x64 candidate. The 0.5.0 3B.1 slice now
@@ -42,6 +49,28 @@ VT7-specific. Windows Terminal normally runs the external `ssh.exe` inside
 ConPTY; VT7 must use SSH.NET for a first-class Windows 7 remote PTY because S00
 proved that the evaluated Windows OpenSSH client cannot obtain or track PTY
 geometry when used as VT7's directly redirected process backend.
+
+## Find a section
+
+- [Scope and acceptance boundary](#scope-and-acceptance-boundary)
+- [Research conclusions that control the design](#research-conclusions-that-control-the-design)
+- [Rejected shortcuts](#rejected-shortcuts)
+- [Required ownership model](#required-ownership-model)
+- [Native ABI 11 split](#native-abi-11-split)
+- [Session and presentation state machines](#session-and-presentation-state-machines)
+- [Ordinary typed `ssh` invocation](#ordinary-typed-ssh-invocation)
+- [IPC protocol and security](#ipc-protocol-and-security)
+- [The ordering barrier](#the-ordering-barrier)
+- [SSH.NET transport contract](#sshnet-transport-contract)
+- [Input, resize, and terminal state at overlay boundaries](#input-resize-and-terminal-state-at-overlay-boundaries)
+- [Backpressure and thread rules](#backpressure-and-thread-rules)
+- [Terminal output and host-action policy](#terminal-output-and-host-action-policy)
+- [Trust, authentication, and privacy](#trust-authentication-and-privacy)
+- [Failure and shutdown policy](#failure-and-shutdown-policy)
+- [Implementation sequence](#implementation-sequence)
+- [Verification matrix](#verification-matrix)
+- [Explicitly deferred decisions](#explicitly-deferred-decisions)
+- [Source and license disposition](#source-and-license-disposition)
 
 ## Scope and acceptance boundary
 

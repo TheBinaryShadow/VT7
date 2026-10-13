@@ -6,7 +6,7 @@
 
 Date: 2026-09-11. Branch: `initial-implementation-and-assessment`.
 Source base: `bf196fdb22c1b347f448543ebb715d395ccf163a`, plus the uncommitted
-2C probe changes. This follows the user's approval of all three follow-up points
+2C probe changes. This follows my approval of all three follow-up points
 and the requested [online research](../research/2026-09-11-font-coverage-and-fitting.md).
 
 ## Changes from 0.2
@@ -129,7 +129,7 @@ captured UTC 2026-09-11 06:07:55. Preserved copies are under
   Explicit-candidate drawing is correctly skipped. This establishes missing
   scalar coverage in this machine's DirectWrite system collection, not every
   font file on disk or all Windows 7 installations.
-- The user separately verified that KB2729094 is already installed. This is
+- I separately verified that KB2729094 is already installed. This is
   user-confirmed update state, not an installed-update inventory collected by
   the probe. Do not diagnose a missing update or ask for its reinstallation.
 - Independent log checks found 67 fitted draws, zero horizontal cell overflow,

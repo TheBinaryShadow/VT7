@@ -179,7 +179,7 @@ namespace VT7.Host
             }
             finally
             {
-                window.Close();
+                await window.CloseAndWaitAsync();
             }
         }
 

@@ -54,17 +54,25 @@ namespace VT7.Host
         private readonly Task _worker;
         private bool _disposed;
 
-        internal SshShimBroker(long generation, string externalPath, Func<string, Task> barrierWaiter,
+        internal SshShimBroker(long generation, string? externalPath, Func<string, Task> barrierWaiter,
             Func<SshInvocation, Task<int>>? embeddedHandler = null,
             Func<SshInvocation, Task>? embeddedCompleted = null, bool continuous = false)
         {
             if (generation <= 0) throw new ArgumentOutOfRangeException(nameof(generation));
             _generation = generation;
-            _externalPath = Path.GetFullPath(externalPath ?? throw new ArgumentNullException(nameof(externalPath)));
-            if (!File.Exists(_externalPath)) throw new FileNotFoundException("The H01 external fixture is missing.", _externalPath);
-            using (var stream = File.OpenRead(_externalPath))
-            using (var sha = SHA256.Create())
-                _externalHash = BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", string.Empty);
+            if (string.IsNullOrWhiteSpace(externalPath))
+            {
+                _externalPath = string.Empty;
+                _externalHash = string.Empty;
+            }
+            else
+            {
+                _externalPath = Path.GetFullPath(externalPath);
+                if (!File.Exists(_externalPath)) throw new FileNotFoundException("The H01 external fixture is missing.", _externalPath);
+                using (var stream = File.OpenRead(_externalPath))
+                using (var sha = SHA256.Create())
+                    _externalHash = BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", string.Empty);
+            }
             _barrierWaiter = barrierWaiter ?? throw new ArgumentNullException(nameof(barrierWaiter));
             _embeddedHandler = embeddedHandler ?? (_ => Task.FromResult(0));
             _embeddedCompleted = embeddedCompleted ?? (_ => Task.CompletedTask);
@@ -165,10 +173,20 @@ namespace VT7.Host
                 var requestId = Guid.NewGuid();
                 if (!consoleHandles || !grammar)
                 {
-                    result.Action = SshShimAction.System;
-                    result.Reason = consoleHandles ? grammarReason : "redirected-standard-handle";
-                    await WriteFrameAsync(SshShimProtocol.Response(SshShimAction.System, 0, requestId,
-                        result.Reason, _externalPath, _externalHash)).ConfigureAwait(false);
+                    if (_externalPath.Length == 0)
+                    {
+                        result.Action = SshShimAction.Reject;
+                        result.Reason = "external-client-unavailable";
+                        await WriteFrameAsync(SshShimProtocol.Response(SshShimAction.Reject, 255, requestId,
+                            result.Reason, string.Empty, string.Empty)).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        result.Action = SshShimAction.System;
+                        result.Reason = consoleHandles ? grammarReason : "redirected-standard-handle";
+                        await WriteFrameAsync(SshShimProtocol.Response(SshShimAction.System, 0, requestId,
+                            result.Reason, _externalPath, _externalHash)).ConfigureAwait(false);
+                    }
                     return result;
                 }
 

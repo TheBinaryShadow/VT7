@@ -16,7 +16,7 @@ now completes two rounds of the existing integrated 100-lifecycle workload on
 Windows 7. Both +180s states match at 1,314 handles, 13 threads, GDI 18 and USER
 10, with +220 KiB private bytes in the second. Three immediate checkpoints
 still fail against the original fixed baseline. Retained handle ownership and
-a permanent bound remain unproven. The owner-approved
+a permanent bound remain unproven. The approved
 [REL01 development deferral](../architecture/2026-09-14-warp-development-deferral.md)
 now stops dedicated tracing and permits C4/3A session development. Original
 failures and unrun soak stay recorded; Milestone 7 release review reopens
@@ -52,7 +52,7 @@ The source review and acceptance evidence below remain dated records. At that
 decision, minimal font adaptation and the first integrated Atlas viewport came
 next; optional
 joined-word layout, glyph-quality refinements and enhanced hit testing belong
-to Milestone 7. Validate inherited policies and our compatibility changes,
+to Milestone 7. Validate inherited policies and VT7's compatibility changes,
 without requiring a typography redesign. Scheduling, source/cell correctness,
 repaint, lifecycle and required-workflow defects remain renderer gates.
 
@@ -77,7 +77,7 @@ shader integration, presentation, DirectWrite fallback, the renderer scheduler,
 native ownership, and new rendering-aware tests. The largest design uncertainty
 is adapting font fallback/shaping without losing terminal-cell correctness.
 
-The [roadmap](../../../ROADMAP.md#milestone-2-windows-7-renderer) is the work
+The [roadmap](../plan/renderer.md#milestone-2-windows-7-renderer) is the work
 checklist. This document explains why its stages exist. Known dependencies can
 be identified by inspection; completeness of the dependency closure, driver
 behavior, visual quality, and performance require build/runtime evidence.
@@ -141,7 +141,7 @@ These are platform facts, not new VT7 runtime results:
   checked, not inferred from an interface version.
   [Microsoft platform-update guidance](https://learn.microsoft.com/en-us/windows/win32/direct3darticles/platform-update-for-windows-7).
 - `CreateDXGIFactory2`, `ID3D11Device2`, and `IDXGISwapChain2` have Windows 8.1
-  minimums. A successful `IDXGIFactory2` query in our existing probe does not
+  minimums. A successful `IDXGIFactory2` query in the existing VT7 probe does not
   establish support for those other APIs.
   [Factory creation](https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_3/nf-dxgi1_3-createdxgifactory2),
   [device interface](https://learn.microsoft.com/en-us/windows/win32/api/d3d11_2/nn-d3d11_2-id3d11device2),
@@ -232,7 +232,7 @@ Start with 2A and narrowly scoped experiments for 2B/2C:
 - A small HWND presentation probe and a glyph/fallback probe. Preserve the
   existing sample and GDI tests while these fail or evolve.
 
-Only after these results should we settle the font adapter and final controller
+Only after these results should I settle the font adapter and final controller
 integration. A loadable DLL, clear-color frame, and complete Atlas terminal
 viewport are three distinct checkpoints. The last is the first Atlas package
 for normal user testing, not the milestone exit.

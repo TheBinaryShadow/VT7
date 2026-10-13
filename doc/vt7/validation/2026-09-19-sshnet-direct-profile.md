@@ -140,7 +140,7 @@ unchanged from package 0.1.
 
 ## Accepted Windows 7 package 0.2 result
 
-The owner reports that package 0.2's automated foundation check and full direct
+I confirmed that package 0.2's automated foundation check and full direct
 SSH matrix pass on the Windows 7 target. Connection, strict trust and
 authentication, PTY allocation, initial/live size, Croatian text, sustained
 output, scrollback, normal exit, reconnect, idle-close and local-profile
@@ -154,7 +154,7 @@ stty size
 python3 -c "print(''.join(str(i)+'\\n' for i in range(1,201)),end='')"
 ```
 
-The owner additionally ran `htop` and `nano` in a separate connection. Both
+I additionally ran `htop` and `nano` in a separate connection. Both
 full-screen applications worked without an observed rendering, input,
 alternate-screen, resize or lifecycle defect. This extends the required matrix
 but does not replace later broad TUI/mouse/clipboard qualification.
@@ -164,8 +164,8 @@ dialog. The white dialog inherited VT7's application-wide light-on-dark
 `TextBlock` style, producing white text on a white surface. Transport content and
 behavior were unaffected. The later package 0.3 foundation log, environment
 record and screenshot are hash-archived with the rejected UI result described
-above. The earlier package 0.2 network evidence remains recorded from the
-owner's explicit report because its raw files were unavailable during that update.
+above. The earlier package 0.2 network evidence remains recorded from my
+explicit report because its raw files were unavailable during that update.
 
 Version 0.8.1 gives the dialog a local black-on-white `TextBlock` style. Its
 foundation test walks the logical form text and requires at least 4.5:1 contrast
@@ -180,7 +180,7 @@ The foundation check now lays out the real selector visual tree, finds the
 rendered selected **Private key** text and requires that foreground to meet the
 same 4.5:1 threshold. Debug and Release builds, Debug and Release foundation
 checks, session-outbound, session-stream, WinPTY, PowerShell, H01, target-style
-CMD launch, binary audit and ZIP verification all pass. The owner confirms on
+CMD launch, binary audit and ZIP verification all pass. I confirm on
 Windows 7 that the closed Authentication selection and the opened choices are
 all readable and look correct. Package 0.4 therefore closes the contrast defect.
 The accepted SSH network matrix did not need repeating.

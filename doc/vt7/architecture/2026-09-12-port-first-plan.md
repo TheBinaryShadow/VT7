@@ -6,6 +6,15 @@ and geometry experiments. The [roadmap](../../../ROADMAP.md) owns milestone
 completion and the deferred-work register. No application behavior, upstream
 baseline, package, license, or test result changes with this decision.
 
+Scope amendment, 2026-10-05: the approved
+[UT01 plan](2026-10-05-upstream-text-and-font-parity-plan.md) now requires
+current-upstream Unicode, text rendering and font fallback support parity
+before polish/1.0. This supersedes the original deferral for capabilities needed
+within that text/font scope, while retaining the port-first approach, Windows 7
+floor and optional status of enhancements beyond upstream. It does not require
+the whole Terminal feature set or authorize an upstream merge. Historical
+implementation results and the dated wording below retain their original scope.
+
 For current implementation state and C4/3A session work, read the
 [handoff](../HANDOFF.md) and [documentation index](../README.md). This document
 remains the execution-direction decision; its dated implementation follow-ups
@@ -62,7 +71,7 @@ Implementation follow-up, 2026-09-14: the separate
 now completes two integrated lifecycle/idle rounds on Windows 7. Both +180s
 handle/thread/GDI/USER counts match, with +220 KiB private bytes in the second.
 Three immediate checkpoints still fail against the original fixed baseline.
-The subsequent owner-approved
+The subsequent approved
 [September 14 development deferral](2026-09-14-warp-development-deferral.md)
 stops dedicated WARP tracing and accepts the uncertainty for continued feature
 development. REL01 belongs to Milestone 7 release-readiness reliability review,
@@ -102,9 +111,9 @@ on future quality, and not a promise of exact current-upstream parity.
   capability, or optimization with a correct baseline already available. Add it
   to Milestone 7's deferred-work register instead of extending the current gate.
 - **Uncertain:** run the smallest comparison needed to identify the affected
-  workflow and whether the defect comes from our adaptation, inherited behavior,
+  workflow and whether the defect comes from VT7's adaptation, inherited behavior,
   or an experimental departure. Record the result, then integrate or defer.
-- **Accepted development risk:** an explicit owner decision may remove an
+- **Accepted development risk:** an explicit decision from me may remove an
   uncertain concern from the development dependency while preserving its tests
   and release disposition. REL01 is this case. Do not automatically turn each
   unexplained observation into a new required experiment.
